@@ -1,9 +1,9 @@
+
 {
   "version": 2,
-  "rewrites": [
-    {
-      "source": "/api/redirect",
-      "destination": "/api/redirect.js"
+  "functions": {
+    "api/redirect.js": {
+      "runtime": "vercel-node@3.0.7"
     }
-  ]
+  }
 }
