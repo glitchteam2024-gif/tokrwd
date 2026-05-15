@@ -434,7 +434,7 @@ function handleCTAClick(){
 function handleRedirect(){
   if(window.fbq){fbq('track','InitiateCheckout');}
   if(window.ttq){ttq.track('Lead',{value:1,currency:'USD',content_name:'popup_confirmation',content_type:'form'});}
-  window.location.href='/api/redirect';
+  window.location.href='https://vmry7.ttrk.io/click';
 }
 
 // Close modal on backdrop click
