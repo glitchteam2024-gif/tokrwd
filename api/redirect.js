@@ -2,19 +2,15 @@ export default function handler(req, res) {
   const { valid, ref } = req.query;
   const allowedDomain = 'vmry7.ttrk.io';
 
-  // Check if the client script validated them OR if the immediate referrer is RedTrack
   const isValid = valid === 'true' || (ref && ref.includes(allowedDomain));
 
-  // Prevent caching so the redirect is always evaluated (Best Practice for web traffic)
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
   if (isValid) {
-    // Valid traffic, redirect to the RedTrack click URL
-    return res.redirect(302, 'https://vmry7.ttrk.io/click');
+    return res.redirect(302, 'https://vmry7.ttrk.io/click' );
   } else {
-    // Invalid traffic, show an error
     res.status(403).send(`
       <!DOCTYPE html>
       <html>
@@ -31,7 +27,7 @@ export default function handler(req, res) {
         <body>
           <div class="container">
             <h1>No Redirect</h1>
-            <p>Invalid traffic source detected. You cannot access this link directly.</p>
+            <p>Invalid traffic source. You cannot access this link directly.</p>
           </div>
         </body>
       </html>
