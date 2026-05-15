@@ -1,9 +1,3 @@
-
 {
-  "version": 2,
-  "functions": {
-    "api/redirect.js": {
-      "runtime": "vercel-node@3.0.7"
-    }
-  }
+  "version": 2
 }
