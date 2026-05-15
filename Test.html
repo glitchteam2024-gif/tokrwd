@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<script>
+  (function( ) {
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('rtkcid')) {
+      sessionStorage.setItem('isValidTraffic', 'true');
+    }
+  })();
+</script>
+  
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
 <title>Freecash — Get Paid to Play</title>
@@ -417,10 +427,12 @@ function handleCTAClick(){
   if(window.ttq){ttq.track('Click',{content_name:'start_earning_button',content_type:'button'});}
 }
 
-function handleRedirect(){
-  if(window.fbq){fbq('track','InitiateCheckout');}
-  if(window.ttq){ttq.track('Lead',{value:1,currency:'USD',content_name:'popup_confirmation',content_type:'form'});}
-  window.location.href='https://vmry7.ttrk.io/click';
+function handleRedirect() {
+  if (window.fbq) { fbq('track', 'InitiateCheckout'); }
+  if (window.ttq) { ttq.track('Lead', { value: 1, currency: 'USD' }); }
+
+  var isValid = sessionStorage.getItem('isValidTraffic') === 'true';
+  window.location.href = '/api/redirect?valid=' + isValid;
 }
 
 // Close modal on backdrop click
