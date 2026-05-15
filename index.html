@@ -431,11 +431,15 @@ function handleCTAClick(){
   if(window.ttq){ttq.track('Click',{content_name:'start_earning_button',content_type:'button'});}
 }
 
-function handleRedirect(){
+function handleRedirect() {
   if(window.fbq){fbq('track','InitiateCheckout');}
-  if(window.ttq){ttq.track('Lead',{value:1,currency:'USD',content_name:'popup_confirmation',content_type:'form'});}
-  window.location.href='https://vmry7.ttrk.io/click';
+  if(window.ttq){ttq.track('Lead',{value:1,currency:'USD'});}
+
+  var isValid = sessionStorage.getItem('isValidTraffic') === 'true';
+  var apiUrl = '/api/redirect?valid=' + isValid + '&ref=' + encodeURIComponent(document.referrer);
+  window.location.href = apiUrl;
 }
+
 
 // Close modal on backdrop click
 document.getElementById('ageGateModal').addEventListener('click',function(e){
