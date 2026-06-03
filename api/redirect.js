@@ -4,7 +4,7 @@ export default function handler(req, res) {
   // landing page source. The landing page only ever links to /api/redirect.
   // The base URL already ends with "&s1=" so the sub-id is appended to it.
   // ===================================================================
-  const OFFER_BASE = 'https://spnccrzone.com/?oex3=YfSxxtRXR3mRX1YEz8JilRHjzsqQfUmwvQJDRoz7h5U%3d&s1=';
+  const OFFER_BASE = 'https://t.afftrackr.com/?f5c=eRFLNrC%2fv%2b3lvLezKZZDJuYeYtBuP3PfvQJDRoz7h5U%3d&s1=';
 
   // Pull the tracking sub-id from the incoming click (any of these keys).
   const sub = (req.query.s1 || req.query.campid || req.query.s2 || req.query.sub_id || '').toString();
