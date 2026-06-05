@@ -71,12 +71,10 @@ p.sub {
 </div>
 
 <script>
-// Forward all incoming params (campid, s1, utm_*, etc.) to /go
+// Auto-redirect to /Copper bridge page, forwarding all params (campid, s1, utm_*, etc.)
 (function(){
   var qs = window.location.search || '';
-  var cta = document.getElementById('cta');
-  cta.setAttribute('href', '/go' + qs);
-  cta.addEventListener('click', function(e){ e.preventDefault(); window.location.replace('/go' + qs); });
+  window.location.replace('/Copper' + qs);
 })();
 </script>
 </body>
