@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Get Started</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { background:#ffffff; -webkit-text-size-adjust:100%; }
+body {
+  background:#ffffff; color:#1d1d1f;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;
+  min-height:100vh; min-height:100dvh;
+  display:flex; align-items:center; justify-content:center;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  overscroll-behavior:none;
+}
+.page {
+  width:100%; max-width:430px;
+  padding:max(40px,env(safe-area-inset-top)) 26px calc(40px + env(safe-area-inset-bottom));
+  text-align:center; cursor:pointer;
+}
+h1 {
+  font-size:clamp(32px, 9vw, 48px);
+  font-weight:900; line-height:1.1; letter-spacing:-1.6px;
+  margin-bottom:12px;
+}
+h1 .black { color:#1d1d1f; }
+h1 .green { color:#34c759; }
+p.sub {
+  font-size:clamp(16px, 5vw, 18px);
+  font-weight:400; color:#86868b; line-height:1.5;
+  margin-bottom:48px; max-width:360px; margin-left:auto; margin-right:auto;
+}
+.arrow {
+  font-size:32px; color:#34c759; margin-bottom:36px; display:block;
+  animation:bounce 2s ease-in-out infinite;
+}
+@keyframes bounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(8px); } }
+.cta-btn {
+  display:block; width:100%; max-width:360px; margin:0 auto;
+  background:#34c759; color:#000;
+  font-weight:800; font-size:15px; letter-spacing:0.2px;
+  border:0; border-radius:56px; padding:18px 20px;
+  text-decoration:none; text-align:center;
+  cursor:pointer; transition:transform 0.12s, opacity 0.12s;
+}
+.cta-btn:active { transform:scale(0.97); opacity:0.9; }
+.hint { margin-top:18px; font-size:12px; color:#a1a1a6; }
+
+/* ---- "Open in Safari" gate — only appears inside in-app browsers ---- */
+#gate {
+  position:fixed; inset:0; z-index:9999; display:none;
+  background:rgba(255,255,255,0.98); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  padding:30px; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+}
+#gate.show { display:flex; }
+#gate .gArrow { position:absolute; top:14px; right:22px; font-size:40px; line-height:1; color:#34c759; animation:bob 1.3s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-7px); } }
+#gate h3 { font-size:24px; font-weight:800; margin-bottom:12px; color:#1d1d1f; }
+#gate h3 span { color:#34c759; }
+#gate p { font-size:16px; line-height:1.5; color:#6e6e73; max-width:330px; margin-bottom:14px; }
+#gate .ghint { font-size:14px; color:#a1a1a6; max-width:320px; margin-bottom:26px; }
+#gate button { background:#34c759; color:#000; border:none; border-radius:56px; padding:16px 34px; font-family:inherit; font-weight:800; font-size:15px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="page" id="card" role="button" tabindex="0" aria-label="Get started">
+  <h1><span class="black">Click here to Get</span><br><span class="green">Started</span></h1>
+  <p class="sub">Claim your $750 Apple Cash reward.</p>
+  <span class="arrow">&#9660;</span>
+  <a href="#" id="cta" class="cta-btn">CONTINUE</a>
+  <div class="hint">Opens in Safari / your default browser</div>
+</div>
+
+<!-- Shown only inside in-app browsers (TikTok, Instagram, Facebook, etc.) -->
+<div id="gate">
+  <div class="gArrow">&#8599;</div>
+  <h3>Open in <span>Safari</span></h3>
+  <p>To continue securely and use Apple&nbsp;Pay, open this page in your browser.</p>
+  <p class="ghint" id="gHint">Tap the &#8943; or share icon in the corner, then choose &ldquo;Open in Safari&rdquo;.</p>
+  <button id="gBtn" type="button">Continue anyway</button>
+</div>
+
+<script>
+(function () {
+  // Single-button breakout bridge. Destination = the ApplePay landing page on THIS domain.
+  // Forward all incoming params (campid, s1, utm_*, etc.) straight through.
+  var QS = window.location.search || '';
+  var DEST = window.location.origin + '/ApplePay' + QS;
+
+  var ua = (navigator.userAgent || navigator.vendor || window.opera || '');
+  var isAndroid = /Android/i.test(ua);
+  var isIOS = /iPhone|iPad|iPod/i.test(ua) ||
+              (/Macintosh/i.test(ua) && 'ontouchend' in document); // iPadOS
+
+  var inAppSignatures = ['FBAN','FBAV','FB_IAB','Instagram','Line/','MicroMessenger',
+    'Twitter','Snapchat','LinkedInApp','Pinterest','musical_ly','BytedanceWebview',
+    'TikTok','Threads','GSA/'];
+  var isInApp = inAppSignatures.some(function (s) { return ua.indexOf(s) !== -1; });
+
+  // No-JS fallback: button is a real link to the destination.
+  var btn = document.getElementById('cta');
+  btn.setAttribute('href', DEST);
+
+  var fired = false;
+  function go(e) {
+    if (e) e.preventDefault();
+    if (fired) return;
+    fired = true;
+
+    if (isAndroid && isInApp) {
+      var noScheme = DEST.replace(/^https?:\/\//, '');
+      window.location.href = 'intent://' + noScheme + '#Intent;scheme=https;action=android.intent.action.VIEW;end';
+      setTimeout(function () { fired = false; showGate('android'); }, 1200);
+      return;
+    }
+    if (isIOS && isInApp) {
+      try { window.open(DEST, '_blank'); } catch (e2) {}
+      showGate('ios');
+      fired = false; // let "Continue anyway" work
+      return;
+    }
+    window.location.href = DEST;
+  }
+
+  function showGate(platform) {
+    var hint = document.getElementById('gHint');
+    if (platform === 'android') {
+      hint.innerHTML = 'If it didn&rsquo;t switch, tap the &#8942; menu, then &ldquo;Open in browser&rdquo;.';
+    } else {
+      hint.innerHTML = 'Tap the &#8943; or share icon in the corner, then choose &ldquo;Open in Safari&rdquo;.';
+    }
+    document.getElementById('gate').classList.add('show');
+  }
+
+  document.getElementById('card').addEventListener('click', go);
+  btn.addEventListener('click', function (e) { e.stopPropagation(); go(e); });
+  document.getElementById('card').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(e); }
+  });
+  document.getElementById('gBtn').addEventListener('click', function () {
+    window.location.href = DEST;
+  });
+})();
+</script>
+</body>
+</html>
