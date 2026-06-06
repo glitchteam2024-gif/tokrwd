@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -8,8 +6,8 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Get Started</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <style>
   :root {
     --ink:#0a0a0a;          /* black text + button */
@@ -73,23 +71,38 @@
   #gate button { background:var(--ink); color:#fff; border:none; border-radius:999px; padding:16px 34px; font-family:inherit; font-weight:600; font-size:15px; letter-spacing:1.6px; text-transform:uppercase; cursor:pointer; box-shadow:0 8px 24px rgba(10,10,10,0.25); }
 </style>
 </head>
-<body>
+<body cz-shortcut-listen="true">
   <div class="card" id="card" role="button" tabindex="0" aria-label="Get started">
     <div class="headline">Click here to Get<br><span class="accent">Started</span></div>
     <svg class="arrow" viewBox="0 0 26 15" aria-hidden="true">
-      <path d="M2 2l11 11L24 2" fill="none" stroke="#9aa0a8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2 2l11 11L24 2" fill="none" stroke="#9aa0a8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
     </svg>
-    <a class="cta" id="getStarted" href="#">Continue</a>
+    <a class="cta" id="getStarted" href="https://www.trustonedeal.com/ApplePay">Continue</a>
   </div>
 
   <!-- Shown only inside in-app browsers (TikTok, Instagram, Facebook, etc.) -->
   <div id="gate">
-    <div class="gArrow">&#8599;</div>
+    <div class="gArrow">↗</div>
     <h3>Open in your browser</h3>
     <p>To continue securely and use Apple&nbsp;Pay, open this page in your browser.</p>
-    <p class="hint" id="gHint">Tap the &#8943; or share icon in the corner, then choose &ldquo;Open in Safari&rdquo;.</p>
+    <p class="hint" id="gHint">Tap the ⋯ or share icon in the corner, then choose “Open in Safari”.</p>
     <button id="gBtn" type="button">Continue anyway</button>
   </div>
+
+<!-- TikTok In-App Browser Breakout — fires on page load, kicks to Safari before user taps anything -->
+<script>
+(function(){
+  var ua = navigator.userAgent || navigator.vendor || window.opera;
+  var isTikTok = /tiktok|musical_ly|bytedance/i.test(ua);
+  if(!isTikTok) return;
+  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
+  var url = window.location.href;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  var isAndroid = /android/i.test(ua);
+  if(isIOS){ window.location.href='x-safari-'+url; setTimeout(function(){window.location.href=url;},25); }
+  else if(isAndroid){ window.location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
+})();
+</script>
 
 <script>
 (function () {
@@ -125,12 +138,16 @@
       return;
     }
     if (isIOS && isInApp) {
-      try { window.open(DEST, '_blank'); } catch (e2) {}
+      try { window.open(DEST, '_blank', 'noopener,noreferrer'); } catch (e2) {}
       showGate('ios');
       fired = false; // let "Continue anyway" work
       return;
     }
-    window.location.href = DEST;
+    // Normal browser (Safari, Chrome, etc.) — open in new tab
+    var w = window.open(DEST, '_blank', 'noopener,noreferrer');
+    if (!w || w.closed || typeof w.closed === 'undefined') {
+      window.location.href = DEST; // popup blocked fallback
+    }
   }
 
   function showGate(platform) {
@@ -149,9 +166,13 @@
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(e); }
   });
   document.getElementById('gBtn').addEventListener('click', function () {
-    window.location.href = DEST;
+    var w = window.open(DEST, '_blank', 'noopener,noreferrer');
+    if (!w || w.closed || typeof w.closed === 'undefined') {
+      window.location.href = DEST;
+    }
   });
 })();
 </script>
-</body>
-</html>
+
+
+</body></html>
