@@ -2,6 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<script>
+// Affiliate SubID gate: this lander renders ONLY when an s1/sub1 rides the URL (a real tagged click).
+// Untagged / direct visitors get a BLANK page and nothing runs — no offer link, no breakout — so no
+// un-attributed traffic ever reaches the offer.
+window.__SUBID_OK = /[?&](?:s1|sub1)=[^&#]/i.test(location.search);
+if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Get paid to play</title>
 <link rel="icon" type="image/webp" href="images/freecash-logo.webp" />
@@ -286,6 +293,7 @@
   // Build the offer URL (click id -> Everflow sub1, plus ttclid for TikTok CAPI),
   // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
+    if (!window.__SUBID_OK) return; // no affiliate SubID -> page is blanked; wire nothing
     // Route through the SPRK tracking door (mints the click_id + logs the click), which cloaks
     // -> the FreeCash offer. Forward EVERYTHING the FCx lander passed: s1=<SPK> (per-creative
     // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
@@ -313,6 +321,7 @@
      this catches anyone who reached the lander still inside TikTok's webview. -->
 <script>
 (function(){
+  if (!window.__SUBID_OK) return; // no affiliate SubID -> don't break a blank page out
   var ua = navigator.userAgent || navigator.vendor || window.opera;
   if(!/tiktok|musical_ly|bytedance/i.test(ua)) return;
   try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}

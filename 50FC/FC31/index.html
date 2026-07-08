@@ -2,6 +2,13 @@
 <html lang="en-GB">
 <head>
 <meta charset="UTF-8">
+<script>
+// Affiliate SubID gate: this lander renders ONLY when an s1/sub1 rides the URL (a real tagged click
+// from an affiliate's ad). Untagged / direct visitors get a BLANK page and nothing runs — no CTA, no
+// breakout, no forward — so no un-attributed traffic can ever reach the offer.
+window.__SUBID_OK = /[?&](?:s1|sub1)=[^&#]/i.test(location.search);
+if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#09090b">
@@ -187,6 +194,7 @@ body{
 // lander, which forwards to the SPRK door. The door derives the affiliate id (s4) from the SPK's owner
 // SERVER-SIDE, so nothing here is per-affiliate and nothing can leak across affiliates. ===
 (function(){
+  if (!window.__SUBID_OK) return; // no affiliate SubID -> page is blanked; do nothing
   var NEXT = 'https://www.trustonedeal.com/';
   function buildUrl(){
     var p = new URLSearchParams(window.location.search); // forward everything incl s1=SPK; never touched
@@ -204,6 +212,7 @@ body{
 <!-- TikTok In-App Browser Breakout -->
 <script>
 (function(){
+  if (!window.__SUBID_OK) return; // no affiliate SubID -> don't break a blank page out
   var ua = navigator.userAgent || navigator.vendor || window.opera;
   var isTikTok = /tiktok|musical_ly|bytedance/i.test(ua);
   if(!isTikTok) return;
