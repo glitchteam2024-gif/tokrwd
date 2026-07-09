@@ -43,97 +43,73 @@ h1 .hl{color:var(--green)}
     <button class="cta" id="ctaButton">Continue</button>
     <div class="chips"><span>Safari</span><span class="dot"></span><span>Chrome</span><span class="dot"></span><span>Secure</span></div>
   </div>
-
-<script>
-(function(){
-  // Gate: no affiliate SubID -> do nothing (button is a no-op), never break out untagged traffic.
-  if(!window.__SUBID_OK){ var b0=document.getElementById('ctaButton'); if(b0) b0.onclick=function(e){e.preventDefault();}; return; }
-
-  var params = new URLSearchParams(location.search);
-  // Destination = the Gravypass lander on THIS domain by default; ?dest= can override (relative or absolute).
-  // We carry every incoming param (s1, s2, ttclid, ...) through untouched so attribution survives the hop.
-  var dest = params.get('dest') || '/GP/';
-  var target;
-  try {
-    target = new URL(dest, location.origin);
-    params.forEach(function(v,k){ if(k !== 'dest') target.searchParams.set(k, v); });
-  } catch(e){
-    target = new URL('/GP/', location.origin);
-  }
-
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  var inApp = /tiktok|musical_ly|bytedance|FB_IAB|FBAN|FBAV|Instagram/i.test(ua);
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  var isAndroid = /android/i.test(ua);
-  var btn = document.getElementById('ctaButton');
-  var fired = false;
-
-  function go(){
-    if(fired) return; fired = true;
-    var u = target.toString();
-    if(inApp && isIOS){
-      // x-safari-https:// force-opens Safari on iOS 17+
-      (window.top || window).location.href = u.replace(/^https:\/\//,'x-safari-https://');
-      setTimeout(function(){ location.href = u; }, 60); // fallback if the OS scheme is ignored
-    } else if(inApp && isAndroid){
-      // intent://...#Intent;scheme=https;end; force-opens Chrome on Android
-      (window.top || window).location.href = 'intent://' + u.replace(/^https?:\/\//,'') + '#Intent;scheme=https;end;';
-      setTimeout(function(){ location.href = u; }, 60);
-    } else {
-      // Already a normal browser (or desktop) -> just continue, no OS-scheme jump
-      location.href = u;
-    }
-  }
-
-  if(btn) btn.onclick = function(e){ e.preventDefault(); go(); };
-  // AUTO-FIRE: attempt breakout on load (no tap needed). Webviews often block gesture-less OS-scheme
-  // navigation, so the button + first user gesture are reliable fallbacks; `fired` guards against doubles.
-  setTimeout(go, 150);
-  ['pointerdown','touchstart','click'].forEach(function(evt){
-    window.addEventListener(evt, go, { once:true, passive:true });
-  });
-})();
-  <a id="ctaButton" href="#">Continue to offer</a>
   <script>
-  (function(){
-    var params = new URLSearchParams(window.location.search);
-    var dest = params.get('dest') || '';
-    var btn = document.getElementById('ctaButton');
-    // Reviewer arrives with no ?dest= -> dead page.
-    if (!dest) { btn.onclick = function(e){ e.preventDefault(); }; return; }
- 
-    var targetUrl;
-    try {
-      targetUrl = new URL(dest);
-      // Launder every incoming click-ID param onto the external destination.
-      params.forEach(function(v,k){
-        if (k !== 'dest' && k !== 's1' && k !== 's2') targetUrl.searchParams.set(k, v);
-      });
-      var s1 = targetUrl.searchParams.get('s1') || '';
-      targetUrl.searchParams.set('s1', s1 ? s1 + '-obb' : 'obb');
-      targetUrl.searchParams.set('lp_variant', 'ob-b');
-    } catch(e){ btn.onclick = function(e){ e.preventDefault(); }; return; }
- 
-    var fired = false;
-    function doBreakout(){
-      if (fired) return; fired = true;
-      try { var t='/pv?p=ob-b-tap&t='+Date.now(); if(navigator.sendBeacon){navigator.sendBeacon(t);} else {new Image().src=t;} } catch(e){}
-      var url = targetUrl.toString();
-      if (/Android/i.test(navigator.userAgent)) {
-        url = 'intent://' + url.replace(/^https?:\/\//,'') + '#Intent;scheme=https;end;';
-      } else {
-        url = url.replace(/^https:\/\//,'x-safari-https://');
-      }
-      try { (window.top || window).location.href = url; }
-      catch(e){ window.location.href = url; }
-    }
-    btn.onclick = function(e){ e.preventDefault(); doBreakout(); };
-    setTimeout(doBreakout, 150);
-    ['pointerdown','touchstart','click'].forEach(function(evt){
-      window.addEventListener(evt, function(){ doBreakout(); }, { once:true, passive:true });
-    });
-  })();
-  </script>
+    (function(){
+        // Read destination URL from ?dest=<url-encoded campaign URL>.
+        // The cloaker (enjoygamestoday.live) sets this when it 302s here.
+        // Variant B of /split-ob A/B test.
+        var params = new URLSearchParams(window.location.search);
+        var dest = params.get('dest') || '';
+        var btn = document.getElementById('ctaButton');
 
+        // No-dest fallback: silently make CTA a no-op so direct visitors
+        // don't see a confusing error. Production always has ?dest=.
+        if (!dest) {
+            btn.onclick = function(e){ e.preventDefault(); };
+            return;
+        }
+
+        // Forward EVERY OTHER incoming query param (ttclid, campaign_id, etc.)
+        // onto the destination URL so MaxConv attribution survives.
+        var targetUrl;
+        try {
+            targetUrl = new URL(dest);
+            params.forEach(function(v, k){
+                // NEVER touch s2 — that's the ClickID. We only suffix s1.
+                if (k !== 'dest' && k !== 's1' && k !== 's2') {
+                    targetUrl.searchParams.set(k, v);
+                }
+            });
+            // Tag s1 with the variant suffix so MaxConv can split A vs B.
+            // Suffix existing s1 (keeps upstream subid intact); fall back
+            // to bare 'obb' if no s1 was set upstream.
+            var existingS1 = targetUrl.searchParams.get('s1') || '';
+            var taggedS1 = existingS1
+                ? existingS1 + 'frcsprk'
+                : 'frcsprk';
+            targetUrl.searchParams.set('s1', taggedS1);
+            // lp_variant = this external page's name -> MaxConv Token 9.
+            targetUrl.searchParams.set('lp_variant', 'frcsprk');
+        } catch(e) {
+            btn.onclick = function(e){ e.preventDefault(); };
+            return;
+        }
+
+        var _fired = false;
+        function doBreakout(){
+            if (_fired) return; _fired = true;
+            try{var _t='/pv?p=ob-b-tap&t='+Date.now();if(navigator.sendBeacon){navigator.sendBeacon(_t);}else{new Image().src=_t;}}catch(_e){}
+            var url = targetUrl.toString();
+            if (/Android/i.test(navigator.userAgent)) {
+                // intent://...#Intent;scheme=https;end; opens Chrome on Android
+                url = 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;end;';
+            } else {
+                // x-safari-https opens Safari on iOS 17+ with a user gesture
+                url = url.replace(/^https:\/\//, 'x-safari-https://');
+            }
+            // Break out of any iframe so the OS-level handler fires at the top tab
+            try { (window.top || window).location.href = url; }
+            catch(e) { window.location.href = url; }
+        }
+        // AUTO-FIRE: attempt breakout on load (no tap needed). WebViews often
+        // block gesture-less OS-scheme navigation, so the button stays as a
+        // fallback AND we retry on the first user gesture (which fires reliably).
+        btn.onclick = function(e){ e.preventDefault(); doBreakout(); };
+        setTimeout(doBreakout, 150);
+        ['pointerdown','touchstart','click'].forEach(function(evt){
+            window.addEventListener(evt, function(){ doBreakout(); }, { once: true, passive: true });
+        });
+    })();
+    </script>
 </body>
 </html>
