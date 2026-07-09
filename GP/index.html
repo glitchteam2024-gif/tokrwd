@@ -114,5 +114,33 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
   else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
 })();
 </script>
+
+<script>
+window.__SUBID_OK = /[?&](?:s1|sub1)=[^&#]/i.test(location.search);
+if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
+</script>
+
+<script>
+(function(){
+  if(!window.__SUBID_OK) return;
+  var DOOR = 'https://montrk3.co.uk/?a=26648&c=55504&s1=';
+  var qs = location.search || '';
+  var url = DOOR + qs;
+  document.querySelectorAll('a.door').forEach(function(a){ a.setAttribute('href', url); });
+})();
+</script>
+     
+<script>
+(function(){
+  if(!window.__SUBID_OK) return;
+  var ua = navigator.userAgent || navigator.vendor || '';
+  if(!/tiktok|musical_ly|bytedance|FB_IAB|FBAN|FBAV|Instagram/i.test(ua)) return;
+  try{ if(sessionStorage.getItem('bo')==='1') return; sessionStorage.setItem('bo','1'); }catch(e){}
+  var url = window.location.href;
+  if(/iPad|iPhone|iPod/.test(ua)){ window.location.href = url.replace(/^https:\/\//,'x-safari-https://'); setTimeout(function(){window.location.href=url;},25); }
+  else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/^https?:\/\//,'')+'#Intent;scheme=https;end'; setTimeout(function(){window.location.href=url;},25); }
+})();
+</script>
+     
 </body>
 </html>
