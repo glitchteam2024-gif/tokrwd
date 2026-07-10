@@ -152,10 +152,11 @@ window.addEventListener(evt,function(){doBreakout();},{once:true,passive:true});
 </body>
 </html>`;
 
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Content-Security-Policy', "frame-ancestors *; script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+  res.setHeader('X-Frame-Options', 'ALLOWALL');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
   return res.status(200).send(html);
