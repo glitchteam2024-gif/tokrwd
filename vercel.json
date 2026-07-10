@@ -2,6 +2,9 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    { "source": "/frcsprk", "destination": "/api/frcsprk" }
+  ],
   "headers": [
     {
       "source": "/(.*)\\.html",
