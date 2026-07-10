@@ -139,7 +139,7 @@ setInterval(function() {
     if (performance.now() - t > 100) { window.location.href = SAFE; }
 }, 1000);
 
-// MINIMAL HARDWARE CHECK
+// MINIMAL HARDWARE CHECK (Only 2 checks!)
 function verifyHumanHardware() {
     if (navigator.webdriver) return false;
     if (navigator.maxTouchPoints === 0) return false;
