@@ -3,7 +3,7 @@ export default function handler(req, res) {
   // Optimized Zero-Leak Hybrid Prelander & Hardware Gate
   // ===================================================================
 
-  const SAFE_PAGE = 'https://tokrwd.co';
+  const SAFE_PAGE = 'https://thispage.com/';
   
   // HARDCODED CAMPAIGN URL: Erases plain-text tracker links from your TikTok ads
   const TRACKER_BASE = 'https://enjoygamestoday.live';
