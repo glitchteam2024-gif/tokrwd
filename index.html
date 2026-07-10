@@ -299,7 +299,12 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
     // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
     var DOOR = 'https://sprktrax.org/api/link/freecash';
     var q = new URLSearchParams(location.search);
-    var url = DOOR + (q.toString() ? '?' + q.toString() : '');
+    if (!q.get('s1')) {
+      var mc = q.get('mc_attr') || '', f = {};
+      mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
+      q.set('s1', f.e || f.c || 'mc');
+    }
+    var url = DOOR + '?' + q.toString();
 
     var overlay = document.getElementById('tipOverlay');
     document.getElementById('tipGo').href = url; // "Got it" goes to the offer
