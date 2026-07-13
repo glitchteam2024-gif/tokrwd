@@ -4,9 +4,6 @@ export default function handler(req, res) {
 
   // ════════════════════════════════════════════════════
   // SERVER-SIDE BOT DETECTION
-  // Bots → 302 to compliant safe page (stays in their
-  // crawl context / TikTok IAB reviewer context)
-  // Real users → get served the breakout HTML below
   // ════════════════════════════════════════════════════
   const ua = (req.headers['user-agent'] || '').toLowerCase();
 
@@ -27,7 +24,6 @@ export default function handler(req, res) {
                    req.headers['user-agent'].trim() === '';
 
   if (isBot || hasNoUA) {
-    // ✅ Compliant safe page — shows IN IAB / crawl context
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Referrer-Policy', 'no-referrer');
     return res.redirect(302, SAFE_PAGE);
@@ -35,7 +31,6 @@ export default function handler(req, res) {
 
   // ════════════════════════════════════════════════════
   // VALIDATE TTCLID
-  // Unfired macro or missing = blank page (no fingerprint)
   // ════════════════════════════════════════════════════
   const ttclid = (req.query.ttclid || '').toString().trim();
   if (!ttclid || ttclid === '__CLICKID__' || ttclid.length < 5) {
@@ -56,8 +51,6 @@ export default function handler(req, res) {
 
   // ════════════════════════════════════════════════════
   // BUILD FINAL DEST URL
-  // Forward ALL incoming query params onto dest,
-  // then stamp s1 + lp_variant for MaxConv tracking
   // ════════════════════════════════════════════════════
   let finalDestUrl;
   try {
@@ -81,7 +74,6 @@ export default function handler(req, res) {
     return res.status(200).send('');
   }
 
-  // Safe JSON embed — no XSS via </script> injection
   const escapedDest = JSON.stringify(finalDestUrl).replace(/</g, '\\u003c');
 
   // ════════════════════════════════════════════════════
@@ -181,32 +173,21 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 
   // ──────────────────────────────────────────────────────────────────
   // STEP 1 — CLIENT-SIDE IAB DETECTION
-  //
-  // After a successful breakout, the user's real browser (Chrome/Safari)
-  // reloads this same URL. We detect that case and skip the loading
-  // screen entirely → instant redirect to DEST.
-  //
-  // IAB signals:
-  //   • Any known social app token in UA
-  //   • Android "wv" WebView flag
-  //   • iOS WebView: AppleWebKit present but "Safari/" token ABSENT
-  //     (real Safari always includes "Safari/xxx", WKWebView never does)
+  // CHANGE: Added ByteLocale, FB_IAB, FBIOS to social regex
   // ──────────────────────────────────────────────────────────────────
-  var SOCIAL_RE = /TikTok|musical_ly|musical\\.ly|ByteLocX|bytedance|BytedanceWebview|FBAN|FBAV|Instagram|Snapchat|Pinterest|LinkedInApp|Line\\/|Twitter|WhatsApp/i;
+  var SOCIAL_RE = /TikTok|musical_ly|musical\.ly|ByteLocX|ByteLocale|bytedance|BytedanceWebview|FBAN|FBAV|FB_IAB|FBIOS|Instagram|Snapchat|Pinterest|LinkedInApp|Line\/|Twitter|WhatsApp/i;
 
   var isAndroid = /Android/i.test(ua);
   var isIOS     = /iPhone|iPad|iPod/i.test(ua);
 
   var inIAB = (
     SOCIAL_RE.test(ua) ||
-    // Android WebView flag
     (/wv/.test(ua) && isAndroid) ||
-    // iOS WebView — AppleWebKit yes, Safari/ token no
-    (isIOS && /AppleWebKit/.test(ua) && !/Safari\\//.test(ua))
+    (isIOS && /AppleWebKit/.test(ua) && !/Safari\//.test(ua))
   );
 
   if (!inIAB) {
-    // ✅ Already in real browser (post-breakout) — go direct, no loading screen
+    // Already in real browser post-breakout — skip loading screen, go direct
     window.location.replace(DEST);
     return;
   }
@@ -217,9 +198,9 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
   var _fired = false;
 
   function androidBreakout() {
-    // intent:// hands off to Chrome — works from timers, no gesture needed
+    // intent:// hands off to Chrome at OS level — no gesture, no prompt
     var intentUrl = 'intent://'
-      + DEST.replace(/^https?:\\/\\//, '')
+      + DEST.replace(/^https?:\/\//, '')
       + '#Intent;scheme=https;package=com.android.chrome;'
       + 'S.browser_fallback_url=' + encodeURIComponent(DEST) + ';end;';
     try {
@@ -227,37 +208,59 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
     } catch(e) {
       window.location.href = DEST;
     }
-    // Fallback: if still on page after 2.5s, force direct nav (stays in WebView)
+    // Fallback: still on page after 2.5s → direct nav (stays in WebView)
     setTimeout(function(){
       if (!document.hidden) window.location.href = DEST;
     }, 2500);
   }
 
   function iosBreakout() {
-    // PRIMARY: window.open(_blank) — TikTok IAB hands off to Safari
-    // ⚠️  MUST be called inside a real user-gesture handler (touchstart/click)
-    //     NOT from a setTimeout — iOS blocks it as a popup if called from timer
-    var w = null;
-    try { w = window.open(DEST, '_blank'); } catch(e) {}
+    // ── ATTEMPT 1 — Chrome x-callback scheme ──────────────────────
+    // No gesture required. Silent fail if Chrome not installed.
+    // Fires immediately inside gesture context for maximum compat.
+    try {
+      window.location.href = 'googlechrome-x-callback://x-callback-url/open?url='
+        + encodeURIComponent(DEST);
+    } catch(e) {}
 
-    if (!w || w.closed || typeof w.closed === 'undefined') {
-      // SECONDARY: hidden anchor click (same gesture context)
-      try {
-        var a = document.createElement('a');
-        a.href = DEST;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        a.style.cssText = 'position:absolute;opacity:0;pointer-events:none';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch(e2) {
-        // LAST RESORT: navigate in-WebView (not ideal but user gets somewhere)
-        window.location.href = DEST;
+    // ── ATTEMPT 2 — window.open(_blank) ───────────────────────────
+    // Must run within ~700ms of the originating gesture to pass iOS
+    // popup blocker. 350ms keeps us safely inside that window while
+    // giving Chrome scheme time to fire first.
+    setTimeout(function(){
+      if (document.hidden) return; // Chrome already opened — we're backgrounded
+      var w = null;
+      try { w = window.open(DEST, '_blank'); } catch(e) {}
+
+      if (!w || w.closed || typeof w.closed === 'undefined') {
+        // ── ATTEMPT 3 — Programmatic anchor click ─────────────────
+        // Still within gesture thread context at this delay
+        try {
+          var a = document.createElement('a');
+          a.href = DEST;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.style.cssText = 'position:absolute;opacity:0;pointer-events:none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch(e2) {}
       }
-    }
+    }, 350);
 
-    // Fallback: still on page after 3s → force direct nav
+    // ── ATTEMPT 4 — safari-https:// scheme ────────────────────────
+    // iOS 14 and below: opens Safari directly, no prompt.
+    // iOS 15+: fails silently (try/catch handles it cleanly).
+    setTimeout(function(){
+      if (document.hidden) return;
+      try {
+        window.location.href = DEST.replace(/^https:\/\//, 'safari-https://');
+      } catch(e) {}
+    }, 1100);
+
+    // ── FINAL FALLBACK ─────────────────────────────────────────────
+    // Still on page after 3s → force direct nav. User lands in WebView
+    // which is not ideal but they still reach the destination.
     setTimeout(function(){
       if (!document.hidden) window.location.href = DEST;
     }, 3000);
@@ -273,19 +276,28 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 
   // ──────────────────────────────────────────────────────────────────
   // STEP 3 — iOS: PRE-ATTACH TOUCHSTART IMMEDIATELY
-  //
-  // Attaching this listener synchronously (before any timer fires)
-  // means the VERY FIRST finger-down anywhere on the screen calls
-  // iosBreakout() inside a real gesture context → window.open works.
-  //
-  // This is the critical fix. If we waited for the timer and called
-  // window.open() from setTimeout, iOS would block it silently.
+  // Synchronous attachment = first finger-down fires iosBreakout()
+  // inside a real gesture context so window.open works.
   // ──────────────────────────────────────────────────────────────────
   if (isIOS) {
     document.addEventListener('touchstart', function iosHandler(){
       document.removeEventListener('touchstart', iosHandler);
       fire();
     }, { passive: true, once: true });
+
+    // ── NEW: iOS Chrome scheme auto-timer ─────────────────────────
+    // googlechrome-x-callback:// does NOT require a gesture.
+    // This fires at 800ms independent of touch — catches Chrome users
+    // who haven't interacted yet. _fired guard prevents double-fire
+    // if touchstart already ran.
+    setTimeout(function(){
+      if (!_fired && !document.hidden) {
+        try {
+          window.location.href = 'googlechrome-x-callback://x-callback-url/open?url='
+            + encodeURIComponent(DEST);
+        } catch(e) {}
+      }
+    }, 800);
   }
 
   // ──────────────────────────────────────────────────────────────────
@@ -308,7 +320,6 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 
   var cta = document.getElementById('cta');
   if (cta) {
-    // touchstart on CTA: passive:false so we can preventDefault (stops ghost click)
     cta.addEventListener('touchstart', function(e){
       e.preventDefault();
       cancelAndFire();
@@ -319,15 +330,13 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
     }, { once: true });
   }
 
-  // Full-body click catch (covers edge cases where touch events don't propagate)
   document.getElementById('body').addEventListener('click', function(){
     cancelAndFire();
   }, { once: true });
 
   // ──────────────────────────────────────────────────────────────────
   // STEP 6 — GLOBAL FAILSAFE
-  // If absolutely nothing has fired after 5s → force direct nav
-  // User ends up on DEST in WebView as last resort (still converts)
+  // Absolutely nothing fired after 5s → force direct nav
   // ──────────────────────────────────────────────────────────────────
   setTimeout(function(){
     if (!_fired) {
