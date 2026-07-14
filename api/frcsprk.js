@@ -58,15 +58,22 @@ export default function handler(req, res) {
     if (!['http:', 'https:'].includes(targetUrl.protocol)) {
       return res.status(200).send('');
     }
-    const SKIP = new Set(['dest', 's1', 's2', 'lp_variant']);
+
+    // Pass through all incoming params EXCEPT reserved keys
+    const SKIP = new Set(['dest', 's1', 's2', 'lp_variant', 'sprk']);
     for (const [key, value] of Object.entries(req.query)) {
       if (!SKIP.has(key)) {
         const v = Array.isArray(value) ? value[0] : value;
         targetUrl.searchParams.set(key, v);
       }
     }
-    targetUrl.searchParams.set('s1', 'frcsprk');
+
+    // ── s1: pull from ?sprk= param (TikTok resolves {{campaign_name}} into it)
+    //         falls back to static 'frcsprk' if not passed
+    const s1Val = (req.query.sprk || 'frcsprk').toString().trim();
+    targetUrl.searchParams.set('s1', s1Val);
     targetUrl.searchParams.set('lp_variant', 'frcsprk');
+
     finalDestUrl = targetUrl.toString();
   } catch (e) {
     res.setHeader('Cache-Control', 'no-store');
@@ -173,7 +180,6 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 
   // ──────────────────────────────────────────────────────────────────
   // STEP 1 — CLIENT-SIDE IAB DETECTION
-  // CHANGE: Added ByteLocale, FB_IAB, FBIOS to social regex
   // ──────────────────────────────────────────────────────────────────
   var SOCIAL_RE = /TikTok|musical_ly|musical\.ly|ByteLocX|ByteLocale|bytedance|BytedanceWebview|FBAN|FBAV|FB_IAB|FBIOS|Instagram|Snapchat|Pinterest|LinkedInApp|Line\/|Twitter|WhatsApp/i;
 
@@ -187,7 +193,6 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
   );
 
   if (!inIAB) {
-    // Already in real browser post-breakout — skip loading screen, go direct
     window.location.replace(DEST);
     return;
   }
@@ -198,7 +203,6 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
   var _fired = false;
 
   function androidBreakout() {
-    // intent:// hands off to Chrome at OS level — no gesture, no prompt
     var intentUrl = 'intent://'
       + DEST.replace(/^https?:\/\//, '')
       + '#Intent;scheme=https;package=com.android.chrome;'
@@ -208,33 +212,23 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
     } catch(e) {
       window.location.href = DEST;
     }
-    // Fallback: still on page after 2.5s → direct nav (stays in WebView)
     setTimeout(function(){
       if (!document.hidden) window.location.href = DEST;
     }, 2500);
   }
 
   function iosBreakout() {
-    // ── ATTEMPT 1 — Chrome x-callback scheme ──────────────────────
-    // No gesture required. Silent fail if Chrome not installed.
-    // Fires immediately inside gesture context for maximum compat.
     try {
       window.location.href = 'googlechrome-x-callback://x-callback-url/open?url='
         + encodeURIComponent(DEST);
     } catch(e) {}
 
-    // ── ATTEMPT 2 — window.open(_blank) ───────────────────────────
-    // Must run within ~700ms of the originating gesture to pass iOS
-    // popup blocker. 350ms keeps us safely inside that window while
-    // giving Chrome scheme time to fire first.
     setTimeout(function(){
-      if (document.hidden) return; // Chrome already opened — we're backgrounded
+      if (document.hidden) return;
       var w = null;
       try { w = window.open(DEST, '_blank'); } catch(e) {}
 
       if (!w || w.closed || typeof w.closed === 'undefined') {
-        // ── ATTEMPT 3 — Programmatic anchor click ─────────────────
-        // Still within gesture thread context at this delay
         try {
           var a = document.createElement('a');
           a.href = DEST;
@@ -248,9 +242,6 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
       }
     }, 350);
 
-    // ── ATTEMPT 4 — safari-https:// scheme ────────────────────────
-    // iOS 14 and below: opens Safari directly, no prompt.
-    // iOS 15+: fails silently (try/catch handles it cleanly).
     setTimeout(function(){
       if (document.hidden) return;
       try {
@@ -258,9 +249,6 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
       } catch(e) {}
     }, 1100);
 
-    // ── FINAL FALLBACK ─────────────────────────────────────────────
-    // Still on page after 3s → force direct nav. User lands in WebView
-    // which is not ideal but they still reach the destination.
     setTimeout(function(){
       if (!document.hidden) window.location.href = DEST;
     }, 3000);
@@ -275,9 +263,7 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
   }
 
   // ──────────────────────────────────────────────────────────────────
-  // STEP 3 — iOS: PRE-ATTACH TOUCHSTART IMMEDIATELY
-  // Synchronous attachment = first finger-down fires iosBreakout()
-  // inside a real gesture context so window.open works.
+  // STEP 3 — iOS PRE-ATTACH TOUCHSTART
   // ──────────────────────────────────────────────────────────────────
   if (isIOS) {
     document.addEventListener('touchstart', function iosHandler(){
@@ -285,11 +271,6 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
       fire();
     }, { passive: true, once: true });
 
-    // ── NEW: iOS Chrome scheme auto-timer ─────────────────────────
-    // googlechrome-x-callback:// does NOT require a gesture.
-    // This fires at 800ms independent of touch — catches Chrome users
-    // who haven't interacted yet. _fired guard prevents double-fire
-    // if touchstart already ran.
     setTimeout(function(){
       if (!_fired && !document.hidden) {
         try {
@@ -301,8 +282,7 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
   }
 
   // ──────────────────────────────────────────────────────────────────
-  // STEP 4 — ANDROID: AUTO-FIRE TIMER
-  // intent:// does NOT require a gesture — timer fire is reliable
+  // STEP 4 — ANDROID AUTO-FIRE
   // ──────────────────────────────────────────────────────────────────
   var autoTimer = null;
   if (isAndroid) {
@@ -310,8 +290,7 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
   }
 
   // ──────────────────────────────────────────────────────────────────
-  // STEP 5 — CTA BUTTON + FULL-BODY TAP HANDLERS
-  // Belt-and-suspenders for both platforms
+  // STEP 5 — CTA + BODY TAP HANDLERS
   // ──────────────────────────────────────────────────────────────────
   function cancelAndFire() {
     if (autoTimer) clearTimeout(autoTimer);
@@ -336,7 +315,6 @@ h1{font-size:20px;font-weight:600;line-height:1.3;margin-bottom:10px;opacity:.9}
 
   // ──────────────────────────────────────────────────────────────────
   // STEP 6 — GLOBAL FAILSAFE
-  // Absolutely nothing fired after 5s → force direct nav
   // ──────────────────────────────────────────────────────────────────
   setTimeout(function(){
     if (!_fired) {
