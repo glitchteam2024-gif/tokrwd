@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <script>
-// Affiliate SubID gate (fail-CLOSED): this lander renders ONLY when an s1/sub1 rides the URL (a real
-// tagged click — the launcher sets ?s1=<SPK>). Untagged / direct visitors get a BLANK page and nothing
-// runs — no offer link, no breakout — so no un-attributed traffic ever reaches the offer. Mirrors the
-// Freecash lander's gate. (Freecash's own gate is currently pinned open repo-wide "for testing"; this
-// Testerup lander is fail-closed per the 2026-07-14 decision.)
-window.__SUBID_OK = /[?&](?:s1|sub1)=[^&#]/i.test(location.search);
-if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</style>');
+// SubID gate DISABLED (Migi 2026-07-14): the blank-without-s1 behavior hid the whole page during
+// preview. Removed — this lander ALWAYS renders now, matching the rest of the tokrwd landers (all
+// pinned open). Attribution is NOT weakened: real launcher traffic still carries ?s1=<SPK>, the offer
+// wiring passes it to the sprktrax door, and the DOOR itself still 404s any truly untagged click
+// (api/link/[slug].js: `if (!spk) return 404`), so no un-attributed visitor can ever convert.
+// __SUBID_OK stays true so the offer-wiring + breakout scripts below (which guard on it) still run.
+window.__SUBID_OK = true;
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Get paid to test apps</title>
