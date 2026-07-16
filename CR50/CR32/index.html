@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<script>
+// SubID gate DISABLED (matches the Testerup lander, Migi 2026-07-14): this page ALWAYS renders so the
+// bare URL can be previewed. Attribution is NOT weakened — real launcher traffic carries ?s1=<SPK>,
+// which the offer wiring below carries onto the Monetise tracker's s1=. __SUBID_OK stays true so the
+// offer-wiring + breakout scripts (which guard on it) still run.
+window.__SUBID_OK = true;
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Copper — Smart banking &amp; rewards</title>
+<link rel="icon" type="image/png" href="/images/copper-logo.png" />
+<link rel="apple-touch-icon" href="/images/copper-logo.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    /* Copper Banking brand — Mint #4FE3A6 accent on a DARK NAVY base (sampled from the Copper logo:
+       mint "¢" on a navy→black gradient). Mint replaces Testerup's red everywhere. */
+    --bg:#080a16;
+    --card:#12142a;
+    --footer:#0e1024;
+    --border:rgba(255,255,255,.09);
+    --mint:#4FE3A6;
+    --mint-bright:#6FEBB8;
+    --hero-a:#1c1f74;      /* deep indigo (top of the logo's navy gradient) */
+    --hero-b:#0d0f3d;      /* near-black navy (bottom) */
+    --mint-dim:rgba(79,227,166,.14);
+    --mint-line:rgba(79,227,166,.40);
+    --ink:#f4f6ff;
+    --text:#e6e8f2;
+    --muted:#9a9db4;
+    --muted-2:#6e7191;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--bg);}
+  body{
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:var(--text);line-height:1.4;-webkit-font-smoothing:antialiased;
+    padding-bottom:104px;
+  }
+  .wrap{max-width:410px;margin:0 auto;padding:0 16px;}
+
+  .ticker{text-align:center;font-size:12.5px;font-weight:500;color:var(--text);padding:9px 18px 11px;letter-spacing:-.1px;}
+  .ticker .amt{color:var(--mint);font-weight:700;}
+  .ticker .name{font-weight:700;}
+  .ticker-fade{transition:opacity .4s ease;}
+
+  .card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;
+    box-shadow:0 6px 20px rgba(0,0,0,.35);}
+
+  /* HERO — deep navy gradient echoing the Copper logo background, WHITE ink, mint accents. */
+  .hero{padding:24px 20px 20px;text-align:center;background:linear-gradient(165deg,var(--hero-a) 0%,var(--hero-b) 100%);border-color:transparent;}
+  .hero .glow{position:absolute;top:-42%;left:50%;transform:translateX(-50%);width:320px;height:320px;
+    background:radial-gradient(circle,rgba(79,227,166,.22) 0%,rgba(79,227,166,.05) 42%,transparent 66%);pointer-events:none;}
+
+  /* App icon slot -> Copper brand mark (/images/copper-logo.png). The logo is full-bleed navy, so it
+     fills the tile edge-to-edge (no white pad) and reads as an app icon. */
+  .app-icon{position:relative;width:66px;height:66px;margin:0 auto 12px;border-radius:16px;overflow:hidden;
+    background:#0d0f3d;
+    box-shadow:0 12px 28px rgba(0,0,0,.34), inset 0 0 0 1px rgba(255,255,255,.06);}
+  .app-icon img{display:block;width:100%;height:100%;object-fit:cover;}
+
+  .rating-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.5);border-radius:999px;
+    padding:5px 12px;font-size:11.5px;font-weight:500;background:rgba(0,0,0,.20);margin-bottom:13px;color:#fff;}
+  .rating-pill .stars{color:var(--mint-bright);letter-spacing:.5px;font-size:11px;}
+  .rating-pill .val{color:#fff;font-weight:700;}
+  .rating-pill .store{color:#fff;}
+  .rating-pill .rev{color:rgba(255,255,255,.8);font-weight:500;}
+
+  h1.headline{font-size:33px;line-height:1.02;font-weight:800;letter-spacing:-1.1px;margin-bottom:11px;color:#fff;}
+  h1.headline .g{color:var(--mint-bright);display:block;}
+
+  .sub{font-size:14px;line-height:1.4;color:rgba(255,255,255,.9);font-weight:400;max-width:300px;margin:0 auto 15px;letter-spacing:-.2px;}
+
+  /* Live pill sits on the NAVY hero — white pill, dark text, mint dot. */
+  .live-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(0,0,0,.20);border-radius:999px;
+    padding:8px 15px;font-size:13px;font-weight:700;color:#0b0b0d;background:rgba(255,255,255,.95);}
+  .live-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 0 rgba(79,227,166,.6);animation:pulse 2s infinite;}
+  .live-pill .n{font-variant-numeric:tabular-nums;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(79,227,166,.55);}70%{box-shadow:0 0 0 8px rgba(79,227,166,0);}100%{box-shadow:0 0 0 0 rgba(79,227,166,0);}}
+
+  /* OFFER */
+  .section-gap{margin-top:11px;}
+  .offer{padding:16px 18px;}
+  .offer-head{display:flex;align-items:center;gap:13px;}
+  /* Offer icon slot -> Copper logo (/images/copper-logo.png), full-bleed navy. */
+  .offer-icon{width:58px;height:58px;border-radius:13px;flex:none;overflow:hidden;background:#0d0f3d;box-shadow:0 5px 14px rgba(0,0,0,.35);}
+  .offer-icon img{display:block;width:100%;height:100%;object-fit:cover;}
+  .offer-title{font-size:19px;font-weight:700;letter-spacing:-.5px;margin-bottom:3px;color:var(--ink);}
+  .offer-stars{font-size:12.5px;color:var(--muted);font-weight:500;margin-bottom:4px;}
+  .offer-stars .stars{color:var(--mint);letter-spacing:.5px;font-size:12px;margin-right:5px;}
+  .offer-pay{font-size:16px;font-weight:700;color:var(--mint);letter-spacing:-.3px;}
+
+  .divider{height:1px;background:var(--border);margin:13px 0 11px;}
+
+  .hiw-label{font-size:11px;font-weight:700;letter-spacing:1.3px;color:var(--muted-2);margin-bottom:10px;}
+  .steps{list-style:none;display:flex;flex-direction:column;gap:9px;}
+  .step{display:flex;align-items:center;gap:12px;}
+  .step .num{flex:none;width:32px;height:32px;border-radius:9px;border:1px solid var(--mint-line);background:var(--mint-dim);
+    display:flex;align-items:center;justify-content:center;color:var(--mint);font-weight:700;font-size:14px;}
+  .step .txt{font-size:14.5px;font-weight:500;letter-spacing:-.3px;color:var(--text);}
+
+  /* STATS */
+  .stats{margin-top:11px;padding:16px 8px;}
+  .stats-row{display:flex;}
+  .stat{flex:1;text-align:center;position:relative;padding:0 4px;}
+  .stat + .stat::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:1px;background:var(--border);}
+  .stat .big{font-size:20px;font-weight:800;letter-spacing:-.5px;color:var(--ink);}
+  .stat .big .star{color:var(--mint);}
+  .stat .lbl{font-size:10.5px;font-weight:500;letter-spacing:1px;color:var(--muted-2);margin-top:4px;}
+
+  .disclaimer{text-align:center;font-size:11px;line-height:1.45;color:var(--muted-2);padding:15px 8px 10px;font-weight:400;}
+  .links{text-align:center;font-size:12.5px;font-weight:500;color:var(--muted);padding-bottom:16px;}
+  .links a{color:var(--muted);text-decoration:none;}
+  .links .sep{color:var(--mint);margin:0 10px;}
+
+  /* STICKY FOOTER - solid bar */
+  .sticky{position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:var(--footer);
+    border-top:1px solid var(--border);
+    box-shadow:0 -10px 30px rgba(0,0,0,.45);
+    padding:10px 0 max(12px,env(safe-area-inset-bottom));}
+  .sticky .wrap{padding:0 16px;}
+  .avail{text-align:center;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:9px;display:flex;align-items:center;justify-content:center;gap:7px;}
+  .avail .dot{width:6px;height:6px;border-radius:50%;background:var(--mint);}
+  .store-combo{display:flex;gap:10px;text-decoration:none;}
+  .btn{flex:1;display:flex;align-items:center;justify-content:center;gap:9px;border-radius:12px;padding:9px 10px;text-decoration:none;font-weight:700;letter-spacing:-.3px;}
+  .btn small{display:block;font-size:9px;font-weight:500;letter-spacing:0;line-height:1.1;}
+  .btn .lbl{display:flex;flex-direction:column;line-height:1.05;font-size:14.5px;}
+  /* Apple button stays a black chip; on the dark footer it needs a faint border to read. */
+  .btn-apple{background:#000000;color:#fff;border:1px solid rgba(255,255,255,.16);}
+  .btn-apple small{color:#c7c7c7;}
+  /* Play button = Copper mint, dark ink for contrast. */
+  .btn-play{background:var(--mint);color:#08130d;box-shadow:0 8px 24px rgba(79,227,166,.30);}
+  .btn-play small{color:rgba(8,19,13,.72);}
+  .btn-play svg path{fill:#08130d;}
+  .btn svg{flex:none;width:20px;height:22px;}
+
+  @media (max-width:390px){
+    h1.headline{font-size:29px;}
+    .offer-title{font-size:18px;}
+    .step .txt{font-size:14px;}
+    .stat .big{font-size:19px;}
+    .app-icon{width:60px;height:60px;}
+  }
+
+  /* QUICK TIP INTERSTITIAL */
+  .tip-overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:26px;
+    background:rgba(0,0,0,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);animation:tipFade .2s ease;}
+  .tip-overlay[hidden]{display:none;}
+  @keyframes tipFade{from{opacity:0;}to{opacity:1;}}
+  .tip-card{position:relative;width:100%;max-width:288px;background:var(--card);border:1px solid var(--border);
+    border-radius:20px;padding:20px 18px 18px;text-align:center;box-shadow:0 22px 70px rgba(0,0,0,.55);
+    animation:tipPop .24s cubic-bezier(.2,.8,.2,1);}
+  @keyframes tipPop{from{transform:translateY(14px) scale(.97);opacity:0;}to{transform:none;opacity:1;}}
+  .tip-close{position:absolute;top:11px;right:11px;width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(255,255,255,.08);color:var(--muted);font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .tip-label{font-size:10px;font-weight:800;letter-spacing:1.8px;color:var(--mint);margin-bottom:9px;}
+  .tip-head{font-size:19px;line-height:1.18;font-weight:800;letter-spacing:-.4px;color:var(--ink);margin-bottom:9px;}
+  .tip-head .g{color:var(--mint);}
+  .tip-sub{font-size:12.5px;line-height:1.4;color:var(--muted);font-weight:400;max-width:240px;margin:0 auto 15px;}
+  .tip-btn{display:block;background:var(--mint);color:#08130d;font-size:14px;font-weight:800;letter-spacing:-.3px;
+    text-decoration:none;padding:12px 18px;border-radius:999px;box-shadow:0 0 30px rgba(79,227,166,.32);}
+</style>
+</head>
+<body>
+
+  <div class="ticker">
+    <span class="ticker-fade" id="ticker">
+      &#127482;&#127480; <span class="name">Ava R.</span> just earned <span class="amt">$8.40</span> in Copper rewards
+    </span>
+  </div>
+
+  <div class="wrap">
+
+    <section class="hero card">
+      <div class="glow"></div>
+
+      <!-- ===== COPPER ICON SLOT: Copper brand mark (/images/copper-logo.png) ===== -->
+      <div class="app-icon">
+        <img src="/images/copper-logo.png" alt="Copper" onerror="this.style.display='none'">
+      </div>
+
+      <div class="rating-pill">
+        <span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+        <span class="val">4.7</span>
+        <span class="rev">&middot;</span>
+        <span class="store">App Store</span>
+        <span class="rev">(50K+ reviews)</span>
+      </div>
+
+      <h1 class="headline">Get Paid For<span class="g">Screen Time</span></h1>
+
+      <p class="sub">Open a free Copper account, build smarter money habits, and earn rewards every time you spend &mdash; no hidden fees.</p>
+
+      <div class="live-pill">
+        <span class="dot"></span>
+        <span class="n" id="liveCount">1,849</span>&nbsp;people joining right now
+      </div>
+    </section>
+
+    <!-- Second section: migrated LITERALLY from 50FC/FC2 (Migi: "literally just add this"), only
+         recolored to Copper (--green -> --mint) and the brand word Freecash -> Copper. Step 2 carries
+         the new "Block Blast, Subway Surfers, & More!" line. -->
+    <section class="offer card section-gap">
+      <div class="offer-head" style="display:block;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--mint);margin-bottom:9px;">COPPER</div>
+        <div class="offer-title" style="margin-bottom:6px;">10 games paying over thousands!</div>
+        <div style="font-size:13px;line-height:1.4;color:var(--muted);font-weight:400;letter-spacing:-.2px;margin-bottom:14px;">The highest-paying games on Copper right now.</div>
+        <div style="border-top:1px solid var(--border);padding-top:12px;">
+          <div style="font-size:27px;font-weight:800;color:var(--mint);letter-spacing:-.8px;line-height:1;">$1,250 &ndash; $1,500</div>
+          <div style="font-size:10.5px;font-weight:700;letter-spacing:1px;color:var(--muted-2);margin-top:6px;">TOP OFFER &middot; TOTAL PAYOUT</div>
+        </div>
+        <div style="font-size:11.5px;line-height:1.5;color:var(--muted-2);margin-top:12px;">Paid out over about a month of daily play (~4&nbsp;hrs/day). It's the highest offer &mdash; most people earn less, and results vary.</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="hiw-label">HOW IT WORKS</div>
+      <ul class="steps">
+        <li class="step"><span class="num">1</span><span class="txt">Sign up on Copper (select 21+)</span></li>
+        <li class="step"><span class="num">2</span><span class="txt">Download one app and play 15 minutes to unlock Block Blast, Subway Surfers, &amp; More!</span></li>
+        <li class="step"><span class="num">3</span><span class="txt">Withdraw via PayPal, Visa, or Crypto</span></li>
+      </ul>
+    </section>
+
+    <section class="stats card">
+      <div class="stats-row">
+        <div class="stat"><div class="big">$50M+</div><div class="lbl">PAID OUT</div></div>
+        <div class="stat"><div class="big">4.7<span class="star">&#9733;</span></div><div class="lbl">APP RATING</div></div>
+        <div class="stat"><div class="big">$0</div><div class="lbl">TO JOIN</div></div>
+      </div>
+    </section>
+
+    <p class="disclaimer">Availability, rewards, and eligibility may vary by user, location, and account activity. Copper is a financial technology company, not a bank. Results are not guaranteed and are based on individual participation.</p>
+
+    <div class="links">
+      <a href="#">Privacy Policy</a><span class="sep">&middot;</span><a href="#">Terms of Service</a>
+    </div>
+
+  </div>
+
+  <footer class="sticky">
+    <div class="wrap">
+      <div class="avail"><span class="dot"></span>Available now on iOS and Android</div>
+      <!-- one link, two separate-looking boxes. NOTE: no offer URL in the markup — the inline offer
+           script below builds it at runtime (points at the Monetise tracker, s1 carried over). -->
+      <a class="store-combo offer-link" href="#">
+        <span class="btn btn-play">
+          <svg width="22" height="24" viewBox="0 0 24 26" fill="none"><path d="M2 2.2C1.6 2.5 1.4 3 1.4 3.7v18.6c0 .7.2 1.2.6 1.5L12.6 13 2 2.2z" fill="#fff"/><path d="M16.3 9.3 4.1 2.3 3.6 2 12.6 13l3.7-3.7z" fill="#fff"/><path d="M16.3 16.7 12.6 13l3.7 3.7 4-2.3c.7-.4.7-1.4 0-1.8l-4-2.3-3.7 3.7 3.7 3.7z" fill="#fff"/></svg>
+          <span class="lbl"><small>Get it on</small>Google Play</span>
+        </span>
+        <span class="btn btn-apple">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M16.365 1.43c0 1.14-.42 2.2-1.13 2.99-.86.96-2.27 1.7-3.44 1.61-.14-1.11.42-2.28 1.09-3.02.79-.87 2.15-1.53 3.31-1.58.01.05.17.5.17 1zM20.5 17.06c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.39 3.53-4.12 3.55-1.54.02-1.94-1.01-4.03-1-2.09.01-2.53 1.02-4.07 1-1.73-.02-3.05-1.79-4.04-3.36C-.13 17.8-.42 12.3 1.35 9.4 2.6 7.33 4.6 6.11 6.48 6.11c1.91 0 3.11 1.05 4.69 1.05 1.53 0 2.46-1.05 4.67-1.05 1.67 0 3.44.91 4.7 2.48-4.13 2.26-3.46 8.15.96 8.47z"/></svg>
+          <span class="lbl"><small>Download on the</small>App Store</span>
+        </span>
+      </a>
+    </div>
+  </footer>
+
+  <!-- QUICK TIP interstitial: shown on CTA tap, then continues to the offer -->
+  <div class="tip-overlay" id="tipOverlay" hidden>
+    <div class="tip-card">
+      <button class="tip-close" id="tipClose" aria-label="Close">&times;</button>
+      <div class="tip-label">QUICK TIP</div>
+      <h2 class="tip-head">Finish sign-up to unlock your <span class="g">rewards</span></h2>
+      <p class="tip-sub">Complete your Copper account setup to activate rewards on every purchase. Don't stop halfway.</p>
+      <a class="tip-btn" id="tipGo" href="#">Got it &rarr;</a>
+    </div>
+  </div>
+
+<script>
+  (function(){
+    var el = document.getElementById('liveCount');
+    var n = 1849;
+    setInterval(function(){
+      n += Math.random() < 0.5 ? -1 : 1;
+      if (n < 1840) n = 1841;
+      if (n > 1875) n = 1874;
+      el.textContent = n.toLocaleString('en-US');
+    }, 2600);
+  })();
+
+  (function(){
+    var el = document.getElementById('ticker');
+    var names = ['Ava R.','Marcus T.','Devon L.','Jordan P.','Chloe M.','Ethan W.','Sofia D.','Liam K.'];
+    function rand(){
+      var amt = (Math.random() * 22 + 4).toFixed(2);
+      return {name: names[Math.floor(Math.random()*names.length)], amt: amt};
+    }
+    setInterval(function(){
+      el.style.opacity = 0;
+      setTimeout(function(){
+        var r = rand();
+        el.innerHTML = '\u{1F1FA}\u{1F1F8} <span class="name">'+r.name+'</span> just earned <span class="amt">$'+r.amt+'</span> in Copper rewards';
+        el.style.opacity = 1;
+      }, 400);
+    }, 3800);
+  })();
+</script>
+
+<!-- Copper offer wiring — builds the offer link at runtime (kept OUT of the markup) and routes
+     through the SPRK tracking DOOR, carrying every incoming param (esp. ?s1=<SPK> + ttclid) over so
+     attribution lands. The real Monetise URL lives in the offer row (api/link/[slug].js), NEVER in
+     this lander's source. Same door pattern as the Testerup 50TU/TU1 lander. -->
+<script>
+(function () {
+  'use strict';
+
+  // Affiliate SubID gate: if the lander blanked itself (no tagged click), wire nothing.
+  if (!window.__SUBID_OK) return;
+
+  // The SPRK tracking DOOR (slug 'copper'). The door records the first-party click, mints the
+  // canonical click_id (rides the offer's clickid_slot, default s5), stamps the per-affiliate label,
+  // then 302s to the Copper offer's hidden destination — the real network URL lives in the offer row.
+  var DOOR = 'https://sprktrax.org/api/link/copper';
+
+  // Carry every incoming param (esp. ?s1=<SPK>, set per-creative by the launcher) through to the door.
+  var q = new URLSearchParams(location.search);
+  if (!q.get('s1')) {
+    // Fallback: derive s1 from mc_attr (e=<spark> .. c=<code>) if it wasn't passed directly.
+    var mc = q.get('mc_attr') || '', f = {};
+    mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+    var d = f.e || f.c; if (d) q.set('s1', d);
+  }
+  var offerUrl = DOOR + '?' + q.toString();
+
+  function wire() {
+    var overlay = document.getElementById('tipOverlay');
+    var tipGo = document.getElementById('tipGo');
+    if (tipGo) tipGo.href = offerUrl; // "Got it" goes to the offer
+
+    function openTip(e) {
+      if (e) e.preventDefault();
+      if (!overlay) { location.href = offerUrl; return; } // no overlay -> go straight through
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+    function closeTip() {
+      if (overlay) overlay.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('a.offer-link, a.store-combo').forEach(function (a) {
+      a.setAttribute('href', offerUrl);     // fallback if the click handler is blocked
+      a.addEventListener('click', openTip); // intercept -> show the tip first
+    });
+
+    var tipClose = document.getElementById('tipClose');
+    if (tipClose) tipClose.addEventListener('click', closeTip);
+    if (overlay) overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeTip();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wire);
+  } else {
+    wire();
+  }
+})();
+</script>
+
+<!-- TikTok In-App Browser Breakout — kick out of the in-app webview into the real browser
+     (Safari / Chrome) so app-install / sign-up offers actually work. -->
+<script>
+(function(){
+  if (!window.__SUBID_OK) return; // no affiliate SubID -> don't break a blank page out
+  var ua = navigator.userAgent || navigator.vendor || window.opera;
+  if(!/tiktok|musical_ly|bytedance/i.test(ua)) return;
+  try{ if(sessionStorage.getItem('ttBreakout')==='1') return; sessionStorage.setItem('ttBreakout','1'); }catch(e){}
+  var url = window.location.href;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  if(isIOS){ window.location.href='x-safari-'+url; setTimeout(function(){window.location.href=url;},25); }
+  else if(/android/i.test(ua)){ window.location.href='intent://'+url.replace(/https?:\/\//,'')+'#Intent;scheme=https;action=android.intent.action.VIEW;end'; setTimeout(function(){window.location.href=url;},25); }
+})();
+</script>
+
+<!-- TikTok ttclid passthrough — captures click ID and appends it to the sprktrax.org door link
+     (sprktrax.org is in ttclid.js's tracker allowlist), so the door forwards it into the postback. -->
+<script src="/js/ttclid.js" async></script>
+</body>
+</html>
