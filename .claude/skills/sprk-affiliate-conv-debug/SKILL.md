@@ -92,10 +92,20 @@ the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (t
   tile counts $0 telemetry events (Testerup registrations) as "conversions" with $0.00 earned.
   `my-analytics.js` and the admin board are payable-only. Same family as the known "Home tile counts
   $0 rows" item in `sprk-money-audit`.
-- **Fix/status:** OPEN, pending Migi's call (changes every user's headline KPI). Code fix = filter
-  `or('event_type.is.null,event_type.eq.conversion')` in `sumBalance` (tolerant-retry like
-  my-analytics), or relabel the tile "events". Until then: explain to the affiliate that those are
-  $0 registration events, not payable conversions.
+- **Fix/status:** profile.js piece PREPPED 2026-07-17 (Migi approved): branch
+  `fix/profile-payable-conv-count`, commit `f1df7a1` in the SPRKNetworkAds repo — `sumBalance` now
+  gates the count on the shared `classifyDashboardConversion(...).payable` (finite gross > 0; the
+  select adds `gross_payout`, deliberately NOT `event_type`, since payable never depends on it).
+  Reviewed at /code-review high + prod-sim'd read-only: 5 users' counts change, every dropped row
+  carries $0 affiliate_payout, `earned` byte-identical. NOT PUSHED yet — awaiting Migi's ship OK.
+  IMPORTANT SCOPE NOTE (review finding): nothing in the UI renders `balance.conversions` today
+  (sidebar/settings read `balance.earned` only) — the number the AFFILIATE actually sees comes from
+  the `affiliate_earnings` Home fold in `api/cake-reports.js` (~line 1347, `per[key].conversions++`
+  with no `price > 0` gate; contrast perfDash line ~2146 which gates). Making the Home tile
+  payable-only is the REMAINING piece and per `sprk-money-audit` must touch the fold AND the
+  snapshot/poll-cake counting together. my-analytics.js line ~231 uses a third predicate
+  (event_type filter, gross-agnostic) — zero rows disagree in prod today (verified), but it's
+  latent drift; ideal end-state is one shared payable predicate across all three surfaces.
 
 ### 2. The yellow "outside the creative tracker" banner is GLOBAL, not about the row you clicked
 - **Presents:** banner "Includes $X across N conversion(s) from SPKs outside the creative tracker"
