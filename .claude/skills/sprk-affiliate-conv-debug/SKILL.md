@@ -115,9 +115,21 @@ the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (t
   events", per-row Convs cells show "+N $0"; install-only SPK rows stay visible in the list);
   frontend "has data" gates stay MONEY-ONLY where they arbitrate authority so a $0 install-only
   pull can never wipe/shadow real money (install-only views render via the cake-vs-postback pick,
-  postback money preferred). Timeline conversions series gates on event revenue > 0. Reviewed
-  twice (owner session's 3-finder pass; second session's independent 8-angle × verify fan-out) +
-  prod sim: 6 users' counts change, dropped revenue $0 for all.
+  postback money preferred). Reviewed twice (owner session's 3-finder pass; second session's
+  independent 8-angle × verify fan-out) + prod sim: 6 users' counts change, dropped revenue $0
+  for all.
+  FIX-PACK SHIPPED 2026-07-18 (main `bb2c8fb`) — post-ship /code-review high found 5 gaps in
+  74ac489, all fixed: (1) both folds now classify via the shared `classifyDashboardConversion`
+  helper — null/NaN gross = UNKNOWN (neither count), negative gross (reversals) subtracts revenue
+  without polluting conversions OR the $0-events count; (2) events carry a raw pre-tier `paid`
+  flag and the timeline trusts it — gating on tier-scaled revenue flatlined the conversions chart
+  for 0-share demo/training accounts while the tile showed real counts; (3) `installs` threads
+  through by_offer/byBrand/offers + every frontend row shape, so install-only SPKs no longer
+  vanish under an offer filter; (4) snapPaint/snapMoney split — an install-only snapshot still
+  paints instantly (no blank screen when live CAKE is down) but never claims money authority;
+  (5) the perfDash "CAKE carries no $0 events" comment was FALSE (448 $0 rows in cake_conversions)
+  — corrected; NOTE the trap: perfDash `installs` = postback event_type='install' rows (offer
+  caps), Home `installs` = any exact-$0 CAKE row. Same word, different meaning — never sum them.
   TRIGGERING CASE (2026-07-18): sxmmybills / ssammyofficial18@gmail.com, aff #12, SPK-F8BC-DC66 —
   Discord screenshot "2 conversions / $0.00 earned" on Testerup. Audit: both rows
   `event_type='event'`, gross $0 (registrations), click_ids present, account healthy (5 payable
