@@ -108,14 +108,33 @@ the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (t
   latent-drift note from the second review: admin `get_tracking_report` counts unknown-gross rows
   (event_type filter) that the payable predicate excludes — zero such rows in prod, same family as
   the my-analytics drift below.
-  Home-tile piece PREPPED 2026-07-18 (NOT pushed — awaiting Migi's ship OK): branch
-  `fix/home-payable-conv-count`, commit `bc56569` — `affiliate_earnings` fold + `/api/snapshot`
-  count payable-only (raw pre-tier price/gross > 0, perfDash's rule) with $0 rows surfaced as
-  `installs` (tile + Convs cells show "· N $0 events"); frontend "has data" gates stay MONEY-ONLY
-  where they arbitrate authority so a $0 install-only pull can never wipe/shadow real money
-  (install-only views render via the cake-vs-postback pick, postback money preferred). Timeline
-  conversions series gates on event revenue > 0. Reviewed (3 finders + scenario verifier, both
-  findings fixed); prod sim: 6 users' counts change, dropped revenue $0 for all.
+  Home-tile piece SHIPPED 2026-07-18: SPRKNetworkAds main commit `74ac489` (= `bc56569` rebased
+  onto the moved main; pushed after Migi asked to fix the sxmmybills complaint, which WAS the
+  pending ship OK) — `affiliate_earnings` fold + `/api/snapshot` count payable-only (raw pre-tier
+  price/gross > 0, perfDash's rule) with $0 rows surfaced as `installs` (tile shows "· N $0
+  events", per-row Convs cells show "+N $0"; install-only SPK rows stay visible in the list);
+  frontend "has data" gates stay MONEY-ONLY where they arbitrate authority so a $0 install-only
+  pull can never wipe/shadow real money (install-only views render via the cake-vs-postback pick,
+  postback money preferred). Timeline conversions series gates on event revenue > 0. Reviewed
+  twice (owner session's 3-finder pass; second session's independent 8-angle × verify fan-out) +
+  prod sim: 6 users' counts change, dropped revenue $0 for all.
+  TRIGGERING CASE (2026-07-18): sxmmybills / ssammyofficial18@gmail.com, aff #12, SPK-F8BC-DC66 —
+  Discord screenshot "2 conversions / $0.00 earned" on Testerup. Audit: both rows
+  `event_type='event'`, gross $0 (registrations), click_ids present, account healthy (5 payable
+  Freecash rows Jul 9–10). GOTCHA that cost an hour: the fix had been sitting UNCOMMITTED in the
+  prior session's worktree while prod served the old code — before re-deriving a "shipped" fix,
+  check `git status` in the prepped worktree AND fingerprint the live site
+  (fetch https://www.sprknetwork.ad/dashboard/ and grep for "$0 event"; apex + /soloaffiliate 404).
+  Post-fix affiliate UI reads: CONVERSIONS tile = payable only; registrations appear ONLY as the
+  "· N $0 events" hint — an affiliate reporting "my conversions disappeared" after 2026-07-18 is
+  seeing this fix, not a tracking break.
+  Accepted residuals from the second review (all non-money, follow-ups): demo-role (earnShare=0)
+  accounts get tile N vs chart 0 (chart gates on post-tier event revenue); all-registrations day +
+  live CAKE pull FAILURE lands on the empty state instead of painting the $0-events view
+  (deliberate: snapshot stays money-only so it never shadows money); CSV export has no Installs
+  column (install-only rows export as zeros); a finite NEGATIVE price (reversal/clawback) would be
+  mislabeled a "$0 event" by both folds — shared classifier buckets negatives as neither (zero
+  negative rows in prod today).
   my-analytics.js line ~231 still uses a third predicate (event_type filter, gross-agnostic) —
   zero rows disagree in prod today (verified), latent drift; ideal end-state is one shared payable
   predicate across all surfaces.
