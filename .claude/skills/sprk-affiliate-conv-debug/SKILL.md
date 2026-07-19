@@ -84,9 +84,12 @@ where user_id is null and created_at > now()-interval '7 days'` — money that m
 WIRE (v3, 2026-07-18, SPRKNetworkAds main `846dd71`): doors stamp `s1=<bare aff id>` ('29') ·
 `s2=SPK` · `s3=ad account` · `s4=offer name` · `s5=<Name>.<click_id>` (letters-only display name +
 22-char click token; the postback takes the cid echo's LAST dot-segment). Pre-flip rows show
-`aff<N>` in s1 and a bare token in s5 — same data, different dressing. NEVER register a bare int,
-aff<N>, or an affiliate's display name as a SubID; the click token must stay in s5 (440/455 recent
-conversions have no usable #tid# — it's the only per-lead dedup key + cap-fallback offer channel).
+`aff<N>` in s1 and a bare token in s5 — same data, different dressing. NEVER register a bare int, aff<N>,
+an ALL-NUMERIC compound (29-29), or an affiliate's display name as a SubID; the click token must
+stay in s5 (440/455 recent conversions have no usable #tid# — it's the only per-lead dedup key +
+cap-fallback offer channel). xhigh fix-pack 9b00f8d: supabase-js RESOLVES errors ({error}, never
+throws) — always check the error FIELD for fail-open rails; postback probes are cached+capped;
+resolver skips wire-stamp-shaped candidates.
 
 Inbound: `SPRKNetworkAds/api/postback.js`. Cascade: click_id (`cid`, last dot-segment, honored only
 when a clicks row we minted exists) → SPK code in s2/s1 against `spark_codes` → token fallback
