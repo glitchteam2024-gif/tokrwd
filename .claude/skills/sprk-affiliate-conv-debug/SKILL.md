@@ -137,9 +137,14 @@ the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (t
   prior session's worktree while prod served the old code — before re-deriving a "shipped" fix,
   check `git status` in the prepped worktree AND fingerprint the live site
   (fetch https://www.sprknetwork.ad/dashboard/ and grep for "$0 event"; apex + /soloaffiliate 404).
-  Post-fix affiliate UI reads: CONVERSIONS tile = payable only; registrations appear ONLY as the
-  "· N $0 events" hint — an affiliate reporting "my conversions disappeared" after 2026-07-18 is
-  seeing this fix, not a tracking break.
+  Post-fix affiliate UI reads: CONVERSIONS tile = payable only; registrations appear ONLY as a
+  hint — an affiliate reporting "my conversions disappeared" after 2026-07-18 is seeing this fix,
+  not a tracking break. WORDING RULE (Migi, 2026-07-18, shipped `5f1d8ba`): affiliate-facing label
+  for $0 signup fires is "Lead Signed Up – Didn’t Download Game" (tile note "· N Lead(s) Signed Up
+  – Didn’t Download Game", row badge "+N leads", CSV column same phrase; tooltips say NOT
+  conversions, pay $0, conversion = money earned). NEVER show "$0 events"/"telemetry" jargon to
+  affiliates; those terms stay on admin surfaces + internal code only. Conversions shown to
+  affiliates = payable rows ONLY, everywhere, always.
   RESIDUALS ALL CLOSED 2026-07-18: the four "accepted residuals" from the second review were fixed
   by `bb2c8fb` (demo chart drift → per-event `paid` flag; empty-state on CAKE outage → snapPaint;
   negative-price mislabel → shared classifier) and `8d5db29` (CSV "$0 Events" column + classifier
