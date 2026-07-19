@@ -81,9 +81,16 @@ where user_id is null and created_at > now()-interval '7 days'` — money that m
 
 ## Attribution model (what "matched" means)
 
-Inbound: `SPRKNetworkAds/api/postback.js`. Cascade: click_id (`cid`, from the offer's clickid slot,
-default s5) → SPK code in s2/s1 against `spark_codes` → token fallback against live spark codes ∪
-`subid_owners` (ambiguity ⇒ left NULL on purpose). Unmatched rows are still recorded with
+WIRE (v3, 2026-07-18, SPRKNetworkAds main `846dd71`): doors stamp `s1=<bare aff id>` ('29') ·
+`s2=SPK` · `s3=ad account` · `s4=offer name` · `s5=<Name>.<click_id>` (letters-only display name +
+22-char click token; the postback takes the cid echo's LAST dot-segment). Pre-flip rows show
+`aff<N>` in s1 and a bare token in s5 — same data, different dressing. NEVER register a bare int,
+aff<N>, or an affiliate's display name as a SubID; the click token must stay in s5 (440/455 recent
+conversions have no usable #tid# — it's the only per-lead dedup key + cap-fallback offer channel).
+
+Inbound: `SPRKNetworkAds/api/postback.js`. Cascade: click_id (`cid`, last dot-segment, honored only
+when a clicks row we minted exists) → SPK code in s2/s1 against `spark_codes` → token fallback
+against live spark codes ∪ `subid_owners` (ambiguity ⇒ left NULL on purpose). Unmatched rows are still recorded with
 `status='unmatched'`, `user_id NULL` — invisible on every dashboard until an admin assigns the
 subid (admin "Assign SubID" backfills past rows). Admin board reads `conversions` keyed by SPK for
 the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (the yellow
