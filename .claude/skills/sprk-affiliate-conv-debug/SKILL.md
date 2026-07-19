@@ -139,12 +139,15 @@ the 500 newest sparks + a safety-net scan by user_id for older/removed sparks (t
   (fetch https://www.sprknetwork.ad/dashboard/ and grep for "$0 event"; apex + /soloaffiliate 404).
   Post-fix affiliate UI reads: CONVERSIONS tile = payable only; registrations appear ONLY as a
   hint — an affiliate reporting "my conversions disappeared" after 2026-07-18 is seeing this fix,
-  not a tracking break. WORDING RULE (Migi, 2026-07-18, shipped `5f1d8ba`): affiliate-facing label
-  for $0 signup fires is "Lead Signed Up – Didn’t Download Game" (tile note "· N Lead(s) Signed Up
-  – Didn’t Download Game", row badge "+N leads", CSV column same phrase; tooltips say NOT
-  conversions, pay $0, conversion = money earned). NEVER show "$0 events"/"telemetry" jargon to
-  affiliates; those terms stay on admin surfaces + internal code only. Conversions shown to
-  affiliates = payable rows ONLY, everywhere, always.
+  not a tracking break. DISPLAY RULE (Migi, 2026-07-18, final — `c036098`, supersedes the brief
+  "Lead Signed Up – Didn’t Download Game" label of `5f1d8ba`): affiliates see MONEY METRICS ONLY —
+  clicks, payable conversions, earnings. $0 signup fires are NOT surfaced to affiliates at all (no
+  tile note, no row badge, no CSV column; a signup-only SPK row stays hidden until it has
+  clicks/conversions/earnings). The `installs` field remains in API payloads and plumbing for
+  admin surfaces — it just never renders affiliate-side. So an affiliate with only registrations
+  sees 0 conversions / $0.00 and that is CORRECT; explain via support ("signups don't pay —
+  conversions appear when the referred user completes the paid action"), never via the dashboard.
+  Conversions shown to affiliates = payable rows ONLY, everywhere, always.
   RESIDUALS ALL CLOSED 2026-07-18: the four "accepted residuals" from the second review were fixed
   by `bb2c8fb` (demo chart drift → per-event `paid` flag; empty-state on CAKE outage → snapPaint;
   negative-price mislabel → shared classifier) and `8d5db29` (CSV "$0 Events" column + classifier
