@@ -83,7 +83,16 @@ where user_id is null and created_at > now()-interval '7 days'` — money that m
 
 WIRE (v3, 2026-07-18, SPRKNetworkAds main `846dd71`): doors stamp `s1=<bare aff id>` ('29') ·
 `s2=SPK` · `s3=ad account` · `s4=offer name` · `s5=<Name>.<click_id>` (letters-only display name +
-22-char click token; the postback takes the cid echo's LAST dot-segment). Pre-flip rows show
+22-char click token; the postback takes the cid echo's LAST dot-segment).
+
+**"Ad account (s3) is blank for some affiliates"** (asked 2026-07-20): s3 is only stamped with the
+real `advertiser_id` by the auto-LAUNCHER (it calls TikTok's API, knows the account). SELF-launched
+affiliates (copy their run-link, build their own TikTok ad) never give us an advertiser_id, and
+TikTok has NO ad-account URL macro (only campaign/adgroup/ad) — so their s3 was blank. FIX (main
+`723b124`): `buildAdLink` (sparkbank) now appends `&s3=__CAMPAIGN_ID__`; TikTok fills the real
+campaign id, which forwards lander→door→CAKE. So s3 = advertiser_id (launcher ads) OR campaign_id
+(self-launched). Only fills in as affiliates relaunch with the new copy-link (can't touch live ads).
+The column in Migi's screenshot is Monetise/CAKE's own Sub ID 3, not an SPRK view. Pre-flip rows show
 `aff<N>` in s1 and a bare token in s5 — same data, different dressing. NEVER register a bare int, aff<N>,
 an ALL-NUMERIC compound (29-29), or an affiliate's display name as a SubID; the click token must
 stay in s5 (440/455 recent conversions have no usable #tid# — it's the only per-lead dedup key +
