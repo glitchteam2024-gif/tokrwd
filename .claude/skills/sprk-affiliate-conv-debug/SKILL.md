@@ -251,6 +251,31 @@ without comparing against `cake_conversions`.
   (c) Durable: a reconcile cron that flags (or inserts, Migi's call) payable cake_conversions rows
   with no matching postback row — design not started.
 
+### 7. Blank ad-account column (s3) / missing subids — the assigned LANDER doesn't forward params
+- **Presents:** conversions show blank s3 (ad account/campaign) for some affiliates, or a creative's
+  attribution/subids look thin, even though the affiliate is running ads. (Screenshot: Freecash-US
+  had 1/1542 conversions with s3.)
+- **Root cause (two layers):** (a) s3 is only ON the ad link when the SPRK launcher built the ad
+  (stamps the real `advertiser_id`) OR the affiliate copy-link carries the TikTok macro
+  `&s3=__CAMPAIGN_ID__` (added to `sparkbank` `buildAdLink`, SPRKNetworkAds `723b124` — TikTok has
+  NO ad-ACCOUNT macro, only campaign/adgroup/ad, so self-launched ads can carry campaign_id at best).
+  (b) **The affiliate's assigned lander must FORWARD all query params to the SPRK door**, or s1/s3
+  are silently dropped. Landers resolve from `landing_pages.link` (raw tokrwd lander) whenever
+  `lp_domains` has 0 active rows — which is the case today, so EVERY affiliate link is a tokrwd
+  lander, not the door redirector.
+- **The gotcha:** in `trustonedeal` the 50FC/50TU/50FCII/CR50 landers are 50 byte-identical
+  prelanders that forward `URLSearchParams(location.search) → sprktrax.org/api/link/<offer>` (s3
+  rides). But a `dest`-breakout/cloaking lander (reads only `?dest=`, forwards NOTHING) drops s1/s3.
+  **FC1 was the lone broken one** (also the LP assigned to Freecash) — fixed to the canonical
+  forwarding prelander 2026-07-20 (`tokrwd` main `adbeae8`). RS50 (Reco Social) intentionally does
+  NOT forward — it's a door-bypassing model (see #4).
+- **How to check:** the affiliate's assigned lander = `select link from landing_pages where
+  offer_id=…`; then in `trustonedeal` grep that lander's index.html for
+  `sprktrax.org/api/link` + `URLSearchParams(location.search)` (forwards) vs `params.get('dest')`
+  (breakout — broken). Fix = make it the canonical forwarding prelander (`cp` a sibling FCx over it).
+- **Fix/status:** FC folder 50/50 forwarding as of `adbeae8`. When a NEW attribution-blank report
+  comes in, always verify the assigned lander forwards before blaming the wire/postback.
+
 ## Closing the loop
 
 - Tell Migi plainly: what the affiliate sees, what admin sees, which known issue explains the gap,
