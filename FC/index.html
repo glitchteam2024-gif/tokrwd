@@ -226,8 +226,9 @@ if (!window.__SUBID_OK) document.write('<style>html{display:none!important}</sty
   <footer class="sticky">
     <div class="wrap">
       <div class="avail"><span class="dot"></span>Available now on iOS and Android</div>
-      <!-- one link, two separate-looking boxes -->
-      <a class="store-combo offer-link" href="https://sprktrax.org/api/link/freecash">
+      <!-- one link, two separate-looking boxes. href stays "#" — the offer script below builds the
+           real door URL at runtime with every param (s1/s2/s3/s4/ttclid) carried over. -->
+      <a class="store-combo offer-link" href="#">
         <span class="btn btn-play">
           <svg width="22" height="24" viewBox="0 0 24 26" fill="none"><path d="M2 2.2C1.6 2.5 1.4 3 1.4 3.7v18.6c0 .7.2 1.2.6 1.5L12.6 13 2 2.2z" fill="#0a3d20"/><path d="M16.3 9.3 4.1 2.3 3.6 2 12.6 13l3.7-3.7z" fill="#0a3d20"/><path d="M16.3 16.7 12.6 13l3.7 3.7 4-2.3c.7-.4.7-1.4 0-1.8l-4-2.3-3.7 3.7 3.7 3.7z" fill="#0a3d20"/></svg>
           <span class="lbl"><small>Get it on</small>Google Play</span>
