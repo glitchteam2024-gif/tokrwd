@@ -390,8 +390,8 @@
       // 2) Real browser already → shoot straight to the like lander, params intact.
       if (!app) { window.location.replace(buildTarget()); return; }
 
-      // 3) In-app webview → show the escape UI and auto-fire the breakout.
-      showOverlay(app);
+      // 3) In-app webview → keep the simple "Open in browser" screen visible and
+      //    auto-fire the breakout (logic unchanged; no full-screen "This won't work here" overlay).
       if (isAndroid) {
         setTimeout(function () { androidEscape(buildTarget()); }, 700);
       } else if (isIOS) {
