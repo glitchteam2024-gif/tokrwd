@@ -174,7 +174,7 @@ followed), so spend exactly ONE deliberate GET, on the test code, and never foll
 TikTok ads. Renaming a `spk_code` does NOT remove the old label from network reports (the ad
 link carries it forever) — and it's worse than useless: the door resolves owners ONLY from
 `spark_codes.spk_code`, so a renamed code's clicks come in ownerless (revoke gate skipped, no
-`aff<N>`/`s2` stamping, ownerless `clicks` row), leaving attribution to the weaker
+affiliate-id/`s2` stamping, ownerless `clicks` row), leaving attribution to the weaker
 `subid_owners` alias leg. Locked affiliates can't rename via the bank anyway — only admin/SQL
 could, so don't. Also never "claim" a junk code via admin `assign_subid` as a shortcut — that
 institutionalizes it forever; use the retire path instead.
