@@ -92,10 +92,12 @@ TikTok has NO ad-account URL macro (only campaign/adgroup/ad) — so their s3 wa
 `723b124`): `buildAdLink` (sparkbank) now appends `&s3=__CAMPAIGN_ID__`; TikTok fills the real
 campaign id, which forwards lander→door→CAKE. So s3 = advertiser_id (launcher ads) OR campaign_id
 (self-launched). Only fills in as affiliates relaunch with the new copy-link (can't touch live ads).
-The column in Migi's screenshot is Monetise/CAKE's own Sub ID 3, not an SPRK view. Pre-flip rows show
-`aff<N>` in s1 and a bare token in s5 — same data, different dressing. NEVER register a bare int, aff<N>,
-an ALL-NUMERIC compound (29-29), or an affiliate's display name as a SubID; the click token must
-stay in s5 (440/455 recent conversions have no usable #tid# — it's the only per-lead dedup key +
+The column in Migi's screenshot is Monetise/CAKE's own Sub ID 3, not an SPRK view. Rows show the
+affiliate number in s1 and a bare token in s5 — same data, different dressing. (Outbound s1 was
+`aff<N>` until 2026-07-23; the `aff` prefix was dropped, so it's now the pure number, e.g. `26`.
+See the `tokrwd-landers` skill and sprk-new-offer for the wire scheme.) NEVER register a
+bare int, an `aff<N>` string, an ALL-NUMERIC compound (29-29), or an affiliate's display name as a
+SubID; the click token must stay in s5 (440/455 recent conversions have no usable #tid# — it's the only per-lead dedup key +
 cap-fallback offer channel). xhigh fix-pack 9b00f8d: supabase-js RESOLVES errors ({error}, never
 throws) — always check the error FIELD for fail-open rails; postback probes are cached+capped;
 resolver skips wire-stamp-shaped candidates.

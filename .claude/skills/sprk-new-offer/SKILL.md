@@ -35,7 +35,7 @@ subid reports even though the money attributes correctly to her account. Same ba
 **No SPRK code path may MINT a self-describing `<offerCode><affId>-<seq>` spark code for a
 locked affiliate. Locked-affiliate codes are always opaque `SPK-XXXX-XXXX`.** (Team rule
 2026-07-14, Migi — see `SPRKNetworkAds/api/CLAUDE.md` → "Spark codes / SubIDs", which also
-documents the aff<N> outbound scheme below.)
+documents the affiliate-id outbound scheme below — pure number, no `aff` prefix as of 2026-07-23.)
 
 - `generateSPKCode()` in **`api/_lib/subid.js`** is the ONE shared mint — imported by
   `api/spark-code.js` (creative mint) and `api/admin.js` (house scaling-pull copy). Any new
@@ -50,14 +50,20 @@ documents the aff<N> outbound scheme below.)
   pick an offer-code-lookalike name (`CB19-1` passes the validator) — check the row's
   ownership + role before assuming a generator regression.
 
-## What the network actually sees (aff<N> wire scheme, Ricky/Monetise 2026-07-16)
+## What the network actually sees (affiliate-id wire scheme — Ricky/Monetise 2026-07-16; **`aff`
+prefix dropped 2026-07-23, Migi**)
+
+> **2026-07-23 change:** the outbound `s1` is now the **pure affiliate number** — NO `aff` prefix.
+> Where this doc used to say `aff<N>` (e.g. `aff26`), the network now sees just `<N>` (e.g. `26`).
+> The scheme is otherwise unchanged. Old `aff<N>` values already sitting in historical network
+> reports are the same affiliate — don't treat the format switch as two different owners.
 
 The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the way out
 (`stampAffiliateSubids`, `api/_lib/tracking.js` on origin/main):
 
-- resolved click, aff_id known → `s1 = aff<N>` (the affiliate's AffID) · `s2 = SPK code` (the
-  creative) · `s3 = ad account` (launcher-stamped, forwarded) · `s4 = offer name` · click_id in
-  `offers.clickid_slot` (default `s5`).
+- resolved click, aff_id known → `s1 = <affId>` (the affiliate's AffID as a **bare number**, no
+  `aff` prefix) · `s2 = SPK code` (the creative) · `s3 = ad account` (launcher-stamped, forwarded) ·
+  `s4 = offer name` · click_id in `offers.clickid_slot` (default `s5`).
 - resolved click, but the owner has NO `user_profiles.aff_id` (or the lookup blips) → `s1` keeps
   the SPK and `s2` gets the legacy `p`+6-hex publisher code. Seeing `p……` in s2 is NOT junk —
   it flags an owned click whose affiliate is missing an aff_id; fix the profile.
@@ -66,7 +72,8 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
   — "fail-open" means no owner and no translation, not an untouched URL. Junk `s1` values in
   network reports are expected noise, not a generator regression.
 
-**`aff<N>` in the network's s1 column is CORRECT — do not "fix" it back to SPK.**
+**A bare affiliate number in the network's s1 column is CORRECT — do not "fix" it back to SPK.**
+(Pre-2026-07-23 it appeared as `aff<N>`; same meaning, prefix now dropped.)
 
 ## Checklist for wiring a new offer (in order)
 
@@ -135,8 +142,9 @@ followed), so spend exactly ONE deliberate GET, on the test code, and never foll
   `clickid_slot`. This writes one ownerless clicks row + one lp_clicks row — known residue
   (`select * from clicks where sub1 = 'SPK-TEST-0000'` finds it later). Don't follow through the
   network funnel or you'll manufacture an unmatched conversion in your own final check.
-- `curl -sI` with a REAL registered SPK → expect the production layout: `s1=aff<N>`, `s2=<SPK>`,
-  `s4=<offer name>`. That is correct — don't mistake it for broken wiring. (No GET needed here.)
+- `curl -sI` with a REAL registered SPK → expect the production layout: `s1=<affId>` (bare number,
+  no `aff` prefix as of 2026-07-23), `s2=<SPK>`, `s4=<offer name>`. That is correct — don't mistake
+  it for broken wiring. (No GET needed here.)
 - A bare lander URL (no `s1`) must still render (preview), but the door must 404.
 - SQL audit (read-only) — must return 0 rows for the new offer. Scans BOTH pollution channels:
   non-SPK codes AND lingering legacy `subid_value` (which only a creative WITHOUT an SPK-shaped
