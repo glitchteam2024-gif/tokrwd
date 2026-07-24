@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Links Manager</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: #13131a;
+  --card-border: rgba(139, 92, 246, 0.15);
+  --purple: #8b5cf6;
+  --purple-dim: rgba(139, 92, 246, 0.15);
+  --purple-hover: #a78bfa;
+  --green: #10b981;
+  --green-dim: rgba(16, 185, 129, 0.15);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.15);
+  --yellow: #f59e0b;
+  --text: #f1f1f4;
+  --muted: #8b8b9e;
+  --input-bg: #1a1a24;
+  --input-border: rgba(139, 92, 246, 0.25);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; line-height: 1.5; min-height: 100vh; }
+body { padding: 24px; max-width: 1100px; margin: 0 auto; }
+
+h1 { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+.subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+/* Auth overlay */
+.auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+.auth-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 32px; width: 360px; text-align: center; }
+.auth-box h2 { margin-bottom: 16px; }
+.auth-box input { width: 100%; padding: 12px 16px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--text); font-size: 15px; margin-bottom: 12px; outline: none; }
+.auth-box input:focus { border-color: var(--purple); }
+.auth-box button { width: 100%; padding: 12px; background: var(--purple); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 15px; cursor: pointer; }
+.auth-box button:hover { background: var(--purple-hover); }
+
+/* Tabs */
+.tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.tab { padding: 10px 20px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--muted); font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+.tab:hover { color: var(--text); background: var(--purple-dim); }
+.tab.active { background: var(--purple); color: white; border-color: var(--purple); }
+.tab-icon { font-size: 16px; }
+
+/* Cards */
+.card { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+.card h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; color: var(--muted); }
+
+/* Forms */
+.form-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+.form-group { flex: 1; min-width: 180px; }
+.form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+.form-group input { width: 100%; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--text); font-size: 14px; outline: none; }
+.form-group input:focus { border-color: var(--purple); }
+.form-group input::placeholder { color: #4a4a5e; }
+
+/* Buttons */
+.btn { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 600; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+.btn-primary { background: var(--green); color: white; }
+.btn-primary:hover { background: #059669; }
+.btn-purple { background: var(--purple); color: white; }
+.btn-purple:hover { background: var(--purple-hover); }
+.btn-danger { background: var(--red-dim); color: var(--red); }
+.btn-danger:hover { background: var(--red); color: white; }
+.btn-copy { background: var(--purple); color: white; font-size: 12px; padding: 6px 12px; }
+.btn-edit { background: var(--yellow); color: #000; font-size: 12px; padding: 6px 12px; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 10px 12px; color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--card-border); }
+td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+td a { color: var(--purple); text-decoration: none; font-weight: 600; }
+td a:hover { color: var(--purple-hover); }
+.status-badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.status-active { background: var(--green-dim); color: var(--green); }
+.status-inactive { background: var(--red-dim); color: var(--red); }
+.item-count { float: right; color: var(--muted); font-size: 13px; font-weight: 400; }
+.actions { display: flex; gap: 6px; }
+
+/* Lander cards */
+.lander-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.lander-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; }
+.lander-thumb { width: 100%; height: 160px; background: linear-gradient(135deg, #1a1a2e, #16213e); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; }
+.lander-info { padding: 14px; }
+.lander-info h4 { font-size: 14px; margin-bottom: 4px; }
+.lander-info p { font-size: 12px; color: var(--muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lander-actions { display: flex; gap: 8px; padding: 0 14px 14px; }
+.lander-actions .btn { flex: 1; justify-content: center; }
+
+/* Postback section */
+.postback-url-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px 20px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 12px; word-break: break-all; }
+.postback-desc { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+.postback-desc code { background: var(--purple-dim); color: var(--purple); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Toast */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--green); color: white; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; opacity: 0; transform: translateY(10px); transition: all 0.3s; z-index: 999; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* Empty state */
+.empty { text-align: center; padding: 40px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- Auth Overlay -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <h2>Links Manager</h2>
+    <p style="color:var(--muted);margin-bottom:16px;font-size:13px;">Enter admin key to continue</p>
+    <input type="password" id="authInput" placeholder="Admin key" onkeypress="if(event.key==='Enter')doAuth()" />
+    <button onclick="doAuth()">Unlock</button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<h1>Links Manager</h1>
+<p class="subtitle">Manage Carrd pages, offer short-links, and lander thumbnails.</p>
+
+<div class="tabs">
+  <button class="tab active" data-tab="carrd" onclick="switchTab('carrd')">
+    <span class="tab-icon">🖥</span> Carrd Links
+  </button>
+  <button class="tab" data-tab="offers" onclick="switchTab('offers')">
+    <span class="tab-icon">🔗</span> Offer Links
+  </button>
+  <button class="tab" data-tab="landers" onclick="switchTab('landers')">
+    <span class="tab-icon">📄</span> Landers
+  </button>
+  <button class="tab" data-tab="postbacks" onclick="switchTab('postbacks')">
+    <span class="tab-icon">🔔</span> Postbacks
+  </button>
+</div>
+
+<!-- CARRD LINKS TAB -->
+<div class="tab-panel active" id="panel-carrd">
+  <div class="card">
+    <h3>Add Landing Page Domain</h3>
+    <div class="form-row">
+      <div class="form-group" style="flex:4;">
+        <input type="text" id="carrdUrl" placeholder="https://yourpage.carrd.co or https://store.myshopify.com" />
+      </div>
+      <button class="btn btn-primary" onclick="addCarrd()">+ Add</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:8px;">*.carrd.co or *.myshopify.com</p>
+  </div>
+  <div class="card">
+    <h3>Saved Carrd Pages <span class="item-count" id="carrdCount">0 item(s)</span></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Subdomain</th><th>Full URL</th><th>Uses</th><th>Status</th><th>Added</th><th>Actions</th></tr></thead>
+        <tbody id="carrdTable"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="carrdEmpty">No Carrd pages added yet.</div>
+  </div>
+</div>
+
+<!-- OFFER LINKS TAB -->
+<div class="tab-panel" id="panel-offers">
+  <div class="card">
+    <h3>Create Offer Link</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Short Code *</label>
+        <input type="text" id="offerSlug" placeholder="offer1" />
+      </div>
+      <div class="form-group" style="flex:2;">
+        <label>Destination URL *</label>
+        <input type="text" id="offerDest" placeholder="https://yourlander.com" />
+      </div>
+      <div class="form-group">
+        <label>Forward Param</label>
+        <input type="text" id="offerParam" placeholder="campid" value="campid" />
+      </div>
+      <button class="btn btn-primary" onclick="addOffer()">+ Create Offer Link</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:8px;" id="offerPreview">yourdomain.com/api/c/<strong>offer1</strong></p>
+  </div>
+  <div class="card">
+    <h3>Offer Links <span class="item-count" id="offerCount">0 item(s)</span></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Short Code</th><th>Destination</th><th>Offer URL</th><th>Created</th><th>Actions</th></tr></thead>
+        <tbody id="offerTable"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="offerEmpty">No offer links created yet.</div>
+  </div>
+</div>
+
+<!-- LANDERS TAB -->
+<div class="tab-panel" id="panel-landers">
+  <div class="card">
+    <h3>Add Lander</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Name (optional)</label>
+        <input type="text" id="landerName" placeholder="e.g. Main Lander" />
+      </div>
+      <div class="form-group" style="flex:2;">
+        <label>URL *</label>
+        <input type="text" id="landerUrl" placeholder="https://yourlander.com" />
+      </div>
+      <button class="btn btn-primary" onclick="addLander()">+ Add Lander</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:8px;">A screenshot thumbnail will be generated automatically.</p>
+  </div>
+  <div class="card">
+    <h3>Landers</h3>
+    <div class="lander-grid" id="landerGrid"></div>
+    <div class="empty" id="landerEmpty">No landers added yet.</div>
+  </div>
+</div>
+
+<!-- POSTBACKS TAB -->
+<div class="tab-panel" id="panel-postbacks">
+  <div class="card">
+    <h3>Global Postback URL</h3>
+    <p class="postback-desc">Use this URL as your network's conversion postback. Swap <code>{campid}</code> and <code>{payout}</code> with your affiliate network's click-ID and payout macros.</p>
+    <div class="postback-url-box">
+      <span id="postbackUrl">Loading...</span>
+      <button class="btn btn-copy" onclick="copyPostback()">📋 Copy</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Recent Conversions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>CampID</th><th>Payout</th><th>Offer</th><th>Status</th><th>Received</th></tr></thead>
+        <tbody id="postbackLog"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="postbackEmpty">No conversions received yet.</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+let ADMIN_KEY = '';
+let DATA = {};
+const API_BASE = '/api/admin/data';
+
+// Auth
+function doAuth() {
+  ADMIN_KEY = document.getElementById('authInput').value;
+  fetchData().then(ok => {
+    if (ok) {
+      document.getElementById('authOverlay').style.display = 'none';
+      localStorage.setItem('lm_key', ADMIN_KEY);
+    } else {
+      showToast('Invalid key', true);
+    }
+  });
+}
+
+// Check saved key
+(function() {
+  const saved = localStorage.getItem('lm_key');
+  if (saved) {
+    ADMIN_KEY = saved;
+    fetchData().then(ok => {
+      if (ok) document.getElementById('authOverlay').style.display = 'none';
+    });
+  }
+})();
+
+// Fetch all data
+async function fetchData() {
+  try {
+    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    if (!res.ok) return false;
+    DATA = await res.json();
+    render();
+    return true;
+  } catch (e) { return false; }
+}
+
+// API call helper
+async function apiCall(action, body) {
+  const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...body })
+  });
+  const data = await res.json();
+  if (data.success) {
+    await fetchData();
+    showToast('Done!');
+  } else {
+    showToast(data.error || 'Error', true);
+  }
+}
+
+// Tab switching
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// Render all data
+function render() {
+  renderCarrd();
+  renderOffers();
+  renderLanders();
+  renderPostbacks();
+}
+
+function renderCarrd() {
+  const pages = DATA.carrd_pages || [];
+  document.getElementById('carrdCount').textContent = pages.length + ' item(s)';
+  document.getElementById('carrdEmpty').style.display = pages.length ? 'none' : 'block';
+  document.getElementById('carrdTable').innerHTML = pages.map(p => `
+    <tr>
+      <td><a href="${p.url}" target="_blank">${p.subdomain}</a> <span style="color:var(--muted)">.carrd.co</span></td>
+      <td>${p.url}</td>
+      <td>${p.uses || 0}</td>
+      <td><span class="status-badge ${p.status === 'active' ? 'status-active' : 'status-inactive'}">${p.status || 'active'}</span></td>
+      <td>${formatDate(p.added)}</td>
+      <td class="actions">
+        <button class="btn btn-copy btn-sm" onclick="copyText('${p.url}')">📋 Copy</button>
+        <button class="btn btn-danger btn-sm" onclick="removeCarrd('${p.url}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderOffers() {
+  const links = DATA.offer_links || [];
+  const host = DATA.settings?.domain || location.host;
+  document.getElementById('offerCount').textContent = links.length + ' item(s)';
+  document.getElementById('offerEmpty').style.display = links.length ? 'none' : 'block';
+  document.getElementById('offerTable').innerHTML = links.map(l => {
+    const offerUrl = `https://${host}/api/c/${l.slug}?campid={your_sub1}`;
+    return `
+    <tr>
+      <td><a href="/api/c/${l.slug}" target="_blank">${l.slug}</a></td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${l.destination}">${l.destination}</td>
+      <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);">${offerUrl}</td>
+      <td>${formatDate(l.created)}</td>
+      <td class="actions">
+        <button class="btn btn-copy btn-sm" onclick="copyText('${offerUrl}')">📋 Copy</button>
+        <button class="btn btn-danger btn-sm" onclick="removeOffer('${l.slug}')">🗑</button>
+      </td>
+    </tr>
+  `}).join('');
+}
+
+function renderLanders() {
+  const landers = DATA.landers || [];
+  document.getElementById('landerEmpty').style.display = landers.length ? 'none' : 'block';
+  document.getElementById('landerGrid').innerHTML = landers.map(l => `
+    <div class="lander-card">
+      <div class="lander-thumb">Preview</div>
+      <div class="lander-info">
+        <h4>${l.name || 'Unnamed'}</h4>
+        <p>${l.url}</p>
+        <p style="font-size:11px;">${formatDate(l.added)}</p>
+      </div>
+      <div class="lander-actions">
+        <button class="btn btn-copy btn-sm" onclick="copyText('${l.url}')">📋 Copy URL</button>
+        <button class="btn btn-danger btn-sm" onclick="removeLander('${l.url}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPostbacks() {
+  const url = DATA.postback_url || '';
+  document.getElementById('postbackUrl').textContent = url;
+  const log = DATA.postback_log || [];
+  document.getElementById('postbackEmpty').style.display = log.length ? 'none' : 'block';
+  document.getElementById('postbackLog').innerHTML = log.reverse().map(l => `
+    <tr>
+      <td style="font-family:monospace;font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;">${l.campid || '-'}</td>
+      <td style="color:var(--green);font-weight:700;">$${(l.payout || 0).toFixed(2)}</td>
+      <td>${l.offer || '-'}</td>
+      <td><span class="status-badge status-active">${l.status || 'approved'}</span></td>
+      <td>${formatDate(l.received)}</td>
+    </tr>
+  `).join('');
+}
+
+// Actions
+function addCarrd() {
+  const url = document.getElementById('carrdUrl').value.trim();
+  if (!url) return showToast('Enter a URL', true);
+  apiCall('add_carrd', { url });
+  document.getElementById('carrdUrl').value = '';
+}
+
+function removeCarrd(url) {
+  if (confirm('Remove this Carrd page?')) apiCall('remove_carrd', { url });
+}
+
+function addOffer() {
+  const slug = document.getElementById('offerSlug').value.trim();
+  const destination = document.getElementById('offerDest').value.trim();
+  const forward_param = document.getElementById('offerParam').value.trim() || 'campid';
+  if (!slug || !destination) return showToast('Slug and destination required', true);
+  apiCall('add_offer_link', { slug, destination, forward_param });
+  document.getElementById('offerSlug').value = '';
+  document.getElementById('offerDest').value = '';
+}
+
+function removeOffer(slug) {
+  if (confirm('Remove this offer link?')) apiCall('remove_offer_link', { slug });
+}
+
+function addLander() {
+  const name = document.getElementById('landerName').value.trim();
+  const url = document.getElementById('landerUrl').value.trim();
+  if (!url) return showToast('URL required', true);
+  apiCall('add_lander', { name, url });
+  document.getElementById('landerName').value = '';
+  document.getElementById('landerUrl').value = '';
+}
+
+function removeLander(url) {
+  if (confirm('Remove this lander?')) apiCall('remove_lander', { url });
+}
+
+function copyPostback() {
+  copyText(DATA.postback_url || '');
+}
+
+// Utilities
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => showToast('Copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Copied!');
+  });
+}
+
+function formatDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? 'var(--red)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Slug preview
+document.getElementById('offerSlug')?.addEventListener('input', function() {
+  const host = DATA.settings?.domain || location.host;
+  document.getElementById('offerPreview').innerHTML = `${host}/api/c/<strong>${this.value || 'offer1'}</strong>`;
+});
+</script>
+</body>
+</html>
