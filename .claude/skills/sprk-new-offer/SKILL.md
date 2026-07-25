@@ -7,6 +7,15 @@ description: >-
   offer", "new offer", "set up <brand>", "build landers for <offer>", "wire up tracking for
   <offer>", or asks why an offer-code subid (CB18-1 / TU26-3 style) is popping up in reports.
   The offer's short code (CB, TU, FC…) is a DISPLAY label only — it must never become a spark code.
+  ALSO covers REVSHARE offers (payout varies per conversion) — use for "revshare", "rev share",
+  "take a percentage of each conversion", "variable payout", "the offer pays a different amount
+  each time", or any request to change SPRK's cut/split on an offer. Short answer lives in the
+  "Revshare offers" section: the percentage take ALREADY works on a variable gross — do not
+  build a pricing engine. The job is leaving `offers.payout_by_geo` and `offers.payout` empty
+  (they flatten the price and invert chargebacks) and knowing `offers.sprk_cut_pct` is the
+  shipped per-offer cut knob.
+  LIVING DOCUMENT: when a session learns something new about offer wiring or offer pricing,
+  write it in here so the next session doesn't re-derive it.
 ---
 
 # Adding a new offer — SPK-XXXX-XXXX attribution, end to end
@@ -80,9 +89,13 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
 1. **Offer row** (Supabase `offers`): `name`, `code` (2–4 letters, display only),
    `destination_url` = the real network URL (montrk/CAKE) with its subid slots — admin-only,
    never appears in any lander or affiliate-visible surface. `clickid_slot` (default `s5`) must
-   match the slot the network's postback echoes as `cid`. `affiliate_payout` is display-facing
-   for MATCHED traffic (commission is % of gross), but it IS the recorded payout on UNMATCHED
-   conversions — set a sane per-conversion figure, not a placeholder.
+   match the slot the network's postback echoes as `cid`. `affiliate_payout` is admin-only —
+   as of origin/main it is NO LONGER exposed to affiliates (it was the source of the wrong
+   "$9.45 / conv" badge) and UNMATCHED rows now book net/margin NULL rather than falling back to
+   it. `offers.payout` is a gross fallback that fires only when the network price is null or
+   NEGATIVE — see "Revshare offers" before setting it.
+   **If the offer is REVSHARE (payout varies per conversion), stop and read "Revshare offers"
+   below before setting any payout field.**
 2. **Landing page row** (`landing_pages`): `slug` → the door URL is
    `https://sprktrax.org/api/link/<slug>`. **Leave `enforce_assignment` FALSE at this step** —
    see step 8. The LP's manual `link` field is screened (write + read) by the shared
@@ -121,6 +134,9 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
    `…&s1=#s1#&s2=#s2#&s3=#s3#&s4=#s4#&s5=#s5#&cid=#s5#&payout=#price#&txid=#tid#` — the `cid`
    macro's slot MUST equal `offers.clickid_slot`. They are set in two places (offer row +
    network postback template); a mismatch silently kills the authoritative click match.
+   **On a revshare offer send `txid=#tid#` and verify it is unique per transaction** — without a
+   real txid a 120-second window dedup can merge two differently-priced conversions, and a
+   CONSTANT txid drops every conversion after the first. See "Revshare offers".
 8. **Assignment + enforcement (LAST)**: assign the LP per affiliate (admin → offers). Two
    SEPARATE rosters back the two enforcement flags: `landing_page_affiliates` (status `active`)
    gates the CLICK door via `landing_pages.enforce_assignment`; `offer_assignments` (status
@@ -129,6 +145,169 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
    conversion. Only after BOTH rosters are fully mirrored, flip BOTH flags (or neither — it's
    opt-in anti-framing, the Copper pattern). Revoked/paused `offer_assignments` 404 the door;
    caps/fallback via `conversion_cap`/`fallback_offer_id`.
+
+## Revshare offers (payout varies per conversion) — verified against origin/main 2026-07-24
+
+A **revshare** offer pays a different dollar amount on every conversion ($4 on one, $14 on the
+next) instead of a fixed price. Goal: SPRK takes a flat **percentage** so the cut scales with
+revenue. **This already works — the job is not building it, it is not breaking it.**
+
+⚠️ **Verify everything on this page against `origin/main`, never local `HEAD`.** The local
+checkout is routinely dozens of commits stale, and the money code moves. Every claim below was
+checked with `git show origin/main:<path>` after a `git fetch`.
+
+### Two ledgers price a conversion. Know which one you are looking at.
+
+| | `conversions` (first-party postback) | `cake_conversions` (CAKE poll) |
+|---|---|---|
+| Written by | `api/postback.js` | `api/cron/poll-cake.js` |
+| Gross | the network's real `#price#` | real `<price>`, **overridable per-geo** (see below) |
+| Share | `resolveCommission` (role / `commission_type`) | `effectiveAffiliateShare(role, commission_type, offers.sprk_cut_pct)` |
+| Share frozen? | no | **yes** — `cake_conversions.earn_share`, net recomputed from current gross |
+| Reads `sprk_cut_pct`? | **no** | yes |
+
+The affiliate's balance and dashboard read the **CAKE** side (`api/_lib/cake-earnings.js`). So the
+CAKE column is the one that pays.
+
+### The percentage already scales with revenue — do not build a pricing engine
+
+`origin/main:api/postback.js` (line numbers drift; grep the symbols):
+
+```js
+const round2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+const TIER1_SHARE = 0.9;
+netPayout = round2(effGross * comm.share);   // effGross = the network's REAL #price#
+margin    = round2(effGross - netPayout);    // SPRK's cut, scales automatically
+```
+
+and the CAKE side does `affiliate_payout = round2(priced * earn_share)`. Both multiply a **variable**
+gross by a share, so $4 → $3.60/$0.40 and $14 → $12.60/$1.40 with nothing configured.
+
+### The take IS per-offer configurable — `offers.sprk_cut_pct`
+
+Shipped 2026-07-23 (`migrations/2026-07-23_offer_cut_and_frozen_net.sql`). Admin-writable through
+the normal Offers create/update payload (`api/offers.js`). Resolution order in
+`api/_lib/offer-geo.js` → `effectiveAffiliateShare`:
+
+```
+role 'demo'   → share 0      (SPRK takes 100%)
+role 'scaler' → share 1      (SPRK takes 0%)
+commission_type parsed, 0 < p <= 0.90 → p        ← per-affiliate split WINS over the offer cut
+offers.sprk_cut_pct, share = 1 - cut/100, if 0 < s <= 0.90 → s
+otherwise → 0.9              (global default)
+```
+
+Two consequences worth stating plainly:
+- **A per-affiliate `commission_type` overrides the offer's cut.** Setting `sprk_cut_pct = 20` does
+  not give you 20% from an affiliate whose profile says `80/20`.
+- **The honored band caps share at 0.90, so the offer cut cannot go below 10%.** A `sprk_cut_pct`
+  of 5 falls through to the 0.9 default — it does not yield 95/5.
+- Splits are **not** clamped to a 90/10 / 50/50 whitelist any more (that was superseded). Any
+  admin-set `commission_type` in `(0, 0.90]` is honored verbatim, so `take_pct` of 20 or 50 on the
+  board is legitimate, and `role='demo'` legitimately shows 100.
+
+### ⚠️ The two settings that BREAK a revshare offer
+
+**1. `offers.payout_by_geo` — flattens every conversion to one price.** This is the big one.
+`api/_lib/offer-geo.js` describes it as "a MANUALLY-SET map of GROSS USD payout per geo", and
+`api/cron/poll-cake.js` does:
+
+```js
+if (offerId && geo && offerMatches && rawPrice != null && rawPrice > 0 && atIso) {
+  const amt = amountEffectiveAt(pricing.history.get(`${offerId}|${geo}`), atIso);
+  if (amt != null) priced = amt;          // ← OVERRIDES the network's real price
+}
+```
+
+`priced` is then written to `gross_payout`. Set a per-geo amount on a revshare offer and the $4 and
+the $14 both become the same fixed figure — the exact thing revshare must not do. It is reachable
+from the same Offers form step 1 sends you to. **Leave `payout_by_geo` empty on revshare offers.**
+
+**2. `offers.payout` — inverts chargebacks.** The fallback guard is
+`(gross == null || gross <= 0)`, and a `gross === 0` row has already been reclassified as telemetry,
+so the only case `<= 0` actually catches is a **negative** gross — a reversal. Executed against
+prod's `round2`: a matched **−$14** chargeback on an offer with `offers.payout = 15.50` books
+`gross_payout = +15.50`, `affiliate_payout = +13.95`, `margin = +1.55`. With `offers.payout` NULL it
+books −14 / −12.60 / −1.40 correctly. **Leave `offers.payout` NULL on revshare offers** — on a
+revshare offer chargebacks are routine, and this converts each one into a payment.
+
+(If either value needs changing on a live offer, that is prod money-path work: hand Migi the SQL —
+never write prod. Root `CLAUDE.md`: "No production actions without explicit approval. Ask first,
+every time.")
+
+### Dedup — require a unique txid, and verify it is actually unique
+
+Without a real txid every conversion falls into a 120-second window dedup, and **none of the window
+arms compare gross** — so a $4 and a $14 on the same click or spark inside two minutes collapse into
+one row, returning `200` with no ledger row and no money. Note the click_id arm runs **even when
+`cid` is wired**, so `cid=#s5#` alone does not make an offer safe.
+
+`txid=#tid#` closes all of it — but the txid dedup has **no time window** (it is lifetime), so a
+network that sends a constant or per-user txid silently drops every conversion after the first,
+forever. On the first live fires, confirm the txid actually varies per transaction.
+
+### Not shipped yet: the `offer_geo_terms` trap
+
+`offer_geo_terms` / `platform_take_bps` / `isPositiveTermAmountMismatch` do **not** exist on
+origin/main (`git grep platform_take_bps origin/main -- api/` → nothing). They live in an in-flight
+branch. Re-check before reasoning about them:
+
+```bash
+git -C ~/Documents/GitHub/SPRKNetworkAds fetch
+git -C ~/Documents/GitHub/SPRKNetworkAds show origin/main:api/postback.js | grep -c isPositiveTermAmountMismatch
+# 0 = still unshipped
+```
+
+When it does land: **never create an `offer_geo_terms` row for a revshare offer.** That table is the
+only carrier of `platform_take_bps` there, but the same row forces `expected_gross_payout NOT NULL`,
+and the mismatch guard holds any conversion more than half a cent off it — on revshare, nearly every
+one. Recovery if it happens: the immutability trigger blocks DELETE and blocks economic UPDATEs, but
+it explicitly permits setting `effective_to` and `status='retired'` — retiring the term stops the
+holds. Use `sprk_cut_pct` instead; it is the shipped knob.
+
+### Rounding
+
+`net = round2(gross × share)` then `margin = gross − net` puts the sub-cent residual on SPRK's side.
+Over a spread of $1–$25 amounts the realized take lands within ~0.005 points of nominal, so this is
+**not worth changing** at ordinary amounts. It matters in two cases: sub-dollar conversions (10% of
+a nickel is half a cent, so `$0.05` yields a $0.00 take), and price points that always land on a
+half-cent — at `$X.95`, `0.9 × gross` is always `.455`/`.955`, so the residual is one-directional
+and SPRK forgoes half a cent on **every** conversion.
+
+If it ever is worth flipping, the correct form keeps the share variable — do **not** hardcode 10%,
+which would charge a scaler (share 1) and a 50/50 account the wrong amount:
+
+```js
+margin    = round2(gross * (1 - share));
+netPayout = round2(gross - margin);
+```
+
+Re-measure against the offer's **actual** price points before deciding; a uniform-cents simulation
+hides the `$X.95` case.
+
+### Verifying a revshare offer prices correctly
+
+Production `conversions` has **no `payout_status` column** and never writes `status='held'` — those
+are v2-only, and selecting them makes the whole query fail with `42703`. Use:
+
+```sql
+select gross_payout, affiliate_payout, margin,
+       round((margin / nullif(gross_payout,0)) * 100, 2) as take_pct,
+       status, commission_rate, commission_source
+from conversions
+where offer_id = '<revshare-offer-id>' and status = 'recorded'
+order by created_at desc limit 20;
+```
+
+All three money columns are `numeric`, so `round(numeric, 2)` is valid here.
+
+- `gross_payout` must **vary** across rows. If it is constant, the per-geo override is on — check
+  `offers.payout_by_geo`.
+- `take_pct` tracks `commission_rate`, not a fixed 10: scaler → 0, demo → 100, an admin-set
+  `commission_type` → whatever it says. Read `commission_source` before calling a row wrong.
+- Then check the ledger that actually pays:
+  `select gross_payout, affiliate_payout, earn_share, network_price from cake_conversions where ...`
+  — `earn_share` is the frozen share, and `affiliate_payout` should equal `round2(gross × earn_share)`.
 
 ## Verify before announcing it done
 
