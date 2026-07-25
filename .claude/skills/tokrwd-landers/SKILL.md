@@ -38,6 +38,8 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 |--------------|--------------------------------------------|---------------------------|----------------------------------------------------|
 | Freecash     | `sprktrax.org/api/link/freecash` (Path A)  | `FC/index.html`           | `FCTT.html`, root `index.html`, `50FC/FC1-50`, `50FCII/FC1-50`, **`CLFC`** |
 | Testerup     | `sprktrax.org/api/link/testerup` (Path A)  | `TU/index.html`           | `50TU/TU1-50`, **`CLTU`**                          |
+| Freecash UK  | `/c/frrcsh-uk-off` -> monetisetrk4 (Path B) | `CLFCUK/index.html`      | — (geo copy of `FC`, DOOR line repointed)          |
+| Freecash CA  | `/c/frrcsh-ca-off` -> montrk2 (Path B)      | `CLFCCA/index.html`      | — (geo copy of `FC`, DOOR line repointed)          |
 | Copper       | `sprktrax.org/api/link/copper` (Path A)    | `CB/index.html`           | `CR50/CR1-50`                                      |
 | Gravypass    | `sprktrax.org/api/link/gravypass` (Path A) | `GP/index.html`           | — (`GP/ob/` is a clean pass-through interstitial → `/GP/`) |
 | Testerup ALT | `monetisetrk8.co.uk` DIRECT (Path B)       | `TSUP/index.html` + `js/tsup-offer.js` | —                                      |
