@@ -175,15 +175,31 @@ export default function handler(req, res) {
   }
 
   // 3. ttclid check — only real TikTok ad clicks have this parameter
-  //    Extract from the Carrd URL (the full ad URL with all params)
+  //    The Carrd script sends h=encodeURIComponent(location.href), so the full
+  //    page URL (including ?campid=...&ttclid=...) arrives in body.h.
+  //    However, if the body wasn't properly encoded, ttclid might also appear
+  //    as a top-level body param (Vercel's parser splits on &).
   let hasTtclid = false;
-  try {
-    const carrdParams = new URL(carrdUrl).searchParams;
-    hasTtclid = !!(carrdParams.get('ttclid') || '').trim();
-  } catch {
-    // If we can't parse the Carrd URL, check if ttclid is in the campid string
-    // (some setups embed it differently)
-    hasTtclid = false;
+
+  // Check 1: ttclid as a top-level body param (if Vercel parsed it that way)
+  if ((body.ttclid || '').trim()) {
+    hasTtclid = true;
+  }
+
+  // Check 2: ttclid inside the Carrd URL (body.h)
+  if (!hasTtclid && carrdUrl) {
+    try {
+      const carrdParams = new URL(carrdUrl).searchParams;
+      hasTtclid = !!(carrdParams.get('ttclid') || '').trim();
+    } catch {
+      // Fallback: simple string search for ttclid in the URL
+      hasTtclid = carrdUrl.includes('ttclid=');
+    }
+  }
+
+  // Check 3: ttclid might be in the raw body string (if req.body is a string)
+  if (!hasTtclid && typeof req.body === 'string') {
+    hasTtclid = req.body.includes('ttclid');
   }
 
   if (!hasTtclid) {
