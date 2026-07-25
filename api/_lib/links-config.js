@@ -166,6 +166,43 @@ export const CARRD_ROUTES = [
   // { host: 'anotherpage',            lander: LANDER_URLS.TU   },
 ];
 
+/**
+ * Offer keys for the `o=` param on an ad link.
+ *
+ * This is the way to run many Carrd pages without a deploy per page. Put the offer on the ad
+ * link itself and any Carrd page — new, duplicated, rotated after a burn — routes correctly the
+ * moment it exists:
+ *
+ *     https://anypage.carrd.co/?campid=SPK-A1B2-C3D4&o=fcca&ttclid=…
+ *
+ * Freecash is geo-split (three landers, three offer URLs); Testerup is universal, so `tu` covers
+ * US/CA/UK on one page. `fc` and `fcus` are the same lander — `fc` reads naturally when you are
+ * not thinking about geo.
+ *
+ * Unknown or absent `o` falls through to CARRD_ROUTES, then to LANDERS[0]. An unrecognised key is
+ * never an error: dropping a paid click is worse than serving the default offer.
+ */
+export const OFFER_KEYS = {
+  fc:   LANDER_URLS.FC,
+  fcus: LANDER_URLS.FC,
+  fcca: LANDER_URLS.FCCA,
+  fcuk: LANDER_URLS.FCUK,
+  tu:   LANDER_URLS.TU,
+};
+
+/** Resolve the `o=` offer key from the Carrd page URL. '' when absent or unknown. */
+export function landerForOfferKey(carrdUrl) {
+  const raw = String(carrdUrl == null ? '' : carrdUrl).trim();
+  if (!raw) return '';
+  let key;
+  try {
+    key = (new URL(raw).searchParams.get('o') || '').trim().toLowerCase();
+  } catch {
+    return '';
+  }
+  return (key && OFFER_KEYS[key]) || '';
+}
+
 /** Normalise a route's `host` field: accepts a bare subdomain or a full hostname. */
 function normHost(host) {
   const h = String(host == null ? '' : host).trim().toLowerCase().replace(/^www\./, '');

@@ -23,6 +23,7 @@ import {
   SUBID_PARAM,
   extractSparkCode,
   landerForCarrd,
+  landerForOfferKey,
 } from './_lib/links-config.js';
 
 /**
@@ -121,9 +122,11 @@ function getClientIP(req) {
  * Precedence:
  *   1. a campaign explicitly mapped to a lander (admin store — per-lambda scratch, so in
  *      practice this is only set within one warm instance)
- *   2. the Carrd page the click came from (CARRD_ROUTES) — the durable signal, since the
- *      script POSTs its own page URL as `h` and one Carrd page serves one offer
- *   3. the first configured lander
+ *   2. the `o=` offer key on the ad link (o=fcca, o=tu, …) — preferred, because a new or
+ *      rotated Carrd page then needs no config change and no deploy
+ *   3. the Carrd page the click came from (CARRD_ROUTES) — for pages whose ad link cannot
+ *      carry `o`; the script POSTs its own page URL as `h`
+ *   4. the first configured lander
  *
  * Deterministic at every step. An earlier version picked at random, which sent roughly two
  * thirds of FreeCash traffic to Testerup or Copper.
@@ -133,6 +136,12 @@ function pickLander(campid, store, carrdUrl) {
   const campaign = store.campaigns[campid];
   if (campaign && campaign.lander_url) {
     return campaign.lander_url;
+  }
+
+  // The ad link's own offer key — works on any Carrd page, no config, no deploy.
+  const byOffer = landerForOfferKey(carrdUrl);
+  if (byOffer) {
+    return byOffer;
   }
 
   // Route by the Carrd page the visitor came from — one page per offer.
