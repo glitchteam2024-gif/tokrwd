@@ -52,13 +52,42 @@ function readSubId(query) {
 }
 
 function noStore(res) {
-  // /c/:slug is matched against vercel.json `headers` by its INCOMING path, so it
-  // never picks up the /api/c/(.*) block — these have to be set in code.
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+}
+
+/**
+ * Build the direct-mode destination URL using string concatenation instead of
+ * URL.searchParams to avoid re-serialization that mutates the query string.
+ * 
+ * The issue: new URL(dest).searchParams.set() round-trips the existing query,
+ * which rewrites `extra=a%20b` → `extra=a+b` and `?flag` → `?flag=`. Tracker
+ * tokens can be sensitive to both.
+ */
+function buildDirectUrl(destination, forwardParam, subId, extras) {
+  let url = destination;
+  const sep = url.includes('?') ? '&' : '?';
+  const parts = [];
+
+  if (subId) {
+    parts.push(encodeURIComponent(forwardParam) + '=' + encodeURIComponent(subId));
+  }
+
+  // Append extras (ttclid, s3) without touching the existing query
+  for (const [key, val] of Object.entries(extras)) {
+    if (val) {
+      parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(val));
+    }
+  }
+
+  if (parts.length > 0) {
+    url += sep + parts.join('&');
+  }
+
+  return url;
 }
 
 export default function handler(req, res) {
@@ -106,23 +135,21 @@ export default function handler(req, res) {
   }
 
   // ── Direct mode ────────────────────────────────────────────────────────────
-  // /c/ is public, so an unvalidated destination is an open redirect one bad
-  // config line away.
   if (!link.destination || !isSafeDestination(link.destination)) {
     return res.status(404).send('Not found');
   }
 
-  const dest = new URL(link.destination);
   const forwardParam = link.forwardParam || link.forward_param || 'sub1';
-  if (subId) {
-    dest.searchParams.set(forwardParam, subId);
-  }
+  const sparkCode = subId ? extractSparkCode(subId) : '';
 
+  // Build URL using string concat to avoid searchParams re-serialization
+  const extras = {};
   const s3 = qparam(query, 's3').trim();
-  if (s3) dest.searchParams.set('s3', s3);
-
+  if (s3) extras.s3 = s3;
   const ttclid = qparam(query, 'ttclid').trim();
-  if (ttclid) dest.searchParams.set('ttclid', ttclid);
+  if (ttclid) extras.ttclid = ttclid;
 
-  return res.redirect(302, dest.toString());
+  const destUrl = buildDirectUrl(link.destination, forwardParam, sparkCode, extras);
+
+  return res.redirect(302, destUrl);
 }

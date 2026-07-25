@@ -42,7 +42,7 @@ export const PASSTHROUGH_PARAMS = ['ttclid', 's2', 's3', 'sprk_sig', 'sprk_geo']
  * is that a custom code must not start with `SPK-`. So: extract an SPK when the
  * campid embeds one, otherwise pass the campid through untouched.
  */
-const SPK_RE = /(SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?)/i;
+const SPK_RE = /^(SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?)$/i;
 
 /**
  * Pull the spark code out of a campid.
@@ -51,20 +51,29 @@ const SPK_RE = /(SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?)/i;
  * string (`ACCT_SPK-A1B2-C3D4_US_001`). Falls back to the raw value so a custom
  * scaler code survives intact.
  *
- * Returns '' for empty input — callers must treat that as "do not build a door
- * URL", because the door 404s without an s1 and we would rather fail visibly here.
+ * NOTE: The regex now uses ^ and $ anchors to prevent substring extraction from
+ * codes like TENXSPK-A1B2-C3D4X. If the full string is a canonical SPK, use it;
+ * otherwise check for SPK- embedded with delimiters.
  */
 export function extractSparkCode(campid) {
   const raw = String(campid == null ? '' : campid).trim();
   if (!raw) return '';
-  const m = raw.match(SPK_RE);
-  return m ? m[1].toUpperCase() : raw;
+  
+  // Exact match (bare SPK code)
+  const exact = raw.match(SPK_RE);
+  if (exact) return exact[1].toUpperCase();
+  
+  // Embedded SPK with delimiters (e.g., ACCT_SPK-A1B2-C3D4_US)
+  const embedded = raw.match(/(?:^|[_\-\s])(SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?)(?:[_\-\s]|$)/i);
+  if (embedded) return embedded[1].toUpperCase();
+  
+  // No SPK found — return raw (custom scaler code or legacy format)
+  return raw;
 }
 
 /** True when the value is a canonical SPRK-minted spark code. */
 export function isCanonicalSpk(value) {
-  const m = String(value == null ? '' : value).match(SPK_RE);
-  return !!m && m[1].length === String(value).trim().length;
+  return SPK_RE.test(String(value == null ? '' : value).trim());
 }
 
 /**
@@ -76,11 +85,15 @@ export function isCanonicalSpk(value) {
  * attribution — clicks row, click_id, s1/s2/s4/s5 stamping, offer caps and the
  * `pulled` kill switch. Do not point these at /c/:slug; that would route around
  * the door and drop all of it.
+ *
+ * NOTE: /r now uses the FIRST lander deterministically (not random) to avoid
+ * sending traffic to the wrong offer. If you need per-campaign routing, configure
+ * campaigns in the store with a specific lander_url.
  */
 export const LANDERS = [
-  { name: 'FreeCash', url: 'https://www.tokrwd.co/FC', weight: 1 },
-  { name: 'Testerup', url: 'https://www.tokrwd.co/TU', weight: 1 },
-  { name: 'Copper', url: 'https://www.tokrwd.co/CB', weight: 1 },
+  { name: 'FreeCash', url: 'https://www.tokrwd.co/FC' },
+  { name: 'Testerup', url: 'https://www.tokrwd.co/TU' },
+  { name: 'Copper', url: 'https://www.tokrwd.co/CB' },
 ];
 
 /**
@@ -102,7 +115,8 @@ export const OFFER_LINKS = [
   { slug: 'copper', mode: 'door', doorSlug: 'copper', enabled: true },
   { slug: 'gravypass', mode: 'door', doorSlug: 'gravypass', enabled: true },
 
-  // ── Direct-to-network (no door, no click_id) ───────────────────────────────
+  // ── Direct-to-network offers ───────────────────────────────────────────────
+  // Testerup US/CA/UK — direct tracking link
   {
     slug: 'testerup-us-off',
     mode: 'direct',
@@ -110,25 +124,45 @@ export const OFFER_LINKS = [
     forwardParam: 'sub1',
     enabled: true,
   },
-  {
-    slug: 'frrcsh-us-off2',
-    mode: 'direct',
-    // INCOMPLETE — the destination was supplied truncated as
-    // "https://monetisetrk4.co.uk/?a=26648&c=..." and appears in neither repo.
-    // Fill in the real `c=` campaign id and flip enabled to true.
-    destination: 'https://monetisetrk4.co.uk/?a=26648',
-    forwardParam: 's1',
-    enabled: false,
-  },
+  // Testerup US/CA/UK — monetise tracker
   {
     slug: 'testerup-us-mon-off',
     mode: 'direct',
-    // INCOMPLETE — same as above. Note two different campaign ids are already in
-    // play on monetisetrk8 elsewhere in this repo (c=56132 is TSUP, c=55504 is
-    // Rewards); do not guess which one belongs here.
-    destination: 'https://monetisetrk8.co.uk/?a=26648',
+    destination: 'https://montrk.co.uk/?a=26648&c=56132',
     forwardParam: 's1',
-    enabled: false,
+    enabled: true,
+  },
+  // Freecash USA
+  {
+    slug: 'frrcsh-us-off',
+    mode: 'direct',
+    destination: 'https://monetisetrk2.co.uk/?a=26648&c=55504',
+    forwardParam: 's1',
+    enabled: true,
+  },
+  // Freecash USA (alias — keeping the old slug working)
+  {
+    slug: 'frrcsh-us-off2',
+    mode: 'direct',
+    destination: 'https://monetisetrk2.co.uk/?a=26648&c=55504',
+    forwardParam: 's1',
+    enabled: true,
+  },
+  // Freecash United Kingdom
+  {
+    slug: 'frrcsh-uk-off',
+    mode: 'direct',
+    destination: 'https://monetisetrk4.co.uk/?a=26648&c=55503',
+    forwardParam: 's1',
+    enabled: true,
+  },
+  // Freecash Canada
+  {
+    slug: 'frrcsh-ca-off',
+    mode: 'direct',
+    destination: 'https://montrk2.co.uk/?a=26648&c=55506',
+    forwardParam: 's1',
+    enabled: true,
   },
 ];
 
