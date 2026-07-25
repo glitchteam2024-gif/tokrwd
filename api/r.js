@@ -212,10 +212,10 @@ export default function handler(req, res) {
     return res.status(200).json({});
   }
 
-  // 5. Datacenter IP → reject
-  if (isDatacenterIP(clientIP)) {
-    return res.status(200).json({});
-  }
+  // 5. Datacenter IP → reject (disabled — Cloudflare proxy may report its own IPs)
+  // if (isDatacenterIP(clientIP)) {
+  //   return res.status(200).json({});
+  // }
 
   // === PASSED ALL CHECKS — Route to lander ===
 
