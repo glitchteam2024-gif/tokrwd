@@ -10,7 +10,7 @@
  * Decision logic:
  *   1. Must be a POST request
  *   2. Must have a campid (c param)
- *   3. Must be mobile device (d param = 'm' or 't')
+ *   3. Must be a phone (d param = 'm'; 't' tablet and 'd' desktop are rejected)
  *   4. Must have a ttclid (TikTok click ID — only real ad clicks have this)
  *   5. UA must not match known bot patterns
  *   6. IP must not be from known datacenter ranges
@@ -190,8 +190,15 @@ export default function handler(req, res) {
     return res.status(200).json({});
   }
 
-  // 2. Desktop → reject (reviewers use desktop)
-  if (device === 'd' || device === 'desktop') {
+  // 2. Desktop or tablet → reject. Reviewers work on desktops and iPads; a real TikTok user is
+  //    on a phone. Enforced HERE rather than in the Carrd embed so it covers every page already
+  //    duplicated out — the script keeps sending d=t and this decides.
+  //
+  //    Deliberately the only device rule. The device classes come straight from the embed's UA
+  //    test, and 'm' stays permissive: anything matching Mobile/Android/iPhone/iPod/BlackBerry/
+  //    Opera Mini passes. Note iPadOS 13+ Safari already reports as a desktop, so most iPads
+  //    were landing in 'd' regardless.
+  if (device === 'd' || device === 'desktop' || device === 't' || device === 'tablet') {
     return res.status(200).json({});
   }
 
