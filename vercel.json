@@ -3,7 +3,9 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/c/:slug", "destination": "/api/c/:slug" }
+    { "source": "/r", "destination": "/api/r" },
+    { "source": "/c/:slug", "destination": "/api/c/:slug" },
+    { "source": "/postback", "destination": "/api/postback" }
   ],
   "headers": [
     {
