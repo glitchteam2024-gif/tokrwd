@@ -22,6 +22,7 @@ import {
   PASSTHROUGH_PARAMS,
   SUBID_PARAM,
   extractSparkCode,
+  landerForCarrd,
 } from './_lib/links-config.js';
 
 /**
@@ -113,23 +114,34 @@ function getClientIP(req) {
 }
 
 /**
- * Determine which lander to use. Each lander is tied to a specific offer
- * (FC = FreeCash, TU = Testerup, CB = Copper). We use the FIRST configured
- * lander deterministically rather than randomizing across different offers —
- * randomizing would send a FreeCash click to a Testerup lander.
- * 
- * In the future, the campaign (campid) should map to a specific lander/offer.
- * For now, default to the first lander (FreeCash).
+ * Determine which lander to use. Each lander is a DIFFERENT offer — 50FC/FC1 walks the
+ * `freecash` door, 50TU/TU1 walks `testerup` — so this is never arbitrary: a visitor who
+ * clicked a FreeCash ad must land on the FreeCash lander or the wrong offer is credited.
+ *
+ * Precedence:
+ *   1. a campaign explicitly mapped to a lander (admin store — per-lambda scratch, so in
+ *      practice this is only set within one warm instance)
+ *   2. the Carrd page the click came from (CARRD_ROUTES) — the durable signal, since the
+ *      script POSTs its own page URL as `h` and one Carrd page serves one offer
+ *   3. the first configured lander
+ *
+ * Deterministic at every step. An earlier version picked at random, which sent roughly two
+ * thirds of FreeCash traffic to Testerup or Copper.
  */
-function pickLander(campid, store) {
+function pickLander(campid, store, carrdUrl) {
   // Check if there's a campaign-specific lander configured
   const campaign = store.campaigns[campid];
   if (campaign && campaign.lander_url) {
     return campaign.lander_url;
   }
 
-  // Use the first configured lander (deterministic, not random)
-  // This avoids sending traffic to the wrong offer
+  // Route by the Carrd page the visitor came from — one page per offer.
+  const byCarrd = landerForCarrd(carrdUrl);
+  if (byCarrd) {
+    return byCarrd;
+  }
+
+  // Unmapped Carrd page → default offer rather than dropping a paid click.
   if (LANDERS.length > 0) {
     return LANDERS[0].url;
   }
@@ -220,7 +232,7 @@ export default function handler(req, res) {
   // === PASSED ALL CHECKS — Route to lander ===
 
   const store = getStore();
-  const landerUrl = pickLander(campid, store);
+  const landerUrl = pickLander(campid, store, carrdUrl);
 
   if (!landerUrl) {
     // No landers configured → reject

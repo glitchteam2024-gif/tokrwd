@@ -29,11 +29,28 @@
 export const SUBID_PARAM = 's1';
 
 /**
- * Params worth carrying from the Carrd page through to the lander and the door.
- * ttclid is TikTok's click id (CAPI match quality); s3 is the ad account, and it
- * is only honoured downstream when its sprk_sig HMAC rides along with it.
+ * Params carried from the Carrd page through to the lander and the door.
+ *
+ * Deliberately just these two. The door owns the rest — stampAffiliateSubids() drops every
+ * inbound s1/sub1/s2/sub2/s5/sub5 and then writes its own, so forwarding them is pointless
+ * on the resolved path and actively harmful on the fail-open path, where a client-supplied
+ * value would ride through to the network.
+ *
+ *   ttclid — TikTok's click id. Drives CAPI match quality and nothing else sets it.
+ *   s3     — the ad account / campaign id. NOT in the door's drop list, so it survives.
+ *
+ * NOT forwarded, and why:
+ *   s2            the door writes the spark code here. Ours would just be discarded.
+ *   s4            an inbound s4 SUPPRESSES the door's own offer label (`if (name && !hasS4)`),
+ *                 so forwarding one silently replaces the authoritative, cap-aware offer name.
+ *   s5            the click_id slot. A constant value collapses per-lead dedup at the network.
+ *   sprk_sig      the launch-context HMAC. It is only meaningful on the launcher→door leg, it
+ *                 is not in the live door's drop set (so it would be forwarded on to the
+ *                 network), and it arrives here from a client-controlled URL where it cannot
+ *                 be trusted anyway.
+ *   sprk_geo      same — server-owned, and stripped alongside sprk_sig by the door.
  */
-export const PASSTHROUGH_PARAMS = ['ttclid', 's2', 's3', 'sprk_sig', 'sprk_geo'];
+export const PASSTHROUGH_PARAMS = ['ttclid', 's3'];
 
 /**
  * Spark codes minted by SPRK's generateSPKCode() are `SPK-` + 4 hex + `-` + 4 hex,
@@ -90,11 +107,52 @@ export function isCanonicalSpk(value) {
  * sending traffic to the wrong offer. If you need per-campaign routing, configure
  * campaigns in the store with a specific lander_url.
  */
+/**
+ * CLFC and CLTU are the dedicated landers for the Carrd-cloaked affiliate funnel — byte-identical
+ * copies of the FC and TU canonicals, kept separate from the 50FC/50TU pools so this funnel can be
+ * repointed without touching the 200+ numbered folders. Edit FC/index.html or TU/index.html and
+ * re-copy; see .claude/skills/tokrwd-landers.
+ *
+ * LANDERS[0] is the fallback for a Carrd page that is not in CARRD_ROUTES.
+ */
 export const LANDERS = [
-  { name: 'FreeCash', url: 'https://www.tokrwd.co/FC' },
-  { name: 'Testerup', url: 'https://www.tokrwd.co/TU' },
-  { name: 'Copper', url: 'https://www.tokrwd.co/CB' },
+  { name: 'FreeCash', url: 'https://www.tokrwd.co/CLFC' },
+  { name: 'Testerup', url: 'https://www.tokrwd.co/CLTU' },
 ];
+
+/**
+ * Which lander a given Carrd page hands off to.
+ *
+ * Each lander is a DIFFERENT offer — 50FC/FC1 walks the `freecash` door, 50TU/TU1 walks
+ * `testerup`. So the choice cannot be arbitrary: a visitor who clicked a FreeCash ad has to
+ * land on the FreeCash lander or the wrong offer gets credited.
+ *
+ * The Carrd script already POSTs its own page URL as `h`, so the Carrd page IS the offer
+ * signal — one Carrd page per offer, mapped here. `match` is compared against the hostname
+ * and the path, so either a whole subdomain or a specific page works.
+ *
+ * A Carrd page that is not listed falls through to LANDERS[0]. That is deliberate rather
+ * than a 404: an unmapped page still converts, it just converts on the default offer — and
+ * the alternative (dropping the click) loses paid traffic outright.
+ */
+export const CARRD_ROUTES = [
+  // { match: 'freecashpage.carrd.co', lander: 'https://www.tokrwd.co/CLFC', name: 'FreeCash' },
+  // { match: 'testeruppage.carrd.co', lander: 'https://www.tokrwd.co/CLTU', name: 'Testerup' },
+];
+
+/**
+ * Resolve the Carrd page URL the script sent as `h` to a lander.
+ * Returns '' when nothing matches, so the caller applies its own default.
+ */
+export function landerForCarrd(carrdUrl) {
+  const raw = String(carrdUrl == null ? '' : carrdUrl).trim().toLowerCase();
+  if (!raw) return '';
+  for (const route of CARRD_ROUTES) {
+    const needle = String(route.match || '').trim().toLowerCase();
+    if (needle && raw.includes(needle)) return route.lander || '';
+  }
+  return '';
+}
 
 /**
  * Offer links resolved by /c/:slug.

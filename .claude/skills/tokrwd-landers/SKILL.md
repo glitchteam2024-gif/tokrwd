@@ -36,8 +36,8 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 
 | Offer        | Door / destination                         | Canonical file            | Byte-identical copies                              |
 |--------------|--------------------------------------------|---------------------------|----------------------------------------------------|
-| Freecash     | `sprktrax.org/api/link/freecash` (Path A)  | `FC/index.html`           | `FCTT.html`, root `index.html`, `50FC/FC1-50`, `50FCII/FC1-50` |
-| Testerup     | `sprktrax.org/api/link/testerup` (Path A)  | `TU/index.html`           | `50TU/TU1-50`                                      |
+| Freecash     | `sprktrax.org/api/link/freecash` (Path A)  | `FC/index.html`           | `FCTT.html`, root `index.html`, `50FC/FC1-50`, `50FCII/FC1-50`, **`CLFC`** |
+| Testerup     | `sprktrax.org/api/link/testerup` (Path A)  | `TU/index.html`           | `50TU/TU1-50`, **`CLTU`**                          |
 | Copper       | `sprktrax.org/api/link/copper` (Path A)    | `CB/index.html`           | `CR50/CR1-50`                                      |
 | Gravypass    | `sprktrax.org/api/link/gravypass` (Path A) | `GP/index.html`           | — (`GP/ob/` is a clean pass-through interstitial → `/GP/`) |
 | Testerup ALT | `monetisetrk8.co.uk` DIRECT (Path B)       | `TSUP/index.html` + `js/tsup-offer.js` | —                                      |
@@ -83,6 +83,8 @@ cp FC/index.html FCTT.html; cp FC/index.html index.html
 # Testerup / Copper
 for i in $(seq 1 50); do cp TU/index.html 50TU/TU$i/index.html; done
 for i in $(seq 1 50); do cp CB/index.html CR50/CR$i/index.html; done
+# Carrd-cloaked affiliate funnel landers (same depth as FC/TU, so a plain copy is safe)
+cp FC/index.html CLFC/index.html; cp TU/index.html CLTU/index.html
 # Verify each brand is ONE hash:
 md5 -q FC/index.html FCTT.html index.html 50FC/FC*/index.html 50FCII/FC*/index.html | sort -u   # expect 1 line
 ```
