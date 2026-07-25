@@ -4,7 +4,7 @@
 // Catches the two mistakes that silently misroute paid traffic: a duplicate host (the second
 // route is dead and its offer never serves) and a lander that is not in LANDER_URLS (a typo'd
 // URL 404s the click). Neither shows up as an error at runtime — /r just returns the wrong page.
-import { CARRD_ROUTES, LANDER_URLS, carrdRouteProblems, landerForCarrd } from './links-config.js';
+import { CARRD_ROUTES, LANDER_URLS, OFFER_KEYS, carrdRouteProblems, offerKeyProblems, landerForCarrd, landerForOfferKey } from './links-config.js';
 
 let pass = 0, fail = 0;
 const eq = (name, got, want) => {
@@ -85,6 +85,17 @@ eq('substring-similar hosts stay distinct', problemsFor(tricky), []);
 const map = new Map(tricky.map(r => [r.host, r.lander]));
 eq('thegoodhoodie resolves to its OWN lander, not hoodie\'s',
   map.get(new URL('https://thegoodhoodie.carrd.co/?campid=X').hostname), LANDER_URLS.FCCA);
+
+// ── geo / offer-key table ────────────────────────────────────────────────────
+eq(`OFFER_KEYS is consistent (${Object.keys(OFFER_KEYS).length} key(s))`, offerKeyProblems(), []);
+eq('o=fcca resolves', landerForOfferKey('https://x.carrd.co/?o=fcca'), LANDER_URLS.FCCA);
+eq('o=fcuk resolves', landerForOfferKey('https://x.carrd.co/?o=fcuk'), LANDER_URLS.FCUK);
+eq('o=tu resolves',   landerForOfferKey('https://x.carrd.co/?o=tu'),   LANDER_URLS.TU);
+eq('o= is case-insensitive', landerForOfferKey('https://x.carrd.co/?o=FCCA'), LANDER_URLS.FCCA);
+eq('unknown o= falls through', landerForOfferKey('https://x.carrd.co/?o=zzz'), '');
+eq('absent o= falls through',  landerForOfferKey('https://x.carrd.co/'), '');
+eq('every geo lander is reachable by an o= key',
+  Object.values(LANDER_URLS).filter(u => !Object.values(OFFER_KEYS).includes(u)), []);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

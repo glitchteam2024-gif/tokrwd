@@ -181,6 +181,14 @@ export const CARRD_ROUTES = [
  *
  * Unknown or absent `o` falls through to CARRD_ROUTES, then to LANDERS[0]. An unrecognised key is
  * never an error: dropping a paid click is worse than serving the default offer.
+ *
+ * ADDING A GEO — four edits, and `_links-config.test.mjs` fails if you miss one:
+ *   1. cp FC/index.html CLFC<XX>/index.html, and change its `var DOOR = '…'` to the new /c/ slug
+ *   2. OFFER_LINKS  += { slug:'frrcsh-<xx>-off', mode:'direct', destination:'<network url>',
+ *                        forwardParam:'s1', enabled:true }
+ *   3. LANDER_URLS  += FC<XX>: 'https://www.tokrwd.co/CLFC<XX>'
+ *   4. OFFER_KEYS   += fc<xx>: LANDER_URLS.FC<XX>
+ * Then `node api/_lib/_links-config.test.mjs` and push. No other file changes.
  */
 export const OFFER_KEYS = {
   fc:   LANDER_URLS.FC,
@@ -189,6 +197,37 @@ export const OFFER_KEYS = {
   fcuk: LANDER_URLS.FCUK,
   tu:   LANDER_URLS.TU,
 };
+
+/**
+ * Cross-check the three tables that must agree for a geo to actually work end to end:
+ * OFFER_KEYS -> LANDER_URLS -> (for direct landers) an enabled OFFER_LINKS slug.
+ *
+ * The failure this catches is a HALF-ADDED geo — a new key pointing at a lander that does not
+ * exist, or a lander whose /c/ slug was never enabled. Both send live traffic to a 404 with no
+ * error anywhere; /r happily returns the URL and the click just dies at the lander.
+ */
+export function offerKeyProblems() {
+  const problems = [];
+  const landerValues = new Set(Object.values(LANDER_URLS));
+
+  for (const [key, lander] of Object.entries(OFFER_KEYS)) {
+    if (!landerValues.has(lander)) {
+      problems.push(`OFFER_KEYS.${key} -> "${lander}" is not in LANDER_URLS`);
+    }
+    if (!/^[a-z0-9]+$/.test(key)) {
+      problems.push(`OFFER_KEYS.${key}: keys must be lowercase alphanumeric (the o= param is lowercased)`);
+    }
+  }
+
+  // Every lander must be reachable by at least one o= key, or it can only be hit via CARRD_ROUTES.
+  for (const [name, url] of Object.entries(LANDER_URLS)) {
+    if (!Object.values(OFFER_KEYS).includes(url)) {
+      problems.push(`LANDER_URLS.${name} has no o= key — it is unreachable except via CARRD_ROUTES`);
+    }
+  }
+
+  return problems;
+}
 
 /** Resolve the `o=` offer key from the Carrd page URL. '' when absent or unknown. */
 export function landerForOfferKey(carrdUrl) {
