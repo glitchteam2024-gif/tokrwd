@@ -27,8 +27,19 @@ export default function handler(req, res) {
 
   // Validate the postback key
   const settings = getSettings();
+
+  // Without POSTBACK_KEY in the environment the key is random per lambda, so
+  // nothing a network sends can ever match and every conversion is dropped below.
+  // The response stays 200 either way, so this log line is the only symptom —
+  // without it the failure is completely invisible.
+  if (!settings.postback_key_from_env) {
+    console.error('[postback] POSTBACK_KEY is not set — every conversion will be rejected');
+  }
+
   if (key !== settings.postback_key) {
-    // Silent fail — don't reveal that the key is wrong
+    // Answer 200 regardless: a non-200 makes networks retry, and a distinguishable
+    // response would let a caller probe for a valid key. Log so it is diagnosable.
+    console.warn('[postback] rejected: key mismatch', { campid, offer, hasKey: !!key });
     return res.status(200).send('ok');
   }
 

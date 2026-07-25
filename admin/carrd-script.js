@@ -6,6 +6,25 @@
  * 
  * Paste the HTML block below into your Carrd Pro page's "Embed" widget.
  * This is the EXACT code to paste (everything between the === markers):
+ *
+ * ------------------------------------------------------------
+ * THE campid MUST BE THE AFFILIATE'S SPARK CODE
+ * ------------------------------------------------------------
+ * The link you hand an affiliate looks like:
+ *
+ *     https://veranth6.carrd.co?campid=SPK-A1B2-C3D4
+ *
+ * That value is the whole attribution chain. It travels campid -> /r -> the
+ * lander as s1 -> sprktrax.org/api/link/<slug> as s1, and the door resolves it
+ * against spark_codes to find the affiliate, mint a click_id and stamp the
+ * outbound subids. A compound campid works too as long as the spark code is in
+ * it (ACCT_SPK-A1B2-C3D4_US_001) — /r extracts it.
+ *
+ * What must NOT be used is an externally minted campaign string that contains no
+ * spark code, e.g. TRAE_spark128_US_7659271051523686407_54f8fe_035200. The door
+ * does not reject those: it 302s and forwards the string to the network raw, so
+ * the link looks healthy while every conversion lands `unmatched`. That is the
+ * failure already logged in the sprk-affiliate-conv-debug skill.
  * 
  * ============================================================
  * 
@@ -25,7 +44,7 @@
  * !function(){try{
  * var w=window,d=document,n=navigator,l=location,ua=n.userAgent,
  * m=/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)?'t':/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)?'m':'d',
- * ci=decodeURIComponent((l.search.match(/[?&](?:campid|cid|c)=([^&]*)/)||['',''])[1]),
+ * ci=(function(){try{var q=new URLSearchParams(l.search);return q.get('campid')||q.get('s1')||q.get('cid')||q.get('c')||'';}catch(e){return '';}})(),
  * redirected=false,rUrl;
  * function hd(){var el=d.getElementById('po-ld');if(el){el.style.opacity='0';setTimeout(function(){el.style.display='none'},200);}}
  * function loadCheckout(){

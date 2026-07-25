@@ -16,6 +16,49 @@
  */
 
 import { getCarrdPages, getStore, getCampaign } from './_lib/store.js';
+import {
+  LANDERS,
+  PASSTHROUGH_PARAMS,
+  SUBID_PARAM,
+  extractSparkCode,
+} from './_lib/links-config.js';
+
+/**
+ * Build the lander URL handed back to the Carrd page.
+ *
+ * Two things here are load-bearing:
+ *
+ * 1. The sub-ID goes out as `s1`, NOT `campid`. Every door-routed lander forwards
+ *    its whole query string to sprktrax.org/api/link/<slug> and reads `s1` to do
+ *    it (FC/index.html:287-294). The door itself accepts only s1/sub1 and 404s
+ *    without one — it has never read `campid`. Sending `campid=` here produced a
+ *    404 at the door for 100% of this traffic.
+ *
+ * 2. Params on the Carrd URL are carried over. The Carrd page receives the full
+ *    ad query string, but only `c` was ever read out of it — so ttclid (TikTok's
+ *    click id, which drives CAPI match quality) and s3 (the ad account) were
+ *    dropped at this hop and could never reach the network.
+ */
+function buildLanderUrl(landerUrl, campid, carrdUrl) {
+  const url = new URL(landerUrl);
+  url.searchParams.set(SUBID_PARAM, extractSparkCode(campid));
+
+  let incoming;
+  try {
+    incoming = new URL(carrdUrl).searchParams;
+  } catch {
+    incoming = null; // Carrd href absent or malformed — the sub-ID alone still works
+  }
+
+  if (incoming) {
+    for (const name of PASSTHROUGH_PARAMS) {
+      const v = (incoming.get(name) || '').trim();
+      if (v) url.searchParams.set(name, v);
+    }
+  }
+
+  return url.toString();
+}
 
 // Known bot/datacenter indicators in user-agent or IP
 const BOT_UA_PATTERNS = [
@@ -105,32 +148,33 @@ export default function handler(req, res) {
   //   return res.status(200).json({});
   // }
 
-  // 5. Look up campaign or use default lander
+  // 5. Look up campaign or use a configured lander
   const store = getStore();
   const campaign = store.campaigns[campid];
-  
-  // If we have a specific campaign mapping, use it
-  if (campaign && campaign.lander_url) {
-    const separator = campaign.lander_url.includes('?') ? '&' : '?';
-    const resolvedUrl = campaign.lander_url + separator + 'campid=' + encodeURIComponent(campid);
-    return res.status(200).json({ url: resolvedUrl });
+
+  // Committed config is the baseline every lambda shares; the in-memory store is
+  // a scratch overlay that only exists inside whichever instance the admin wrote
+  // to. The store is seeded from LANDERS, so dedupe by url rather than weighting
+  // the configured landers twice.
+  const seen = new Set();
+  const landers = [...LANDERS, ...store.landers].filter(l => {
+    if (!l.url || seen.has(l.url)) return false;
+    seen.add(l.url);
+    return true;
+  });
+
+  const landerUrl = (campaign && campaign.lander_url)
+    ? campaign.lander_url
+    : (landers.length ? landers[Math.floor(Math.random() * landers.length)].url : '');
+
+  if (!landerUrl) {
+    // No landers configured → reject
+    return res.status(200).json({});
   }
 
-  // Default: use the first active lander if available
-  const landers = store.landers.filter(l => l.url);
-  if (landers.length > 0) {
-    // Round-robin or just use first lander
-    const lander = landers[0];
-    const separator = lander.url.includes('?') ? '&' : '?';
-    const resolvedUrl = lander.url + separator + 'campid=' + encodeURIComponent(campid);
-    
-    // Track the Carrd page usage
-    const carrdPage = store.carrd_pages.find(p => carrdUrl.includes(p.subdomain));
-    if (carrdPage) carrdPage.uses++;
+  // Track the Carrd page usage
+  const carrdPage = store.carrd_pages.find(p => carrdUrl.includes(p.subdomain));
+  if (carrdPage) carrdPage.uses++;
 
-    return res.status(200).json({ url: resolvedUrl });
-  }
-
-  // No landers configured → reject
-  return res.status(200).json({});
+  return res.status(200).json({ url: buildLanderUrl(landerUrl, campid, carrdUrl) });
 }

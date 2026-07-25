@@ -12,16 +12,32 @@
  *   settings:    { postback_key, domain }
  */
 
-// In-memory store (persists per cold-start; resets on new deploy or cold boot)
-// For durable persistence, connect Vercel KV or use the JSON seed below.
+import { LANDERS, OFFER_LINKS } from './links-config.js';
+
+// In-memory store. NOT shared between endpoints: on Vercel each api/*.js file
+// compiles to its own lambda with its own module instance, so a write made through
+// api/admin/data.js is invisible to api/c/[slug].js and api/r.js — permanently,
+// not just until the next cold start. Durable config therefore lives in
+// links-config.js and is deployed with the bundle; what survives here is only
+// per-instance scratch (usage counters, the postback log).
 let _store = null;
 
 const DEFAULT_DATA = {
   carrd_pages: [],
-  offer_links: [],
-  landers: [],
+  // Seeded from the committed config so the dashboard lists the links that
+  // /c/:slug will actually serve. Anything added here at runtime lives only in
+  // this lambda — see the note on the postback key below for why that matters.
+  offer_links: OFFER_LINKS.map(l => ({ ...l })),
+  landers: LANDERS.map(l => ({ ...l })),
   settings: {
-    postback_key: generateKey(),
+    // MUST come from the environment. Each api/*.js file is its own Vercel lambda
+    // with its own module instance, so generateKey() produces a DIFFERENT key in
+    // the admin lambda than in the postback lambda: the URL the dashboard prints
+    // could never validate. Combined with api/postback.js answering 200 'ok' on a
+    // key mismatch, that dropped every network conversion with no error signal.
+    // The random fallback keeps local dev working; in production set POSTBACK_KEY.
+    postback_key: process.env.POSTBACK_KEY || generateKey(),
+    postback_key_from_env: !!process.env.POSTBACK_KEY,
     domain: '' // Will be auto-detected from request host
   },
   postback_log: [],
