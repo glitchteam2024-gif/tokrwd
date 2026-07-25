@@ -13,10 +13,12 @@
  *   3. Must be a phone (d param = 'm'; 't' tablet and 'd' desktop are rejected)
  *   4. Must have a ttclid (TikTok click ID — only real ad clicks have this)
  *   5. UA must not match known bot patterns
- *   6. IP must not be from known datacenter ranges
+ *   6. The client's device claim must not CONTRADICT the UA / Sec-CH-UA-* hints
+ *   7. IP must not be from known datacenter ranges (currently disabled)
  */
 
 import { getStore } from './_lib/store.js';
+import { evaluateRequest } from './_lib/traffic-filter.js';
 import {
   LANDERS,
   PASSTHROUGH_PARAMS,
@@ -239,6 +241,26 @@ export default function handler(req, res) {
 
   // 4. Bot user-agent → reject
   if (isBot(userAgent)) {
+    return res.status(200).json({});
+  }
+
+  // 5. Self-consistency. The `d` above is CLIENT-ASSERTED — a desktop client that simply POSTs
+  //    d=m was being served the real destination. This rejects only when the client's claim
+  //    CONTRADICTS what the browser itself told us (the User-Agent, or a Sec-CH-UA-* hint that
+  //    Chromium sends by default and that survives the cross-origin XHR).
+  //
+  //    Deliberately additive and contradiction-only: it cannot reject anything the four gates
+  //    above would have passed unless that request is self-inconsistent. Missing client hints
+  //    are NOT evidence — Safari, Safari iOS and Firefox never send them, so requiring them
+  //    would drop every iPhone buyer while headless Chromium passed.
+  const consistency = evaluateRequest({
+    userAgent,
+    clientDevice: device,
+    headers: req.headers,
+    ttclid: (body.ttclid || ''),
+  });
+  if (consistency.reject) {
+    console.warn('[r] inconsistent request rejected:', consistency.reasons.join('; '));
     return res.status(200).json({});
   }
 
