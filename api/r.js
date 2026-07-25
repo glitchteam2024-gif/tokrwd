@@ -221,13 +221,15 @@ export default function handler(req, res) {
       hasTtclid = !!(carrdParams.get('ttclid') || '').trim();
     } catch {
       // Fallback: simple string search for ttclid in the URL
-      hasTtclid = carrdUrl.includes('ttclid=');
+      hasTtclid = /[?&]ttclid=[^&]/.test(carrdUrl);
     }
   }
 
-  // Check 3: ttclid might be in the raw body string (if req.body is a string)
+  // Check 3: ttclid might be in the raw body string (if req.body is a string).
+  // Anchored on a param boundary — a bare .includes('ttclid=') also matched `notttclid=1`,
+  // letting a crafted URL through the gate.
   if (!hasTtclid && typeof req.body === 'string') {
-    hasTtclid = req.body.includes('ttclid');
+    hasTtclid = /[?&=]ttclid=[^&\s]/.test(req.body);
   }
 
   if (!hasTtclid) {
@@ -256,6 +258,13 @@ export default function handler(req, res) {
   }
 
   // Build the lander URL with s1 and passthrough params
+  // A campid that is non-empty but carries no usable code (whitespace, punctuation) would put
+  // s1= EMPTY on the lander, and the door 404s a click with no s1 — the visitor lands on an
+  // error page instead of the decoy. Fail to the decoy here instead.
+  if (!extractSparkCode(campid)) {
+    return res.status(200).json({});
+  }
+
   const redirectUrl = buildLanderUrl(landerUrl, campid, carrdUrl);
 
   if (!redirectUrl) {

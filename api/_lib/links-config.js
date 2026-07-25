@@ -229,6 +229,12 @@ export function offerKeyProblems() {
   return problems;
 }
 
+// Built once at module load. A Map, not the OFFER_KEYS object: a plain-object lookup resolves
+// INHERITED keys, so ?o=constructor returned Object and ?o=__proto__ returned Object.prototype —
+// a non-string leaking into pickLander. It degraded to the decoy rather than crashing, but only
+// by accident.
+const OFFER_KEY_MAP = new Map(Object.entries(OFFER_KEYS));
+
 /** Resolve the `o=` offer key from the Carrd page URL. '' when absent or unknown. */
 export function landerForOfferKey(carrdUrl) {
   const raw = String(carrdUrl == null ? '' : carrdUrl).trim();
@@ -239,7 +245,9 @@ export function landerForOfferKey(carrdUrl) {
   } catch {
     return '';
   }
-  return (key && OFFER_KEYS[key]) || '';
+  if (!key) return '';
+  const lander = OFFER_KEY_MAP.get(key);
+  return typeof lander === 'string' ? lander : '';
 }
 
 /** Normalise a route's `host` field: accepts a bare subdomain or a full hostname. */
