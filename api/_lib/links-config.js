@@ -135,23 +135,90 @@ export const LANDERS = [
  * than a 404: an unmapped page still converts, it just converts on the default offer — and
  * the alternative (dropping the click) loses paid traffic outright.
  */
+/**
+ * Named landers, so a route is one short line and a typo is a missing key rather than a
+ * silently wrong URL. Add a lander here once, reference it from as many routes as you like.
+ */
+export const LANDER_URLS = {
+  FC:   'https://www.tokrwd.co/CLFC',    // Freecash — door, full attribution
+  TU:   'https://www.tokrwd.co/CLTU',    // Testerup — door, full attribution
+  FCUK: 'https://www.tokrwd.co/CLFCUK',  // Freecash UK — /c/frrcsh-uk-off
+  FCCA: 'https://www.tokrwd.co/CLFCCA',  // Freecash CA — /c/frrcsh-ca-off
+};
+
+/**
+ * Carrd page → lander. One row per Carrd page; scales to as many as you like.
+ *
+ *   { host: 'thegoodhoodie.carrd.co', lander: LANDER_URLS.FCCA }
+ *
+ * `host` is matched against the URL's HOSTNAME exactly (case-insensitive). It is deliberately
+ * NOT a substring test: with a pool of similarly-named pages, 'hoodie.carrd.co' would match
+ * 'thegoodhoodie.carrd.co' and silently steal its traffic. A bare subdomain is accepted as
+ * shorthand — 'thegoodhoodie' expands to 'thegoodhoodie.carrd.co'.
+ *
+ * An unlisted page falls through to LANDERS[0]. Deliberate: an unmapped page still converts on
+ * the default offer, where dropping the click would lose paid traffic outright. Run
+ * `node api/_lib/_links-config.test.mjs` after editing — it fails on duplicate hosts and on a
+ * lander that is not in LANDER_URLS.
+ */
 export const CARRD_ROUTES = [
-  // { match: 'freecashpage.carrd.co', lander: 'https://www.tokrwd.co/CLFC', name: 'FreeCash' },
-  // { match: 'testeruppage.carrd.co', lander: 'https://www.tokrwd.co/CLTU', name: 'Testerup' },
+  // { host: 'thegoodhoodie.carrd.co', lander: LANDER_URLS.FCCA },
+  // { host: 'anotherpage',            lander: LANDER_URLS.TU   },
 ];
+
+/** Normalise a route's `host` field: accepts a bare subdomain or a full hostname. */
+function normHost(host) {
+  const h = String(host == null ? '' : host).trim().toLowerCase().replace(/^www\./, '');
+  if (!h) return '';
+  return h.includes('.') ? h : `${h}.carrd.co`;
+}
+
+// Built once at module load — 50+ routes resolve by hash lookup instead of a linear scan.
+const CARRD_HOST_MAP = (() => {
+  const map = new Map();
+  for (const route of CARRD_ROUTES) {
+    const h = normHost(route.host);
+    if (h && route.lander && !map.has(h)) map.set(h, route.lander);
+  }
+  return map;
+})();
 
 /**
  * Resolve the Carrd page URL the script sent as `h` to a lander.
  * Returns '' when nothing matches, so the caller applies its own default.
  */
 export function landerForCarrd(carrdUrl) {
-  const raw = String(carrdUrl == null ? '' : carrdUrl).trim().toLowerCase();
+  const raw = String(carrdUrl == null ? '' : carrdUrl).trim();
   if (!raw) return '';
-  for (const route of CARRD_ROUTES) {
-    const needle = String(route.match || '').trim().toLowerCase();
-    if (needle && raw.includes(needle)) return route.lander || '';
+  let host;
+  try {
+    host = new URL(raw).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    return ''; // not a URL — fall back to the default lander rather than guessing
   }
-  return '';
+  return CARRD_HOST_MAP.get(host) || '';
+}
+
+/**
+ * Validate the route table. Returns an array of problems (empty = fine).
+ * Exported so the test suite fails the build-equivalent rather than shipping a silent misroute.
+ */
+export function carrdRouteProblems() {
+  const problems = [];
+  const seen = new Map();
+  const known = new Set(Object.values(LANDER_URLS));
+
+  CARRD_ROUTES.forEach((route, i) => {
+    const h = normHost(route.host);
+    if (!h) { problems.push(`route ${i}: missing or empty host`); return; }
+    if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(h)) problems.push(`route ${i}: "${route.host}" is not a valid hostname`);
+    if (seen.has(h)) problems.push(`duplicate host "${h}" (routes ${seen.get(h)} and ${i}) — the first wins, the second is dead`);
+    else seen.set(h, i);
+    if (!route.lander) problems.push(`route ${i} (${h}): missing lander`);
+    else if (!known.has(route.lander)) problems.push(`route ${i} (${h}): lander "${route.lander}" is not in LANDER_URLS`);
+  });
+
+  return problems;
 }
 
 /**
