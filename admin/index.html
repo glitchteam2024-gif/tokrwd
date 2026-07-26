@@ -649,7 +649,9 @@ function tlRemove(path) {
 
 function tlRender() {
   const list = tlLoad();
-  const registered = (DATA.routing && DATA.routing.test_landers) || {};
+  const registered = (DATA.routing && DATA.routing.override_landers) || {};
+  const offers = (DATA.routing && DATA.routing.offers) || {};
+  const offerLabel = (k) => (offers[k] && offers[k].label) || k || 'unbound';
   const p = tlParam();
 
   document.getElementById('tlCount').textContent = list.length + ' saved';
@@ -669,18 +671,24 @@ function tlRender() {
   // Keep the operator's current pick across a re-render.
   const sel = document.getElementById('tlSelect');
   const previous = sel.value;
-  const regOpts = Object.keys(registered).map(k =>
-    `<option value="${esc(k)}">${esc(k)} — built in (${esc(registered[k])})</option>`
-  ).join('');
+  // Show the OFFER on every registered entry. Picking a page without knowing which
+  // offer it fires is exactly how a scaler's traffic ends up crediting the wrong one.
+  const regOpts = Object.keys(registered).map(k => {
+    const e = registered[k] || {};
+    const who = e.owner ? ` · ${e.owner}` : '';
+    return `<option value="${esc(k)}">${esc(k)} → ${esc(offerLabel(e.offer))}${esc(who)}</option>`;
+  }).join('');
   // A saved page that duplicates a registered alias would show as two entries
   // producing byte-identical links — a pointless choice presented as a real one.
   const regTargets = new Set(
-    Object.keys(registered).concat(Object.values(registered).map(v => String(v).replace(/^\/+/, '')))
+    Object.keys(registered).concat(
+      Object.values(registered).map(v => String((v && v.path) || '').replace(/^\/+/, ''))
+    )
   );
   const saved = list.filter(x => !regTargets.has(x.path));
   sel.innerHTML =
     `<option value="">— no override (route normally by o= / Carrd page) —</option>` +
-    (regOpts ? `<optgroup label="Registered aliases">${regOpts}</optgroup>` : '') +
+    (regOpts ? `<optgroup label="Registered landers (offer-bound)">${regOpts}</optgroup>` : '') +
     (saved.length
       ? `<optgroup label="Saved in this browser">${saved.map(x =>
           `<option value="${esc(x.path)}">${esc(x.name)} — /${esc(x.path)}</option>`).join('')}</optgroup>`
@@ -757,6 +765,9 @@ async function tlResolve() {
     <div class="resolve-panel">
       <div class="resolve-row"><span class="k">Routed by</span><span class="v">${esc(SOURCE_LABEL[r.source] || r.source)}</span></div>
       <div class="resolve-row"><span class="k">Lander</span><span class="v">${esc(r.lander || '—')}</span></div>
+      <div class="resolve-row"><span class="k">Fires offer</span><span class="v">${
+        r.offer ? esc(r.offer_label || r.offer) : '<span class="bad-pill">not bound</span>'
+      }</span></div>
       <div class="resolve-row"><span class="k">Page status</span><span class="v">${reach}</span></div>
       <div class="resolve-row"><span class="k">Visitor gets</span><span class="v">${esc(r.destination || '—')}</span></div>
       ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}

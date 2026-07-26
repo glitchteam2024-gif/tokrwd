@@ -4,10 +4,11 @@
 // Catches the two mistakes that silently misroute paid traffic: a duplicate host (the second
 // route is dead and its offer never serves) and a lander that is not in LANDER_URLS (a typo'd
 // URL 404s the click). Neither shows up as an error at runtime — /r just returns the wrong page.
+import { readFileSync } from 'node:fs';
 import {
-  CARRD_ROUTES, LANDER_URLS, OFFER_KEYS, TEST_LANDERS, LANDERS,
+  CARRD_ROUTES, LANDER_URLS, OFFER_KEYS, OVERRIDE_LANDERS, OFFERS, LANDERS,
   DEFAULT_LANDER_ORIGIN, OVERRIDE_PARAM,
-  carrdRouteProblems, offerKeyProblems, testLanderProblems,
+  carrdRouteProblems, offerKeyProblems, overrideLanderProblems, offerForLander,
   landerForCarrd, landerForOfferKey, landerForOverride,
   resolveOverrideLander, resolveLander, buildLanderUrl, isOwnLanderHost,
 } from './links-config.js';
@@ -108,8 +109,12 @@ eq('every geo lander is reachable by an o= key',
 // hypothetical: the host allowlist is the only thing keeping /r from being an
 // open redirect, and a silently-dropped override runs the test on the wrong page.
 const AD = (qs) => `https://x.carrd.co/?campid=SPK-A1B2-C3D4&${qs}`;
+// Precedence assertions care about WHICH RULE FIRED, not the offer binding that
+// rides along — that is asserted on its own below. Comparing the whole object
+// here would make every routing test fail whenever an offer mapping changes.
+const route = (opts) => { const r = resolveLander(opts); return { url: r.url, source: r.source }; };
 
-eq(`TEST_LANDERS is valid (${Object.keys(TEST_LANDERS).length} alias(es))`, testLanderProblems(), []);
+eq(`OVERRIDE_LANDERS is valid (${Object.keys(OVERRIDE_LANDERS).length} entr(y/ies))`, overrideLanderProblems(), []);
 
 // accepted forms
 eq('bare path resolves to the lander site',
@@ -121,7 +126,7 @@ eq('nested path resolves',
 eq('a .html file resolves', resolveOverrideLander('FCTT.html'), `${DEFAULT_LANDER_ORIGIN}/FCTT.html`);
 eq('full URL on our host resolves',
   resolveOverrideLander('https://www.tokrwd.co/trt-page'), 'https://www.tokrwd.co/trt-page');
-// The live alias, not a fixture: this asserts the real TEST_LANDERS entry works.
+// The live alias, not a fixture: this asserts the real OVERRIDE_LANDERS entry works.
 eq('registered alias resolves', resolveOverrideLander('trt'), `${DEFAULT_LANDER_ORIGIN}/trt`);
 eq('alias lookup is case-insensitive', resolveOverrideLander('TrT'), `${DEFAULT_LANDER_ORIGIN}/trt`);
 
@@ -174,13 +179,13 @@ eq('malformed carrd URL does not throw', landerForOverride('not-a-url'), '');
 // A campaign lander_url is stored by set_campaign with no validation and ends up in
 // `location.replace()` on the Carrd page, so a non-https one must never route.
 eq('a javascript: campaign lander_url does not route',
-  resolveLander({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'javascript:alert(1)' } } }),
+  route({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'javascript:alert(1)' } } }),
   { url: LANDER_URLS.TU, source: 'offer_key' });
 eq('an http: campaign lander_url does not route',
-  resolveLander({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'http://169.254.169.254/' } } }),
+  route({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'http://169.254.169.254/' } } }),
   { url: LANDER_URLS.TU, source: 'offer_key' });
 eq('a valid https campaign lander_url still routes',
-  resolveLander({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'https://www.tokrwd.co/CLTU' } } }),
+  route({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'https://www.tokrwd.co/CLTU' } } }),
   { url: 'https://www.tokrwd.co/CLTU', source: 'campaign' });
 
 // Only own hosts may be fetched server-side by the admin reachability check.
@@ -191,25 +196,25 @@ eq('isOwnLanderHost rejects junk', isOwnLanderHost('not-a-url'), false);
 
 // ── precedence: lp= beats everything ─────────────────────────────────────────
 eq('lp= wins over o=',
-  resolveLander({ carrdUrl: AD('o=tu&lp=trt-page') }),
+  route({ carrdUrl: AD('o=tu&lp=trt-page') }),
   { url: `${DEFAULT_LANDER_ORIGIN}/trt-page`, source: 'override' });
 eq('lp= wins over a campaign mapping',
-  resolveLander({
+  route({
     carrdUrl: AD('lp=trt-page'),
     campid: 'SPK-A1B2-C3D4',
     campaigns: { 'SPK-A1B2-C3D4': { lander_url: 'https://www.tokrwd.co/CLTU' } },
   }),
   { url: `${DEFAULT_LANDER_ORIGIN}/trt-page`, source: 'override' });
 eq('an INVALID lp= falls through to o= rather than dropping the click',
-  resolveLander({ carrdUrl: AD('o=tu&lp=https://evil.com/x') }),
+  route({ carrdUrl: AD('o=tu&lp=https://evil.com/x') }),
   { url: LANDER_URLS.TU, source: 'offer_key' });
 eq('no signals at all → the default lander',
-  resolveLander({ carrdUrl: 'https://unmapped.carrd.co/?campid=X' }),
+  route({ carrdUrl: 'https://unmapped.carrd.co/?campid=X' }),
   { url: LANDERS[0].url, source: 'default' });
 
 // campaigns is keyed by a client-supplied campid, so inherited keys must not resolve.
 eq('a prototype key is not treated as a campaign mapping',
-  resolveLander({ carrdUrl: AD('o=tu'), campid: 'constructor', campaigns: {} }),
+  route({ carrdUrl: AD('o=tu'), campid: 'constructor', campaigns: {} }),
   { url: LANDER_URLS.TU, source: 'offer_key' });
 
 // ── the built URL ────────────────────────────────────────────────────────────
@@ -223,6 +228,80 @@ eq('a prototype key is not treated as a campaign mapping',
   eq('ttclid survives to the lander', built.searchParams.get('ttclid'), 'TT123');
   eq('s3 survives to the lander', built.searchParams.get('s3'), 'acct7');
   eq('the override param itself is NOT forwarded', built.searchParams.get(OVERRIDE_PARAM), null);
+}
+
+// ── offer binding: the DECLARED offer must match the page's REAL door ─────────
+// This is the check that makes the registry worth having. Every lander hardcodes
+// its own door, so `lp=` pointing at the wrong page does not fail — it credits a
+// different offer, and the campaign just reads as underperforming. Assert against
+// the HTML on disk, not against another table, or the two tables agree with each
+// other while both disagree with what actually ships.
+const REPO = new URL('../../', import.meta.url);
+
+function doorsIn(html) {
+  // Every way a lander names its destination: the Path A `var DOOR` line, a
+  // sprktrax door URL, or a /c/<slug> offer link on any of our cloaker domains.
+  const found = new Set();
+  for (const m of html.matchAll(/sprktrax\.org\/api\/link\/([a-z0-9-]+)/gi)) found.add(`sprktrax.org/api/link/${m[1].toLowerCase()}`);
+  for (const m of html.matchAll(/\/c\/([a-z0-9-]+)/gi)) found.add(`/c/${m[1].toLowerCase()}`);
+  return found;
+}
+
+for (const [key, entry] of Object.entries(OVERRIDE_LANDERS)) {
+  const resolved = resolveOverrideLander(entry.path);
+  const path = resolved.replace(DEFAULT_LANDER_ORIGIN, '').replace(/^\/+/, '');
+  let html = '';
+  try {
+    html = readFileSync(new URL(`${path}/index.html`, REPO), 'utf8');
+  } catch {
+    try { html = readFileSync(new URL(`${path}`, REPO), 'utf8'); } catch { /* not local */ }
+  }
+
+  if (!html) {
+    // A lander we cannot read cannot be verified. Say so loudly rather than
+    // passing by default — silent success here is the whole failure mode.
+    eq(`OVERRIDE_LANDERS.${key}: lander HTML is readable for offer verification`, `missing: ${path}`, 'readable');
+    continue;
+  }
+  const expected = OFFERS[entry.offer].match.toLowerCase();
+  const doors = doorsIn(html);
+  eq(`OVERRIDE_LANDERS.${key}: /${path} really fires "${entry.offer}"`,
+    doors.has(expected) || [...doors].some(d => d.endsWith(expected)), true);
+  eq(`OVERRIDE_LANDERS.${key}: offerForLander agrees with the registry`,
+    offerForLander(resolved), entry.offer);
+}
+
+// The standing CL* landers are bound too, so the admin panel can name the offer
+// whichever routing rule won — not just on the override path.
+for (const [name, url] of Object.entries(LANDER_URLS)) {
+  const path = url.replace(DEFAULT_LANDER_ORIGIN, '').replace(/^\/+/, '');
+  const offer = offerForLander(url);
+  eq(`LANDER_URLS.${name} is bound to an offer`, !!offer, true);
+  if (!offer) continue;
+  let html = '';
+  try { html = readFileSync(new URL(`${path}/index.html`, REPO), 'utf8'); } catch { /* skip */ }
+  if (!html) {
+    eq(`LANDER_URLS.${name}: lander HTML is readable`, `missing: ${path}`, 'readable');
+    continue;
+  }
+  const expected = OFFERS[offer].match.toLowerCase();
+  eq(`LANDER_URLS.${name}: /${path} really fires "${offer}"`,
+    [...doorsIn(html)].some(d => d === expected || d.endsWith(expected)), true);
+}
+
+// ── offer mismatch is reported, not swallowed ────────────────────────────────
+// The click must still go through: dropping paid traffic is worse than a wrong
+// offer, and the override is the operator's explicit instruction.
+{
+  const conflict = resolveLander({ carrdUrl: AD('o=fc&lp=trt') });
+  eq('lp= to a different offer than o= still routes', conflict.url, `${DEFAULT_LANDER_ORIGIN}/trt`);
+  eq('…and reports the conflict',
+    conflict.offerConflict, { adOffer: 'freecash', landerOffer: 'testerup-mon' });
+  const agree = resolveLander({ carrdUrl: AD('o=tu&lp=CLTU') });
+  eq('lp= agreeing with o= reports no conflict', agree.offerConflict, null);
+  const noKey = resolveLander({ carrdUrl: AD('lp=trt') });
+  eq('no o= on the link means nothing to conflict with', noKey.offerConflict, null);
+  eq('the override still reports its own offer', noKey.offer, 'testerup-mon');
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

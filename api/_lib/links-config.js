@@ -312,21 +312,87 @@ const LANDER_HOST_SET = (() => {
 })();
 
 /**
- * Short aliases for landers under test, so an ad link can read `lp=trt` instead
- * of carrying a path. Purely optional sugar — a bare path works without any entry
- * here, which is the point: a lander you deployed five minutes ago is already
- * addressable.
+ * The offers a lander can fire, and the string that PROVES it fires them.
  *
- * Values are the same shape as an `lp` value: a path on the lander site, or a
- * full https URL on an allowlisted host.
+ * `match` is the door substring that must appear in the lander's own HTML. It is
+ * the only honest way to know a lander's offer: the door is hardcoded in each
+ * page (`var DOOR = …`, or the offer-URL builder in the Spartis landers), so the
+ * page itself is the source of truth and this table is the claim being checked.
+ * _links-config.test.mjs reads the HTML off disk and fails the build when a claim
+ * and a page disagree.
  */
-export const TEST_LANDERS = {
-  trt: '/trt',
+export const OFFERS = {
+  freecash:       { label: 'Freecash',             match: 'sprktrax.org/api/link/freecash' },
+  testerup:       { label: 'Testerup',             match: 'sprktrax.org/api/link/testerup' },
+  copper:         { label: 'Copper',               match: 'sprktrax.org/api/link/copper' },
+  gravypass:      { label: 'Gravypass',            match: 'sprktrax.org/api/link/gravypass' },
+  'freecash-uk':  { label: 'Freecash UK',          match: '/c/frrcsh-uk-off' },
+  'freecash-ca':  { label: 'Freecash CA',          match: '/c/frrcsh-ca-off' },
+  'testerup-mon': { label: 'Testerup (Monetise)',  match: '/c/testerup-us-mon-off' },
 };
 
-const TEST_LANDER_MAP = new Map(
-  Object.entries(TEST_LANDERS).map(([k, v]) => [k.trim().toLowerCase(), v])
+/**
+ * Landers reachable by `lp=`, each BOUND TO ITS OFFER.
+ *
+ * The binding is the point. `lp=` picks a page, but every lander hardcodes its own
+ * door — so pointing an ad at the wrong page does not fail loudly, it credits the
+ * wrong offer and the campaign looks like it is simply converting badly. Declaring
+ * the offer here lets three things catch that: the build test (against the real
+ * HTML), the admin preview (which names the offer before you spend), and /r (which
+ * logs when the ad's `o=` disagrees with the page it was overridden to).
+ *
+ *   path   — path on the lander site, or a full https URL on an allowlisted host
+ *   offer  — key in OFFERS; what this page is expected to fire
+ *   owner  — who runs it. SCALERS are self-managed (custom non-SPK campids, settle
+ *            by invoice), so their pages live outside the CL* set and this registry
+ *            is the only place their lander↔offer pairing is written down.
+ *
+ * ADDING A SCALER: one line here, then `node api/_lib/_links-config.test.mjs`. The
+ * test fails if the path does not resolve, the offer key is unknown, or the page's
+ * real door contradicts the declared offer.
+ */
+export const OVERRIDE_LANDERS = {
+  trt: {
+    path: '/trt',
+    offer: 'testerup-mon',
+    owner: 'Trae / TenX — scaler (aff #2)',
+  },
+};
+
+const OVERRIDE_LANDER_MAP = new Map(
+  Object.entries(OVERRIDE_LANDERS).map(([k, v]) => [k.trim().toLowerCase(), v])
 );
+
+/**
+ * Which offer a resolved lander URL fires.
+ *
+ * Covers the override registry AND the standing CL* landers, so the admin preview
+ * can name the offer whichever routing rule won — an `o=fcca` click and an
+ * `lp=trt` click are answerable the same way.
+ */
+const LANDER_OFFERS = new Map([
+  [LANDER_URLS.FC,   'freecash'],
+  [LANDER_URLS.TU,   'testerup'],
+  [LANDER_URLS.FCUK, 'freecash-uk'],
+  [LANDER_URLS.FCCA, 'freecash-ca'],
+]);
+
+/** Offer key for a resolved lander URL, or '' when the lander is not registered. */
+export function offerForLander(landerUrl) {
+  const url = String(landerUrl == null ? '' : landerUrl).trim().replace(/\/+$/, '');
+  if (!url) return '';
+  const direct = LANDER_OFFERS.get(url);
+  if (direct) return direct;
+  for (const entry of OVERRIDE_LANDER_MAP.values()) {
+    if (resolveOverrideLander(entry.path).replace(/\/+$/, '') === url) return entry.offer;
+  }
+  return '';
+}
+
+/** Offer key an ad link's `o=` implies, via the lander it selects. '' when absent. */
+export function offerForOfferKey(carrdUrl) {
+  return offerForLander(landerForOfferKey(carrdUrl));
+}
 
 /**
  * Normalise the path half of an override. Returns '' for anything suspicious.
@@ -387,8 +453,8 @@ export function resolveOverrideLander(value) {
   // as any other target. One hop, not recursion: an alias table that happened to
   // point two keys at each other would otherwise recurse until the stack blew,
   // and that stack overflow would land inside /r on live traffic.
-  const alias = TEST_LANDER_MAP.get(raw.toLowerCase());
-  return resolveLanderTarget(alias == null ? raw : String(alias).trim());
+  const entry = OVERRIDE_LANDER_MAP.get(raw.toLowerCase());
+  return resolveLanderTarget(entry ? String(entry.path || '').trim() : raw);
 }
 
 /** True when `url` is an https page on a host we own. Gate any server-side fetch on this. */
@@ -415,18 +481,34 @@ export function landerForOverride(carrdUrl) {
 }
 
 /**
- * Validate TEST_LANDERS. An alias that does not resolve is worse than no alias:
- * `lp=typo` silently falls through to the default offer, so the test runs and
- * the numbers look real while the traffic never reached the page under test.
+ * Validate OVERRIDE_LANDERS. Every failure here is silent at runtime, which is why
+ * it is a build check: an alias that does not resolve makes `lp=<alias>` fall
+ * through to the DEFAULT offer, so the campaign runs, spends, and reports numbers
+ * that belong to a different offer than the one being tested.
+ *
+ * The door-matches-declared-offer check needs the lander HTML and therefore lives
+ * in _links-config.test.mjs — this module must not import fs, it runs in a lambda.
  */
-export function testLanderProblems() {
+export function overrideLanderProblems() {
   const problems = [];
-  for (const [key, target] of Object.entries(TEST_LANDERS)) {
+  for (const [key, entry] of Object.entries(OVERRIDE_LANDERS)) {
     if (!/^[a-z0-9-]+$/.test(key)) {
-      problems.push(`TEST_LANDERS.${key}: keys must be lowercase alphanumeric or dashes (lp= is lowercased)`);
+      problems.push(`OVERRIDE_LANDERS.${key}: keys must be lowercase alphanumeric or dashes (lp= is lowercased)`);
     }
-    if (!resolveOverrideLander(target)) {
-      problems.push(`TEST_LANDERS.${key} -> "${target}" does not resolve (bad path, or a host outside the allowlist)`);
+    if (!entry || typeof entry !== 'object') {
+      problems.push(`OVERRIDE_LANDERS.${key}: must be an object { path, offer, owner }`);
+      continue;
+    }
+    if (!resolveOverrideLander(entry.path)) {
+      problems.push(`OVERRIDE_LANDERS.${key} -> "${entry.path}" does not resolve (bad path, or a host outside the allowlist)`);
+    }
+    if (!entry.offer) {
+      problems.push(`OVERRIDE_LANDERS.${key}: missing offer — an unbound lander can credit the wrong offer with nothing to catch it`);
+    } else if (!Object.prototype.hasOwnProperty.call(OFFERS, entry.offer)) {
+      problems.push(`OVERRIDE_LANDERS.${key}: offer "${entry.offer}" is not in OFFERS`);
+    }
+    if (!entry.owner) {
+      problems.push(`OVERRIDE_LANDERS.${key}: missing owner — say whose page this is (scaler name, or "house")`);
     }
   }
   return problems;
@@ -564,13 +646,35 @@ export function buildLanderUrl(landerUrl, campid, carrdUrl) {
  *   4. the Carrd page the click came from (CARRD_ROUTES)
  *   5. the first configured lander
  *
- * Returns { url, source }. `source` is what the dashboard shows and what makes a
- * misroute diagnosable — "which of the five rules fired?" is otherwise guesswork.
+ * Returns { url, source, offer, offerConflict }. `source` is what the dashboard
+ * shows and what makes a misroute diagnosable — "which of the five rules fired?"
+ * is otherwise guesswork. `offer` is what the chosen lander actually fires, and
+ * `offerConflict` is set when the ad link's own `o=` names a DIFFERENT offer than
+ * the page it was overridden to: the click still goes through (dropping paid
+ * traffic is worse) but the disagreement is surfaced instead of swallowed.
  * url is '' only when nothing is configured at all.
  */
 export function resolveLander({ carrdUrl = '', campid = '', campaigns = {} } = {}) {
+  // One shape from every branch: the admin panel and /r both read `offer`, and a
+  // branch that quietly omitted it would read as "this lander fires no offer".
+  const pick = (url, source) => {
+    const offer = offerForLander(url);
+    // The ad was bought against SOME offer; `o=` is the only place the link says
+    // which. When an override sends the click to a page that fires a different
+    // one, the conversion credits that other offer and the campaign merely looks
+    // weak — so surface the disagreement rather than swallowing it.
+    const adOffer = offerForOfferKey(carrdUrl);
+    const conflict = source === 'override' && adOffer && offer && adOffer !== offer;
+    return {
+      url,
+      source,
+      offer,
+      offerConflict: conflict ? { adOffer, landerOffer: offer } : null,
+    };
+  };
+
   const byOverride = landerForOverride(carrdUrl);
-  if (byOverride) return { url: byOverride, source: 'override' };
+  if (byOverride) return pick(byOverride, 'override');
 
   // Own-property lookup only: campaigns is keyed by a client-supplied campid, so a
   // plain `campaigns[campid]` resolves INHERITED keys — ?campid=constructor would
@@ -583,19 +687,19 @@ export function resolveLander({ carrdUrl = '', campid = '', campaigns = {} } = {
   // this check a stored `javascript:…` lander_url executes on the Carrd page. https
   // only, same rule /c/:slug applies to its own operator-supplied destinations.
   if (campaign && typeof campaign.lander_url === 'string' && isSafeDestination(campaign.lander_url)) {
-    return { url: campaign.lander_url, source: 'campaign' };
+    return pick(campaign.lander_url, 'campaign');
   }
 
   const byOffer = landerForOfferKey(carrdUrl);
-  if (byOffer) return { url: byOffer, source: 'offer_key' };
+  if (byOffer) return pick(byOffer, 'offer_key');
 
   const byCarrd = landerForCarrd(carrdUrl);
-  if (byCarrd) return { url: byCarrd, source: 'carrd_route' };
+  if (byCarrd) return pick(byCarrd, 'carrd_route');
 
   // Unmapped Carrd page → default offer rather than dropping a paid click.
-  if (LANDERS.length > 0) return { url: LANDERS[0].url, source: 'default' };
+  if (LANDERS.length > 0) return pick(LANDERS[0].url, 'default');
 
-  return { url: '', source: 'none' };
+  return { url: '', source: 'none', offer: '', offerConflict: null };
 }
 
 /**

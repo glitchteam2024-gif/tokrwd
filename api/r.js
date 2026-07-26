@@ -181,7 +181,7 @@ export default function handler(req, res) {
   // === PASSED ALL CHECKS — Route to lander ===
 
   const store = getStore();
-  const { url: landerUrl, source } = resolveLander({
+  const { url: landerUrl, source, offer, offerConflict } = resolveLander({
     carrdUrl,
     campid,
     campaigns: store.campaigns,
@@ -196,7 +196,18 @@ export default function handler(req, res) {
   // left pinned on a live ad link shows up in the function logs instead of
   // quietly outliving the test it was created for.
   if (source === 'override') {
-    console.log('[r] lander override active:', landerUrl);
+    console.log('[r] lander override active:', landerUrl, offer ? `(offer: ${offer})` : '(offer: unregistered)');
+  }
+
+  // The ad's `o=` and the overridden page disagree about which offer this is. The
+  // click is NOT dropped — a paid click is worth more than a clean log line, and
+  // the override is the operator's explicit instruction — but every conversion
+  // from here credits `landerOffer`, not the offer the ad was bought against.
+  if (offerConflict) {
+    console.warn(
+      `[r] OFFER MISMATCH: ad link says o=${offerConflict.adOffer} but ${landerUrl} fires ` +
+      `${offerConflict.landerOffer}. Conversions will credit ${offerConflict.landerOffer}.`
+    );
   }
 
   // Build the lander URL with s1 and passthrough params

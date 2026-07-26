@@ -15,10 +15,11 @@ import {
   getSettings, updateSettings, getPostbackLog, setCampaign
 } from '../_lib/store.js';
 import {
+  OFFERS,
   OFFER_KEYS,
+  OVERRIDE_LANDERS,
   OVERRIDE_PARAM,
   SUBID_PARAM,
-  TEST_LANDERS,
   buildLanderUrl,
   extractSparkCode,
   isCanonicalSpk,
@@ -104,7 +105,8 @@ export default async function handler(req, res) {
         override_param: OVERRIDE_PARAM,
         subid_param: SUBID_PARAM,
         offer_keys: OFFER_KEYS,
-        test_landers: TEST_LANDERS,
+        offers: OFFERS,
+        override_landers: OVERRIDE_LANDERS,
       },
     });
   }
@@ -196,7 +198,7 @@ export default async function handler(req, res) {
         const overrideRaw = (parsed.searchParams.get(OVERRIDE_PARAM) || '').trim();
         const store = getStore();
 
-        const { url: lander, source } = resolveLander({
+        const { url: lander, source, offer, offerConflict } = resolveLander({
           carrdUrl,
           campid,
           campaigns: store.campaigns,
@@ -205,6 +207,22 @@ export default async function handler(req, res) {
 
         // Everything that makes a test link look healthy while producing nothing.
         const warnings = [];
+        // The one that costs real money: the click lands on a page that fires a
+        // different offer than the ad was bought against, and nothing downstream
+        // says so — the campaign just reads as underperforming.
+        if (offerConflict) {
+          warnings.push(
+            `OFFER MISMATCH — the link says o=${offerConflict.adOffer} but this page fires ` +
+            `${OFFERS[offerConflict.landerOffer]?.label || offerConflict.landerOffer}. Every conversion ` +
+            `will credit ${offerConflict.landerOffer}. Drop the o= or point lp= at the matching page.`
+          );
+        }
+        if (lander && !offer) {
+          warnings.push(
+            'This page is not bound to an offer in OVERRIDE_LANDERS, so nothing can verify it fires ' +
+            'the offer you expect. Add it there (path + offer + owner) before running spend through it.'
+          );
+        }
         if (overrideRaw && source !== 'override') {
           warnings.push(
             `lp=${overrideRaw} did not resolve, so this link is routing by ${source} instead. ` +
@@ -234,6 +252,9 @@ export default async function handler(req, res) {
           success: true,
           lander,
           source,
+          offer,
+          offer_label: offer ? (OFFERS[offer] && OFFERS[offer].label) || offer : '',
+          offer_conflict: offerConflict,
           destination,
           override_input: overrideRaw,
           override_resolves_to: overrideRaw ? resolveOverrideLander(overrideRaw) : '',

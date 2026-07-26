@@ -113,7 +113,34 @@ links with two `lp` values to split-test; each arm keeps its own spark code so t
 reporting. **No deploy is needed to change where a link points** — only to create the lander itself.
 
 Accepted values: a bare path (`trt`, `50FC/FC7`, `FCTT.html`), a full `https://www.tokrwd.co/…` URL,
-or a registered alias from `TEST_LANDERS` in `api/_lib/links-config.js`.
+or a registered alias from `OVERRIDE_LANDERS` in `api/_lib/links-config.js`.
+
+### Every registered lander is BOUND TO ITS OFFER
+
+`lp=` picks a page, and every lander hardcodes its own door — so pointing an ad at the wrong page
+does not fail, it **credits the wrong offer** and the campaign just reads as underperforming. Each
+`OVERRIDE_LANDERS` entry therefore declares what it fires:
+
+```js
+export const OVERRIDE_LANDERS = {
+  trt: { path: '/trt', offer: 'testerup-mon', owner: 'Trae / TenX — scaler (aff #2)' },
+};
+```
+
+Three things enforce it:
+1. **Build** — `_links-config.test.mjs` reads the lander's real HTML off disk and fails if its door
+   contradicts the declared `offer`. Verified to bite: flip `trt` to `freecash` and the suite fails.
+   It also asserts every `LANDER_URLS` entry is offer-bound and matches its page.
+2. **Admin preview** — the Test Lander tab shows "Fires offer" for whichever rule won, and raises an
+   `OFFER MISMATCH` warning when the ad's `o=` disagrees with the page `lp=` sends it to.
+3. **Runtime** — `/r` logs the mismatch. It does **not** drop the click: a paid click is worth more
+   than a clean log line, and the override is the operator's explicit instruction.
+
+**Scalers.** Self-managed affiliates (`role='scaler'` in SPRK) run their own tracking with custom
+non-SPK campids (`TRAE_spark97_US_…`) and settle by invoice. Their landers live outside the `CL*`
+set, so `OVERRIDE_LANDERS` is the only place their lander↔offer pairing is written down — always
+fill in `owner`. Adding one is a single line plus `node api/_lib/_links-config.test.mjs`; the roster
+itself lives in SPRK Supabase (`user_profiles.role`), not in this repo.
 
 **Why it rides the link and not a database.** There is no database. Every `api/*.js` file is its own
 Vercel lambda with its own module instance, so anything the admin dashboard writes to
