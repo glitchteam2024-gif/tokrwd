@@ -50,7 +50,7 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Apple Pay $750 | door `applepay750-us` (Path A)           | `APAY750/US/index.html`   | `AP50/US1-30`                                     |
 | Apple Pay $1000 | door `applepay1000-us` (Path A)         | `APAY1K/US/index.html`    | `AK50/US1-30`                                     |
 | Uber Eats £50 | door `ubereats-gb` (Path A)               | `UBER/GB/index.html`      | `UE50/GB1-30`                                     |
-| Freecash (new, per-geo) | door `freecash-<geo>` (Path A)  | `FCASH/<GEO>/index.html`  | `50FC/<GEO>1-30` — US GB CA JP DE AT NL           |
+| Freecash (per-geo) | door `freecash-<geo>` (Path A)         | `FCASH/<GEO>/index.html`  | `50FC/<GEO>1-30` — US GB CA JP DE AT NL           |
 | Reco Social  | `/api/reco` → montrk (Path B)              | `RS/index.html`           | `RS50/RS1-50` are interstitials that forward to `/RS/` (2 distinct variants: RS1 unique, RS2–50 identical) |
 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
@@ -85,7 +85,7 @@ never let them deploy. `api/detector.js`, `api/harness.js`, `api/signatures.js` 
 ## GENERATED landers: ONE PAGE PER GEO, one language per geo (2026-07-26)
 
 `SHEIN SEPH CASH APAY750 APAY1K UBER FCASH` and their `SH50 SP50 CS50 AP50 AK50 UE50 50FC`
-fan-outs are emitted by `_lp-generator/build.js`. One command rebuilds all 651 files:
+fan-outs are emitted by `_lp-generator/build.js`. One command rebuilds the sweep landers (Freecash has its own — see below):
 
 ```bash
 node _lp-generator/build.js --clones 30
@@ -119,6 +119,32 @@ Consequences to respect:
   Ricky (screenshot sent, 2026-07-26) that the current Freecash lander IS compliant**, social proof
   included. Do not strip things from it on compliance grounds. The rule that still stands is
   narrower: do not INVENT a figure or a statistic that has no data behind it.
+## Freecash has its OWN generator — `_lp-generator/freecash.js`
+
+`/50FC/FC1` is a specific, proven-converting page (ticker · live counter · rating pill · offer card
+· stats row · sticky store buttons · quick-tip interstitial). ✅ **Migi confirmed it compliant with
+Ricky directly** (screenshot, 2026-07-26) — social proof included. It is NOT a compliance problem
+and must not be "cleaned up".
+
+So the Freecash geo pages are that exact page TRANSLATED, not rebuilt on the sweep template:
+
+```bash
+node _lp-generator/freecash.js --clones 30      # 7 geos x (1 canonical + 30 clones) = 217 files
+```
+
+`_lp-generator/freecash-template.html` is a byte copy of the approved page. The generator swaps
+ONLY: language strings, `<html lang>`, the flag, the ticker names, the number locale, the door slug,
+and it injects the `?lg=` router into `<head>`. Layout, CSS, markup and behaviour are byte-identical.
+**Every substitution is asserted** — if the template is edited so a source string stops matching, the
+build throws instead of silently emitting an English page into a Japanese slot.
+
+⚠️ **`build.js` must never carry a Freecash entry again.** Both generators write into `50FC/`; a
+Freecash brand in `build.js` would overwrite these with the generic sweep design.
+
+**Money stays in USD on every locale.** $1,250–$1,500 / $11.60 / $50M+ are not converted. Freecash
+pays out in USD via PayPal/Visa/crypto, so USD is the truthful figure — converting would mean
+inventing an exchange rate and publishing an unverified earnings number.
+
 - **`?lg=<GEO>` is the affiliate's geo selector.** The affiliate picks a country on their end and
   their link carries `?lg=JP`; landing on ANY geo's page with it redirects to that brand's page for
   that geo, keeping the clone index so the URL footprint stays spread

@@ -128,6 +128,11 @@ const TITLES = {
 
 const fill = (tpl, vars) => String(tpl).replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? vars[k] : ''));
 
+// NOTE: Freecash is NOT here on purpose. It has its own generator, _lp-generator/freecash.js,
+// because /50FC/FC1 is a specific proven-converting page (ticker, live counter, offer card, stats,
+// sticky store buttons, quick-tip interstitial) that Migi has confirmed compliant with Ricky. It is
+// translated from that exact page rather than rebuilt on this generic template. Running THIS script
+// must never touch 50FC/ or FCASH/ — if you add a Freecash entry back here it will overwrite them.
 const BRANDS = [
   // dir = canonical page root (one subfolder per geo). family/prefix = the numbered fan-out.
   // Clone paths are <FAMILY>/<GEO><n>, e.g. SH50/GB7, 50FC/JP1 — the geo is IN the path, so the
@@ -181,21 +186,6 @@ const BRANDS = [
     theme: { bg: '#fff', ink: '#000', muted: '#6b6b6b', accent: '#06c167', accentHover: '#048a48',
              tint: '#f3faf5', line: '#e8e8e8', badgeBg: '#06c167', badgeInk: '#000',
              logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.2rem', ctaRadius: '999px' },
-  },
-  {
-    // FREECASH — the offer that actually needs the languages: it sells in 7 geos across 4 of them.
-    // Clones land in the EXISTING 50FC family as 50FC/JP1, 50FC/NL1 … alongside the legacy
-    // FC1..FC50 (different prefix, no collision; the legacy pages are untouched).
-    // amounts: null on purpose — the live Freecash lander leads with "Get Paid For Screen Time"
-    // and quotes NO headline sum, so these must not either. "No False Earning Claims" is an
-    // explicit Monetise restriction and Ricky has already pulled an ad over it.
-    dir: 'FCASH', family: '50FC', doorSlug: 'freecash', kind: 'cash',
-    wordmark: 'Freecash', pixel: 'D6CF3ABC77U56TVAPJPG',
-    amounts: null,
-    geos: ['US', 'GB', 'CA', 'JP', 'DE', 'AT', 'NL'],
-    theme: { bg: '#fff', ink: '#0b0b0b', muted: '#6f6f6f', accent: '#12b981', accentHover: '#0e9268',
-             tint: '#f1fbf7', line: '#e4e4e4', badgeBg: '#12b981', badgeInk: '#04231a',
-             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.3rem', ctaRadius: '10px' },
   },
 ];
 

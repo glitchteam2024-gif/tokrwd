@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de" data-geo="AT">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
@@ -7,21 +7,7 @@
      for a crawler than for a user, and a flagged lander gets blocked outright. Attribution does
      not need a gate — the door (api/link/[slug].js) 404s any click without a valid spark code. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Spielen und Geld verdienen</title>
-<script>
-(function(){
-  var GEOS = ["US","GB","CA","JP","DE","AT","NL"], THIS_GEO = "AT";
-  var q = new URLSearchParams(location.search);
-  var want = (q.get('lg') || '').trim().toUpperCase();
-  if (want === 'UK') want = 'GB';
-  if (!want || want === THIS_GEO || GEOS.indexOf(want) === -1) return;
-  var re = new RegExp('(^|/)' + THIS_GEO + '([0-9]*)(/index[.]html|/)?$');
-  var next = location.pathname.replace(re, function (_m, pre, idx, tail) { return pre + want + idx + (tail || ''); });
-  if (next === location.pathname) return;
-  q.set('lg', want);
-  location.replace(next + '?' + q.toString() + location.hash);
-})();
-</script>
+<title>Get paid to play</title>
 <link rel="icon" type="image/webp" href="/images/freecash-logo.webp" />
 <link rel="apple-touch-icon" href="/images/freecash-logo.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -164,7 +150,7 @@
 
   <div class="ticker">
     <span class="ticker-fade" id="ticker">
-      🇦🇹 <span class="name">Lukas M.</span> hat gerade <span class="amt">$11.60</span> &mdash; sofort ausgezahlt
+      &#127482;&#127480; <span class="name">Devon L.</span> just earned <span class="amt">$11.60</span> &mdash; paid instantly
     </span>
   </div>
 
@@ -183,70 +169,70 @@
         <span class="val">4.7</span>
         <span class="rev">&middot;</span>
         <span class="store">App Store</span>
-        <span class="rev">(50.000+ Bewertungen)</span>
+        <span class="rev">(50K+ reviews)</span>
       </div>
 
-      <h1 class="headline">Verdiene Geld mit<span class="g">Bildschirmzeit</span></h1>
+      <h1 class="headline">Get Paid For<span class="g">Screen Time</span></h1>
 
-      <p class="sub">Verdiene echtes Geld mit Spielen, Aufgaben und dem Testen von Apps. Jederzeit auszahlbar &mdash; ohne Mindestbetrag.</p>
+      <p class="sub">Earn real cash playing games, completing tasks, and testing apps. Cash out anytime &mdash; no minimum.</p>
 
       <div class="live-pill">
         <span class="dot"></span>
-        <span class="n" id="liveCount">1,849</span>&nbsp;Personen verdienen gerade
+        <span class="n" id="liveCount">1,849</span>&nbsp;people earning right now
       </div>
     </section>
 
     <section class="offer card section-gap">
       <div class="offer-head" style="display:block;">
         <div style="font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--green);margin-bottom:9px;">FREECASH</div>
-        <div class="offer-title" style="margin-bottom:6px;">10 Spiele mit Auszahlungen in Tausendenh&ouml;he!</div>
-        <div style="font-size:13px;line-height:1.4;color:var(--muted);font-weight:400;letter-spacing:-.2px;margin-bottom:14px;">Die derzeit bestbezahlten Spiele auf Freecash.</div>
+        <div class="offer-title" style="margin-bottom:6px;">10 games paying over thousands!</div>
+        <div style="font-size:13px;line-height:1.4;color:var(--muted);font-weight:400;letter-spacing:-.2px;margin-bottom:14px;">The highest-paying games on Freecash right now.</div>
         <div style="border-top:1px solid var(--border);padding-top:12px;">
           <div style="font-size:27px;font-weight:800;color:var(--green);letter-spacing:-.8px;line-height:1;">$1,250 &ndash; $1,500</div>
-          <div style="font-size:10.5px;font-weight:700;letter-spacing:1px;color:var(--muted-2);margin-top:6px;">TOP-ANGEBOT &middot; GESAMTAUSZAHLUNG</div>
+          <div style="font-size:10.5px;font-weight:700;letter-spacing:1px;color:var(--muted-2);margin-top:6px;">TOP OFFER &middot; TOTAL PAYOUT</div>
         </div>
-        <div style="font-size:11.5px;line-height:1.5;color:var(--muted-2);margin-top:12px;">Ausgezahlt &uuml;ber etwa einen Monat t&auml;glichen Spielens (~4&nbsp;Std./Tag). Das ist das h&ouml;chste Angebot &mdash; die meisten verdienen weniger, und die Ergebnisse variieren.</div>
+        <div style="font-size:11.5px;line-height:1.5;color:var(--muted-2);margin-top:12px;">Paid out over about a month of daily play (~4&nbsp;hrs/day). It's the highest offer &mdash; most people earn less, and results vary.</div>
       </div>
 
       <div class="divider"></div>
 
-      <div class="hiw-label">SO FUNKTIONIERT ES</div>
+      <div class="hiw-label">HOW IT WORKS</div>
       <ul class="steps">
-        <li class="step"><span class="num">1</span><span class="txt">Bei Freecash registrieren (21+ ausw&auml;hlen)</span></li>
-        <li class="step"><span class="num">2</span><span class="txt">Lade eine App herunter und spiele 15 Minuten, um Block Blast, Subway Surfers &amp; mehr freizuschalten!</span></li>
-        <li class="step"><span class="num">3</span><span class="txt">Auszahlung per PayPal, Visa oder Krypto</span></li>
+        <li class="step"><span class="num">1</span><span class="txt">Sign up on Freecash (select 21+)</span></li>
+        <li class="step"><span class="num">2</span><span class="txt">Download one app and play 15 minutes to unlock Block Blast, Subway Surfers, &amp; More!</span></li>
+        <li class="step"><span class="num">3</span><span class="txt">Withdraw via PayPal, Visa, or Crypto</span></li>
       </ul>
     </section>
 
     <section class="stats card">
       <div class="stats-row">
-        <div class="stat"><div class="big">$50M+</div><div class="lbl">AUSGEZAHLT</div></div>
-        <div class="stat"><div class="big">4.7<span class="star">&#9733;</span></div><div class="lbl">APP-BEWERTUNG</div></div>
-        <div class="stat"><div class="big">$0</div><div class="lbl">ZUM BEITRETEN</div></div>
+        <div class="stat"><div class="big">$50M+</div><div class="lbl">PAID OUT</div></div>
+        <div class="stat"><div class="big">4.7<span class="star">&#9733;</span></div><div class="lbl">APP RATING</div></div>
+        <div class="stat"><div class="big">$0</div><div class="lbl">TO JOIN</div></div>
       </div>
     </section>
 
-    <p class="disclaimer">Verf&uuml;gbarkeit, Pr&auml;mien und Teilnahmeberechtigung k&ouml;nnen je nach Nutzer, Standort und abgeschlossener Aktivit&auml;t variieren. Ergebnisse sind nicht garantiert und beruhen auf der individuellen Teilnahme. Die Verdienste variieren je nach Angebot.</p>
+    <p class="disclaimer">Availability, rewards, and eligibility may vary by user, location, and completed activity. Results are not guaranteed and are based on individual participation. Earnings vary by offer.</p>
 
     <div class="links">
-      <a href="#">Datenschutz</a><span class="sep">&middot;</span><a href="#">AGB</a>
+      <a href="#">Privacy Policy</a><span class="sep">&middot;</span><a href="#">Terms of Service</a>
     </div>
 
   </div>
 
   <footer class="sticky">
     <div class="wrap">
-      <div class="avail"><span class="dot"></span>Jetzt f&uuml;r iOS und Android verf&uuml;gbar</div>
+      <div class="avail"><span class="dot"></span>Available now on iOS and Android</div>
       <!-- one link, two separate-looking boxes. href stays "#" — the offer script below builds the
            real door URL at runtime with every param (s1/s2/s3/s4/ttclid) carried over. -->
       <a class="store-combo offer-link" href="#">
         <span class="btn btn-play">
           <svg width="22" height="24" viewBox="0 0 24 26" fill="none"><path d="M2 2.2C1.6 2.5 1.4 3 1.4 3.7v18.6c0 .7.2 1.2.6 1.5L12.6 13 2 2.2z" fill="#0a3d20"/><path d="M16.3 9.3 4.1 2.3 3.6 2 12.6 13l3.7-3.7z" fill="#0a3d20"/><path d="M16.3 16.7 12.6 13l3.7 3.7 4-2.3c.7-.4.7-1.4 0-1.8l-4-2.3-3.7 3.7 3.7 3.7z" fill="#0a3d20"/></svg>
-          <span class="lbl"><small>Jetzt bei</small>Google Play</span>
+          <span class="lbl"><small>Get it on</small>Google Play</span>
         </span>
         <span class="btn btn-apple">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M16.365 1.43c0 1.14-.42 2.2-1.13 2.99-.86.96-2.27 1.7-3.44 1.61-.14-1.11.42-2.28 1.09-3.02.79-.87 2.15-1.53 3.31-1.58.01.05.17.5.17 1zM20.5 17.06c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.39 3.53-4.12 3.55-1.54.02-1.94-1.01-4.03-1-2.09.01-2.53 1.02-4.07 1-1.73-.02-3.05-1.79-4.04-3.36C-.13 17.8-.42 12.3 1.35 9.4 2.6 7.33 4.6 6.11 6.48 6.11c1.91 0 3.11 1.05 4.69 1.05 1.53 0 2.46-1.05 4.67-1.05 1.67 0 3.44.91 4.7 2.48-4.13 2.26-3.46 8.15.96 8.47z"/></svg>
-          <span class="lbl"><small>Laden im</small>App Store</span>
+          <span class="lbl"><small>Download on the</small>App Store</span>
         </span>
       </a>
     </div>
@@ -256,10 +242,10 @@
   <div class="tip-overlay" id="tipOverlay" hidden>
     <div class="tip-card">
       <button class="tip-close" id="tipClose" aria-label="Close">&times;</button>
-      <div class="tip-label">KURZER TIPP</div>
-      <h2 class="tip-head">W&auml;hle bei der Anmeldung <span class="g">21+</span></h2>
-      <p class="tip-sub">Damit schaltest du die bestbezahlten Spielangebote auf Freecash frei. &Uuml;berspringe diesen Schritt nicht.</p>
-      <a class="tip-btn" id="tipGo" href="#">Verstanden &rarr;</a>
+      <div class="tip-label">QUICK TIP</div>
+      <h2 class="tip-head">Select <span class="g">21+</span> when you sign&nbsp;up</h2>
+      <p class="tip-sub">This unlocks the highest-paying game offers on Freecash. Don't skip this step.</p>
+      <a class="tip-btn" id="tipGo" href="#">Got it &rarr;</a>
     </div>
   </div>
 
@@ -271,13 +257,13 @@
       n += Math.random() < 0.5 ? -1 : 1;
       if (n < 1840) n = 1841;
       if (n > 1875) n = 1874;
-      el.textContent = n.toLocaleString('de-AT');
+      el.textContent = n.toLocaleString('en-US');
     }, 2600);
   })();
 
   (function(){
     var el = document.getElementById('ticker');
-    var names = ['Lukas M.','Anna S.','Jonas W.','Lena K.','Felix B.','Marie H.','Paul R.','Emma T.'];
+    var names = ['Devon L.','Marcus T.','Ava R.','Jordan P.','Chloe M.','Ethan W.','Sofia D.','Liam K.'];
     function rand(){
       var amt = (Math.random() * 22 + 4).toFixed(2);
       return {name: names[Math.floor(Math.random()*names.length)], amt: amt};
@@ -286,7 +272,7 @@
       el.style.opacity = 0;
       setTimeout(function(){
         var r = rand();
-        el.innerHTML = '🇦🇹 <span class="name">'+r.name+'</span> hat gerade <span class="amt">$'+r.amt+'</span> — sofort ausgezahlt';
+        el.innerHTML = '\u{1F1FA}\u{1F1F8} <span class="name">'+r.name+'</span> just earned <span class="amt">$'+r.amt+'</span> — paid instantly';
         el.style.opacity = 1;
       }, 400);
     }, 3800);
@@ -298,14 +284,14 @@
     // Route through the SPRK tracking door (mints the click_id + logs the click), which cloaks
     // -> the FreeCash offer. Forward EVERYTHING the FCx lander passed: s1=<SPK> (per-creative
     // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
-    var DOOR = 'https://sprktrax.org/api/link/freecash-at';
+    var DOOR = 'https://sprktrax.org/api/link/freecash';
     var q = new URLSearchParams(location.search);
     if (!q.get('s1')) {
       var mc = q.get('mc_attr') || '', f = {};
       mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
       var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — untagged visit stays untagged; door 404s it (matches TU/CB)
     }
-    q.delete('lg'); var url = DOOR + '?' + q.toString();
+    var url = DOOR + '?' + q.toString();
 
     var overlay = document.getElementById('tipOverlay');
     document.getElementById('tipGo').href = url; // "Got it" goes to the offer

@@ -5,3 +5,6 @@ justincase/
 
 # Cloaking-technique demo/QA fixtures — reference only, never served on the live domain.
 SIGNAT~1/
+
+# Lander generators + the approved-page template. Build tooling, never served.
+_lp-generator/
