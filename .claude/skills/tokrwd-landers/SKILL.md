@@ -44,6 +44,12 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Gravypass    | `sprktrax.org/api/link/gravypass` (Path A) | `GP/index.html`           | — (`GP/ob/` is a clean pass-through interstitial → `/GP/`) |
 | Testerup ALT | `monetisetrk8.co.uk` DIRECT (Path B)       | `TSUP/index.html` + `js/tsup-offer.js` | —                                      |
 | Testerup TRT | `/c/testerup-us-mon-off` (Path B)          | `trt/index.html`          | — (game-picker variant under test, `lp=trt`) |
+| Shein $750   | `sprktrax.org/api/link/shein` (Path A)     | `SHEIN/index.html`        | `SH50/SH1-50` — generated, never hand-edited        |
+| Sephora $750 | `sprktrax.org/api/link/sephora` (Path A)   | `SEPH/index.html`         | `SP50/SP1-50`                                      |
+| Cash Prize   | `sprktrax.org/api/link/cash` (Path A)      | `CASH/index.html`         | `CS50/CS1-50`                                      |
+| Apple Pay $750 | `sprktrax.org/api/link/applepay750` (A)  | `APAY750/index.html`      | `AP50/AP1-50`                                      |
+| Apple Pay $1000 | `sprktrax.org/api/link/applepay1000` (A)| `APAY1K/index.html`       | `AK50/AK1-50`                                      |
+| Uber Eats £50 | `sprktrax.org/api/link/ubereats` (Path A) | `UBER/index.html`         | `UE50/UE1-50`                                      |
 | Reco Social  | `/api/reco` → montrk (Path B)              | `RS/index.html`           | `RS50/RS1-50` are interstitials that forward to `/RS/` (2 distinct variants: RS1 unique, RS2–50 identical) |
 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
@@ -75,6 +81,26 @@ archived/demo references and are kept OUT of the deploy via `.vercelignore`. Nev
 never let them deploy. `api/detector.js`, `api/harness.js`, `api/signatures.js` are cloaking
 *detector* QA tooling (they find cloaking, they don't serve it) — leave them.
 
+## The six SWEEP landers are GENERATED — never hand-edit them (2026-07-26)
+
+`SHEIN SEPH CASH APAY750 APAY1K UBER` and their `SH50 SP50 CS50 AP50 AK50 UE50` fan-outs are
+emitted by `_lp-generator/build.js`. One command rebuilds all 306 files:
+
+```bash
+node _lp-generator/build.js --clones 50
+```
+
+Change copy, theming, geo amounts or the door slug in the `BRANDS` array and regenerate — a
+structural fix lands on all six families at once. Every clone in a family is written from the
+same buffer, so each family is ONE md5. This is the direct answer to RS50/RS1: hand-editing a
+clone is how a family silently drifts.
+
+Each page carries its full per-geo amount map (`window.__GEO_AMOUNTS__`) and reads
+`window.__GEO__` from the `lp_geo` cookie that root `middleware.js` stamps from
+`x-vercel-ip-country`. That is **display only** — the real per-geo routing is server-side at the
+door (`offers.destination_by_geo`). Forging the cookie changes the figure on screen and nothing
+about which offer serves or what it pays. Never promote it to a routing input.
+
 ## How to change a lander (edit canonical + propagate)
 
 Edits must land on the canonical file AND every copy, or the set drifts. From the repo root:
@@ -91,6 +117,14 @@ cp FC/index.html CLFC/index.html; cp TU/index.html CLTU/index.html
 # Verify each brand is ONE hash:
 md5 -q FC/index.html FCTT.html index.html 50FC/FC*/index.html 50FCII/FC*/index.html | sort -u   # expect 1 line
 ```
+
+> **RS50/RS1 divergence — reported 2026-07-26, deliberately NOT normalised.** Confirmed by hash:
+> 49 of the 50 RS50 clones share `c76e8ca6…`, and `RS50/RS1` alone is `e09787126…`. That matches
+> the "RS1 is a unique interstitial" note above, so it may be intentional — but it is also exactly
+> what an accidental hand-edit looks like, and it is the same shape as the FC1 incident (FC1 was
+> the lone broken clone AND the LP assigned to Freecash). Left as-is pending Migi's call. If it
+> turns out to be stale, the fix is `cp RS50/RS2/index.html RS50/RS1/index.html`, not a rewrite.
+> **The general lesson, and why the sweep landers are generated:** never hand-edit one clone.
 
 `RS50` is special: RS1 is a unique interstitial, RS2–50 are identical; both variants just forward
 the full query to `/RS/`. To strip a shared block from all 50 at once, use a Python exact-string
