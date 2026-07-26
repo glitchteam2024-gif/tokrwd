@@ -44,13 +44,13 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Gravypass    | `sprktrax.org/api/link/gravypass` (Path A) | `GP/index.html`           | — (`GP/ob/` is a clean pass-through interstitial → `/GP/`) |
 | Testerup ALT | `monetisetrk8.co.uk` DIRECT (Path B)       | `TSUP/index.html` + `js/tsup-offer.js` | —                                      |
 | Testerup TRT | `/c/testerup-us-mon-off` (Path B)          | `trt/index.html`          | — (game-picker variant under test, `lp=trt`) |
-| Shein $750   | door `shein-<geo>` (Path A)                | `SHEIN/<GEO>/index.html`  | `SH50/<GEO>1-50` — US GB CA AU, generated         |
-| Sephora $750 | door `sephora-<geo>` (Path A)              | `SEPH/<GEO>/index.html`   | `SP50/<GEO>1-50` — US GB CA AU                    |
-| Cash Prize   | door `cash-<geo>` (Path A)                 | `CASH/<GEO>/index.html`   | `CS50/<GEO>1-50` — US GB AU                       |
-| Apple Pay $750 | door `applepay750-us` (Path A)           | `APAY750/US/index.html`   | `AP50/US1-50`                                     |
-| Apple Pay $1000 | door `applepay1000-us` (Path A)         | `APAY1K/US/index.html`    | `AK50/US1-50`                                     |
-| Uber Eats £50 | door `ubereats-gb` (Path A)               | `UBER/GB/index.html`      | `UE50/GB1-50`                                     |
-| Freecash (new, per-geo) | door `freecash-<geo>` (Path A)  | `FCASH/<GEO>/index.html`  | `50FC/<GEO>1-50` — US GB CA JP DE AT NL           |
+| Shein $750   | door `shein-<geo>` (Path A)                | `SHEIN/<GEO>/index.html`  | `SH50/<GEO>1-30` — US GB CA AU, generated         |
+| Sephora $750 | door `sephora-<geo>` (Path A)              | `SEPH/<GEO>/index.html`   | `SP50/<GEO>1-30` — US GB CA AU                    |
+| Cash Prize   | door `cash-<geo>` (Path A)                 | `CASH/<GEO>/index.html`   | `CS50/<GEO>1-30` — US GB AU                       |
+| Apple Pay $750 | door `applepay750-us` (Path A)           | `APAY750/US/index.html`   | `AP50/US1-30`                                     |
+| Apple Pay $1000 | door `applepay1000-us` (Path A)         | `APAY1K/US/index.html`    | `AK50/US1-30`                                     |
+| Uber Eats £50 | door `ubereats-gb` (Path A)               | `UBER/GB/index.html`      | `UE50/GB1-30`                                     |
+| Freecash (new, per-geo) | door `freecash-<geo>` (Path A)  | `FCASH/<GEO>/index.html`  | `50FC/<GEO>1-30` — US GB CA JP DE AT NL           |
 | Reco Social  | `/api/reco` → montrk (Path B)              | `RS/index.html`           | `RS50/RS1-50` are interstitials that forward to `/RS/` (2 distinct variants: RS1 unique, RS2–50 identical) |
 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
@@ -85,10 +85,10 @@ never let them deploy. `api/detector.js`, `api/harness.js`, `api/signatures.js` 
 ## GENERATED landers: ONE PAGE PER GEO, one language per geo (2026-07-26)
 
 `SHEIN SEPH CASH APAY750 APAY1K UBER FCASH` and their `SH50 SP50 CS50 AP50 AK50 UE50 50FC`
-fan-outs are emitted by `_lp-generator/build.js`. One command rebuilds all 1071 files:
+fan-outs are emitted by `_lp-generator/build.js`. One command rebuilds all 651 files:
 
 ```bash
-node _lp-generator/build.js --clones 50
+node _lp-generator/build.js --clones 30
 ```
 
 **Geo is the unit of everything.** One geo picks the Monetise link
@@ -114,13 +114,26 @@ Consequences to respect:
   `de`. Copy is substituted at BUILD time, so a missing key can never reach a visitor as a raw
   `{amount}` placeholder — it fails the build instead.
 - **A brand with `amounts: null` quotes no figure at all** and uses the `*NoAmount` copy variants.
-  Freecash ships this way because its live page leads with "Get Paid For Screen Time" and names no
-  sum. Do not invent one — "No False Earning Claims" is an explicit Monetise restriction and an ad
-  has already been pulled over it.
-- **Never hand-edit a clone.** Each (brand, geo) slice is 50 files written from one buffer, so it is
+  Freecash ships this way to MATCH ITS LIVE PAGE, which leads with "Get Paid For Screen Time" and
+  names no sum — not because the existing page is a compliance problem. ✅ **Migi confirmed with
+  Ricky (screenshot sent, 2026-07-26) that the current Freecash lander IS compliant**, social proof
+  included. Do not strip things from it on compliance grounds. The rule that still stands is
+  narrower: do not INVENT a figure or a statistic that has no data behind it.
+- **`?lg=<GEO>` is the affiliate's geo selector.** The affiliate picks a country on their end and
+  their link carries `?lg=JP`; landing on ANY geo's page with it redirects to that brand's page for
+  that geo, keeping the clone index so the URL footprint stays spread
+  (`/50FC/US7?lg=JP` → `/50FC/JP7`). Every param rides across; `lg` is stripped from the outbound
+  door URL because it routes the lander, not the network. `UK` folds to `GB`. A geo the brand does
+  not sell is ignored rather than redirected into a 404.
+  It is computed from `location.pathname` (not a baked per-clone table) precisely so every clone in
+  a slice stays byte-identical. It handles the bare path, a trailing slash AND `/index.html` — a
+  silent non-redirect would land Japanese traffic on the English page.
+  **This is not cloaking**: it keys off an explicit query param, never the user agent, and does the
+  same thing for every visitor including ad-review crawlers.
+- **Never hand-edit a clone.** Each (brand, geo) slice is 30 files written from one buffer, so it is
   exactly one md5. Hand-editing is how `RS50/RS1` drifted. Change `BRANDS`/`STRINGS` and regenerate.
 - The legacy `50FC/FC1..FC50` (slug `freecash`, geo `us`) are hand-built and are NOT touched by the
-  generator. The generated US equivalent is `50FC/US1..US50` (slug `freecash-us`). Run one or the
+  generator. The generated US equivalent is `50FC/US1..US30` (slug `freecash-us`). Run one or the
   other, not both — the per-geo affiliate guard refuses the same affiliate on two same-geo landers.
 
 ## How to change a lander (edit canonical + propagate)

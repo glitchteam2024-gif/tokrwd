@@ -161,6 +161,46 @@ var GEO_VALUE = 0;
    overwrite s1 with a campaign name — that is what breaks attribution.
    ------------------------------------------------------------------ */
 var q = new URLSearchParams(location.search);
+/* ------------------------------------------------------------------
+   ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR.
+   The affiliate picks a country on their end; their link carries ?lg=JP.
+   Landing on any geo's page with ?lg=JP sends them straight to THIS brand's
+   Japanese page, keeping their clone index so the URL footprint stays spread
+   (/50FC/US7?lg=JP -> /50FC/JP7). Every param rides across, and 'lg' is
+   dropped from the outbound door URL — it routes the lander, the network
+   never needs it.
+
+   Computed from location.pathname rather than a baked table on purpose: a
+   per-clone table would give every clone a different byte and break the
+   one-md5-per-slice property that makes drift detectable.
+
+   NOT CLOAKING. It keys off an explicit query param, never the user agent,
+   and does exactly the same thing for every visitor including ad-review
+   crawlers. A crawler hitting ?lg=JP sees the Japanese page, which is the
+   honest answer. No lg param at all -> no redirect, this page renders as-is.
+   ------------------------------------------------------------------ */
+var THIS_GEO = "GB";
+var BRAND_GEOS = ["US","GB","CA","JP","DE","AT","NL"];
+(function () {
+  var want = (q.get('lg') || '').trim().toUpperCase();
+  if (want === 'UK') want = 'GB';            // networks say UK, we store GB
+  if (!want || want === THIS_GEO) return;
+  if (BRAND_GEOS.indexOf(want) === -1) return;   // geo this brand does not sell -> stay put
+  var path = location.pathname;
+  // /50FC/US7 -> /50FC/JP7 · /FCASH/US -> /FCASH/JP · and the same with a trailing slash or
+  // /index.html, because Vercel cleanUrls serves the bare form but a direct /index.html hit must
+  // redirect too — a SILENT non-redirect lands Japanese traffic on the English page.
+  // [0-9] and [.] instead of d and . on purpose: this whole file is a template literal, and a
+  // backslash escape does not survive into the emitted single-quoted RegExp string.
+  var re = new RegExp('(^|/)' + THIS_GEO + '([0-9]*)(/index[.]html|/)?$');
+  var next = path.replace(re, function (_m, pre, idx, tail) { return pre + want + idx + (tail || ''); });
+  if (next === path) return;                 // nothing matched -> never redirect blindly
+  var carry = new URLSearchParams(q.toString());
+  carry.set('lg', want);                     // idempotent: the target page sees lg === its geo
+  location.replace(next + '?' + carry.toString());
+})();
+
+
 
 /* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not
    pass it directly. If neither field exists s1 stays EMPTY — never fabricated. */
@@ -200,6 +240,7 @@ var ttclid = q.get('ttclid') || '';
 function buildDoorUrl() {
   var out = new URLSearchParams(q.toString());
   out.delete('s1');
+  out.delete('lg');   // routes the lander only — the door/network never sees it
   var qs = out.toString();
   var url = DOOR + (qs ? '?' + qs : '');
   if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
