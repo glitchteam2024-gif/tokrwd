@@ -19,6 +19,27 @@
      __GEO_VALUE__  numeric value for pixel events
      __STATS__      social-proof strings. See NOTES.md before shipping these.
      ============================================================ -->
+<!-- ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR. Runs FIRST, in the head: before the pixel fires,
+     before the body paints, and before the CTA is wired. Ordering is load-bearing — running this
+     late double-counted the TikTok PageView (one on the page being left, one on the page being
+     entered) and left a window where a fast tap fired the CTA on the WRONG geo's door.
+     Keeps the clone index (/SH50/US7?lg=GB -> /SH50/GB7) so the URL footprint stays spread.
+     NOT CLOAKING: keyed on an explicit query param, never the user agent, identical for crawlers. -->
+<script>
+(function(){
+  var GEOS = ["US","GB","AU"], THIS_GEO = "AU";
+  var q = new URLSearchParams(location.search);
+  var want = (q.get('lg') || '').trim().toUpperCase();
+  if (want === 'UK') want = 'GB';
+  if (!want || want === THIS_GEO || GEOS.indexOf(want) === -1) return;
+  var re = new RegExp('(^|/)' + THIS_GEO + '([0-9]*)(/index[.]html|/)?$');
+  var next = location.pathname.replace(re, function (_m, pre, idx, tail) { return pre + want + idx + (tail || ''); });
+  if (next === location.pathname) return;
+  q.set('lg', want);
+  location.replace(next + '?' + q.toString() + location.hash);
+})();
+</script>
+
 <script id="offer-config">
 /* This page IS one geo — AU, rendered in en with its own figures baked into the markup.
    There is deliberately NO runtime geo detection, no language switcher and no cookie: the geo is
@@ -26,7 +47,6 @@
    same lander. One fact drives both, so the page cannot promise one country's offer and hand the
    visitor another's. ||-guarded so a server-side injection still wins if one is ever added. */
 window.__DOOR_URL__ = window.__DOOR_URL__ || "https://sprktrax.org/api/link/cash-au";
-window.__GEO__      = "AU";
 window.__STATS__    = window.__STATS__ || null;
 </script>
 
@@ -161,45 +181,6 @@ var GEO_VALUE = 750;
    overwrite s1 with a campaign name — that is what breaks attribution.
    ------------------------------------------------------------------ */
 var q = new URLSearchParams(location.search);
-/* ------------------------------------------------------------------
-   ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR.
-   The affiliate picks a country on their end; their link carries ?lg=JP.
-   Landing on any geo's page with ?lg=JP sends them straight to THIS brand's
-   Japanese page, keeping their clone index so the URL footprint stays spread
-   (/50FC/US7?lg=JP -> /50FC/JP7). Every param rides across, and 'lg' is
-   dropped from the outbound door URL — it routes the lander, the network
-   never needs it.
-
-   Computed from location.pathname rather than a baked table on purpose: a
-   per-clone table would give every clone a different byte and break the
-   one-md5-per-slice property that makes drift detectable.
-
-   NOT CLOAKING. It keys off an explicit query param, never the user agent,
-   and does exactly the same thing for every visitor including ad-review
-   crawlers. A crawler hitting ?lg=JP sees the Japanese page, which is the
-   honest answer. No lg param at all -> no redirect, this page renders as-is.
-   ------------------------------------------------------------------ */
-var THIS_GEO = "AU";
-var BRAND_GEOS = ["US","GB","AU"];
-(function () {
-  var want = (q.get('lg') || '').trim().toUpperCase();
-  if (want === 'UK') want = 'GB';            // networks say UK, we store GB
-  if (!want || want === THIS_GEO) return;
-  if (BRAND_GEOS.indexOf(want) === -1) return;   // geo this brand does not sell -> stay put
-  var path = location.pathname;
-  // /50FC/US7 -> /50FC/JP7 · /FCASH/US -> /FCASH/JP · and the same with a trailing slash or
-  // /index.html, because Vercel cleanUrls serves the bare form but a direct /index.html hit must
-  // redirect too — a SILENT non-redirect lands Japanese traffic on the English page.
-  // [0-9] and [.] instead of d and . on purpose: this whole file is a template literal, and a
-  // backslash escape does not survive into the emitted single-quoted RegExp string.
-  var re = new RegExp('(^|/)' + THIS_GEO + '([0-9]*)(/index[.]html|/)?$');
-  var next = path.replace(re, function (_m, pre, idx, tail) { return pre + want + idx + (tail || ''); });
-  if (next === path) return;                 // nothing matched -> never redirect blindly
-  var carry = new URLSearchParams(q.toString());
-  carry.set('lg', want);                     // idempotent: the target page sees lg === its geo
-  location.replace(next + '?' + carry.toString());
-})();
-
 
 
 /* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not
@@ -214,7 +195,7 @@ if (!q.get('s1')) {
 if ((!q.get('s1') || !q.get('utm_campaign')) && document.referrer) {
   try {
     var r = new URLSearchParams(new URL(document.referrer).search);
-    ['s1','s2','s3','s4','utm_campaign','campaign','ttclid'].forEach(function(k){
+    ['s1','s2','s3','s4','utm_campaign','campaign','ttclid','lg'].forEach(function(k){
       if (!q.get(k) && r.get(k)) q.set(k, r.get(k));
     });
   } catch(e) {}
