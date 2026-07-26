@@ -36,12 +36,13 @@ const STRINGS = {
     badge: '2026 Summer Drop',
     headline: 'Claim Your Reward',
     headlineNoAmount: 'Claim Your Reward',
-    subByKind:  { giftcard: 'Gift Card', credit: 'Credit', cash: 'Reward', wallet: 'Reward' },
+    subByKind:  { giftcard: 'Gift Card', credit: 'Credit', cash: 'Reward', wallet: 'Reward', app: 'App' },
     amountSubByKind: {
       giftcard: 'FREE CREDIT TO SPEND AT {brand}',
       credit:   'FREE CREDIT TO SPEND ON {brand}',
       cash:     'PAID DIRECT TO YOUR ACCOUNT',
       wallet:   'SENT STRAIGHT TO YOUR APPLE PAY WALLET',
+      app:      'FREE TO JOIN &mdash; TAKES A MINUTE',
     },
     step1: 'Tap the button below',   step1sub: 'Reserves your {amount} credit instantly',
     step1subNoAmount: 'Takes you straight to the sign-up page',
@@ -57,12 +58,13 @@ const STRINGS = {
     badge: '2026年 サマーキャンペーン',
     headline: '特典を受け取る',
     headlineNoAmount: '特典を受け取る',
-    subByKind:  { giftcard: 'ギフトカード', credit: 'クレジット', cash: '報酬', wallet: '報酬' },
+    subByKind:  { giftcard: 'ギフトカード', credit: 'クレジット', cash: '報酬', wallet: '報酬', app: 'アプリ' },
     amountSubByKind: {
       giftcard: '{brand}で使える無料クレジット',
       credit:   '{brand}で使える無料クレジット',
       cash:     'ご指定の口座に直接お支払い',
       wallet:   'Apple Pay ウォレットに直接送金',
+      app:      '登録は無料 &mdash; 1分で完了',
     },
     step1: '下のボタンをタップ',   step1sub: '{amount}のクレジットをすぐに確保します',
     step1subNoAmount: '登録ページへ直接移動します',
@@ -78,7 +80,7 @@ const STRINGS = {
     badge: 'Sommer-Aktion 2026',
     headline: 'Sichern Sie sich Ihre Prämie',
     headlineNoAmount: 'Sichern Sie sich Ihre Prämie',
-    subByKind:  { giftcard: 'Geschenkkarte', credit: 'Guthaben', cash: 'Prämie', wallet: 'Prämie' },
+    subByKind:  { giftcard: 'Geschenkkarte', credit: 'Guthaben', cash: 'Prämie', wallet: 'Prämie', app: 'App' },
     amountSubByKind: {
       giftcard: 'GRATIS-GUTHABEN ZUM EINLÖSEN BEI {brand}',
       credit:   'GRATIS-GUTHABEN FÜR {brand}',
@@ -99,7 +101,7 @@ const STRINGS = {
     badge: 'Zomeractie 2026',
     headline: 'Claim je beloning',
     headlineNoAmount: 'Claim je beloning',
-    subByKind:  { giftcard: 'Cadeaukaart', credit: 'Tegoed', cash: 'Beloning', wallet: 'Beloning' },
+    subByKind:  { giftcard: 'Cadeaukaart', credit: 'Tegoed', cash: 'Beloning', wallet: 'Beloning', app: 'App' },
     amountSubByKind: {
       giftcard: 'GRATIS TEGOED OM TE BESTEDEN BIJ {brand}',
       credit:   'GRATIS TEGOED VOOR {brand}',
@@ -178,6 +180,29 @@ const BRANDS = [
     theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
              tint: '#f5f5f7', line: '#d2d2d7', badgeBg: '#1d1d1f', badgeInk: '#fff',
              logoWeight: 600, logoSpacing: '-.02em', logoSize: '2.1rem', ctaRadius: '980px' },
+  },
+  {
+    // CASHBACK £10 WELCOME BONUS [GB] — Monetise c=42882, single geo, single link.
+    // "£10" is the offer's own name, i.e. a stated bonus, not an earnings projection.
+    dir: 'CBAK', family: 'CB50', doorSlug: 'cashback', kind: 'cash',
+    wordmark: 'CASHBACK', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£10', 10] },
+    theme: { bg: '#fff', ink: '#101010', muted: '#6e6e6e', accent: '#1c6ef2', accentHover: '#0f56c9',
+             tint: '#f2f6fe', line: '#e6e6e6', badgeBg: '#1c6ef2', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.2rem', ctaRadius: '10px' },
+  },
+  {
+    // PROGRAD APP [GB/US] — Monetise c=56213, ONE link covering both geos, so `geos` is explicit.
+    // amounts: null DELIBERATELY. Prograd's user-facing reward is not on the dashboard and I will
+    // not invent a figure for a money app — an unverified number is exactly the "No False Earning
+    // Claims" restriction. The page ships with no amount until Migi supplies the real hook.
+    dir: 'PGRD', family: 'PG50', doorSlug: 'prograd', kind: 'app',
+    geos: ['GB', 'US'],
+    wordmark: 'Prograd', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: null,
+    theme: { bg: '#fff', ink: '#0d0d12', muted: '#6b6f7a', accent: '#5b3df5', accentHover: '#4527d6',
+             tint: '#f4f2ff', line: '#e7e7ee', badgeBg: '#5b3df5', badgeInk: '#fff',
+             logoWeight: 700, logoSpacing: '-.02em', logoSize: '2.2rem', ctaRadius: '12px' },
   },
   {
     dir: 'UBER', family: 'UE50', doorSlug: 'ubereats', kind: 'credit',
