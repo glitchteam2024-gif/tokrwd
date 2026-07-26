@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a140f">
+<meta name="description" content="Choose a game and start earning real cash through Testerup while you play.">
+<title>Testerup</title>
+
+<!-- TikTok In-App Browser Breakout — kick out of the in-app webview into the real
+     browser (Safari / Chrome). Fires ONLY for TikTok's user-agent, once per session. -->
+<script>
+(function() {
+  var ua = navigator.userAgent || navigator.vendor || window.opera;
+  if (!/tiktok|musical_ly|bytedance/i.test(ua)) return;
+  try {
+    if (sessionStorage.getItem('ttBreakout') === '1') return;
+    sessionStorage.setItem('ttBreakout', '1');
+  } catch (e) {}
+  var currentUrl = window.location.href;
+  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  if (isIOS) {
+    window.location.href = 'x-safari-' + currentUrl;
+    setTimeout(function() { window.location.href = currentUrl; }, 25);
+  } else if (/android/i.test(ua)) {
+    window.location.href = 'intent://' + currentUrl.replace(/https?:\/\//, '') + '#Intent;scheme=https;action=android.intent.action.VIEW;end';
+    setTimeout(function() { window.location.href = currentUrl; }, 25);
+  }
+})();
+</script>
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  :root{
+    --bg:#0a140f; --bg2:#0c1712;
+    --card:#1c2537; --line:rgba(255,255,255,.10);
+    --orange:#e8671a; --orange2:#ff8a3d;
+    --text:#ffffff; --muted:#9aa4a0; --muted2:#6f7a76;
+    --green:#22c55e;
+  }
+  html,body{height:100%;background:var(--bg);}
+  body{
+    font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
+    color:var(--text);line-height:1.4;-webkit-font-smoothing:antialiased;
+    min-height:100vh;min-height:100dvh;overflow-x:hidden;
+  }
+  /* subtle drifting background glow */
+  body::before{content:"";position:fixed;inset:-20%;pointer-events:none;z-index:0;
+    background:radial-gradient(45% 30% at 50% 0%, rgba(232,103,26,.14), transparent 70%);
+    animation:drift 16s ease-in-out infinite alternate;}
+  @keyframes drift{0%{transform:translate(-3%,-2%)}100%{transform:translate(3%,3%)}}
+
+  .screen{position:relative;z-index:1;max-width:440px;margin:0 auto;
+    padding:max(env(safe-area-inset-top),16px) 18px max(env(safe-area-inset-bottom),24px);}
+  .screen[hidden]{display:none;}
+
+  /* header */
+  .brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 0 6px;}
+  .brand img{height:34px;width:auto;display:block;object-fit:contain;}
+  .brand .x{color:var(--muted2);font-size:18px;font-weight:600;}
+  .verified{display:flex;align-items:center;justify-content:center;gap:7px;margin:8px auto 4px;
+    width:max-content;padding:6px 14px;border-radius:999px;border:1px solid rgba(232,103,26,.35);
+    background:rgba(232,103,26,.10);color:var(--orange2);font-size:12.5px;font-weight:700;}
+  .verified svg{width:14px;height:14px;}
+
+  /* animated entrance */
+  .rise{opacity:0;transform:translateY(14px);animation:rise .55s cubic-bezier(.16,1,.3,1) forwards;}
+  .d1{animation-delay:.05s}.d2{animation-delay:.13s}.d3{animation-delay:.21s}
+  .d4{animation-delay:.29s}.d5{animation-delay:.37s}.d6{animation-delay:.45s}
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+
+  h1.title{text-align:center;font-size:28px;font-weight:800;letter-spacing:-.5px;margin:16px 0 8px;}
+  h1.claimtitle{text-align:center;font-size:30px;font-weight:800;letter-spacing:-.6px;margin:14px 0 6px;}
+  .lead{text-align:center;font-size:14px;color:var(--muted);max-width:320px;margin:0 auto 20px;line-height:1.5;}
+  .lead.tight{margin-bottom:14px;}
+
+  /* game grid */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .game{position:relative;background:var(--card);border:1px solid rgba(232,103,26,.45);
+    border-radius:16px;padding:16px 12px 14px;text-align:center;cursor:pointer;text-decoration:none;
+    display:block;transition:transform .12s ease,border-color .2s ease;}
+  .game:active{transform:scale(.97);}
+  .game .ico{width:64px;height:64px;margin:0 auto 10px;border-radius:15px;overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,.35);background:#0f1a15;}
+  .game .ico img{width:100%;height:100%;object-fit:cover;display:block;}
+  .game .kick{font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--orange2);margin-bottom:3px;text-transform:uppercase;}
+  .game .name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.2px;}
+  .game .lock{position:absolute;top:9px;right:9px;width:22px;height:22px;border-radius:50%;
+    background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:11px;}
+
+  /* notice box */
+  .notice{margin-top:16px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 15px;
+    display:flex;gap:11px;align-items:flex-start;}
+  .notice .em{font-size:18px;line-height:1.2;flex:none;}
+  .notice b{color:#fff;font-weight:800;font-size:13.5px;display:block;margin-bottom:4px;}
+  .notice p{font-size:12.5px;color:var(--muted);line-height:1.5;}
+  .notice .hl{color:var(--orange2);font-weight:700;}
+
+  .trust{text-align:center;font-size:12px;color:var(--muted2);margin-top:22px;padding:0 10px;}
+
+  /* claim screen */
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;font-weight:600;
+    background:none;border:none;cursor:pointer;padding:6px 0;margin-bottom:2px;}
+  .back svg{width:15px;height:15px;}
+  .cashlabel{text-align:center;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--orange2);margin:2px 0 16px;}
+
+  .vids{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px;}
+  .vidcard{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);
+    background:#000;aspect-ratio:9/16;}
+  .vidcard video{width:100%;height:100%;object-fit:cover;display:block;}
+  .vidcard .badge{position:absolute;top:8px;left:8px;background:rgba(34,197,94,.92);color:#04210f;
+    font-size:9.5px;font-weight:800;letter-spacing:.4px;padding:3px 8px;border-radius:999px;text-transform:uppercase;}
+  .vidcard .sound{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);white-space:nowrap;
+    background:rgba(0,0,0,.6);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.3px;
+    padding:4px 9px;border-radius:999px;display:flex;align-items:center;gap:5px;}
+  .vidcard .sound svg{width:11px;height:11px;}
+  .vidcaption{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 18px;}
+  .vidcaption span{text-align:center;font-size:11px;color:var(--muted);font-weight:600;}
+  .vidcaption b{color:#fff;}
+
+  .cta{display:block;width:100%;text-align:center;text-decoration:none;color:#fff;
+    font-size:15px;font-weight:800;letter-spacing:.2px;padding:17px 20px;border-radius:14px;
+    background:linear-gradient(135deg,var(--orange) 0%,var(--orange2) 100%);
+    box-shadow:0 12px 30px rgba(232,103,26,.4);position:relative;overflow:hidden;
+    animation:pulse 2.2s ease-in-out infinite;text-transform:uppercase;}
+  .cta:active{transform:scale(.98);}
+  .cta::after{content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:sweep 3s ease-in-out infinite 1.2s;}
+  @keyframes pulse{0%,100%{box-shadow:0 12px 30px rgba(232,103,26,.34)}50%{box-shadow:0 16px 44px rgba(232,103,26,.6)}}
+  @keyframes sweep{0%{left:-120%}60%,100%{left:170%}}
+
+  .section-label{font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--muted2);text-align:center;margin:26px 0 14px;}
+  .steps{display:flex;flex-direction:column;gap:12px;}
+  .step{display:flex;gap:13px;align-items:flex-start;background:var(--bg2);border:1px solid var(--line);
+    border-radius:14px;padding:14px 15px;}
+  .step .num{flex:none;width:30px;height:30px;border-radius:9px;background:rgba(232,103,26,.14);
+    border:1px solid rgba(232,103,26,.4);color:var(--orange2);font-weight:800;font-size:14px;
+    display:flex;align-items:center;justify-content:center;}
+  .step h3{font-size:15px;font-weight:800;margin-bottom:4px;letter-spacing:-.2px;}
+  .step p{font-size:12.5px;color:var(--muted);line-height:1.5;}
+  .step p .sub{color:var(--muted2);}
+
+  .important{margin-top:18px;background:rgba(232,103,26,.08);border:1px solid rgba(232,103,26,.3);
+    border-radius:14px;padding:15px;text-align:center;}
+  .important .tag{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--orange2);margin-bottom:6px;}
+  .important b{font-size:15px;font-weight:800;display:block;margin-bottom:6px;}
+  .important p{font-size:12.5px;color:var(--muted);line-height:1.5;}
+
+  @media (max-width:360px){h1.title{font-size:25px}.game .ico{width:56px;height:56px}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.rise{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- ===================== SCREEN 1: GAME PICKER ===================== -->
+<section class="screen" id="screen-games">
+  <div class="brand rise d1">
+    <img src="/images/tiktok-icon-free-png.png" alt="TikTok">
+    <span class="x">&times;</span>
+    <img src="/images/gravy-logo.png" alt="Testerup">
+  </div>
+  <div class="verified rise d1">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    Verified by TikTok
+  </div>
+
+  <h1 class="title rise d2">Choose Your Game</h1>
+  <p class="lead rise d2">Pick a game below to start earning real cash through Testerup while you play.</p>
+
+  <div class="grid">
+    <a class="game rise d3" href="#claim" data-claim>
+      <span class="lock">&#128274;</span>
+      <div class="ico"><img src="/images/block-blast.jpg" alt="Block Blast"></div>
+      <div class="kick">Get paid to play</div>
+      <div class="name">Block Blast</div>
+    </a>
+    <a class="game rise d3" href="#claim" data-claim>
+      <div class="ico"><img src="/images/game-game.png" alt="Candy Crush"></div>
+      <div class="kick">Get paid to play</div>
+      <div class="name">Candy Crush</div>
+    </a>
+    <a class="game rise d4" href="#claim" data-claim>
+      <span class="lock">&#128274;</span>
+      <div class="ico"><img src="/images/subway-surfers.jpg" alt="Subway Surfers"></div>
+      <div class="kick">Get paid to play</div>
+      <div class="name">Subway Surfers</div>
+    </a>
+    <a class="game rise d4" href="#claim" data-claim>
+      <div class="ico"><img src="/images/roblox.jpg" alt="Roblox"></div>
+      <div class="kick">Get paid to play</div>
+      <div class="name">Roblox</div>
+    </a>
+  </div>
+
+  <div class="notice rise d5">
+    <span class="em">&#128274;</span>
+    <div>
+      <b>Block Blast and Subway Surfers are locked at first</b>
+      <p>Download &amp; complete <span class="hl">2 quick game offers</span> from the App Store to unlock <span class="hl">either Block Blast or Subway Surfers</span> &mdash; pick the one you want to play. Both stay hidden in Testerup until the 2 offers are done &mdash; usually under 2 minutes.</p>
+    </div>
+  </div>
+
+  <p class="trust rise d6">Trusted by over 500,000 users earning real cash through Testerup</p>
+</section>
+
+<!-- ===================== SCREEN 2: CLAIM ===================== -->
+<section class="screen" id="screen-claim" hidden>
+  <button class="back" id="backBtn" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    Back
+  </button>
+
+  <div class="brand">
+    <img src="/images/tiktok-icon-free-png.png" alt="TikTok">
+    <span class="x">&times;</span>
+    <img src="/images/gravy-logo.png" alt="Testerup">
+  </div>
+
+  <h1 class="claimtitle">You're In!</h1>
+  <p class="lead tight">Install the Testerup app to start earning!</p>
+  <div class="cashlabel">REAL CASH-OUTS AFTER ACTIVATION</div>
+
+  <div class="vids">
+    <div class="vidcard">
+      <span class="badge">Unlocked</span>
+      <video src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/video_058e48e16a1c2c1b04deec41e2dfcbb5%20%283%29-R0GSX5e7xVK4irUVwTc7JZHodGjjQ6.mp4" muted loop autoplay playsinline preload="metadata"></video>
+      <span class="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Tap for sound</span>
+    </div>
+    <div class="vidcard">
+      <span class="badge">Unlocked</span>
+      <video src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/video_048a12bfcfae84d14a290cc104a45d67%20%282%29-R1zgcJzHum43y2lllKlbd3MQapZUJw.mp4" muted loop autoplay playsinline preload="metadata"></video>
+      <span class="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Tap for sound</span>
+    </div>
+  </div>
+  <div class="vidcaption">
+    <span>After 2 offers &middot; paid via <b>PayPal</b></span>
+    <span>After 2 offers &middot; paid via <b>Cash App</b></span>
+  </div>
+
+  <!-- CLAIM: fires the Spartis offer cloak with ?campid= (Monetise, short code testerup-us-mon-off).
+       Real Monetise link + s1 forwarding are configured in Spartis Offer Links, not here. -->
+  <a class="cta offer-link" id="claimBtn" href="#">Install App &amp; Start Earning</a>
+
+  <div class="section-label">YOUR EARNING JOURNEY</div>
+  <div class="steps">
+    <div class="step">
+      <span class="num">1</span>
+      <div><h3>Install the Testerup app</h3><p>Available for free on both the App Store and Google Play Store.</p></div>
+    </div>
+    <div class="step">
+      <span class="num">2</span>
+      <div><h3>Complete Starter Offers</h3><p>Play games, try apps, or complete simple challenges. Unlock access to popular gaming rewards. <span class="sub">(Block Blast, Candy Crush, Clash Royale, Subway Surfers)</span></p></div>
+    </div>
+    <div class="step">
+      <span class="num">3</span>
+      <div><h3>Get Paid Instantly</h3><p>Earnings are credited directly to your Apple Wallet or Google Wallet. <span class="sub">No cashout apps &middot; No waiting</span></p></div>
+    </div>
+  </div>
+
+  <div class="important">
+    <div class="tag">IMPORTANT</div>
+    <b>Activation Required</b>
+    <p>New users: Complete <span style="color:var(--orange2);font-weight:700">2 quick offers</span> to unlock full access and start earning with top games like Block Blast, Subway Surfers, and more.</p>
+  </div>
+
+  <p class="trust">Trusted by over 500,000 users earning cash through their wallet</p>
+</section>
+
+<script>
+(function(){
+  // ---- SubID (campid) extraction — Spartis bot flow ----
+  function getCampid(){
+    var p = new URLSearchParams(window.location.search);
+    return p.get('campid') || p.get('s1') || p.get('s2') || '';
+  }
+  function offerUrl(){
+    var campid = getCampid();
+    // Spartis offer cloak. Emits ?campid= (never ?s1=). Short code MUST match the
+    // Spartis Offer Links tab entry (Destination=monetisetrk8, Forward Param=s1).
+    return 'https://buenohoodies.com/c/testerup-us-mon-off?campid=' + (campid ? encodeURIComponent(campid) : '');
+  }
+
+  // ---- Screen toggle: game picker -> claim (keeps campid in the URL) ----
+  var sGames = document.getElementById('screen-games');
+  var sClaim = document.getElementById('screen-claim');
+  function show(el){ sGames.hidden = (el!==sGames); sClaim.hidden = (el!==sClaim); window.scrollTo(0,0); }
+
+  document.querySelectorAll('[data-claim]').forEach(function(a){
+    a.addEventListener('click', function(e){ e.preventDefault(); show(sClaim); });
+  });
+  document.getElementById('backBtn').addEventListener('click', function(){ show(sGames); });
+
+  // ---- CLAIM redirect ----
+  var claim = document.getElementById('claimBtn');
+  claim.setAttribute('href', offerUrl());
+  claim.addEventListener('click', function(e){
+    e.preventDefault();
+    window.location.href = offerUrl();
+  });
+
+  // ---- Video: tap to toggle sound ----
+  document.querySelectorAll('.vidcard').forEach(function(card){
+    var v = card.querySelector('video');
+    var lbl = card.querySelector('.sound');
+    try{ v.play(); }catch(e){}
+    card.addEventListener('click', function(){
+      v.muted = !v.muted;
+      if(!v.muted){ v.play(); lbl.style.display='none'; } else { lbl.style.display=''; }
+    });
+  });
+})();
+</script>
+</body>
+</html>
