@@ -10,95 +10,220 @@
 const fs = require('fs');
 const path = require('path');
 
+// ── LOCALES ──────────────────────────────────────────────────────────────────────────────────
+// A geo maps to exactly ONE language. Geo is the unit of everything here: it picks the Monetise
+// link (offers.destination_by_geo), the landing_pages row (landing_pages.geo, which the click door
+// now routes on), the currency, AND the language. Keeping language a PROPERTY OF THE GEO rather
+// than a separate ?lg= axis is deliberate — a `lg=JP` that could disagree with the routed geo is
+// how you end up showing yen and paying out on the US offer.
+const LOCALES = {
+  US: 'en', GB: 'en', CA: 'en', AU: 'en',   // English-speaking geos; only the currency differs
+  JP: 'ja',
+  DE: 'de', AT: 'de',                        // Austria runs the German page
+  NL: 'nl',
+};
+
+// ── STRINGS ──────────────────────────────────────────────────────────────────────────────────
+// Every visible word, per language. {amount} and {brand} are substituted at build time, so a page
+// ships fully-formed — there is NO runtime translation layer and no way for a missing key to reach
+// a live visitor as a raw placeholder. `byKind` picks the phrasing for the offer type:
+//   giftcard = spend at a retailer · credit = spend on a service · cash = paid to you · wallet = Apple Pay
+// A brand with `amounts: null` renders NO figure at all and uses the `*NoAmount` variants — that is
+// how Freecash ships, because its live page leads with "Get Paid For Screen Time" and quotes no
+// headline sum. Do not invent one: "No False Earning Claims" is an explicit Monetise restriction.
+const STRINGS = {
+  en: {
+    badge: '2026 Summer Drop',
+    headline: 'Claim Your Reward',
+    headlineNoAmount: 'Claim Your Reward',
+    subByKind:  { giftcard: 'Gift Card', credit: 'Credit', cash: 'Reward', wallet: 'Reward' },
+    amountSubByKind: {
+      giftcard: 'FREE CREDIT TO SPEND AT {brand}',
+      credit:   'FREE CREDIT TO SPEND ON {brand}',
+      cash:     'PAID DIRECT TO YOUR ACCOUNT',
+      wallet:   'SENT STRAIGHT TO YOUR APPLE PAY WALLET',
+    },
+    step1: 'Tap the button below',   step1sub: 'Reserves your {amount} credit instantly',
+    step1subNoAmount: 'Takes you straight to the sign-up page',
+    step2: 'Enter your email',       step2sub: 'Just a valid address &mdash; no credit card needed',
+    step3: 'Complete 3-5 recommended deals',
+    step3sub: 'Quick free trials &amp; offers to unlock the full {amount}',
+    step3subNoAmount: 'Quick free trials &amp; offers &mdash; the more you finish, the more you earn',
+    cta: 'Claim My {amount} &rarr;',  ctaNoAmount: 'Get Started &rarr;',
+    trustStrong: 'Limited spots remaining.', trustRest: 'No credit card needed.',
+    loading: 'Loading...',
+  },
+  ja: {
+    badge: '2026年 サマーキャンペーン',
+    headline: '特典を受け取る',
+    headlineNoAmount: '特典を受け取る',
+    subByKind:  { giftcard: 'ギフトカード', credit: 'クレジット', cash: '報酬', wallet: '報酬' },
+    amountSubByKind: {
+      giftcard: '{brand}で使える無料クレジット',
+      credit:   '{brand}で使える無料クレジット',
+      cash:     'ご指定の口座に直接お支払い',
+      wallet:   'Apple Pay ウォレットに直接送金',
+    },
+    step1: '下のボタンをタップ',   step1sub: '{amount}のクレジットをすぐに確保します',
+    step1subNoAmount: '登録ページへ直接移動します',
+    step2: 'メールアドレスを入力', step2sub: '有効なアドレスのみ &mdash; クレジットカードは不要です',
+    step3: 'おすすめの案件を3〜5件完了',
+    step3sub: '無料のお試しや案件で{amount}分をすべて解除',
+    step3subNoAmount: '無料のお試しや案件 &mdash; 完了するほど報酬が増えます',
+    cta: '{amount}を受け取る &rarr;',  ctaNoAmount: 'はじめる &rarr;',
+    trustStrong: '残りわずかです。', trustRest: 'クレジットカードは不要です。',
+    loading: '読み込み中...',
+  },
+  de: {
+    badge: 'Sommer-Aktion 2026',
+    headline: 'Sichern Sie sich Ihre Prämie',
+    headlineNoAmount: 'Sichern Sie sich Ihre Prämie',
+    subByKind:  { giftcard: 'Geschenkkarte', credit: 'Guthaben', cash: 'Prämie', wallet: 'Prämie' },
+    amountSubByKind: {
+      giftcard: 'GRATIS-GUTHABEN ZUM EINLÖSEN BEI {brand}',
+      credit:   'GRATIS-GUTHABEN FÜR {brand}',
+      cash:     'DIREKT AUF IHR KONTO AUSGEZAHLT',
+      wallet:   'DIREKT IN IHRE APPLE PAY WALLET',
+    },
+    step1: 'Auf den Button unten tippen', step1sub: 'Sichert Ihnen sofort {amount} Guthaben',
+    step1subNoAmount: 'Bringt Sie direkt zur Anmeldeseite',
+    step2: 'E-Mail-Adresse eingeben',     step2sub: 'Nur eine gültige Adresse &mdash; keine Kreditkarte nötig',
+    step3: '3-5 empfohlene Angebote abschließen',
+    step3sub: 'Kurze Gratis-Tests &amp; Angebote, um die vollen {amount} freizuschalten',
+    step3subNoAmount: 'Kurze Gratis-Tests &amp; Angebote &mdash; je mehr Sie abschließen, desto mehr verdienen Sie',
+    cta: '{amount} sichern &rarr;',  ctaNoAmount: 'Jetzt starten &rarr;',
+    trustStrong: 'Nur noch wenige Plätze frei.', trustRest: 'Keine Kreditkarte nötig.',
+    loading: 'Wird geladen...',
+  },
+  nl: {
+    badge: 'Zomeractie 2026',
+    headline: 'Claim je beloning',
+    headlineNoAmount: 'Claim je beloning',
+    subByKind:  { giftcard: 'Cadeaukaart', credit: 'Tegoed', cash: 'Beloning', wallet: 'Beloning' },
+    amountSubByKind: {
+      giftcard: 'GRATIS TEGOED OM TE BESTEDEN BIJ {brand}',
+      credit:   'GRATIS TEGOED VOOR {brand}',
+      cash:     'RECHTSTREEKS OP JE REKENING',
+      wallet:   'RECHTSTREEKS NAAR JE APPLE PAY WALLET',
+    },
+    step1: 'Tik op de knop hieronder', step1sub: 'Reserveert direct je tegoed van {amount}',
+    step1subNoAmount: 'Brengt je direct naar de aanmeldpagina',
+    step2: 'Vul je e-mailadres in',    step2sub: 'Alleen een geldig adres &mdash; geen creditcard nodig',
+    step3: 'Rond 3-5 aanbevolen deals af',
+    step3sub: 'Korte gratis proefaanbiedingen om de volledige {amount} vrij te spelen',
+    step3subNoAmount: 'Korte gratis proefaanbiedingen &mdash; hoe meer je afrondt, hoe meer je verdient',
+    cta: 'Claim mijn {amount} &rarr;', ctaNoAmount: 'Aan de slag &rarr;',
+    trustStrong: 'Beperkt aantal plaatsen beschikbaar.', trustRest: 'Geen creditcard nodig.',
+    loading: 'Laden...',
+  },
+};
+
+// Page <title> per language. Kept next to STRINGS so a new language is one object, not a hunt.
+const TITLES = {
+  en: '{brand} {sub} - 2026 Summer Drop',
+  ja: '{brand} {sub} - 2026年サマーキャンペーン',
+  de: '{brand} {sub} - Sommer-Aktion 2026',
+  nl: '{brand} {sub} - Zomeractie 2026',
+};
+
+const fill = (tpl, vars) => String(tpl).replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? vars[k] : ''));
+
 const BRANDS = [
+  // dir = canonical page root (one subfolder per geo). family/prefix = the numbered fan-out.
+  // Clone paths are <FAMILY>/<GEO><n>, e.g. SH50/GB7, 50FC/JP1 — the geo is IN the path, so the
+  // landing_pages row for that geo points at its own family slice and carries landing_pages.geo.
+  // `kind` selects the phrasing in STRINGS. `amounts` is geo -> [display, numeric], or null for a
+  // brand that quotes no figure at all.
   {
-    // dir = the canonical page; family/prefix = the numbered fan-out that spreads the
-    // TikTok footprint (50 distinct URLs instead of one URL every buyer hammers, so a
-    // flag on one clone does not burn the rest). doorSlug is what landing_pages.slug
-    // must be — the affiliate is identified by ?s1=<SPK>, NEVER by the path.
-    dir: 'SHEIN', family: 'SH50', prefix: 'SH', doorSlug: 'shein',
-    title: 'SHEIN Gift Card - 2026 Summer Style Drop',
-    wordmark: 'SHEIN', sub: 'Gift Card', badge: '2026 Style Drop',
-    headline: 'Claim Your Reward', amountSub: 'FREE CREDIT TO SPEND AT SHEIN',
-    pixel: 'D6CF3ABC77U56TVAPJPG',
+    dir: 'SHEIN', family: 'SH50', doorSlug: 'shein', kind: 'giftcard',
+    wordmark: 'SHEIN', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$750', 750], GB: ['£750', 750], CA: ['$750', 750], AU: ['$750', 750] },
     theme: { bg: '#fff', ink: '#000', muted: '#737373', accent: '#000', accentHover: '#333',
              tint: '#f7f7f7', line: '#e6e6e6', badgeBg: '#000', badgeInk: '#fff',
              logoWeight: 800, logoSpacing: '-.02em', logoSize: '2.3rem', ctaRadius: '2px' },
-    steps3: 'Quick free trials & offers to unlock the full',
   },
   {
-    dir: 'SEPH', family: 'SP50', prefix: 'SP', doorSlug: 'sephora',
-    title: 'Sephora Gift Card - 2026 Summer Beauty Drop',
-    wordmark: 'SEPHORA', sub: 'Gift Card', badge: '2026 Beauty Drop',
-    headline: 'Claim Your Reward', amountSub: 'FREE CREDIT TO SPEND AT SEPHORA',
-    pixel: 'D6CF3ABC77U56TVAPJPG',
+    dir: 'SEPH', family: 'SP50', doorSlug: 'sephora', kind: 'giftcard',
+    wordmark: 'SEPHORA', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$750', 750], GB: ['£750', 750], CA: ['$750', 750], AU: ['$750', 750] },
     theme: { bg: '#fff', ink: '#000', muted: '#767676', accent: '#000', accentHover: '#d9232e',
              tint: '#f6f6f6', line: '#e5e5e5', badgeBg: '#000', badgeInk: '#fff',
              logoWeight: 400, logoSpacing: '.34em', logoSize: '2rem', ctaRadius: '0px' },
-    steps3: 'Quick free trials & offers to unlock the full',
   },
   {
-    dir: 'CASH', family: 'CS50', prefix: 'CS', doorSlug: 'cash',
-    title: 'Cash Reward - 2026 Summer Giveaway',
-    wordmark: 'CASH', sub: 'Reward', badge: '2026 Summer Giveaway',
-    headline: 'Claim Your Cash', amountSub: 'PAID DIRECT TO YOUR ACCOUNT',
-    pixel: 'D6CF3ABC77U56TVAPJPG',
+    dir: 'CASH', family: 'CS50', doorSlug: 'cash', kind: 'cash',
+    wordmark: 'CASH', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$1,000', 1000], GB: ['£750', 750], AU: ['$750', 750] },
     theme: { bg: '#fff', ink: '#0b0b0b', muted: '#6f6f6f', accent: '#00b843', accentHover: '#009336',
              tint: '#f2fbf5', line: '#e4e4e4', badgeBg: '#00b843', badgeInk: '#000',
              logoWeight: 900, logoSpacing: '-.045em', logoSize: '2.5rem', ctaRadius: '6px' },
-    steps3: 'Quick free trials & offers to unlock the full',
   },
   {
-    dir: 'APAY750', family: 'AP50', prefix: 'AP', doorSlug: 'applepay750',
-    title: 'Apple Pay Reward - 2026 Summer Drop',
-    wordmark: 'Apple Pay', sub: 'Reward', badge: '2026 Summer Drop',
-    headline: 'Claim Your Reward', amountSub: 'SENT STRAIGHT TO YOUR APPLE PAY WALLET',
-    pixel: 'D6CF3ABC77U56TVAPJPG',
+    dir: 'APAY750', family: 'AP50', doorSlug: 'applepay750', kind: 'wallet',
+    wordmark: 'Apple Pay', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$750', 750] },
     theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
              tint: '#f5f5f7', line: '#d2d2d7', badgeBg: '#1d1d1f', badgeInk: '#fff',
              logoWeight: 600, logoSpacing: '-.02em', logoSize: '2.1rem', ctaRadius: '980px' },
-    steps3: 'Quick free trials & offers to unlock the full',
   },
   {
-    dir: 'APAY1K', family: 'AK50', prefix: 'AK', doorSlug: 'applepay1000',
-    title: 'Apple Pay Reward - 2026 Summer Drop',
-    wordmark: 'Apple Pay', sub: 'Reward', badge: '2026 Summer Drop',
-    headline: 'Claim Your Reward', amountSub: 'SENT STRAIGHT TO YOUR APPLE PAY WALLET',
-    pixel: 'D6CF3ABC77U56TVAPJPG',
+    dir: 'APAY1K', family: 'AK50', doorSlug: 'applepay1000', kind: 'wallet',
+    wordmark: 'Apple Pay', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$1,000', 1000] },
     theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
              tint: '#f5f5f7', line: '#d2d2d7', badgeBg: '#1d1d1f', badgeInk: '#fff',
              logoWeight: 600, logoSpacing: '-.02em', logoSize: '2.1rem', ctaRadius: '980px' },
-    steps3: 'Quick free trials & offers to unlock the full',
   },
   {
-    dir: 'UBER', family: 'UE50', prefix: 'UE', doorSlug: 'ubereats',
-    title: 'Uber Eats Credit - 2026 Summer Food Drop',
-    wordmark: 'Uber Eats', sub: 'Credit', badge: 'Limited Drop',
-    headline: 'Claim Your Credit', amountSub: 'FREE CREDIT TO SPEND ON UBER EATS',
-    pixel: 'D6CF3ABC77U56TVAPJPG',
+    dir: 'UBER', family: 'UE50', doorSlug: 'ubereats', kind: 'credit',
+    wordmark: 'Uber Eats', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { GB: ['£50', 50] },
     theme: { bg: '#fff', ink: '#000', muted: '#6b6b6b', accent: '#06c167', accentHover: '#048a48',
              tint: '#f3faf5', line: '#e8e8e8', badgeBg: '#06c167', badgeInk: '#000',
              logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.2rem', ctaRadius: '999px' },
-    steps3: 'Quick free trials & offers to unlock the full',
+  },
+  {
+    // FREECASH — the offer that actually needs the languages: it sells in 7 geos across 4 of them.
+    // Clones land in the EXISTING 50FC family as 50FC/JP1, 50FC/NL1 … alongside the legacy
+    // FC1..FC50 (different prefix, no collision; the legacy pages are untouched).
+    // amounts: null on purpose — the live Freecash lander leads with "Get Paid For Screen Time"
+    // and quotes NO headline sum, so these must not either. "No False Earning Claims" is an
+    // explicit Monetise restriction and Ricky has already pulled an ad over it.
+    dir: 'FCASH', family: '50FC', doorSlug: 'freecash', kind: 'cash',
+    wordmark: 'Freecash', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: null,
+    geos: ['US', 'GB', 'CA', 'JP', 'DE', 'AT', 'NL'],
+    theme: { bg: '#fff', ink: '#0b0b0b', muted: '#6f6f6f', accent: '#12b981', accentHover: '#0e9268',
+             tint: '#f1fbf7', line: '#e4e4e4', badgeBg: '#12b981', badgeInk: '#04231a',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.3rem', ctaRadius: '10px' },
   },
 ];
 
-const page = (b) => {
+// The geos a brand ships: explicit `geos`, else the keys of its amounts map.
+const geosOf = (b) => b.geos || Object.keys(b.amounts || {});
+
+const page = (b, geo) => {
   const t = b.theme;
-  const firstGeo = Object.keys(b.amounts)[0];
-  const [amt, val] = b.amounts[firstGeo];
+  const lang = LOCALES[geo];
+  if (!lang) throw new Error(`no language mapped for geo ${geo} (add it to LOCALES)`);
+  const S = STRINGS[lang];
+  if (!S) throw new Error(`no STRINGS for language ${lang}`);
+  const pair = b.amounts && b.amounts[geo];
+  if (b.amounts && !pair) throw new Error(`${b.dir}: no amount for geo ${geo}`);
+  const amt = pair ? pair[0] : null;      // display string, or null = this brand quotes no figure
+  const val = pair ? pair[1] : 0;         // numeric, for pixel events
+  const V = { amount: amt, brand: b.wordmark, sub: S.subByKind[b.kind] };
+  const pick = (withAmt, without) => fill(amt ? S[withAmt] : S[without], V);
+  // ONE DOOR SLUG PER GEO. Each geo needs its own landing_pages row so that row can carry
+  // landing_pages.geo — which is what the click door now routes on. A shared slug would collapse
+  // every geo back onto one row with one geo, i.e. straight back to the bug this replaces.
+  const doorSlug = `${b.doorSlug}-${geo.toLowerCase()}`;
   return `<!DOCTYPE html>
-<html lang="en" data-geo="${firstGeo}">
+<html lang="${lang}" data-geo="${geo}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>${b.title}</title>
+<title>${fill(TITLES[lang], V)}</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
@@ -115,27 +240,14 @@ const page = (b) => {
      __STATS__      social-proof strings. See NOTES.md before shipping these.
      ============================================================ -->
 <script id="offer-config">
-/* DEFAULTS ONLY — every line is ||-guarded so a value injected BEFORE this block wins.
-   The previous version assigned unconditionally, which silently clobbered any real
-   server-side injection and pinned every visitor to the first geo's amount. That is
-   how a multi-geo page ships looking wired while serving one country's figure to all
-   of them (cashprize: $1,000 to GB and AU). Do not remove the guards. */
-window.__DOOR_URL__   = window.__DOOR_URL__   || "https://sprktrax.org/api/link/${b.doorSlug}";
-window.__GEO_AMOUNT__ = window.__GEO_AMOUNT__ || null;
-window.__GEO_VALUE__  = window.__GEO_VALUE__  || null;
-window.__STATS__      = window.__STATS__      || null;
-/* Every geo this page sells. A geo resolver only has to set window.__GEO__. */
-window.__GEO_AMOUNTS__ = window.__GEO_AMOUNTS__ || ${JSON.stringify(b.amounts)};
-window.__GEO_DEFAULT__ = "${firstGeo}";
-/* Geo for THIS visitor. The root middleware.js stamps lp_geo from x-vercel-ip-country —
-   a header Vercel's edge derives from the connection IP, which a client cannot set.
-   DISPLAY ONLY: the real per-geo routing happens server-side at the door from
-   offers.destination_by_geo, so forging this cookie changes the number on screen and
-   nothing about which offer serves or what it pays. Never promote it to a routing input. */
-window.__GEO__ = window.__GEO__ || (function () {
-  var m = /(?:^|; *)lp_geo=([A-Za-z]{2})(?:;|$)/.exec(document.cookie || '');
-  return m ? m[1].toUpperCase() : null;
-})();
+/* This page IS one geo — ${geo}, rendered in ${lang} with its own figures baked into the markup.
+   There is deliberately NO runtime geo detection, no language switcher and no cookie: the geo is
+   decided by WHICH PAGE the ad points at, and the click door routes on landing_pages.geo for that
+   same lander. One fact drives both, so the page cannot promise one country's offer and hand the
+   visitor another's. ||-guarded so a server-side injection still wins if one is ever added. */
+window.__DOOR_URL__ = window.__DOOR_URL__ || "https://sprktrax.org/api/link/${doorSlug}";
+window.__GEO__      = "${geo}";
+window.__STATS__    = window.__STATS__ || null;
 </script>
 
 <style>
@@ -186,15 +298,15 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 <body>
 <div class="page">
   <div class="card">
-    <div class="badge"><span class="dot"></span>${b.badge}</div>
+    <div class="badge"><span class="dot"></span>${S.badge}</div>
     <div class="logo-wrap">
       <div class="logo-mark">${b.wordmark}</div>
-      <div class="logo-sub">${b.sub}</div>
+      <div class="logo-sub">${V.sub}</div>
     </div>
-    <div class="title">${b.headline}</div>
+    <div class="title">${pick('headline','headlineNoAmount')}</div>
     <div class="amount">
-      <div class="amount-big" data-geo-amount>${amt}</div>
-      <p class="amount-sub">${b.amountSub}</p>
+      ${amt ? `<div class="amount-big" data-geo-amount>${amt}</div>` : ''}
+      <p class="amount-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
     </div>
 
     <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
@@ -204,28 +316,28 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
       <div class="step">
         <span class="step-num">1</span>
         <div>
-          <p class="step-txt">Tap the button below</p>
-          <p class="step-sub">Reserves your <span data-geo-amount>${amt}</span> credit instantly</p>
+          <p class="step-txt">${S.step1}</p>
+          <p class="step-sub">${pick('step1sub','step1subNoAmount')}</p>
         </div>
       </div>
       <div class="step">
         <span class="step-num">2</span>
         <div>
-          <p class="step-txt">Enter your email</p>
-          <p class="step-sub">Just a valid address &mdash; no credit card needed</p>
+          <p class="step-txt">${S.step2}</p>
+          <p class="step-sub">${S.step2sub}</p>
         </div>
       </div>
       <div class="step">
         <span class="step-num">3</span>
         <div>
-          <p class="step-txt step-underline">Complete 3-5 recommended deals</p>
-          <p class="step-sub">${b.steps3} <span data-geo-amount>${amt}</span></p>
+          <p class="step-txt step-underline">${S.step3}</p>
+          <p class="step-sub">${pick('step3sub','step3subNoAmount')}</p>
         </div>
       </div>
     </div>
 
-    <button id="ctaBtn" class="cta">Claim My <span data-geo-amount>${amt}</span> &rarr;</button>
-    <div class="trust"><strong>Limited spots remaining.</strong> No credit card needed.</div>
+    <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
+    <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>
   </div>
 </div>
 
@@ -238,16 +350,8 @@ window.addEventListener('pageshow', function(e){ if (e.persisted) location.reloa
 if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
 
 var DOOR       = window.__DOOR_URL__   || 'https://sprktrax.org/api/link/${b.doorSlug}';
-/* Geo amount, most specific first: an explicitly injected amount, then a lookup on an
-   injected __GEO__, then this page's default geo. GEO_AMOUNTS is generated from the
-   BRANDS entry, so a resolver never needs a rebuild to switch geo. */
-var GEO_AMOUNTS = window.__GEO_AMOUNTS__ || ${JSON.stringify(b.amounts)};
-var GEO_KEY = (window.__GEO__ && GEO_AMOUNTS[window.__GEO__]) ? window.__GEO__ : window.__GEO_DEFAULT__;
-var GEO_AMOUNT = window.__GEO_AMOUNT__ || GEO_AMOUNTS[GEO_KEY][0];
-var GEO_VALUE  = window.__GEO_VALUE__  || GEO_AMOUNTS[GEO_KEY][1];
-
-/* geo amount into every marked slot */
-[].forEach.call(document.querySelectorAll('[data-geo-amount]'), function(el){ el.textContent = GEO_AMOUNT; });
+/* Amounts are baked into the markup at build time — nothing to substitute at runtime. */
+var GEO_VALUE = ${val};
 
 /* optional social proof - only if the middleware supplied real values */
 (function(){
@@ -324,7 +428,7 @@ function buildDoorUrl() {
 var target = buildDoorUrl();
 
 if (window.ttq) {
-  try { ttq.track('ViewContent', { content_name: '${b.wordmark} ' + GEO_AMOUNT + ' Landing', value: GEO_VALUE }); } catch(e) {}
+  try { ttq.track('ViewContent', { content_name: '${b.wordmark} ${geo} Landing', value: GEO_VALUE }); } catch(e) {}
 }
 
 var ctaBtn = document.getElementById('ctaBtn');
@@ -334,9 +438,9 @@ function handleCta(e) {
   e.preventDefault();
   if (clicking) return;
   clicking = true;
-  ctaBtn.textContent = 'Loading...';
+  ctaBtn.textContent = '${S.loading}';
   if (window.ttq) {
-    try { ttq.track('ClickButton', { content_name: '${b.wordmark} ' + GEO_AMOUNT + ' CTA', value: GEO_VALUE }); } catch(e) {}
+    try { ttq.track('ClickButton', { content_name: '${b.wordmark} ${geo} CTA', value: GEO_VALUE }); } catch(e) {}
   }
   location.replace(target);
 }
@@ -344,7 +448,7 @@ ctaBtn.addEventListener('touchend', function(e){ hasTouched = true; handleCta(e)
 ctaBtn.addEventListener('click', function(e){ if (!hasTouched) handleCta(e); });
 
 if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1) {
-  console.log('[${b.doorSlug} debug]', {
+  console.log('[${b.doorSlug}/${geo} debug]', {
     geo: document.documentElement.getAttribute('data-geo') || '(unknown)',
     s1: s1 || '(none - door will 404)',
     campaign: campaign || '(none)',
@@ -363,39 +467,49 @@ if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1
 };
 
 // ── Output ───────────────────────────────────────────────────────────────────────────────
-// Canonical page at <DIR>/index.html, then N byte-identical clones at <FAMILY>/<PREFIX><n>/.
+// Canonical page per geo at <DIR>/<GEO>/index.html, then N byte-identical clones at
+// <FAMILY>/<GEO><n>/ — e.g. SH50/GB7, 50FC/JP1. The geo lives IN the path, which is the whole
+// point: the landing_pages row for that slice carries landing_pages.geo, and the click door now
+// routes on it. What the visitor reads and where the click is sent come from the same fact.
 //
-// The clones are BYTE-IDENTICAL on purpose. They all point at the same door slug; the only
-// reason they exist is to spread the TikTok footprint across many URLs so a flag on one does
-// not burn the rest. NEVER hand-edit a clone — 50 copies drift instantly, which is exactly
-// how RS50/RS1 ended up with a different hash from RS2–RS50. Change BRANDS and regenerate.
+// Clones within a (brand, geo) are BYTE-IDENTICAL. They exist only to spread the ad-platform
+// footprint so a flag on one URL does not burn the rest. NEVER hand-edit one — that is how
+// RS50/RS1 drifted from RS2-RS50. Change BRANDS/STRINGS and regenerate.
 const argv = process.argv.slice(2);
 const cloneArg = argv.indexOf('--clones');
 const CLONES = cloneArg > -1 ? parseInt(argv[cloneArg + 1], 10) : 50;
 if (!Number.isFinite(CLONES) || CLONES < 0) { console.error('--clones must be a non-negative integer'); process.exit(1); }
+const only = (() => { const i = argv.indexOf('--only'); return i > -1 ? argv[i + 1] : null; })();
 
 const repoRoot = path.join(__dirname, '..');
-let written = 0;
-BRANDS.forEach(b => {
-  const html = page(b);
+let written = 0, pages = 0;
+for (const b of BRANDS) {
+  if (only && b.dir !== only && b.doorSlug !== only) continue;
+  const geos = geosOf(b);
+  const langs = [...new Set(geos.map(g => LOCALES[g]))];
+  for (const geo of geos) {
+    const html = page(b, geo);
+    pages++;
 
-  const canonDir = path.join(repoRoot, b.dir);
-  fs.mkdirSync(canonDir, { recursive: true });
-  fs.writeFileSync(path.join(canonDir, 'index.html'), html);
-  written++;
-
-  for (let n = 1; n <= CLONES; n++) {
-    const d = path.join(repoRoot, b.family, b.prefix + n);
-    fs.mkdirSync(d, { recursive: true });
-    fs.writeFileSync(path.join(d, 'index.html'), html);   // same buffer -> one md5 per family
+    const canon = path.join(repoRoot, b.dir, geo);
+    fs.mkdirSync(canon, { recursive: true });
+    fs.writeFileSync(path.join(canon, 'index.html'), html);
     written++;
-  }
 
+    for (let n = 1; n <= CLONES; n++) {
+      const d = path.join(repoRoot, b.family, geo + n);
+      fs.mkdirSync(d, { recursive: true });
+      fs.writeFileSync(path.join(d, 'index.html'), html);   // same buffer -> one md5 per (brand, geo)
+      written++;
+    }
+  }
   console.log(
-    (b.dir + '/').padEnd(10),
-    ('+ ' + b.family + '/' + b.prefix + '1..' + b.prefix + CLONES).padEnd(24),
-    'door=' + b.doorSlug.padEnd(13),
-    'geos=' + Object.keys(b.amounts).join('/')
+    (b.dir + '/').padEnd(9),
+    ('door=' + b.doorSlug).padEnd(20),
+    ('geos=' + geos.join(',')).padEnd(30),
+    ('langs=' + langs.join(',')).padEnd(18),
+    'slugs=' + geos.map(g => b.doorSlug + '-' + g.toLowerCase()).join(' ')
   );
-});
-console.log('\n' + written + ' files written under ' + repoRoot + ' (' + BRANDS.length + ' canonical + ' + BRANDS.length + '×' + CLONES + ' clones)');
+}
+console.log('\n' + written + ' files written under ' + repoRoot +
+            ' (' + pages + ' distinct pages x 1 canonical + ' + CLONES + ' clones)');

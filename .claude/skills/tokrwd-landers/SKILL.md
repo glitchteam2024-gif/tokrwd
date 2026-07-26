@@ -44,12 +44,13 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Gravypass    | `sprktrax.org/api/link/gravypass` (Path A) | `GP/index.html`           | — (`GP/ob/` is a clean pass-through interstitial → `/GP/`) |
 | Testerup ALT | `monetisetrk8.co.uk` DIRECT (Path B)       | `TSUP/index.html` + `js/tsup-offer.js` | —                                      |
 | Testerup TRT | `/c/testerup-us-mon-off` (Path B)          | `trt/index.html`          | — (game-picker variant under test, `lp=trt`) |
-| Shein $750   | `sprktrax.org/api/link/shein` (Path A)     | `SHEIN/index.html`        | `SH50/SH1-50` — generated, never hand-edited        |
-| Sephora $750 | `sprktrax.org/api/link/sephora` (Path A)   | `SEPH/index.html`         | `SP50/SP1-50`                                      |
-| Cash Prize   | `sprktrax.org/api/link/cash` (Path A)      | `CASH/index.html`         | `CS50/CS1-50`                                      |
-| Apple Pay $750 | `sprktrax.org/api/link/applepay750` (A)  | `APAY750/index.html`      | `AP50/AP1-50`                                      |
-| Apple Pay $1000 | `sprktrax.org/api/link/applepay1000` (A)| `APAY1K/index.html`       | `AK50/AK1-50`                                      |
-| Uber Eats £50 | `sprktrax.org/api/link/ubereats` (Path A) | `UBER/index.html`         | `UE50/UE1-50`                                      |
+| Shein $750   | door `shein-<geo>` (Path A)                | `SHEIN/<GEO>/index.html`  | `SH50/<GEO>1-50` — US GB CA AU, generated         |
+| Sephora $750 | door `sephora-<geo>` (Path A)              | `SEPH/<GEO>/index.html`   | `SP50/<GEO>1-50` — US GB CA AU                    |
+| Cash Prize   | door `cash-<geo>` (Path A)                 | `CASH/<GEO>/index.html`   | `CS50/<GEO>1-50` — US GB AU                       |
+| Apple Pay $750 | door `applepay750-us` (Path A)           | `APAY750/US/index.html`   | `AP50/US1-50`                                     |
+| Apple Pay $1000 | door `applepay1000-us` (Path A)         | `APAY1K/US/index.html`    | `AK50/US1-50`                                     |
+| Uber Eats £50 | door `ubereats-gb` (Path A)               | `UBER/GB/index.html`      | `UE50/GB1-50`                                     |
+| Freecash (new, per-geo) | door `freecash-<geo>` (Path A)  | `FCASH/<GEO>/index.html`  | `50FC/<GEO>1-50` — US GB CA JP DE AT NL           |
 | Reco Social  | `/api/reco` → montrk (Path B)              | `RS/index.html`           | `RS50/RS1-50` are interstitials that forward to `/RS/` (2 distinct variants: RS1 unique, RS2–50 identical) |
 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
@@ -81,25 +82,46 @@ archived/demo references and are kept OUT of the deploy via `.vercelignore`. Nev
 never let them deploy. `api/detector.js`, `api/harness.js`, `api/signatures.js` are cloaking
 *detector* QA tooling (they find cloaking, they don't serve it) — leave them.
 
-## The six SWEEP landers are GENERATED — never hand-edit them (2026-07-26)
+## GENERATED landers: ONE PAGE PER GEO, one language per geo (2026-07-26)
 
-`SHEIN SEPH CASH APAY750 APAY1K UBER` and their `SH50 SP50 CS50 AP50 AK50 UE50` fan-outs are
-emitted by `_lp-generator/build.js`. One command rebuilds all 306 files:
+`SHEIN SEPH CASH APAY750 APAY1K UBER FCASH` and their `SH50 SP50 CS50 AP50 AK50 UE50 50FC`
+fan-outs are emitted by `_lp-generator/build.js`. One command rebuilds all 1071 files:
 
 ```bash
 node _lp-generator/build.js --clones 50
 ```
 
-Change copy, theming, geo amounts or the door slug in the `BRANDS` array and regenerate — a
-structural fix lands on all six families at once. Every clone in a family is written from the
-same buffer, so each family is ONE md5. This is the direct answer to RS50/RS1: hand-editing a
-clone is how a family silently drifts.
+**Geo is the unit of everything.** One geo picks the Monetise link
+(`offers.destination_by_geo`), the `landing_pages` row, the currency AND the language:
 
-Each page carries its full per-geo amount map (`window.__GEO_AMOUNTS__`) and reads
-`window.__GEO__` from the `lp_geo` cookie that root `middleware.js` stamps from
-`x-vercel-ip-country`. That is **display only** — the real per-geo routing is server-side at the
-door (`offers.destination_by_geo`). Forging the cookie changes the figure on screen and nothing
-about which offer serves or what it pays. Never promote it to a routing input.
+```
+/SH50/GB7   GB · English · £750 · opens api/link/shein-gb
+/50FC/JP1   JP · Japanese · no figure · opens api/link/freecash-jp
+```
+
+**There is NO runtime geo detection and no language switcher.** No IP sniffing, no `lp_geo`
+cookie, no `?lg=` param, no edge middleware — all of that was removed. The geo is decided by
+WHICH PAGE the ad points at, and `api/link/[slug].js` routes on that lander's
+`landing_pages.geo`. One fact drives both, so a page cannot quote £750 and hand the visitor
+the US offer. It also means a visitor cannot shop geo with a VPN — there is nothing to shop.
+
+Consequences to respect:
+
+- **Every geo needs its own door slug and its own `landing_pages` row** (`shein-gb`, `freecash-jp`).
+  A shared slug collapses every geo back onto one row with one geo — the original bug.
+- **Language lives in `LOCALES` (geo → lang) and `STRINGS` (lang → every visible word).** Adding a
+  language is one `STRINGS` entry; adding a geo is one `LOCALES` line. `AT` deliberately maps to
+  `de`. Copy is substituted at BUILD time, so a missing key can never reach a visitor as a raw
+  `{amount}` placeholder — it fails the build instead.
+- **A brand with `amounts: null` quotes no figure at all** and uses the `*NoAmount` copy variants.
+  Freecash ships this way because its live page leads with "Get Paid For Screen Time" and names no
+  sum. Do not invent one — "No False Earning Claims" is an explicit Monetise restriction and an ad
+  has already been pulled over it.
+- **Never hand-edit a clone.** Each (brand, geo) slice is 50 files written from one buffer, so it is
+  exactly one md5. Hand-editing is how `RS50/RS1` drifted. Change `BRANDS`/`STRINGS` and regenerate.
+- The legacy `50FC/FC1..FC50` (slug `freecash`, geo `us`) are hand-built and are NOT touched by the
+  generator. The generated US equivalent is `50FC/US1..US50` (slug `freecash-us`). Run one or the
+  other, not both — the per-geo affiliate guard refuses the same affiliate on two same-geo landers.
 
 ## How to change a lander (edit canonical + propagate)
 
