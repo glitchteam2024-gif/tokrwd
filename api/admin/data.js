@@ -232,11 +232,20 @@ export default async function handler(req, res) {
         }
         if (!campid) {
           warnings.push('No campid on the link. /r drops a click with no campid — this would show the decoy.');
-        } else if (!isCanonicalSpk(extractSparkCode(campid))) {
+        } else if (!isCanonicalSpk(extractSparkCode(campid)) && !body.allow_custom_campid) {
           warnings.push(
             `campid "${campid}" is not a canonical SPK-XXXX-XXXX spark code. The door does not reject ` +
             'it — it forwards the string to the network raw, so the link looks healthy while every ' +
-            'conversion lands unmatched.'
+            'conversion lands unmatched. If this is a scaler, tick Scaler on their row: they name ' +
+            'their own codes by design and this check does not apply to them.'
+          );
+        } else if (!isCanonicalSpk(extractSparkCode(campid))) {
+          // Scaler: a custom code is correct. But it still has to be REGISTERED in SPRK
+          // (subid_owners), or the conversions land unmatched exactly as above — the
+          // difference is where the fix lives, not whether the failure can happen.
+          warnings.push(
+            `Custom campid "${campid}" — expected for a scaler. Confirm it is registered to them in ` +
+            'SPRK (admin → Assign SubID), otherwise conversions still land unmatched.'
           );
         }
         if (!(parsed.searchParams.get('ttclid') || '').trim()) {

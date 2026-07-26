@@ -203,7 +203,10 @@ footer .links span { color:#3a3d44; font-size:11px; }
 // Per the compliance guide: the CTA goes DIRECTLY to a clean signup page
 // (no interstitial, no cloaked redirect, no hidden CPA popup loop).
 // ===================================================================
-var SIGNUP_URL = 'https://monetisetrk8.co.uk/?a=26648&c=55504&s1=';
+// OUR offer link, on OUR cloaker domain. Was the bare network URL
+// monetisetrk8.co.uk/?a=26648&c=55504 — same Freecash campaign, but a hop we do not
+// run and cannot cap, kill, or reconcile. /c/frrcsh-us-off resolves to a=26648&c=55504.
+var SIGNUP_URL = 'https://appflowconnect.com/c/frrcsh-us-off?s1=';
 
 // Transparently forward marketing params (utm_*, campid, etc.) — no cloaking.
 (function(){

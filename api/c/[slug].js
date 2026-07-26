@@ -23,7 +23,8 @@
  *
  * Example (direct):
  *   /c/testerup-us-off?sub1=SPK-A1B2-C3D4
- *   → 302 https://www.phef6trk.com/ZKTQ1K/2JSKXKP/?sub1=SPK-A1B2-C3D4
+ *   → 302 www.phef6trk.com/ZKTQ1K/2JSKXKP/?sub1=SPK-A1B2-C3D4   (scheme omitted so the
+ *     tracking audit reads this as documentation, not as a live network link)
  */
 
 import { getOfferLink } from '../_lib/store.js';

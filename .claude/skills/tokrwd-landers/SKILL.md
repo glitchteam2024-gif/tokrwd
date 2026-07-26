@@ -163,6 +163,46 @@ Gotcha: the Carrd embed caches `/r`'s answer in `sessionStorage` keyed by campid
 under test with the same campid in the same session keeps loading the old lander — use a different
 campid or a fresh private window.
 
+### Assigning an override link to an affiliate
+
+The Test Lander tab has an **Affiliates** list: name, email, campid, and a **Scaler** flag. Pick an
+affiliate and the campid auto-fills, so the flow is *affiliate → Carrd page → offer → link*.
+
+The **campid is the attribution**, not the email — the email is a label so a pile of links stays
+legible. There is no affiliate DB in this repo (the roster is SPRK Supabase), so the list is
+browser-local, same as the saved landers.
+
+Tick **Scaler** for self-managed affiliates (Trae/TenX etc). Their codes are legitimately not
+`SPK-` shaped, so the SPK-format warning is replaced with the one that actually applies to them:
+*confirm the code is registered in SPRK (`subid_owners`) or conversions still land unmatched.*
+Verified that custom codes (`TRAE_spark97_US`, `sub-abc123`, `CB19-1`) survive `/r` intact as `s1`.
+
+## EVERYTHING routes through our own tracking (2026-07-26)
+
+**Rule:** every outbound hop in this repo goes through tracking we run. Ours, best first:
+
+1. `sprktrax.org/api/link/<slug>` — the door. Spark code resolved, `clicks` row, `click_id` minted,
+   s1/s2/s4/s5 stamped, caps + `pulled` kill switch. This is "our bot".
+2. `/c/<slug>` on `appflowconnect.com` or `www.tokrwd.co` — our code, our deploy. `mode:'direct'`
+   mints no click_id, so matching leans on what the network echoes to `/postback`.
+3. `sprktrax.org/aff_c?t=…` — the permanent universal link.
+
+**Never ship** a lander wired straight to a network URL, or to a cloaker domain we do not run. This
+supersedes the old "don't fix Path B unless Migi asks" note — he asked. Re-pointed 2026-07-26:
+`trt` (was `buenohoodies.com` — a *separate* deploy where the same slug resolved to a different
+tracker, so our `OFFER_LINKS` edits never reached it), `TSUP` and `Rewards` (were bare
+`monetisetrk8.co.uk` URLs), and `/api/reco` (hardcoded network URL → `reco-social-off` in
+`OFFER_LINKS`, so it can now be capped and killed).
+
+`node api/_lib/_tracking-audit.test.mjs` enforces it: no direct network links, every `/c/` on a host
+we run, every referenced slug enabled in `OFFER_LINKS`, every door URL equal to `DOOR_BASE`, and no
+third-party tracker scripts. Consciously-deferred offenders live in its `EXCEPTIONS` map and are
+**printed on every run** — anything unlisted fails the build.
+
+Still open (business calls, in `EXCEPTIONS`): `api/affrkr.js` → `affrkr.com`, `api/copper.js` →
+`trendhavenn.com`, and `EOZ.html`'s `vmry7.ttrk.io` script. All three pages are live but orphaned —
+nothing in the repo links to them.
+
 ## s1–s5 wire scheme (what tracks)
 
 - **Inbound to the lander:** `s1 = <SPK>` (opaque `SPK-XXXX-XXXX` spark code, THE attribution key) ·

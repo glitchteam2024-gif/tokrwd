@@ -263,11 +263,51 @@ td a:hover { color: var(--purple-hover); }
   </div>
 
   <div class="card">
+    <h3>Affiliates <span class="item-count" id="tlAffCount">0 saved</span></h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="tlAffName" placeholder="Trae / TenX" />
+      </div>
+      <div class="form-group" style="flex:2;">
+        <label>Email</label>
+        <input type="text" id="tlAffEmail" placeholder="admin@tenxholdingsllc.com" />
+      </div>
+      <div class="form-group">
+        <label>campid — their tracking code *</label>
+        <input type="text" id="tlAffCode" placeholder="SPK-A1B2-C3D4" />
+      </div>
+      <button class="btn btn-primary" onclick="tlAffAdd()">+ Add</button>
+    </div>
+    <p class="hint">
+      <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+        <input type="checkbox" id="tlAffScaler" style="width:auto;" />
+        <b>Scaler</b> — self-managed, runs their own tracking
+      </label>
+      <br />
+      The <b>campid is the attribution</b>, not the email — the email is just a label so you know
+      whose link this is. Scalers name their own non-<code>SPK-</code> codes and settle by invoice,
+      so tick the box and the SPK-format warning is skipped for them.
+    </p>
+    <div class="table-wrap" style="margin-top:14px;">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>campid</th><th>Type</th><th>Actions</th></tr></thead>
+        <tbody id="tlAffTable"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="tlAffEmpty">No affiliates saved yet.</div>
+  </div>
+
+  <div class="card">
     <h3>Build the Ad Link <span class="item-count" id="tlCount">0 saved</span></h3>
     <div class="form-row">
       <div class="form-group" style="flex:2;">
         <label>Carrd page *</label>
         <input type="text" id="tlCarrd" placeholder="https://yourpage.carrd.co" />
+      </div>
+      <div class="form-group">
+        <label>Assign to affiliate</label>
+        <select id="tlAffSelect" onchange="tlAffPick()"></select>
       </div>
       <div class="form-group">
         <label>campid — spark code *</label>
@@ -355,6 +395,7 @@ const API_BASE = '/api/admin/data';
 // tlRender() and a `const` further down the file would still be in its temporal
 // dead zone on the saved-key auto-login path.
 const TL_STORE = 'lm_test_landers';
+const TL_AFF_STORE = 'lm_test_affiliates';
 
 // Auth
 function doAuth() {
@@ -583,6 +624,83 @@ function esc(s) {
 
 function tlParam() { return (DATA.routing && DATA.routing.override_param) || 'lp'; }
 
+/* ── Affiliates ───────────────────────────────────────────────────────────────
+ * Who a given override link is FOR. The campid is the attribution — the email is
+ * a label so a pile of links stays legible. Saved in this browser for the same
+ * reason the landers are: there is no shared store behind this dashboard, and the
+ * real affiliate roster lives in SPRK, not here.
+ */
+function tlAffLoad() {
+  let list;
+  try { list = JSON.parse(localStorage.getItem(TL_AFF_STORE) || '[]'); } catch (e) { return []; }
+  return Array.isArray(list) ? list.filter(a => a && typeof a.code === 'string' && a.code) : [];
+}
+function tlAffSave(list) { localStorage.setItem(TL_AFF_STORE, JSON.stringify(list)); }
+
+function tlAffAdd() {
+  const name = document.getElementById('tlAffName').value.trim();
+  const email = document.getElementById('tlAffEmail').value.trim();
+  const code = document.getElementById('tlAffCode').value.trim();
+  const scaler = document.getElementById('tlAffScaler').checked;
+  if (!code) return showToast('campid is required — it is what actually attributes', true);
+  // The campid rides in a URL query slot; anything needing escaping would not survive
+  // the round trip intact and would land at the door as a different string.
+  if (!/^[A-Za-z0-9._-]+$/.test(code)) {
+    return showToast('campid: letters, digits, . _ - only', true);
+  }
+  const list = tlAffLoad();
+  if (list.some(a => a.code === code)) return showToast('That campid is already saved', true);
+  list.push({ name: name || email || code, email, code, scaler, added: new Date().toISOString() });
+  tlAffSave(list);
+  ['tlAffName', 'tlAffEmail', 'tlAffCode'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('tlAffScaler').checked = false;
+  tlRender();
+  showToast('Affiliate added');
+}
+
+function tlAffRemove(code) {
+  if (!confirm('Remove this affiliate?')) return;
+  tlAffSave(tlAffLoad().filter(a => a.code !== code));
+  tlRender();
+}
+
+/** Selecting an affiliate fills the campid — the field stays editable for one-offs. */
+function tlAffPick() {
+  const code = document.getElementById('tlAffSelect').value;
+  if (code) document.getElementById('tlCampid').value = code;
+  tlBuild();
+}
+
+/** The affiliate currently selected, or null. */
+function tlAffCurrent() {
+  const code = document.getElementById('tlAffSelect').value
+    || document.getElementById('tlCampid').value.trim();
+  return tlAffLoad().find(a => a.code === code) || null;
+}
+
+function tlAffRender() {
+  const list = tlAffLoad();
+  document.getElementById('tlAffCount').textContent = list.length + ' saved';
+  document.getElementById('tlAffEmpty').style.display = list.length ? 'none' : 'block';
+  document.getElementById('tlAffTable').innerHTML = list.map(a => `
+    <tr>
+      <td>${esc(a.name)}</td>
+      <td style="color:var(--muted);">${esc(a.email || '—')}</td>
+      <td style="font-family:monospace;font-size:12px;">${esc(a.code)}</td>
+      <td>${a.scaler ? '<span class="status-badge status-active">scaler</span>' : '<span class="status-badge" style="background:var(--purple-dim);color:var(--purple);">affiliate</span>'}</td>
+      <td class="actions">
+        <button class="btn btn-danger btn-sm" onclick="tlAffRemove('${esc(a.code)}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+
+  const sel = document.getElementById('tlAffSelect');
+  const previous = sel.value;
+  sel.innerHTML = '<option value="">— none (type a campid) —</option>' +
+    list.map(a => `<option value="${esc(a.code)}">${esc(a.name)}${a.scaler ? ' (scaler)' : ''}</option>`).join('');
+  if (previous) sel.value = previous;
+}
+
 function tlLoad() {
   let list;
   try { list = JSON.parse(localStorage.getItem(TL_STORE) || '[]'); } catch (e) { return []; }
@@ -694,6 +812,7 @@ function tlRender() {
           `<option value="${esc(x.path)}">${esc(x.name)} — /${esc(x.path)}</option>`).join('')}</optgroup>`
       : '');
   if (previous) sel.value = previous;
+  tlAffRender();
   tlBuild();
 }
 
@@ -733,7 +852,13 @@ async function tlResolve() {
     const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'resolve_lander', carrd_url: link })
+      body: JSON.stringify({
+        action: 'resolve_lander',
+        carrd_url: link,
+        // A scaler's campid is legitimately not SPK-shaped; warning about it every
+        // time would train the operator to ignore the warnings that do matter.
+        allow_custom_campid: !!(tlAffCurrent() && tlAffCurrent().scaler)
+      })
     });
     r = await res.json();
   } catch (e) {

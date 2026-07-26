@@ -770,6 +770,16 @@ export const OFFER_LINKS = [
     forwardParam: 's1',
     enabled: true,
   },
+  // Reco Social — was hardcoded inside api/reco.js, which put a live network URL
+  // outside this table: it could not be capped, killed with `enabled:false`, or even
+  // found by the tracking audit. Same advertiser + campaign, now config-driven.
+  {
+    slug: 'reco-social-off',
+    mode: 'direct',
+    destination: 'https://montrk3.co.uk/?a=26648&c=56065',
+    forwardParam: 's1',
+    enabled: true,
+  },
 ];
 
 /** Base URL of the sprktrax affiliate door. */

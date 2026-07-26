@@ -10,7 +10,7 @@
  * WHAT IT DOES:
  *   1. Reads the incoming SubID (?s1=) off the lander URL (the tagged click).
  *   2. Appends it to the offer link's own s1= so attribution carries over:
- *        https://monetisetrk8.co.uk/?a=26648&c=56132&s1=<incoming s1>
+ *        https://appflowconnect.com/c/testerup-us-mon-off?s1=<incoming s1>
  *   3. Wires the CTA (+ the Quick Tip "Got it" button) to that URL, showing
  *      the Quick Tip interstitial first, then continuing to the offer.
  *
@@ -23,8 +23,12 @@
 (function () {
   'use strict';
 
-  // ---- The offer link. Fixed advertiser (a) + campaign (c); s1 is filled at runtime. ----
-  var OFFER_BASE = 'https://monetisetrk8.co.uk/?a=26648&c=56132&s1=';
+  // ---- OUR offer link, on OUR cloaker domain. ----
+  // Was the bare network URL monetisetrk8.co.uk/?a=26648&c=56132 — same advertiser and
+  // campaign, but a hop we do not run: nothing we can cap, kill, or reconcile, and it
+  // ignored this repo's OFFER_LINKS entirely. /c/testerup-us-mon-off resolves to that
+  // same campaign (a=26648&c=56132) and forwards the sub-id as s1.
+  var OFFER_BASE = 'https://appflowconnect.com/c/testerup-us-mon-off?s1=';
 
   // ---- Resolve the incoming SubID (s1) from the lander URL. ----
   var q = new URLSearchParams(location.search);

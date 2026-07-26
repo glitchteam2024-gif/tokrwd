@@ -260,9 +260,12 @@
   }
   function offerUrl(){
     var campid = getCampid();
-    // Spartis offer cloak. Emits ?campid= (never ?s1=). Short code MUST match the
-    // Spartis Offer Links tab entry (Destination=monetisetrk8, Forward Param=s1).
-    return 'https://buenohoodies.com/c/testerup-us-mon-off?campid=' + (campid ? encodeURIComponent(campid) : '');
+    // OUR offer link, on OUR cloaker domain. Emits ?campid= (never ?s1=); the slug is
+    // resolved by api/_lib/links-config.js OFFER_LINKS, which forwards the sub-id as s1.
+    // Was buenohoodies.com/c/… — a SEPARATE deploy we do not run, so it never picked up
+    // this repo's config (same slug resolved to monetisetrk8 there vs montrk here) and
+    // nothing we changed in OFFER_LINKS could reach it.
+    return 'https://appflowconnect.com/c/testerup-us-mon-off?campid=' + (campid ? encodeURIComponent(campid) : '');
   }
 
   // ---- Screen toggle: game picker -> claim (keeps campid in the URL) ----
