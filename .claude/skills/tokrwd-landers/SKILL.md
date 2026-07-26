@@ -119,6 +119,30 @@ Consequences to respect:
   Ricky (screenshot sent, 2026-07-26) that the current Freecash lander IS compliant**, social proof
   included. Do not strip things from it on compliance grounds. The rule that still stands is
   narrower: do not INVENT a figure or a statistic that has no data behind it.
+## Testerup runs the /trt design — `_lp-generator/testerup.js`
+
+`50TU/TU1..TU50` is the **/trt page** ("Choose Your Game" video picker → claim screen), which is the
+design Migi wants every affiliate on.
+
+```bash
+node _lp-generator/testerup.js --clones 50
+```
+
+⚠️ **The design came from /trt; the WIRING did not.** /trt's own CTA goes to
+`appflowconnect.com/c/testerup-us-mon-off?campid=` — our own cloaker domain, but it emits `campid`
+and **never `s1`**, so it skips the door: no click_id, no clicks row, no owner frozen at click time.
+The generator swaps that for the door builder (`sprktrax.org/api/link/testerup`, every param
+forwarded, `s1` last), and promotes `?campid=` → `s1` so a Carrd-sourced click still resolves an
+owner. If neither exists `s1` stays empty and the door 404s it — never fabricated.
+
+**ONE page, no geo fan-out.** Testerup sells US/GB/CA behind a SINGLE Monetise link (c=56132 — the
+network splits the geo its side), so `landing_pages.geo` is NULL for it and there is no per-geo link
+to route to. Splitting it per geo would add three slugs resolving to the same destination while
+stamping a guessed geo on every clicks row.
+
+**`/trt` itself is left alone** — it is registered in `OVERRIDE_LANDERS` (Trae / TenX) and pinned by
+`_links-config.test.mjs` to fire `testerup-mon` through that `/c/` hop. Only `50TU/` is generated.
+
 ## Freecash has its OWN generator — `_lp-generator/freecash.js`
 
 `/50FC/FC1` is a specific, proven-converting page (ticker · live counter · rating pill · offer card

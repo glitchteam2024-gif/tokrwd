@@ -253,36 +253,19 @@
 
 <script>
 (function(){
-  // ---- Outbound: the SPRK tracking DOOR ----
-  // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
-  // and 302s to the real Testerup URL — which lives in the offer row and never appears here.
-  // This REPLACED /trt's appflowconnect /c/?campid= hop: that one emits campid and never s1, so it
-  // skips the door entirely and Testerup loses click_id attribution.
-  var DOOR = 'https://sprktrax.org/api/link/testerup';
-
-  // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
-  var q = new URLSearchParams(location.search);
-
-  // campid is the Carrd/Spartis name for the same value — promote it to s1 when s1 is absent, so a
-  // Carrd-sourced click still resolves an owner instead of arriving anonymous.
-  if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
-
-  // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
-  // the door 404s an untagged click by design.
-  if (!q.get('s1')) {
-    var mc = q.get('mc_attr') || '', f = {};
-    mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
-    var d = f.e || f.c; if (d) q.set('s1', d);
+  // ---- SubID (campid) extraction — Spartis bot flow ----
+  function getCampid(){
+    var p = new URLSearchParams(window.location.search);
+    return p.get('campid') || p.get('s1') || p.get('s2') || '';
   }
-
   function offerUrl(){
-    // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network param.
-    var out = new URLSearchParams(q.toString());
-    out.delete('s1'); out.delete('campid');
-    var qs = out.toString(), s1 = q.get('s1') || '';
-    var url = DOOR + (qs ? '?' + qs : '');
-    if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
-    return url;
+    var campid = getCampid();
+    // OUR offer link, on OUR cloaker domain. Emits ?campid= (never ?s1=); the slug is
+    // resolved by api/_lib/links-config.js OFFER_LINKS, which forwards the sub-id as s1.
+    // Was buenohoodies.com/c/… — a SEPARATE deploy we do not run, so it never picked up
+    // this repo's config (same slug resolved to monetisetrk8 there vs montrk here) and
+    // nothing we changed in OFFER_LINKS could reach it.
+    return 'https://appflowconnect.com/c/testerup-us-mon-off?campid=' + (campid ? encodeURIComponent(campid) : '');
   }
 
   // ---- Screen toggle: game picker -> claim (keeps campid in the URL) ----
@@ -315,8 +298,5 @@
   });
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>
