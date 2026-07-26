@@ -4,7 +4,13 @@
 // Catches the two mistakes that silently misroute paid traffic: a duplicate host (the second
 // route is dead and its offer never serves) and a lander that is not in LANDER_URLS (a typo'd
 // URL 404s the click). Neither shows up as an error at runtime — /r just returns the wrong page.
-import { CARRD_ROUTES, LANDER_URLS, OFFER_KEYS, carrdRouteProblems, offerKeyProblems, landerForCarrd, landerForOfferKey } from './links-config.js';
+import {
+  CARRD_ROUTES, LANDER_URLS, OFFER_KEYS, TEST_LANDERS, LANDERS,
+  DEFAULT_LANDER_ORIGIN, OVERRIDE_PARAM,
+  carrdRouteProblems, offerKeyProblems, testLanderProblems,
+  landerForCarrd, landerForOfferKey, landerForOverride,
+  resolveOverrideLander, resolveLander, buildLanderUrl, isOwnLanderHost,
+} from './links-config.js';
 
 let pass = 0, fail = 0;
 const eq = (name, got, want) => {
@@ -96,6 +102,128 @@ eq('unknown o= falls through', landerForOfferKey('https://x.carrd.co/?o=zzz'), '
 eq('absent o= falls through',  landerForOfferKey('https://x.carrd.co/'), '');
 eq('every geo lander is reachable by an o= key',
   Object.values(LANDER_URLS).filter(u => !Object.values(OFFER_KEYS).includes(u)), []);
+
+// ── lander override (lp=) ────────────────────────────────────────────────────
+// The param is on a PUBLIC ad link, so every one of these is a real input, not a
+// hypothetical: the host allowlist is the only thing keeping /r from being an
+// open redirect, and a silently-dropped override runs the test on the wrong page.
+const AD = (qs) => `https://x.carrd.co/?campid=SPK-A1B2-C3D4&${qs}`;
+
+eq(`TEST_LANDERS is valid (${Object.keys(TEST_LANDERS).length} alias(es))`, testLanderProblems(), []);
+
+// accepted forms
+eq('bare path resolves to the lander site',
+  resolveOverrideLander('trt-page'), `${DEFAULT_LANDER_ORIGIN}/trt-page`);
+eq('leading slash is equivalent',
+  resolveOverrideLander('/trt-page'), `${DEFAULT_LANDER_ORIGIN}/trt-page`);
+eq('nested path resolves',
+  resolveOverrideLander('50FC/FC7'), `${DEFAULT_LANDER_ORIGIN}/50FC/FC7`);
+eq('a .html file resolves', resolveOverrideLander('FCTT.html'), `${DEFAULT_LANDER_ORIGIN}/FCTT.html`);
+eq('full URL on our host resolves',
+  resolveOverrideLander('https://www.tokrwd.co/trt-page'), 'https://www.tokrwd.co/trt-page');
+// The live alias, not a fixture: this asserts the real TEST_LANDERS entry works.
+eq('registered alias resolves', resolveOverrideLander('trt'), `${DEFAULT_LANDER_ORIGIN}/trt`);
+eq('alias lookup is case-insensitive', resolveOverrideLander('TrT'), `${DEFAULT_LANDER_ORIGIN}/trt`);
+
+// rejected forms — each falls through to normal routing rather than erroring
+eq('foreign host is rejected', resolveOverrideLander('https://evil.com/x'), '');
+eq('http is rejected (https only)', resolveOverrideLander('http://www.tokrwd.co/X'), '');
+eq('lookalike host is rejected', resolveOverrideLander('https://tokrwd.co.evil.com/X'), '');
+eq('subdomain of our host is not implicitly trusted',
+  resolveOverrideLander('https://anything.tokrwd.co/X'), '');
+eq('javascript: is rejected', resolveOverrideLander('javascript:alert(1)'), '');
+eq('data: is rejected', resolveOverrideLander('data:text/html,<h1>x'), '');
+eq('path traversal is rejected', resolveOverrideLander('../../etc/passwd'), '');
+eq('encoded traversal is rejected', resolveOverrideLander('%2e%2e/%2e%2e/x'), '');
+eq('backslash is rejected', resolveOverrideLander('\\\\evil.com'), '');
+eq('bare root is rejected', resolveOverrideLander('/'), '');
+eq('empty / null are rejected', [resolveOverrideLander(''), resolveOverrideLander(null)], ['', '']);
+eq('an over-long path is rejected', resolveOverrideLander('A'.repeat(300)), '');
+
+// `//evil.com` must not survive as a protocol-relative URL — it degrades to a
+// path on OUR origin, which 404s harmlessly instead of leaving the domain.
+eq('protocol-relative cannot escape our origin',
+  resolveOverrideLander('//evil.com/x'), `${DEFAULT_LANDER_ORIGIN}/evil.com/x`);
+
+// The override must not be able to smuggle its own query params: an inbound s4
+// SUPPRESSES the door's authoritative offer label, and s1 is the attribution key.
+eq('query on the override is dropped',
+  resolveOverrideLander('trt-page?s4=spoof&s1=NOPE'), `${DEFAULT_LANDER_ORIGIN}/trt-page`);
+eq('hash on the override is dropped',
+  resolveOverrideLander('trt-page#frag'), `${DEFAULT_LANDER_ORIGIN}/trt-page`);
+eq('query on a full-URL override is dropped',
+  resolveOverrideLander('https://www.tokrwd.co/trt-page?s4=spoof'), 'https://www.tokrwd.co/trt-page');
+
+// reading it off the ad link
+eq('lp= is read from the Carrd URL',
+  landerForOverride(AD('lp=trt-page')), `${DEFAULT_LANDER_ORIGIN}/trt-page`);
+eq('absent lp= returns empty', landerForOverride(AD('o=tu')), '');
+eq('malformed carrd URL does not throw', landerForOverride('not-a-url'), '');
+
+// The admin link builder uses URLSearchParams.set, which percent-encodes the slash
+// in a nested path — so the wire form is `lp=50FC%2FFC7`, not the raw slash the
+// tests above use. Assert the form the UI actually emits, not just the tidy one.
+{
+  const built = new URL('https://mypage.carrd.co/');
+  built.searchParams.set('campid', 'SPK-A1B2-C3D4');
+  built.searchParams.set('lp', '50FC/FC7');
+  eq('encoded-slash lp= from the admin builder resolves',
+    landerForOverride(built.toString()), `${DEFAULT_LANDER_ORIGIN}/50FC/FC7`);
+}
+
+// A campaign lander_url is stored by set_campaign with no validation and ends up in
+// `location.replace()` on the Carrd page, so a non-https one must never route.
+eq('a javascript: campaign lander_url does not route',
+  resolveLander({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'javascript:alert(1)' } } }),
+  { url: LANDER_URLS.TU, source: 'offer_key' });
+eq('an http: campaign lander_url does not route',
+  resolveLander({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'http://169.254.169.254/' } } }),
+  { url: LANDER_URLS.TU, source: 'offer_key' });
+eq('a valid https campaign lander_url still routes',
+  resolveLander({ carrdUrl: AD('o=tu'), campid: 'C1', campaigns: { C1: { lander_url: 'https://www.tokrwd.co/CLTU' } } }),
+  { url: 'https://www.tokrwd.co/CLTU', source: 'campaign' });
+
+// Only own hosts may be fetched server-side by the admin reachability check.
+eq('isOwnLanderHost accepts our lander site', isOwnLanderHost(`${DEFAULT_LANDER_ORIGIN}/trt`), true);
+eq('isOwnLanderHost rejects a foreign host', isOwnLanderHost('https://evil.com/x'), false);
+eq('isOwnLanderHost rejects link-local metadata', isOwnLanderHost('http://169.254.169.254/'), false);
+eq('isOwnLanderHost rejects junk', isOwnLanderHost('not-a-url'), false);
+
+// ── precedence: lp= beats everything ─────────────────────────────────────────
+eq('lp= wins over o=',
+  resolveLander({ carrdUrl: AD('o=tu&lp=trt-page') }),
+  { url: `${DEFAULT_LANDER_ORIGIN}/trt-page`, source: 'override' });
+eq('lp= wins over a campaign mapping',
+  resolveLander({
+    carrdUrl: AD('lp=trt-page'),
+    campid: 'SPK-A1B2-C3D4',
+    campaigns: { 'SPK-A1B2-C3D4': { lander_url: 'https://www.tokrwd.co/CLTU' } },
+  }),
+  { url: `${DEFAULT_LANDER_ORIGIN}/trt-page`, source: 'override' });
+eq('an INVALID lp= falls through to o= rather than dropping the click',
+  resolveLander({ carrdUrl: AD('o=tu&lp=https://evil.com/x') }),
+  { url: LANDER_URLS.TU, source: 'offer_key' });
+eq('no signals at all → the default lander',
+  resolveLander({ carrdUrl: 'https://unmapped.carrd.co/?campid=X' }),
+  { url: LANDERS[0].url, source: 'default' });
+
+// campaigns is keyed by a client-supplied campid, so inherited keys must not resolve.
+eq('a prototype key is not treated as a campaign mapping',
+  resolveLander({ carrdUrl: AD('o=tu'), campid: 'constructor', campaigns: {} }),
+  { url: LANDER_URLS.TU, source: 'offer_key' });
+
+// ── the built URL ────────────────────────────────────────────────────────────
+// s1 must be the spark code and must survive whatever the override said.
+{
+  const link = AD('lp=trt-page&ttclid=TT123&s3=acct7');
+  const { url } = resolveLander({ carrdUrl: link, campid: 'SPK-A1B2-C3D4' });
+  const built = new URL(buildLanderUrl(url, 'SPK-A1B2-C3D4', link));
+  eq('override lander is the destination', built.origin + built.pathname, `${DEFAULT_LANDER_ORIGIN}/trt-page`);
+  eq('s1 carries the spark code', built.searchParams.get('s1'), 'SPK-A1B2-C3D4');
+  eq('ttclid survives to the lander', built.searchParams.get('ttclid'), 'TT123');
+  eq('s3 survives to the lander', built.searchParams.get('s3'), 'acct7');
+  eq('the override param itself is NOT forwarded', built.searchParams.get(OVERRIDE_PARAM), null);
+}
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

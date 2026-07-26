@@ -108,6 +108,22 @@ td a:hover { color: var(--purple-hover); }
 
 /* Empty state */
 .empty { text-align: center; padding: 40px; color: var(--muted); }
+
+/* Test Lander tab */
+.form-group select { width: 100%; padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--text); font-size: 14px; outline: none; }
+.form-group select:focus { border-color: var(--purple); }
+.hint { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+.hint code, .hint b { color: var(--text); }
+.hint code { background: var(--purple-dim); color: var(--purple); padding: 1px 5px; border-radius: 4px; }
+.result-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 14px 16px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; word-break: break-all; }
+.resolve-panel { margin-top: 14px; border: 1px solid var(--card-border); border-radius: 8px; padding: 14px 16px; background: var(--input-bg); font-size: 13px; }
+.resolve-row { display: flex; gap: 10px; padding: 5px 0; align-items: baseline; }
+.resolve-row .k { color: var(--muted); min-width: 96px; font-size: 12px; }
+.resolve-row .v { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; word-break: break-all; }
+.warn { background: rgba(245, 158, 11, 0.10); border-left: 3px solid var(--yellow); padding: 9px 12px; border-radius: 4px; margin-top: 8px; font-size: 12px; line-height: 1.6; color: #f3d9a4; }
+.ok-pill { background: var(--green-dim); color: var(--green); padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.bad-pill { background: var(--red-dim); color: var(--red); padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.unk-pill { background: rgba(139,139,158,.15); color: var(--muted); padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 </style>
 </head>
 <body>
@@ -135,6 +151,9 @@ td a:hover { color: var(--purple-hover); }
   </button>
   <button class="tab" data-tab="landers" onclick="switchTab('landers')">
     <span class="tab-icon">📄</span> Landers
+  </button>
+  <button class="tab" data-tab="testlander" onclick="switchTab('testlander')">
+    <span class="tab-icon">🧪</span> Test Lander
   </button>
   <button class="tab" data-tab="postbacks" onclick="switchTab('postbacks')">
     <span class="tab-icon">🔔</span> Postbacks
@@ -222,6 +241,87 @@ td a:hover { color: var(--purple-hover); }
   </div>
 </div>
 
+<!-- TEST LANDER TAB -->
+<div class="tab-panel" id="panel-testlander">
+  <div class="card">
+    <h3>Add a Landing Page to Test</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="tlName" placeholder="e.g. Traetest TU" />
+      </div>
+      <div class="form-group" style="flex:2;">
+        <label>Page path or URL *</label>
+        <input type="text" id="tlPath" placeholder="trt  or  https://www.tokrwd.co/trt" />
+      </div>
+      <button class="btn btn-primary" onclick="tlAdd()">+ Add</button>
+    </div>
+    <p class="hint">
+      The page must already be deployed on <b>tokrwd.co</b> — this routes traffic to a lander, it
+      does not create one. Only pages on our own domains can be used.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Build the Ad Link <span class="item-count" id="tlCount">0 saved</span></h3>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;">
+        <label>Carrd page *</label>
+        <input type="text" id="tlCarrd" placeholder="https://yourpage.carrd.co" />
+      </div>
+      <div class="form-group">
+        <label>campid — spark code *</label>
+        <input type="text" id="tlCampid" placeholder="SPK-A1B2-C3D4" />
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:12px;">
+      <div class="form-group" style="flex:2;">
+        <label>Landing page under test</label>
+        <select id="tlSelect" onchange="tlBuild()"></select>
+      </div>
+      <div class="form-group">
+        <label>s3 — ad account (optional)</label>
+        <input type="text" id="tlS3" placeholder="acct7" />
+      </div>
+    </div>
+
+    <div class="result-box" id="tlLinkBox" style="margin-top:16px;">
+      <span id="tlLink">Fill in the Carrd page and campid above.</span>
+      <button class="btn btn-copy" onclick="copyText(document.getElementById('tlLink').textContent)">📋 Copy</button>
+    </div>
+
+    <div class="form-row" style="margin-top:12px;">
+      <button class="btn btn-purple" onclick="tlResolve()">🔍 Where does this actually go?</button>
+    </div>
+    <div id="tlResolveOut"></div>
+
+    <p class="hint" style="margin-top:14px;">
+      Paste this as the TikTok destination URL. TikTok appends <code>ttclid</code> on a real click —
+      without one <code>/r</code> serves the decoy, so opening the link yourself will not show the
+      lander. <b>Switching landers mid-test:</b> the Carrd script caches its answer in
+      <code>sessionStorage</code> keyed by campid, so use a different campid (or a fresh private
+      window) when you change the page under test, or the old lander keeps loading.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Saved Landing Pages</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Path / URL</th><th>lp= value</th><th>Actions</th></tr></thead>
+        <tbody id="tlTable"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="tlEmpty">No test landing pages saved yet.</div>
+    <p class="hint" style="margin-top:12px;">
+      Saved in this browser only. There is no shared database behind this dashboard — each API route
+      is its own lambda with its own memory, so a server-side list here could never be read by the
+      endpoint that routes traffic. The link is what carries the override, which is why it works the
+      moment you paste it and needs no deploy.
+    </p>
+  </div>
+</div>
+
 <!-- POSTBACKS TAB -->
 <div class="tab-panel" id="panel-postbacks">
   <div class="card">
@@ -251,6 +351,10 @@ td a:hover { color: var(--purple-hover); }
 let ADMIN_KEY = '';
 let DATA = {};
 const API_BASE = '/api/admin/data';
+// Declared up here, not beside the Test Lander code below: render() reaches
+// tlRender() and a `const` further down the file would still be in its temporal
+// dead zone on the saved-key auto-login path.
+const TL_STORE = 'lm_test_landers';
 
 // Auth
 function doAuth() {
@@ -317,6 +421,7 @@ function render() {
   renderOffers();
   renderLanders();
   renderPostbacks();
+  tlRender();
 }
 
 function renderCarrd() {
@@ -460,6 +565,207 @@ function showToast(msg, isError) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * TEST LANDER — build an ad link that forces one specific landing page
+ *
+ * The override rides the ad link as `lp=`, which is the only place it CAN
+ * live: every /api route is its own lambda with its own memory, so anything
+ * saved server-side from this dashboard is invisible to /api/r. The saved
+ * list below is therefore browser-local convenience; the link is the feature.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+function tlParam() { return (DATA.routing && DATA.routing.override_param) || 'lp'; }
+
+function tlLoad() {
+  let list;
+  try { list = JSON.parse(localStorage.getItem(TL_STORE) || '[]'); } catch (e) { return []; }
+  // Filtered on read, not just on write: entries saved before tlPathOk existed are
+  // still in localStorage, and they reach the row markup and the built link.
+  return Array.isArray(list) ? list.filter(x => x && typeof x.path === 'string' && tlPathOk(x.path)) : [];
+}
+
+function tlSave(list) {
+  localStorage.setItem(TL_STORE, JSON.stringify(list));
+}
+
+/**
+ * Shortest `lp=` value that still resolves. A page on the lander site becomes a
+ * bare path (`trt`); anything else is kept whole and the server decides whether
+ * its host is one of ours — this UI does not get a vote on that.
+ */
+function tlNormalize(input) {
+  const raw = String(input || '').trim().replace(/[?#].*$/, '');
+  if (!raw) return '';
+  if (/^https?:\/\//i.test(raw)) {
+    try {
+      const u = new URL(raw);
+      if (/^(www\.)?tokrwd\.co$/i.test(u.hostname)) return u.pathname.replace(/^\/+/, '');
+      return raw;
+    } catch (e) { return raw; }
+  }
+  return raw.replace(/^\/+/, '');
+}
+
+/**
+ * Same charset the server enforces in cleanLanderPath. Checked here so a bad path
+ * is rejected at the point of entry: the server does not error on one, it silently
+ * falls through to the default lander — which reads as "the test ran" while the
+ * traffic never reached the page under test. Also keeps quotes and angle brackets
+ * out of the row markup below.
+ */
+function tlPathOk(path) {
+  return /^[A-Za-z0-9._/-]+$/.test(path) && !path.split('/').includes('..');
+}
+
+function tlAdd() {
+  const name = document.getElementById('tlName').value.trim();
+  const path = tlNormalize(document.getElementById('tlPath').value);
+  if (!path) return showToast('Page path or URL required', true);
+  if (!tlPathOk(path)) {
+    return showToast('Use letters, digits, . _ - / only — anything else will not resolve', true);
+  }
+  const list = tlLoad();
+  if (list.some(x => x.path === path)) return showToast('Already saved', true);
+  list.push({ name: name || path, path: path, added: new Date().toISOString() });
+  tlSave(list);
+  document.getElementById('tlName').value = '';
+  document.getElementById('tlPath').value = '';
+  tlRender();
+  showToast('Added');
+}
+
+function tlRemove(path) {
+  if (!confirm('Remove this test landing page?')) return;
+  tlSave(tlLoad().filter(x => x.path !== path));
+  tlRender();
+}
+
+function tlRender() {
+  const list = tlLoad();
+  const registered = (DATA.routing && DATA.routing.test_landers) || {};
+  const p = tlParam();
+
+  document.getElementById('tlCount').textContent = list.length + ' saved';
+  document.getElementById('tlEmpty').style.display = list.length ? 'none' : 'block';
+  document.getElementById('tlTable').innerHTML = list.map(x => `
+    <tr>
+      <td>${esc(x.name)}</td>
+      <td style="color:var(--muted);">${esc(x.path)}</td>
+      <td style="font-family:monospace;font-size:12px;color:var(--purple);">${esc(p)}=${esc(x.path)}</td>
+      <td class="actions">
+        <button class="btn btn-copy btn-sm" onclick="copyText('https://www.tokrwd.co/${esc(x.path)}')">📋 URL</button>
+        <button class="btn btn-danger btn-sm" onclick="tlRemove('${esc(x.path)}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+
+  // Keep the operator's current pick across a re-render.
+  const sel = document.getElementById('tlSelect');
+  const previous = sel.value;
+  const regOpts = Object.keys(registered).map(k =>
+    `<option value="${esc(k)}">${esc(k)} — built in (${esc(registered[k])})</option>`
+  ).join('');
+  // A saved page that duplicates a registered alias would show as two entries
+  // producing byte-identical links — a pointless choice presented as a real one.
+  const regTargets = new Set(
+    Object.keys(registered).concat(Object.values(registered).map(v => String(v).replace(/^\/+/, '')))
+  );
+  const saved = list.filter(x => !regTargets.has(x.path));
+  sel.innerHTML =
+    `<option value="">— no override (route normally by o= / Carrd page) —</option>` +
+    (regOpts ? `<optgroup label="Registered aliases">${regOpts}</optgroup>` : '') +
+    (saved.length
+      ? `<optgroup label="Saved in this browser">${saved.map(x =>
+          `<option value="${esc(x.path)}">${esc(x.name)} — /${esc(x.path)}</option>`).join('')}</optgroup>`
+      : '');
+  if (previous) sel.value = previous;
+  tlBuild();
+}
+
+function tlBuild() {
+  const out = document.getElementById('tlLink');
+  const carrd = document.getElementById('tlCarrd').value.trim();
+  const campid = document.getElementById('tlCampid').value.trim();
+  const lp = document.getElementById('tlSelect').value;
+  const s3 = document.getElementById('tlS3').value.trim();
+
+  if (!carrd || !campid) {
+    out.textContent = 'Fill in the Carrd page and campid above.';
+    return '';
+  }
+  let u;
+  try {
+    u = new URL(/^https?:\/\//i.test(carrd) ? carrd : 'https://' + carrd);
+  } catch (e) {
+    out.textContent = 'Carrd page is not a valid URL.';
+    return '';
+  }
+  u.searchParams.set('campid', campid);
+  if (lp) u.searchParams.set(tlParam(), lp); else u.searchParams.delete(tlParam());
+  if (s3) u.searchParams.set('s3', s3); else u.searchParams.delete('s3');
+  out.textContent = u.toString();
+  return u.toString();
+}
+
+async function tlResolve() {
+  const link = tlBuild();
+  const panel = document.getElementById('tlResolveOut');
+  if (!link) return showToast('Build a link first', true);
+
+  panel.innerHTML = '<div class="resolve-panel">Checking…</div>';
+  let r;
+  try {
+    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'resolve_lander', carrd_url: link })
+    });
+    r = await res.json();
+  } catch (e) {
+    panel.innerHTML = '<div class="resolve-panel">Could not reach the API.</div>';
+    return;
+  }
+  if (!r.success) {
+    panel.innerHTML = `<div class="resolve-panel">${esc(r.error || 'Error')}</div>`;
+    return;
+  }
+
+  // The routing rule that fired. Naming it is what makes a misroute diagnosable —
+  // "it went somewhere else" is otherwise a guessing game across five rules.
+  const SOURCE_LABEL = {
+    override: 'lp= override — the page under test',
+    campaign: 'campaign mapping in the admin store',
+    offer_key: 'o= offer key on the link',
+    carrd_route: 'CARRD_ROUTES entry for this Carrd page',
+    default: 'default lander (nothing matched)',
+    none: 'nothing configured'
+  };
+  const reach = r.reachable === true
+    ? `<span class="ok-pill">live · ${esc(r.reachable_status)}</span>`
+    : r.reachable === false
+      ? `<span class="bad-pill">not reachable · ${esc(r.reachable_status)}</span>`
+      : '<span class="unk-pill">unknown</span>';
+
+  panel.innerHTML = `
+    <div class="resolve-panel">
+      <div class="resolve-row"><span class="k">Routed by</span><span class="v">${esc(SOURCE_LABEL[r.source] || r.source)}</span></div>
+      <div class="resolve-row"><span class="k">Lander</span><span class="v">${esc(r.lander || '—')}</span></div>
+      <div class="resolve-row"><span class="k">Page status</span><span class="v">${reach}</span></div>
+      <div class="resolve-row"><span class="k">Visitor gets</span><span class="v">${esc(r.destination || '—')}</span></div>
+      ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+    </div>`;
+}
+
+['tlCarrd', 'tlCampid', 'tlS3'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', tlBuild);
+});
 
 // Slug preview
 document.getElementById('offerSlug')?.addEventListener('input', function() {

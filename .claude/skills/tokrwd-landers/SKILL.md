@@ -43,6 +43,7 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Copper       | `sprktrax.org/api/link/copper` (Path A)    | `CB/index.html`           | `CR50/CR1-50`                                      |
 | Gravypass    | `sprktrax.org/api/link/gravypass` (Path A) | `GP/index.html`           | — (`GP/ob/` is a clean pass-through interstitial → `/GP/`) |
 | Testerup ALT | `monetisetrk8.co.uk` DIRECT (Path B)       | `TSUP/index.html` + `js/tsup-offer.js` | —                                      |
+| Testerup TRT | `/c/testerup-us-mon-off` (Path B)          | `trt/index.html`          | — (game-picker variant under test, `lp=trt`) |
 | Reco Social  | `/api/reco` → montrk (Path B)              | `RS/index.html`           | `RS50/RS1-50` are interstitials that forward to `/RS/` (2 distinct variants: RS1 unique, RS2–50 identical) |
 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
@@ -99,6 +100,41 @@ The offer URL is built at runtime by an inline `<script>` (Path A) or `js/tsup-o
 reads `location.search`, optionally derives `s1` from `mc_attr` (MaxConv fallback — `f.e || f.c`,
 and if neither exists it leaves s1 EMPTY, never fabricates one), and sets the CTA `href`. The CTA
 markup stays `href="#"` so a pre-JS click can't fire a param-less door hit.
+
+## Testing a new lander on live Carrd traffic (`lp=`)
+
+To point one ad link at a specific landing page — split-testing a new lander, or trying a variant —
+put `lp=` on the ad link:
+
+    https://anypage.carrd.co/?campid=SPK-A1B2-C3D4&lp=trt
+
+`lp` beats every other routing signal (campaign mapping, `o=`, `CARRD_ROUTES`, default). Run two
+links with two `lp` values to split-test; each arm keeps its own spark code so they stay separable in
+reporting. **No deploy is needed to change where a link points** — only to create the lander itself.
+
+Accepted values: a bare path (`trt`, `50FC/FC7`, `FCTT.html`), a full `https://www.tokrwd.co/…` URL,
+or a registered alias from `TEST_LANDERS` in `api/_lib/links-config.js`.
+
+**Why it rides the link and not a database.** There is no database. Every `api/*.js` file is its own
+Vercel lambda with its own module instance, so anything the admin dashboard writes to
+`api/_lib/store.js` is structurally invisible to `api/r.js`. A param on the ad link is readable by
+the lambda that actually decides. Do not "improve" this into an admin-stored override without adding
+real shared storage first.
+
+**Why an untrusted param can pick the lander.** `lp` is resolved against a HOST ALLOWLIST
+(`DEFAULT_LANDER_ORIGIN` + `LANDER_URLS` hosts + `EXTRA_LANDER_HOSTS`), so it can only ever name a
+page on a domain we own — a crafted value cannot make `/r` an open redirect. Query and hash are
+stripped so it cannot smuggle an `s4` (which would suppress the door's offer label). An `lp` that
+fails validation falls THROUGH to normal routing rather than dropping the click.
+
+The decision lives in `resolveLander()` in `links-config.js` — shared by `/api/r` and by the admin
+dashboard's **Test Lander** tab, which builds these links, dry-runs them through the same function,
+and HEAD-checks that the lander is actually deployed. Run `node api/_lib/_links-config.test.mjs`
+after touching any of it.
+
+Gotcha: the Carrd embed caches `/r`'s answer in `sessionStorage` keyed by campid. Switching the page
+under test with the same campid in the same session keeps loading the old lander — use a different
+campid or a fresh private window.
 
 ## s1–s5 wire scheme (what tracks)
 

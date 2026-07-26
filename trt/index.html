@@ -8,27 +8,11 @@
 <meta name="description" content="Choose a game and start earning real cash through Testerup while you play.">
 <title>Testerup</title>
 
-<!-- TikTok In-App Browser Breakout — kick out of the in-app webview into the real
-     browser (Safari / Chrome). Fires ONLY for TikTok's user-agent, once per session. -->
-<script>
-(function() {
-  var ua = navigator.userAgent || navigator.vendor || window.opera;
-  if (!/tiktok|musical_ly|bytedance/i.test(ua)) return;
-  try {
-    if (sessionStorage.getItem('ttBreakout') === '1') return;
-    sessionStorage.setItem('ttBreakout', '1');
-  } catch (e) {}
-  var currentUrl = window.location.href;
-  var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
-  if (isIOS) {
-    window.location.href = 'x-safari-' + currentUrl;
-    setTimeout(function() { window.location.href = currentUrl; }, 25);
-  } else if (/android/i.test(ua)) {
-    window.location.href = 'intent://' + currentUrl.replace(/https?:\/\//, '') + '#Intent;scheme=https;action=android.intent.action.VIEW;end';
-    setTimeout(function() { window.location.href = currentUrl; }, 25);
-  }
-})();
-</script>
+<!-- NO in-app-breakout script here, deliberately. Sniffing the in-app-browser UA and
+     then jumping to a native browser scheme is the cloaking pattern stripped from every
+     deployed lander on 2026-07-23: it makes the page behave differently for ad review
+     than for a real user, which gets the WHOLE domain flagged and blocked, not just this
+     page. Do not re-add it. See .claude/skills/tokrwd-landers (NO-CLOAKING rule). -->
 
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}

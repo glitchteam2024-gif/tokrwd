@@ -250,6 +250,188 @@ export function landerForOfferKey(carrdUrl) {
   return typeof lander === 'string' ? lander : '';
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+ * LANDER OVERRIDE — test a landing page through the Carrd redirect, no deploy
+ * ══════════════════════════════════════════════════════════════════════════════
+ *
+ * `lp=` on the ad link forces ONE specific lander for that link, beating every
+ * other routing signal:
+ *
+ *     https://anypage.carrd.co/?campid=SPK-A1B2-C3D4&lp=trt&ttclid=…
+ *
+ * That is the whole feature. To split-test lander A against lander B you run two
+ * ad links with two `lp` values — no config change, no deploy, and the two arms
+ * stay separable in reporting because each arm carries its own spark code.
+ *
+ * WHY THIS RIDES THE LINK AND NOT THE ADMIN DATABASE
+ * There is no database. Every file under api/ is its own Vercel lambda with its
+ * own module instance, so an override saved through /api/admin/data lands in the
+ * admin lambda's heap and is structurally invisible to /api/r — see the note at
+ * the top of this file and in _lib/store.js. A param on the ad link is readable
+ * by the lambda that actually makes the decision, which is the only place it
+ * can work. The admin dashboard's Test Lander tab BUILDS these links; it does
+ * not store them.
+ *
+ * WHY IT IS SAFE TO LET A PUBLIC URL PICK THE LANDER
+ * `lp` arrives from a client-controlled URL, so it is treated as untrusted input
+ * and resolved against a HOST ALLOWLIST: it can only ever name a page on a
+ * domain we own. A crafted `lp` cannot turn /r into an open redirect and cannot
+ * point our paid traffic at someone else's page — the worst it can do is serve
+ * one of our own landers, which is what the param is for.
+ */
+
+/** The query param that overrides the lander. On the ad link, alongside `campid`. */
+export const OVERRIDE_PARAM = 'lp';
+
+/** Where a bare `lp=SOMEPATH` resolves to. The static lander site. */
+export const DEFAULT_LANDER_ORIGIN = 'https://www.tokrwd.co';
+
+/**
+ * Extra hosts an `lp=` override may point at, beyond DEFAULT_LANDER_ORIGIN and
+ * whatever LANDER_URLS already uses. Add a host here ONLY if we own it — this
+ * list is the only thing standing between a public query param and an open
+ * redirect. Registrable-domain granularity is deliberate: subdomain wildcards
+ * would re-open the hole the moment a subdomain is delegated to a third party.
+ */
+export const EXTRA_LANDER_HOSTS = [];
+
+/** www-insensitive comparison key for a hostname. */
+function hostKey(host) {
+  return String(host == null ? '' : host).trim().toLowerCase().replace(/^www\./, '');
+}
+
+// Every host an override may name: the default origin, every host already in
+// LANDER_URLS (so a geo lander stays addressable), and the manual extras.
+const LANDER_HOST_SET = (() => {
+  const set = new Set();
+  const add = (url) => { try { set.add(hostKey(new URL(url).hostname)); } catch { /* skip */ } };
+  add(DEFAULT_LANDER_ORIGIN);
+  Object.values(LANDER_URLS).forEach(add);
+  EXTRA_LANDER_HOSTS.forEach(h => { const k = hostKey(h); if (k) set.add(k); });
+  return set;
+})();
+
+/**
+ * Short aliases for landers under test, so an ad link can read `lp=trt` instead
+ * of carrying a path. Purely optional sugar — a bare path works without any entry
+ * here, which is the point: a lander you deployed five minutes ago is already
+ * addressable.
+ *
+ * Values are the same shape as an `lp` value: a path on the lander site, or a
+ * full https URL on an allowlisted host.
+ */
+export const TEST_LANDERS = {
+  trt: '/trt',
+};
+
+const TEST_LANDER_MAP = new Map(
+  Object.entries(TEST_LANDERS).map(([k, v]) => [k.trim().toLowerCase(), v])
+);
+
+/**
+ * Normalise the path half of an override. Returns '' for anything suspicious.
+ *
+ * Rejects, rather than sanitises, because a rejected override falls through to
+ * normal routing (the click still converts) while a half-cleaned one would send
+ * paid traffic somewhere nobody chose.
+ */
+function cleanLanderPath(input) {
+  // Query and hash are dropped, not forwarded: /r builds the outbound query
+  // itself, and an `lp` that smuggled its own params could set s4 — which
+  // SUPPRESSES the door's authoritative offer label (see PASSTHROUGH_PARAMS).
+  const path = String(input == null ? '' : input).split(/[?#]/)[0].trim();
+  if (!path || path.length > 200) return '';
+  const withSlash = path.startsWith('/') ? path : `/${path}`;
+  // Letters, digits, dot, dash, underscore, slash. No encoded bytes, no
+  // backslashes, no whitespace — the lander folders are all plain ASCII names.
+  if (!/^\/[A-Za-z0-9._/-]*$/.test(withSlash)) return '';
+  if (withSlash.split('/').some(seg => seg === '..')) return '';
+  // Collapse `//` so `lp=//evil.com` cannot survive as a protocol-relative URL.
+  return withSlash.replace(/\/{2,}/g, '/');
+}
+
+/**
+ * Resolve a literal target (a path, or a full URL) to an absolute lander URL.
+ * Aliases are NOT expanded here — see resolveOverrideLander.
+ */
+function resolveLanderTarget(raw) {
+  // An absolute URL. Must be https and on an allowlisted host.
+  if (/^[a-z][a-z0-9+.-]*:/i.test(raw)) {
+    let u;
+    try { u = new URL(raw); } catch { return ''; }
+    if (u.protocol !== 'https:') return '';
+    if (!LANDER_HOST_SET.has(hostKey(u.hostname))) return '';
+    const path = cleanLanderPath(u.pathname);
+    if (!path) return '';
+    return `https://${u.hostname.toLowerCase()}${path === '/' ? '' : path}`;
+  }
+
+  // Anything else is a path on the lander site. `//evil.com` is caught here:
+  // cleanLanderPath collapses the double slash, so it degrades to the harmless
+  // path /evil.com on our own origin rather than a foreign origin.
+  const path = cleanLanderPath(raw);
+  if (!path || path === '/') return '';
+  return `${DEFAULT_LANDER_ORIGIN}${path}`;
+}
+
+/**
+ * Resolve one raw override value (an alias, a path, or a full URL) to an
+ * absolute lander URL. Returns '' when the value is absent, malformed, or names
+ * a host we do not own — the caller then falls through to normal routing.
+ */
+export function resolveOverrideLander(value) {
+  const raw = String(value == null ? '' : value).trim();
+  if (!raw) return '';
+
+  // A registered alias is expanded EXACTLY ONCE, then validated on the same path
+  // as any other target. One hop, not recursion: an alias table that happened to
+  // point two keys at each other would otherwise recurse until the stack blew,
+  // and that stack overflow would land inside /r on live traffic.
+  const alias = TEST_LANDER_MAP.get(raw.toLowerCase());
+  return resolveLanderTarget(alias == null ? raw : String(alias).trim());
+}
+
+/** True when `url` is an https page on a host we own. Gate any server-side fetch on this. */
+export function isOwnLanderHost(url) {
+  try {
+    const u = new URL(String(url == null ? '' : url));
+    return u.protocol === 'https:' && LANDER_HOST_SET.has(hostKey(u.hostname));
+  } catch {
+    return false;
+  }
+}
+
+/** Read `lp=` off the Carrd page URL and resolve it. '' when absent or invalid. */
+export function landerForOverride(carrdUrl) {
+  const raw = String(carrdUrl == null ? '' : carrdUrl).trim();
+  if (!raw) return '';
+  let value;
+  try {
+    value = new URL(raw).searchParams.get(OVERRIDE_PARAM) || '';
+  } catch {
+    return '';
+  }
+  return resolveOverrideLander(value);
+}
+
+/**
+ * Validate TEST_LANDERS. An alias that does not resolve is worse than no alias:
+ * `lp=typo` silently falls through to the default offer, so the test runs and
+ * the numbers look real while the traffic never reached the page under test.
+ */
+export function testLanderProblems() {
+  const problems = [];
+  for (const [key, target] of Object.entries(TEST_LANDERS)) {
+    if (!/^[a-z0-9-]+$/.test(key)) {
+      problems.push(`TEST_LANDERS.${key}: keys must be lowercase alphanumeric or dashes (lp= is lowercased)`);
+    }
+    if (!resolveOverrideLander(target)) {
+      problems.push(`TEST_LANDERS.${key} -> "${target}" does not resolve (bad path, or a host outside the allowlist)`);
+    }
+  }
+  return problems;
+}
+
 /** Normalise a route's `host` field: accepts a bare subdomain or a full hostname. */
 function normHost(host) {
   const h = String(host == null ? '' : host).trim().toLowerCase().replace(/^www\./, '');
@@ -303,6 +485,117 @@ export function carrdRouteProblems() {
   });
 
   return problems;
+}
+
+/**
+ * Build the lander URL handed back to the Carrd page.
+ *
+ * Two things here are load-bearing:
+ *
+ * 1. The sub-ID goes out as `s1`, NOT `campid`. Every door-routed lander forwards
+ *    its whole query string to sprktrax.org/api/link/<slug> and reads `s1` to do
+ *    it. The door itself accepts only s1/sub1 and 404s without one.
+ *
+ * 2. Params on the Carrd URL are carried over. The Carrd page receives the full
+ *    ad query string — ttclid (TikTok's click id, which drives CAPI match quality)
+ *    and s3 (the ad account) must survive this hop to reach the network.
+ *
+ * Lives beside resolveLander so the admin preview builds the byte-identical URL
+ * that live traffic gets, `lp=` override included.
+ */
+export function buildLanderUrl(landerUrl, campid, carrdUrl) {
+  // Guard against malformed lander URLs (no scheme, typos, etc.)
+  let url;
+  try {
+    url = new URL(landerUrl);
+  } catch {
+    // If the lander URL is invalid, try prepending https://
+    try {
+      url = new URL('https://' + landerUrl);
+    } catch {
+      return ''; // Completely broken URL — caller will reject
+    }
+  }
+
+  url.searchParams.set(SUBID_PARAM, extractSparkCode(campid));
+
+  let incoming;
+  try {
+    incoming = new URL(carrdUrl).searchParams;
+  } catch {
+    incoming = null; // Carrd href absent or malformed — the sub-ID alone still works
+  }
+
+  if (incoming) {
+    for (const name of PASSTHROUGH_PARAMS) {
+      const v = (incoming.get(name) || '').trim();
+      if (v) url.searchParams.set(name, v);
+    }
+    // Also carry ttclid from the Carrd URL params
+    const ttclid = (incoming.get('ttclid') || '').trim();
+    if (ttclid) url.searchParams.set('ttclid', ttclid);
+  }
+
+  return url.toString();
+}
+
+/**
+ * THE routing decision: which lander does this click get?
+ *
+ * Lives here rather than in api/r.js so the admin dashboard's "where does this
+ * link actually go?" preview runs the SAME code as live traffic. A preview that
+ * re-implemented the precedence would drift, and it would drift silently — the
+ * screen would say FreeCash while the click went to Testerup.
+ *
+ * Each lander is a DIFFERENT offer, so this is never arbitrary: a visitor who
+ * clicked a FreeCash ad must land on the FreeCash lander or the wrong offer gets
+ * credited. Deterministic at every step — an early version picked at random and
+ * sent roughly two thirds of FreeCash traffic to Testerup or Copper.
+ *
+ * Precedence, highest first:
+ *   1. `lp=` on the ad link — the operator's explicit override. It wins outright,
+ *      including over a campaign mapping, because that is what makes it usable as
+ *      a test: pointing one ad link at a new lander must not require unpicking
+ *      whatever else already matches that Carrd page.
+ *   2. a campaign explicitly mapped to a lander (admin store — per-lambda scratch,
+ *      so in practice only ever set within one warm instance)
+ *   3. `o=` offer key on the ad link (o=fcca, o=tu, …) — the durable way to run a
+ *      new or rotated Carrd page with no config change and no deploy
+ *   4. the Carrd page the click came from (CARRD_ROUTES)
+ *   5. the first configured lander
+ *
+ * Returns { url, source }. `source` is what the dashboard shows and what makes a
+ * misroute diagnosable — "which of the five rules fired?" is otherwise guesswork.
+ * url is '' only when nothing is configured at all.
+ */
+export function resolveLander({ carrdUrl = '', campid = '', campaigns = {} } = {}) {
+  const byOverride = landerForOverride(carrdUrl);
+  if (byOverride) return { url: byOverride, source: 'override' };
+
+  // Own-property lookup only: campaigns is keyed by a client-supplied campid, so a
+  // plain `campaigns[campid]` resolves INHERITED keys — ?campid=constructor would
+  // hand back Object and put a function where a lander URL belongs.
+  const campaign = campid && Object.prototype.hasOwnProperty.call(campaigns, campid)
+    ? campaigns[campid]
+    : null;
+  // set_campaign stores lander_url with no validation, and whatever comes back here
+  // is handed to the Carrd script, which runs `location.replace(url)` on it. Without
+  // this check a stored `javascript:…` lander_url executes on the Carrd page. https
+  // only, same rule /c/:slug applies to its own operator-supplied destinations.
+  if (campaign && typeof campaign.lander_url === 'string' && isSafeDestination(campaign.lander_url)) {
+    return { url: campaign.lander_url, source: 'campaign' };
+  }
+
+  const byOffer = landerForOfferKey(carrdUrl);
+  if (byOffer) return { url: byOffer, source: 'offer_key' };
+
+  const byCarrd = landerForCarrd(carrdUrl);
+  if (byCarrd) return { url: byCarrd, source: 'carrd_route' };
+
+  // Unmapped Carrd page → default offer rather than dropping a paid click.
+  if (LANDERS.length > 0) return { url: LANDERS[0].url, source: 'default' };
+
+  return { url: '', source: 'none' };
 }
 
 /**

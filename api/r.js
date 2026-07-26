@@ -15,67 +15,20 @@
  *   5. UA must not match known bot patterns
  *   6. The client's device claim must not CONTRADICT the UA / Sec-CH-UA-* hints
  *   7. IP must not be from known datacenter ranges (currently disabled)
+ *
+ * WHICH lander a passing visitor gets is a separate question, and it is decided by
+ * resolveLander() in _lib/links-config.js — `lp=` override, then campaign, then
+ * `o=` offer key, then CARRD_ROUTES, then the default. It lives there so the admin
+ * dashboard's preview and live traffic run the same code.
  */
 
 import { getStore } from './_lib/store.js';
 import { evaluateRequest } from './_lib/traffic-filter.js';
 import {
-  LANDERS,
-  PASSTHROUGH_PARAMS,
-  SUBID_PARAM,
+  buildLanderUrl,
   extractSparkCode,
-  landerForCarrd,
-  landerForOfferKey,
+  resolveLander,
 } from './_lib/links-config.js';
-
-/**
- * Build the lander URL handed back to the Carrd page.
- *
- * Two things here are load-bearing:
- *
- * 1. The sub-ID goes out as `s1`, NOT `campid`. Every door-routed lander forwards
- *    its whole query string to sprktrax.org/api/link/<slug> and reads `s1` to do
- *    it. The door itself accepts only s1/sub1 and 404s without one.
- *
- * 2. Params on the Carrd URL are carried over. The Carrd page receives the full
- *    ad query string — ttclid (TikTok's click id, which drives CAPI match quality)
- *    and s3 (the ad account) must survive this hop to reach the network.
- */
-function buildLanderUrl(landerUrl, campid, carrdUrl) {
-  // Guard against malformed lander URLs (no scheme, typos, etc.)
-  let url;
-  try {
-    url = new URL(landerUrl);
-  } catch {
-    // If the lander URL is invalid, try prepending https://
-    try {
-      url = new URL('https://' + landerUrl);
-    } catch {
-      return ''; // Completely broken URL — caller will reject
-    }
-  }
-
-  url.searchParams.set(SUBID_PARAM, extractSparkCode(campid));
-
-  let incoming;
-  try {
-    incoming = new URL(carrdUrl).searchParams;
-  } catch {
-    incoming = null; // Carrd href absent or malformed — the sub-ID alone still works
-  }
-
-  if (incoming) {
-    for (const name of PASSTHROUGH_PARAMS) {
-      const v = (incoming.get(name) || '').trim();
-      if (v) url.searchParams.set(name, v);
-    }
-    // Also carry ttclid from the Carrd URL params
-    const ttclid = (incoming.get('ttclid') || '').trim();
-    if (ttclid) url.searchParams.set('ttclid', ttclid);
-  }
-
-  return url.toString();
-}
 
 // Known bot/datacenter indicators in user-agent
 const BOT_UA_PATTERNS = [
@@ -114,50 +67,6 @@ function getClientIP(req) {
     req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
     req.headers['cf-connecting-ip'] ||
     '';
-}
-
-/**
- * Determine which lander to use. Each lander is a DIFFERENT offer — 50FC/FC1 walks the
- * `freecash` door, 50TU/TU1 walks `testerup` — so this is never arbitrary: a visitor who
- * clicked a FreeCash ad must land on the FreeCash lander or the wrong offer is credited.
- *
- * Precedence:
- *   1. a campaign explicitly mapped to a lander (admin store — per-lambda scratch, so in
- *      practice this is only set within one warm instance)
- *   2. the `o=` offer key on the ad link (o=fcca, o=tu, …) — preferred, because a new or
- *      rotated Carrd page then needs no config change and no deploy
- *   3. the Carrd page the click came from (CARRD_ROUTES) — for pages whose ad link cannot
- *      carry `o`; the script POSTs its own page URL as `h`
- *   4. the first configured lander
- *
- * Deterministic at every step. An earlier version picked at random, which sent roughly two
- * thirds of FreeCash traffic to Testerup or Copper.
- */
-function pickLander(campid, store, carrdUrl) {
-  // Check if there's a campaign-specific lander configured
-  const campaign = store.campaigns[campid];
-  if (campaign && campaign.lander_url) {
-    return campaign.lander_url;
-  }
-
-  // The ad link's own offer key — works on any Carrd page, no config, no deploy.
-  const byOffer = landerForOfferKey(carrdUrl);
-  if (byOffer) {
-    return byOffer;
-  }
-
-  // Route by the Carrd page the visitor came from — one page per offer.
-  const byCarrd = landerForCarrd(carrdUrl);
-  if (byCarrd) {
-    return byCarrd;
-  }
-
-  // Unmapped Carrd page → default offer rather than dropping a paid click.
-  if (LANDERS.length > 0) {
-    return LANDERS[0].url;
-  }
-
-  return '';
 }
 
 export default function handler(req, res) {
@@ -272,11 +181,22 @@ export default function handler(req, res) {
   // === PASSED ALL CHECKS — Route to lander ===
 
   const store = getStore();
-  const landerUrl = pickLander(campid, store, carrdUrl);
+  const { url: landerUrl, source } = resolveLander({
+    carrdUrl,
+    campid,
+    campaigns: store.campaigns,
+  });
 
   if (!landerUrl) {
     // No landers configured → reject
     return res.status(200).json({});
+  }
+
+  // An `lp=` override is a deliberate, temporary test route — log it so a lander
+  // left pinned on a live ad link shows up in the function logs instead of
+  // quietly outliving the test it was created for.
+  if (source === 'override') {
+    console.log('[r] lander override active:', landerUrl);
   }
 
   // Build the lander URL with s1 and passthrough params
