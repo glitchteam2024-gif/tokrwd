@@ -146,6 +146,73 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
    opt-in anti-framing, the Copper pattern). Revoked/paused `offer_assignments` 404 the door;
    caps/fallback via `conversion_cap`/`fallback_offer_id`.
 
+## ⚠️ NEVER set a payout with hand-run SQL — the display and the money read different tables
+
+Learned 2026-07-27, wiring the Monetise payout sheet. A per-geo payout lives in **two** stores and
+only the API write path fills both:
+
+| Store | Written by | Read by |
+|---|---|---|
+| `offers.payout_by_geo` | the offer row itself | `payoutView()` in `api/offers.js` — the affiliate-facing payout on the Offer Library |
+| `offer_geo_price_history` | `appendGeoPriceHistory()`, **API save path only** | `api/cron/poll-cake.js` — which is what actually **prices a conversion** |
+
+`appendGeoPriceHistory(offerId, oldMap, newMap)` runs inside the POST/PATCH handlers in
+`api/offers.js`. It appends one effective-dated `source:'manual'` row per geo whose amount is new or
+changed (and a `source:'removed'` tombstone for a geo that disappeared).
+
+**An `UPDATE offers SET payout_by_geo = …` writes the first table and not the second.** The
+dashboard then quotes a number the money path never uses — the affiliate sees `$5.50`, the poller
+keeps pricing at whatever the network sent, and nothing surfaces the split until reconciliation.
+It is silent in both directions and there is no alert on it.
+
+So: **set payouts through the admin Offers form.** It is a few clicks and it is atomic. Reach for
+SQL only for fields with no second store — `status`, `cap_event`, `conversion_cap`, `cap_period`,
+`cap_mode`, `thumbnail_url`.
+
+If a payout genuinely must be set by SQL (a bulk backfill), the history row has to be written in the
+same transaction:
+
+```sql
+-- Only correct together. usd must equal the value going into offers.payout_by_geo.
+insert into offer_geo_price_history (offer_id, geo, usd, network_ref, source, effective_from)
+values ('<offer-id>', 'GB', 5.50, null, 'manual', now());
+
+update offers
+set payout_by_geo = payout_by_geo || '{"GB": 5.50}'::jsonb
+where id = '<offer-id>';
+```
+
+`network_ref` stays NULL on purpose — the poll-cake listener anchors it to the current network price
+on its next run.
+
+### The reverse trap: history outlives the map
+
+`poll-cake.js` re-populates `offers.payout_by_geo` **from** `offer_geo_price_history`. Clearing the
+map alone therefore does not stick — the poller puts it back. This is why `applyRevshareGuard`
+writing `payout_by_geo = {}` is not sufficient on its own, and why the PATCH handler deliberately
+does **not** suppress `priorGeo` when switching an offer to revshare: the tombstone rows are what
+actually retire the price. Converting a fixed offer to revshare with SQL, without writing
+`source:'removed'` rows, re-arms the flattener on the next poll.
+
+### Checking whether an offer is already split-brained
+
+```sql
+select o.name, o.payout_by_geo,
+       jsonb_object_agg(h.geo, h.usd) filter (where h.usd is not null) as history_latest
+from offers o
+left join lateral (
+  select distinct on (geo) geo, usd
+  from offer_geo_price_history
+  where offer_id = o.id
+  order by geo, effective_from desc
+) h on true
+where o.status = 'active'
+group by o.id, o.name, o.payout_by_geo;
+```
+
+The two columns must agree geo for geo. Where they do not, the **history** column is what the
+affiliate is actually being paid from.
+
 ## Revshare offers (payout varies per conversion) — verified against origin/main 2026-07-24
 
 A **revshare** offer pays a different dollar amount on every conversion ($4 on one, $14 on the
