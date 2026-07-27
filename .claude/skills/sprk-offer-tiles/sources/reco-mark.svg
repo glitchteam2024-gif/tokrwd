@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="50 16 100 152" width="800" height="1216">
+  <!-- reco-logo.svg with the rainbow rounded-rect dropped and the viewBox tightened
+       to the bookmark's own bounds, so it fills the mark box like every other logo.
+       The heart stays as a knocked-out hole, exactly as in the original mask. -->
+  <defs>
+    <mask id="hm">
+      <rect x="50" y="16" width="100" height="152" fill="white"/>
+      <path d="M100,118 C91,108 66,86 74,68 C80,58 92,56 100,68 C108,56 120,58 126,68 C134,86 109,108 100,118Z" fill="black"/>
+    </mask>
+  </defs>
+  <path d="M54,36 C54,25 63,20 74,20 L126,20 C137,20 146,25 146,36 L146,164 L100,138 L54,164Z" fill="#ffffff" mask="url(#hm)"/>
+</svg>

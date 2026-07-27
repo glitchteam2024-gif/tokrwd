@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  html,body{margin:0;padding:0;background:#000;overflow:hidden}
+  canvas{display:block}
+</style></head><body>
+<canvas id="c" width="1280" height="720"></canvas>
+<pre id="out" style="display:none"></pre>
+<script>
+// ── SPRK offer plate generator ─────────────────────────────────────────────
+// One 1280x720 tile: dark ground + a brand-hued ember + the brand mark isolated
+// from whatever background it shipped on. Canvas rather than SVG filters because
+// isolating a mark needs min(R,G,B) — a non-linear op feColorMatrix cannot express.
+const CFG = window.__CFG__;
+const W = 1280, H = 720;
+
+// The three shapes a supplied logo actually arrives in:
+//   dark  — bright mark on a dark or saturated field (Freecash green, Apple black)
+//   light — dark or coloured mark on white (Sephora, Testerup, Uber Eats)
+//   color — a full-colour illustration; keep its pixels, only drop the flat bg
+// lo/hi are the contrast ramp: below lo goes transparent, above hi goes solid.
+function isolate(img, cfg) {
+  const s = document.createElement('canvas');
+  const sw = cfg.crop ? cfg.crop[2] : img.naturalWidth;
+  const sh = cfg.crop ? cfg.crop[3] : img.naturalHeight;
+  s.width = sw; s.height = sh;
+  const sx = s.getContext('2d');
+  if (cfg.crop) sx.drawImage(img, cfg.crop[0], cfg.crop[1], sw, sh, 0, 0, sw, sh);
+  else sx.drawImage(img, 0, 0);
+
+  if (cfg.mode === 'color') return s;   // illustration: leave the pixels alone
+
+  const d = sx.getImageData(0, 0, sw, sh), p = d.data;
+  const lo = cfg.lo, hi = cfg.hi, span = Math.max(hi - lo, 1e-6);
+  // 'duo' keeps a genuinely two-tone mark two-tone: the saturated part stays its own
+  // colour, the neutral part goes white. Without it a navy Q and a red tick both
+  // resolve to white and fuse into one unreadable silhouette.
+  const keepSat = cfg.keepSat || 0;
+  for (let i = 0; i < p.length; i += 4) {
+    const r = p[i], gg = p[i+1], b = p[i+2];
+    const mn = Math.min(r, gg, b), mx = Math.max(r, gg, b);
+    // "whiteness" = min channel. A white mark scores 1.0; ANY saturated colour
+    // scores low no matter how bright, which is what luminance gets wrong (a
+    // bright green and white are near-identical in luma, miles apart in min).
+    let w = mn / 255;
+    if (cfg.mode === 'light' || cfg.mode === 'duo') w = 1 - w;
+    let a = (w - lo) / span;
+    a = a < 0 ? 0 : a > 1 ? 1 : a;
+    if (cfg.mode === 'duo' && (mx - mn) / 255 >= keepSat) {
+      // saturated: keep the hue, lift it clear of the dark plate
+      const k = 255 / Math.max(mx, 1);
+      p[i] = Math.min(255, r * k); p[i+1] = Math.min(255, gg * k); p[i+2] = Math.min(255, b * k);
+    } else {
+      p[i] = 255; p[i+1] = 255; p[i+2] = 255; // the mark otherwise resolves to white
+    }
+    p[i+3] = a * p[i+3];                       // AND whatever alpha it already had
+  }
+  sx.putImageData(d, 0, 0);
+  return s;
+}
+
+function draw(mark) {
+  const g = document.getElementById('c').getContext('2d');
+
+  // Ground: a cool charcoal falling off from the upper left, deepening bottom-right.
+  const base = g.createRadialGradient(W*0.08, H*0.04, 0, W*0.08, H*0.04, W*1.30);
+  base.addColorStop(0, '#151A22'); base.addColorStop(0.52, '#0B0F15'); base.addColorStop(1, '#070A0E');
+  g.fillStyle = base; g.fillRect(0, 0, W, H);
+
+  // The ember — the ONLY brand colour on the tile. Gold is reserved for money.
+  const e = g.createRadialGradient(W*0.31, H*0.54, 0, W*0.31, H*0.54, W*0.66);
+  e.addColorStop(0, `rgba(${CFG.ember},${CFG.emberA})`);
+  e.addColorStop(0.72, `rgba(${CFG.ember},0)`);
+  g.fillStyle = e; g.fillRect(0, 0, W, H);
+
+  // A neutral lift so the plate isn't a flat colour wash under the mark.
+  const n = g.createRadialGradient(W*0.30, H*0.50, 0, W*0.30, H*0.50, W*0.80);
+  n.addColorStop(0, 'rgba(255,255,255,0.035)'); n.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = n; g.fillRect(0, 0, W, H);
+
+  // Contain the mark in a box centred at 31%/52%. One rule serves square marks and
+  // wide wordmarks alike — the width constraint just bites first on the wide ones.
+  const boxW = W * 0.50, boxH = H * CFG.markH;
+  const r = Math.min(boxW / mark.width, boxH / mark.height);
+  const mw = mark.width * r, mh = mark.height * r;
+  const mx = W * 0.31 - mw / 2, my = H * 0.52 - mh / 2;
+
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,0.55)'; g.shadowBlur = 26; g.shadowOffsetY = 8;
+  g.drawImage(mark, mx, my, mw, mh);
+  g.restore();
+
+  // The right third belongs to the S-veil and the geo flags — hold it black so the
+  // tile's own ornament lands on emptiness rather than on the artwork.
+  const v = g.createLinearGradient(0, 0, W, 0);
+  v.addColorStop(0, 'rgba(7,10,14,0)'); v.addColorStop(0.58, 'rgba(7,10,14,0)');
+  v.addColorStop(0.78, 'rgba(7,10,14,0.55)'); v.addColorStop(1, 'rgba(7,10,14,0.90)');
+  g.fillStyle = v; g.fillRect(0, 0, W, H);
+
+  // Emit the encoded image into the DOM so build.py can lift it out with --dump-dom.
+  // WebP not PNG: these plates are smooth dark gradients, which PNG stores at ~520KB
+  // each — 13 of those on one grid is 6.8MB of dashboard. WebP lands around 40KB with
+  // no visible banding, and Chrome is doing the encode anyway.
+  document.getElementById('out').textContent =
+    document.getElementById('c').toDataURL('image/webp', 0.92);
+  document.title = 'READY';
+}
+
+const img = new Image();
+img.onload = () => draw(isolate(img, CFG));
+img.onerror = () => { document.title = 'ERR'; };
+img.src = CFG.logo;
+</script>
+</body></html>

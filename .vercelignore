@@ -8,3 +8,9 @@ SIGNAT~1/
 
 # Lander generators + the approved-page template. Build tooling, never served.
 _lp-generator/
+
+# Internal engineering docs and tooling. These were being SERVED: as of 2026-07-26
+# https://www.tokrwd.co/.claude/skills/tokrwd-landers/SKILL.md returned 200, publishing the funnel
+# architecture, the door domains and the spark-code scheme to anyone who guessed the path. Nothing
+# on the site references .claude/, so excluding it cannot break a page.
+.claude/
