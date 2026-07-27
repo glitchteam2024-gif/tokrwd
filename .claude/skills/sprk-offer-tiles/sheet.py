@@ -12,6 +12,9 @@ TILES = [
   ('testerup',  'Testerup',              'Uncategorised', 'Fixed CPA', 'Creatives · 35',  ['us','gb','ca']),
   ('reco',      'Reco Social',           'Uncategorised', 'Fixed CPA', 'New',             ['us']),
   ('prograd',   'Prograd App',           'Mobile Apps',   'Fixed CPA', 'New',             ['gb','us']),
+  ('sephora',   'Rewards - Sephora $750','Sweepstakes',   'Revshare',  'New',             ['us','gb','ca']),
+  ('shein',     'Rewards - Shein $750',  'Sweepstakes',   'Revshare',  'New',             ['us','gb','ca']),
+  ('uber-eats', 'Rewards UK - Uber Eats £50','Sweepstakes','Revshare','New',          ['gb']),
 ]
 
 def uri(p):
@@ -24,7 +27,7 @@ html = (HERE/'sheet.html').read_text().replace('__CARDS__', json.dumps(cards))
 work = HERE/'.sheet-work.html'
 work.write_text(html)
 subprocess.run([CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars',
-                '--force-device-scale-factor=2', '--window-size=880,660',
+                '--force-device-scale-factor=2', '--window-size=880,960',
                 f'--screenshot={HERE}/contact-sheet.png', f'file://{work}'],
                capture_output=True, timeout=90)
 work.unlink(missing_ok=True)

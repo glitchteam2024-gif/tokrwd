@@ -57,6 +57,7 @@ One row in `OFFERS` in `build.py`:
 | `ember` | `"r,g,b"` — the brand hue |
 | `a` | ember strength. **0.14–0.20.** Higher and it stops being light and becomes a coloured shape |
 | `markH` | mark height as a fraction of the frame. 0.54–0.58 |
+| `markW` | mark **width**, default 0.50. The only lever that matters for a wordmark — a 7:1 mark never reaches the height cap, so `markH` does nothing to it. Cap around **0.56**; past that it runs into the S-veil's leading edge at ~62% |
 | `keepSat` | `duo` only — saturation above which a pixel keeps its own colour |
 | `crop` | `[x, y, w, h]` on the source, before anything else |
 
@@ -138,11 +139,25 @@ fill the slot; that is the one thing here that genuinely misrepresents the brand
 | Testerup | `images/testerup-logo.png` | `duo`, else the Q and tick fuse |
 | Reco | `sources/reco-mark.svg` | the rainbow rect stripped out of `images/reco-logo.svg` and the viewBox tightened to the bookmark's own bounds |
 | Prograd | `sources/prograd-16x9.png` | no standalone mark exists; cropped tight to the disc. A wider crop drags in the creative's black registration corners, which survive `light` and paint as white L-brackets |
+| Sephora | `sources/sephora.svg` | Commons. **Wordmark only — this SVG has no flame.** Its `fill="none"` path is the letter counters, not the mark; forcing it visible just fills the P/O/R/A holes |
+| Shein | `sources/shein.svg` | Commons. Brand palette is pure black and white, so the ember is a muted rose lifted from the sweeps creative — otherwise the plate is dead and it becomes a twin of Apple Pay |
+| Uber Eats | `sources/uber-eats.svg` | Commons, 2020 horizontal lockup. `duo` keeps "Eats" green and "Uber" white |
 
-**Still missing marks:** Gravypass, Uber Eats, Sephora, Shein, Cash. `images/gravy-logo.png` is
-misnamed — it is the Testerup mark, not Gravypass. The `sephora750-*` / `shein750-*` /
-`prograd-16x9` files in `images/` are **untracked** on `main`; they exist only on Migi's disk, which
-is why Prograd's source is vendored into `sources/` here.
+Logo sources are **vendored into `sources/`**, never fetched at build time — a build that reaches
+the network is a build that breaks when someone's CDN moves.
+
+**Still missing marks:** **Gravypass** and **Cash**. Neither is on any logo site; both have to come
+from Migi as files. Two traps here:
+
+- `images/gravy-logo.png` is **misnamed** — it is the Testerup mark, not Gravypass.
+- `sephora750-*`, `shein750-*` and `prograd-16x9.png` in `images/` are **untracked** on `main`. They
+  exist only on Migi's disk and would vanish on a clean clone, which is why Prograd's source is
+  vendored here.
+
+Chat attachments cannot be used as sources. Images pasted into a conversation are pixels in context,
+not files — there is no path from an attachment to disk, and redrawing a logo from looking at it is
+exactly the failure this skill exists to prevent. Ask for files in a folder, or for permission to
+download from the brand's own site or Wikimedia Commons.
 
 ## Gotchas
 

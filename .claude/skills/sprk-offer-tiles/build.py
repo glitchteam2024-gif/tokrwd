@@ -35,6 +35,19 @@ OFFERS = {
   # with its inner blocks reading as knocked-out negative space.
   'prograd':    dict(src='sources/prograd-16x9.png',     mode='light', lo=.10, hi=.40, ember='43,180,140',  a=.18, markH=.58,
                      crop=[478, 112, 660, 660]),
+
+  # ── Wordmarks (vendored from Wikimedia Commons, 2026-07-27) ────────────────────
+  # No square glyph exists for these brands, so the tile carries type. Wide marks are
+  # sized by markW, never markH — a 7:1 wordmark never gets near the height cap.
+  # Black-on-transparent, so 'light' (w = 1 - min) keeps the letterforms and lets the
+  # counters, which the source leaves fill="none", show the plate through.
+  'sephora':    dict(src='sources/sephora.svg',          mode='light', lo=.10, hi=.40, ember='227,28,36',   a=.17, markH=.56, markW=.56),
+  # Shein's own palette is pure black and white, which would leave the plate dead and
+  # make it a twin of Apple Pay. Muted rose is taken from the sweeps creative instead.
+  'shein':      dict(src='sources/shein.svg',            mode='light', lo=.10, hi=.40, ember='224,122,150', a=.15, markH=.56, markW=.56),
+  # Two-tone by design: 'duo' keeps "Eats" its own green and turns "Uber" white.
+  'uber-eats':  dict(src='sources/uber-eats.svg',        mode='duo',   lo=.10, hi=.40, ember='6,193,103',   a=.18, markH=.56, markW=.56,
+                     keepSat=.30),
 }
 
 
@@ -52,7 +65,7 @@ def build(slug: str, spec: dict) -> pathlib.Path:
 
     cfg = dict(logo=data_uri(src), mode=spec['mode'], lo=spec['lo'], hi=spec['hi'],
                ember=spec['ember'], emberA=spec['a'], markH=spec['markH'],
-               keepSat=spec.get('keepSat', 0))
+               keepSat=spec.get('keepSat', 0), markW=spec.get('markW', 0.50))
     if 'crop' in spec:
         cfg['crop'] = spec['crop']
 

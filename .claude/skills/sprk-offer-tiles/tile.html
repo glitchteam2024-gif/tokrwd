@@ -78,8 +78,11 @@ function draw(mark) {
   g.fillStyle = n; g.fillRect(0, 0, W, H);
 
   // Contain the mark in a box centred at 31%/52%. One rule serves square marks and
-  // wide wordmarks alike — the width constraint just bites first on the wide ones.
-  const boxW = W * 0.50, boxH = H * CFG.markH;
+  // wide wordmarks alike — the width constraint just bites first on the wide ones,
+  // which is why markW exists: a 7:1 wordmark is sized entirely by the box width, so
+  // widening the box is the ONLY way to make it read bigger. Cap it around .56 —
+  // past that the mark runs into the S-veil's leading edge at ~62%.
+  const boxW = W * (CFG.markW || 0.50), boxH = H * CFG.markH;
   const r = Math.min(boxW / mark.width, boxH / mark.height);
   const mw = mark.width * r, mh = mark.height * r;
   const mx = W * 0.31 - mw / 2, my = H * 0.52 - mh / 2;
