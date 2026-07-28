@@ -258,6 +258,44 @@ export default async function handler(req, res) {
           return u.toString();
         });
 
+        /**
+         * The finished link for ONE named Carrd page — the thing that actually gets
+         * sent to a person.
+         *
+         * The only interesting part is which params are REQUIRED, and that depends on
+         * whether this page is already bound to this lander in CARRD_ROUTES:
+         *   bound     → `?campid=` is enough; the host binding does the routing
+         *   not bound → `&lp=` as well, or the click routes to the DEFAULT offer and
+         *               silently credits the wrong one
+         * Deciding it here, from the committed table, is the point: guessing wrong in
+         * either direction produces a link that looks fine and earns nothing.
+         */
+        let handoff = null;
+        const carrdRaw = String(body.carrd || '').trim();
+        if (carrdRaw) {
+          let host = carrdRaw.toLowerCase().replace(/^https?:\/\//, '').split('/')[0].split('?')[0].replace(/^www\./, '');
+          if (host && !host.includes('.')) host = `${host}.carrd.co`;
+          if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host)) {
+            handoff = { error: `"${carrdRaw}" is not a valid hostname.` };
+          } else {
+            const bound = hosts.includes(host);
+            const u = new URL(`https://${host}/`);
+            if (code) u.searchParams.set('campid', code);
+            if (!bound) u.searchParams.set(OVERRIDE_PARAM, landerRaw);
+            handoff = {
+              host,
+              bound,
+              needs_lp: !bound,
+              url: u.toString(),
+              note: bound
+                ? 'This page is assigned to this landing page, so campid is all the link needs.'
+                : `This page is NOT assigned to this landing page, so the link carries ` +
+                  `${OVERRIDE_PARAM}=${landerRaw} to force it. That works, but it is per-link — ` +
+                  `assign the page above and every ad link on it routes correctly without it.`,
+            };
+          }
+        }
+
         const reach = await checkReachable(lander);
 
         return res.status(200).json({
@@ -266,6 +304,7 @@ export default async function handler(req, res) {
           code,
           carrd_hosts: hosts,
           ad_links: adLinks,
+          handoff,
           // No Carrd page bound → the operator needs lp= to reach this page through /r.
           fallback_ad_link: adLinks.length ? '' : `?campid=${encodeURIComponent(code || 'CODE')}&${OVERRIDE_PARAM}=${encodeURIComponent(landerRaw)}`,
           preview_url: chain.hops && chain.hops.length ? chain.hops[0].url : lander,

@@ -149,6 +149,27 @@ Two limits the UI states rather than hides:
   `?campid=…&lp=<alias>` form to append to a page you already run, rather than handing over a raw
   lander URL — that would skip `/r`, which is what filters bots and desktops.
 
+### Per-person handover (admin: "Affiliates" table)
+
+Each roster row carries `name, email, code, scaler, lander, carrd`. The **🔗 Link** button on a row
+runs `trace_chain` for that person and shows their page previewed plus **the finished link to send
+them**, with exactly the params it needs:
+
+| Their Carrd page vs their lander | Generated link                                    |
+|---------------------------------|----------------------------------------------------|
+| bound in `CARRD_ROUTES`         | `https://host/?campid=CODE`                        |
+| **not** bound                   | `https://host/?campid=CODE&lp=<alias>`             |
+
+The server decides which form to emit (`handoff.needs_lp`), because getting it wrong is silent: a
+missing `lp=` on an unbound page routes the click to the DEFAULT offer and credits the wrong one,
+while a needless `lp=` is just noise on the link. The row itself shows `assigned` vs `needs lp=` so
+the state is visible without clicking.
+
+The roster is **localStorage** (`lm_test_affiliates`) — an operator address book, not routing, and not
+the real affiliate roster (that lives in SPRK). Routing still comes only from committed
+`CARRD_ROUTES`, which is why a row shows `missing` when its saved `lander` key no longer resolves: an
+alias renamed in config would otherwise leave a row that silently builds a default-offer link.
+
 **There is deliberately no Save button, and don't add one.** The admin store is per-lambda in-memory
 (`api/_lib/store.js`), so a write from the dashboard lands in the admin lambda's heap and `/api/r`
 can never read it — the assignment would look saved while every click kept going to the default
