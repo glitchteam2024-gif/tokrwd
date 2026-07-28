@@ -56,6 +56,52 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
 name, not a different offer. `50FCII` is a SECOND set of Freecash landers; keep it identical to `50FC`.
 
+### Scaler landers (override-only, NOT in the table above)
+
+Some landers are reachable **only** by `lp=<alias>` on an ad link — never by an `o=` key and never
+from `LANDER_URLS`. That is the point: a scaler runs their own affiliate link, so no affiliate on the
+network must be able to route traffic onto it. They are registered in `OVERRIDE_LANDERS`
+(`api/_lib/links-config.js`), which is the only place the lander↔offer pairing is written down.
+
+| Alias     | Folder  | Outbound hop                                    | Lands on                          | Owner                              |
+|-----------|---------|-------------------------------------------------|-----------------------------------|------------------------------------|
+| `lp=trt`  | `trt/`  | `appflowconnect.com/c/testerup-us-mon-off`       | montrk `a=26648 c=56132`          | Trae / TenX — scaler (aff #2)      |
+| `lp=esgp` | `ESGP/` | `/c/esgp-off` (relative → `www.tokrwd.co`)       | `phef6trk.com/213T8QJ/32BB7QT/`   | Edwin — scaler, own affiliate link |
+
+These use `mode:'direct'` on purpose: the payout is the scaler's, so the click must **not** walk the
+SPRK door (which would resolve it to a SPRK affiliate and credit the conversion inside our network).
+No clicks row and no click_id on this path, by design — they settle by invoice, and `sub1` carries the
+spark code only so their reported volume can be reconciled against our traffic.
+
+**`ESGP`'s hop is deliberately RELATIVE, and must stay that way.** `/c/esgp-off` resolves against
+`www.tokrwd.co`, which is *this* repo's deploy — the one whose `OFFER_LINKS` actually contains
+`esgp-off`. Rewriting it to `appflowconnect.com/c/esgp-off` for symmetry with `trt` would point it at
+a SEPARATE deploy that has never heard of the slug, so it would 404 every one of Edwin's clicks. That
+is the same class of failure as the old `buenohoodies.com` hop (see "EVERYTHING routes through our own
+tracking" below): a slug only means something on the deploy that defines it.
+
+`ESGP` is UPPERCASE and Vercel serves paths case-sensitively: the alias key is lowercase (`lp=` is
+lowercased before the alias lookup) but `OVERRIDE_LANDERS.esgp.path` must stay `/ESGP`.
+
+**Adding a scaler lander** — the whole checklist:
+1. `<FOLDER>/index.html` — the page. Outbound goes to a **relative** `/c/<slug>`, never the network
+   directly (keeps the affiliate URL out of page source and the hop on a deploy that knows the slug).
+2. `OFFER_LINKS` += `{ slug, mode:'direct', destination:'<their link>', forwardParam:'sub1', enabled:true }`
+3. `OFFERS` += `'<key>': { label, match: '/c/<slug>' }`
+4. `OVERRIDE_LANDERS` += `<alias>: { path:'/<FOLDER>', offer:'<key>', owner:'<who>' }`
+5. `node api/_lib/_links-config.test.mjs` — it reads the page HTML off disk and fails if the declared
+   offer and the page's real `/c/` link disagree. Then `node api/_lib/_tracking-audit.test.mjs`, which
+   fails if the page links straight to a network tracker or names a slug that is not enabled.
+
+Nothing else. The admin **Test Lander** tab reads `OVERRIDE_LANDERS` from `/api/admin/data`, so the new
+alias appears in its dropdown as `alias → Offer label · owner` automatically, where it gets paired with
+a Carrd page + campid to produce the ad link.
+
+Gotcha when writing a scaler page: the clean check below greps for `display:none` carrying an
+`!important` flag, because that is the blank-page cloaking gate's signature. A legitimate
+show/hide utility class must therefore use plain `display:none` (raise specificity instead of
+reaching for the flag) or it trips the canary and the next session treats the page as cloaked.
+
 **Path A vs Path B.** Path A routes through the `sprktrax.org/api/link/<slug>` door, which resolves
 the SPK and re-stamps outbound (see wire scheme). Path B (`TSUP`, `RS`, plus the `api/*.js`
 redirectors for Playful/ApplePay/go/EOZ) goes closer to the network and collapses subids by design —
@@ -376,3 +422,11 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
   route/headers. Fixes: `js/ttclid.js` `has()`→`get()` (empty `ttclid` now backfills from cookie);
   added `ttclid.js` to Freecash; FC no longer fabricates `s1='mc'` on untagged visits. `SIGNAT~1/`
   added to `.vercelignore`. Shipped `main` `dc4cc3d`. Outbound s1 `aff` prefix dropped → pure number.
+- **2026-07-27** — Added `ESGP/` — Edwin's scaler lander (Gravy Pass / Apple Wallet angle), reachable
+  only by `lp=esgp`. New `/c/esgp-off` direct link → his own affiliate URL; new `OFFERS` key
+  `gravypass-esgp`. Documented scaler override landers (section above) — they were undocumented, `trt`
+  included. The page as supplied POSTed every funnel step to a third-party `gammastudio.xyz` endpoint
+  and linked the network URL in plain page source: both replaced by our own `/c/` hop (see the
+  "our tracking only" rule). Also fixed on intake: a double-`?` that made the outbound URL malformed,
+  a `window.open` with no popup-blocked fallback (silently ate the click in in-app browsers), and
+  hotlinked freepik/gstatic/jsdelivr logos repointed at local `/images/`.

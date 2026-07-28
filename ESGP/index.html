@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Add your Gravy Pass and start earning from your screentime." />
+<title>Start Earning — Gravy Pass</title>
+
+<!-- ESGP — Edwin's scaler lander. Reached ONLY by `lp=esgp` on an ad link (see
+     OVERRIDE_LANDERS in api/_lib/links-config.js). It is not in LANDER_URLS and has no
+     `o=` key, so no affiliate can route traffic here — that is deliberate: this page is
+     for self-managed scalers only.
+
+     Outbound goes through OUR redirector, /c/esgp-off, never straight to the network.
+     The real destination lives in OFFER_LINKS, so the affiliate URL is never in this
+     page's source and can be changed without a lander edit.
+
+     NO in-app-breakout script, NO UA sniffing, NO blank-page gate — deliberately. A page
+     that behaves differently for ad review than for a real user gets the WHOLE domain
+     flagged and blocked, not just this page. See .claude/skills/tokrwd-landers
+     (NO-CLOAKING rule). Do not re-add any of it. -->
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff}
+.lp-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;position:relative;overflow-x:hidden}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(160,100%,30%,0.12) 0%,transparent 60%),radial-gradient(ellipse at center,hsla(160,100%,20%,0.08) 0%,transparent 80%),hsl(160,20%,5%);z-index:0}
+.container{position:relative;z-index:1;width:100%;max-width:480px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.logo-row{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.logo-row img{width:60px;height:60px;border-radius:14px;object-fit:contain;box-shadow:0 0 20px hsla(160,100%,50%,0.15)}
+.logo-row span{color:hsla(0,0%,100%,0.5);font-size:22px;font-weight:500}
+.pill{display:inline-flex;align-items:center;gap:7px;background:hsla(160,100%,50%,0.1);border:1px solid hsla(160,100%,50%,0.35);color:hsl(160,100%,60%);font-size:12px;font-weight:700;letter-spacing:0.08em;padding:7px 14px;border-radius:999px;margin-bottom:16px}
+.pill .live{width:7px;height:7px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);animation:pulse 1.8s ease-in-out infinite}
+.hero-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:800;line-height:1.15;letter-spacing:-0.02em;color:#fff;margin-bottom:8px;text-wrap:balance}
+.hero-title .grad{background:linear-gradient(180deg,hsl(160,100%,60%) 0%,hsl(160,100%,42%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:hsla(0,0%,100%,0.55);font-size:14px;line-height:1.5;max-width:340px;margin-bottom:22px}
+.qualify-list{display:flex;flex-direction:column;gap:12px;width:100%;margin-bottom:20px}
+.qualify-item{position:relative;display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,hsl(160,12%,11%) 0%,hsl(160,10%,9%) 100%);border:1px solid hsl(160,20%,20%);border-radius:16px;padding:16px;text-align:left;overflow:hidden}
+.qualify-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:hsl(160,100%,50%)}
+.qualify-icon{width:46px;height:46px;border-radius:12px;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qualify-text{flex:1;min-width:0}
+.qualify-text h2{font-size:clamp(1.05rem,4vw,1.3rem);font-weight:800;letter-spacing:-0.01em;color:#fff;margin-bottom:2px}
+.qualify-text p{font-size:12px;color:hsla(0,0%,100%,0.5);line-height:1.35}
+.qualify-badge{flex-shrink:0;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.3);color:hsl(160,100%,55%);font-size:12px;font-weight:800;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.btn-activate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:20px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,0.5),0 0 60px hsla(160,100%,50%,0.25),0 4px 15px hsla(0,0%,0%,0.3);transition:all 0.2s ease}
+.btn-activate:hover{transform:translateY(-2px);box-shadow:0 0 40px hsla(160,100%,50%,0.6),0 0 80px hsla(160,100%,50%,0.3),0 8px 25px hsla(0,0%,0%,0.4)}
+.btn-activate:active{transform:translateY(1px) scale(0.98)}
+.btn-activate span{font-size:16px;font-weight:700;color:hsl(160,20%,5%);letter-spacing:0.05em}
+.btn-activate svg{flex-shrink:0}
+.reassure{margin-top:14px;font-size:12px;color:hsla(0,0%,100%,0.4);line-height:1.4}
+.anim{opacity:0;animation:fadeSlideUp 0.5s ease forwards}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.status-banner{display:flex;align-items:center;gap:10px;width:100%;background:hsla(160,100%,50%,0.1);border:1px solid hsla(160,100%,50%,0.3);border-radius:14px;padding:12px 16px;margin-bottom:18px;text-align:left}
+.status-banner .dot{width:10px;height:10px;border-radius:50%;background:hsl(160,100%,50%);flex-shrink:0;box-shadow:0 0 10px hsl(160,100%,50%);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+.status-banner p{font-size:13px;font-weight:600;color:hsl(160,100%,75%)}
+.card-dark{background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:20px 18px;width:100%;text-align:left;margin-bottom:16px}
+.card-dark h3{text-align:center;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:18px}
+.step{position:relative;display:flex;gap:14px;padding-bottom:18px}
+.step:not(:last-child)::after{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:hsl(160,15%,18%)}
+.step:last-child{padding-bottom:0}
+.step-num{width:28px;height:28px;border-radius:50%;background:hsl(160,100%,50%);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:hsl(160,20%,5%);flex-shrink:0;z-index:1}
+.step h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.step p{font-size:12px;color:hsla(0,0%,100%,0.55);line-height:1.45}
+.step p .accent{color:hsl(160,100%,55%);font-weight:600}
+.card-important{background:hsl(160,10%,8%);border:1px solid hsl(0,70%,45%);border-radius:16px;padding:20px 18px;width:100%;text-align:left;position:relative;margin-bottom:16px}
+.badge{position:absolute;top:-11px;right:16px;background:hsl(0,70%,50%);color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:6px;letter-spacing:0.05em}
+.card-important .inner{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.card-important h4{font-size:15px;font-weight:800;margin-bottom:4px}
+.card-important .desc{font-size:12px;color:hsla(0,0%,100%,0.6);line-height:1.5}
+.card-important .desc .accent{color:hsl(160,100%,55%);font-weight:700}
+.imp-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid hsl(160,15%,15%)}
+.imp-list li{display:flex;gap:9px;align-items:flex-start;font-size:12px;color:hsla(0,0%,100%,0.6);line-height:1.4}
+.imp-list li svg{flex-shrink:0;margin-top:1px}
+.section-label{width:100%;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:12px}
+.reward{width:100%;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:16px;margin-bottom:12px;text-align:left;transition:border-color 0.3s ease}
+.reward.ready{border-color:hsla(160,100%,50%,0.5);box-shadow:0 0 24px hsla(160,100%,50%,0.12)}
+.reward-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.reward-tile{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid hsla(0,0%,100%,0.12);overflow:hidden}
+.reward-tile img{width:30px;height:30px;object-fit:contain}
+.reward-info{flex:1;min-width:0}
+.reward-info h4{font-size:15px;font-weight:800}
+.reward-info p{font-size:12px;color:hsla(0,0%,100%,0.5)}
+.reward-prize{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;font-size:17px;font-weight:800;color:hsl(160,100%,55%)}
+.reward-prize span{font-size:10px;font-weight:600;color:hsla(0,0%,100%,0.45);letter-spacing:0.02em;margin-top:2px}
+.progress-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.progress-row .lbl{font-size:11px;font-weight:600;color:hsla(0,0%,100%,0.55)}
+.progress-row .cnt{font-size:11px;font-weight:700;color:hsla(0,0%,100%,0.8)}
+.pbar{width:100%;height:7px;border-radius:4px;background:hsl(160,12%,16%);overflow:hidden;margin-bottom:12px}
+.pbar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,hsl(160,100%,45%),hsl(160,100%,55%));transition:width 0.6s ease}
+.reward-btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:0.03em;cursor:pointer;transition:all 0.2s ease}
+.reward-btn.locked{background:hsl(160,10%,14%);color:hsla(0,0%,100%,0.4);cursor:not-allowed}
+.reward-btn.ready{background:linear-gradient(180deg,hsl(160,100%,55%),hsl(160,100%,45%));color:hsl(160,20%,5%);box-shadow:0 0 20px hsla(160,100%,50%,0.4)}
+.reward-btn.ready:active{transform:scale(0.98)}
+.reward-unavailable{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:12px;background:hsla(0,70%,50%,0.12);border:1px solid hsla(0,70%,55%,0.4);color:hsl(0,80%,70%);font-size:13px;font-weight:700}
+.mini-note{font-size:11px;color:hsla(0,0%,100%,0.35);margin-top:4px;text-align:center;line-height:1.4}
+.overlay{position:fixed;inset:0;z-index:10;background:hsla(160,25%,3%,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.25s ease forwards}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{position:relative;width:100%;max-width:400px;background:hsl(160,12%,10%);border:1px solid hsl(160,20%,20%);border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 20px 60px hsla(0,0%,0%,0.5);animation:pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes pop{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.modal-icon{width:64px;height:64px;border-radius:18px;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.modal h3{font-size:20px;font-weight:800;letter-spacing:-0.01em;margin-bottom:10px}
+.modal .lead{font-size:14px;color:hsla(0,0%,100%,0.6);line-height:1.5;margin-bottom:20px}
+.modal-note{display:flex;gap:12px;align-items:flex-start;text-align:left;background:hsl(160,10%,8%);border:1px solid hsl(160,15%,18%);border-radius:14px;padding:14px 16px;margin-bottom:22px}
+.modal-note .num{width:24px;height:24px;border-radius:50%;background:hsl(160,100%,50%);color:hsl(160,20%,5%);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-note p{font-size:13px;color:hsla(0,0%,100%,0.75);line-height:1.45}
+.modal-note .accent{color:hsl(160,100%,55%);font-weight:700}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:hsl(160,10%,16%);color:hsla(0,0%,100%,0.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s ease}
+.modal-close:hover{background:hsl(160,10%,22%);color:#fff}
+/* View toggle. NOT a visibility gate — every visitor, crawlers included, gets the qualify
+   view first and reaches the instructions view by tapping. Deliberately plain `display:none`
+   with no !important flag: that flag on a display:none rule is the signature of the
+   blank-page cloaking gate the repo-wide clean check greps for (see
+   .claude/skills/tokrwd-landers), and a legitimate class must not trip that canary.
+   .overlay.hidden is the specific rule that beats .overlay{display:flex}. */
+.hidden{display:none}
+.overlay.hidden{display:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+</style>
+</head>
+<body>
+<div class="lp-wrap">
+  <div class="bg-glow"></div>
+  <div class="container">
+    <div class="logo-row anim">
+      <img src="/images/tiktok-icon-free-png.png" alt="TikTok" />
+      <span>x</span>
+      <img src="/images/gravy-logo.png" alt="Gravy Pass" />
+    </div>
+
+    <!-- QUALIFY VIEW -->
+    <div id="view-qualify">
+      <div class="pill anim" style="animation-delay:0.08s"><span class="live"></span>ACCOUNT VERIFIED</div>
+      <h1 class="hero-title anim" style="animation-delay:0.12s">You&apos;re eligible to <span class="grad">start earning</span></h1>
+      <p class="hero-sub anim" style="animation-delay:0.16s">Your account qualifies for the following paid programs:</p>
+      <div class="qualify-list anim" style="animation-delay:0.2s">
+        <div class="qualify-item">
+          <div class="qualify-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M6 11h4M8 9v4M15 11.5h.01M18 10h.01" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17.5 6h-11A4.5 4.5 0 002 10.5v3A4.5 4.5 0 006.5 18c1.2 0 1.9-.5 2.7-1.2.6-.5 1.2-.8 2.8-.8s2.2.3 2.8.8c.8.7 1.5 1.2 2.7 1.2a4.5 4.5 0 004.5-4.5v-3A4.5 4.5 0 0017.5 6z" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="qualify-text"><h2>Get Paid To Game</h2><p>Play Roblox, Subway Surfers &amp; more</p></div>
+          <div class="qualify-badge">Earn $$$</div>
+        </div>
+        <div class="qualify-item">
+          <div class="qualify-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <rect x="6" y="2" width="12" height="20" rx="3" stroke="hsl(160,100%,55%)" stroke-width="2"/>
+              <path d="M10.5 18.5h3" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 6.5h6M9 9.5h4" stroke="hsl(160,100%,55%)" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="qualify-text"><h2>Get Paid For Screentime</h2><p>Earn while you scroll, no skills needed</p></div>
+          <div class="qualify-badge">Earn $$$</div>
+        </div>
+      </div>
+      <button class="btn-activate anim" style="animation-delay:0.3s" id="continueBtn">
+        <span>CONTINUE</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="hsl(160,20%,5%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <p class="reassure anim" style="animation-delay:0.4s">Cash out through Apple Wallet • Instant payouts</p>
+    </div>
+
+    <!-- INSTRUCTIONS VIEW -->
+    <div id="view-instructions" class="hidden">
+      <div class="status-banner anim"><div class="dot"></div><p id="statusText">Wallet pass active • Complete tasks to unlock rewards</p></div>
+      <div class="card-dark anim" style="animation-delay:0.05s">
+        <h3>HOW TO START EARNING</h3>
+        <div class="step"><div class="step-num">1</div><div><h4>Activate &amp; open your Gravy Pass</h4><p>Tap <span class="accent">Activate Wallet Pass</span> below, then open your Gravy Pass in <span class="accent">Apple Wallet</span> to get started.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div><h4>Complete games &amp; tasks for money</h4><p>Follow the instructions in your pass and complete <span class="accent">games and tasks</span> to start earning real money.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div><h4>Complete 3 tasks to unlock top offers</h4><p>Complete <span class="accent">3 tasks</span> to unlock high-paying popular offers like <span class="accent">Paid to Scroll</span>, Roblox and more.</p></div></div>
+      </div>
+      <button class="btn-activate anim" style="animation-delay:0.1s" id="activateBtn2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="hsl(160,20%,5%)" stroke-width="2"/><path d="M16 12h.01" stroke="hsl(160,20%,5%)" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>ACTIVATE WALLET PASS</span>
+      </button>
+      <p class="reassure anim" style="animation-delay:0.15s;margin-bottom:20px">Didn&apos;t add it yet? Tap above to add your pass again.</p>
+      <div class="card-important anim" style="animation-delay:0.2s">
+        <span class="badge">IMPORTANT</span>
+        <div class="inner">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:2px"><rect x="5" y="11" width="14" height="10" rx="2" stroke="hsl(0,70%,50%)" stroke-width="2"/><path d="M8 11V7a4 4 0 118 0v4" stroke="hsl(0,70%,50%)" stroke-width="2" stroke-linecap="round"/></svg>
+          <div><h4>Activation Required to Unlock</h4><p class="desc">Top offers stay locked until your wallet pass is active and you&apos;ve completed <span class="accent">3 tasks</span>. Keep completing tasks in your Gravy Pass to unlock them.</p></div>
+        </div>
+        <ul class="imp-list">
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="hsl(160,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Complete tasks inside your Gravy Pass to make progress.</li>
+        </ul>
+      </div>
+      <div class="section-label anim" style="animation-delay:0.25s">REWARDS TO UNLOCK</div>
+      <div id="rewardsList"></div>
+      <p class="mini-note anim" style="animation-delay:0.5s">Rewards are credited to your Apple Wallet. One reward set per verified account.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay hidden" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" aria-label="Close" id="modalClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+    <div class="modal-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="hsl(160,100%,55%)" stroke-width="2"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.5.8-2.5 1.9 0 1 .8 1.5 2.5 1.9 1.7.4 2.6.9 2.6 2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.4-2.6-1.3M12 6.5v11" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h3 id="modal-title">Start Earning Now</h3>
+    <p class="lead">Add your Gravy Pass to Apple Wallet and start earning from your screentime &amp; get paid to game.</p>
+    <div class="modal-note"><div class="num">!</div><p>After adding the pass, <span class="accent">come back to this page</span> for your earning instructions.</p></div>
+    <button class="btn-activate" id="addWalletBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="hsl(160,20%,5%)" stroke-width="2"/><path d="M16 12h.01" stroke="hsl(160,20%,5%)" stroke-width="2" stroke-linecap="round"/></svg><span>START EARNING NOW</span></button>
+  </div>
+</div>
+
+<script>
+(function () {
+  /**
+   * OUR redirector, not the network. /c/esgp-off resolves the real affiliate URL from
+   * OFFER_LINKS server-side and forwards the sub-ID, so the destination is never in this
+   * page's source and can be repointed without touching the lander. Relative on purpose:
+   * this page is served from tokrwd.co, which is where /c/:slug lives.
+   */
+  var OFFER_DOOR = "/c/esgp-off";
+  var STATE_KEY = "esgp_state_v1";
+  var TASK_INTERVAL_MS = 10 * 60 * 1000;
+  var TASKS_PER_REWARD = 3;
+  var TICK_MS = 5000;
+
+  /**
+   * `ring` is the unlocked-state tile glow and carries its own alpha. It used to be an
+   * opaque hsl() with "55" concatenated onto it — hex-alpha notation, which is only valid
+   * on a hex colour, so the whole box-shadow declaration was invalid and the browser threw
+   * it away. The glow had simply never rendered.
+   */
+  var REWARDS = [
+    { id:"tiktok", name:"TikTok", task:"Paid to Scroll", rate:"$32/hr", logo:"/images/tiktok-icon-free-png.png", tile:"hsl(0,0%,8%)", ring:"hsla(180,90%,50%,0.33)" },
+    // Was "Clash Royale" on a hotlinked 1000logos.net image. There is no Clash Royale art in
+    // /images/, and a card showing Block Blast's icon under a Clash Royale name reads as broken,
+    // so the label follows the asset. To put Clash Royale back, drop /images/clash-royale.png in
+    // and change both fields together — never just the name.
+    { id:"blockblast", name:"Block Blast", task:"Play & Earn", rate:"$28/hr", logo:"/images/block-blast.png", tile:"hsl(215,60%,22%)", ring:"hsla(45,100%,55%,0.33)" },
+    { id:"roblox", name:"Roblox", task:"Play & Earn", rate:"$35/hr", logo:"/images/roblox.jpg", tile:"hsl(0,0%,15%)", ring:"hsla(0,80%,55%,0.33)" }
+  ];
+
+  var PARAMS = new URLSearchParams(window.location.search);
+
+  /* ── persisted state ───────────────────────────────────────────────────────
+   * One JSON blob instead of a loose key per value, so the attribution and the
+   * activation timestamp are read and written together and cannot half-survive.
+   * Every access is wrapped: localStorage THROWS on access in Safari Private
+   * Browsing and with third-party storage blocked, and an uncaught throw here
+   * would take the CTA wiring below down with it — a dead button on paid traffic.
+   */
+  function loadState() {
+    try {
+      var parsed = JSON.parse(window.localStorage.getItem(STATE_KEY) || "{}");
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveState() {
+    try { window.localStorage.setItem(STATE_KEY, JSON.stringify(STATE)); } catch (e) {}
+  }
+
+  var STATE = loadState();
+
+  /* ── attribution ───────────────────────────────────────────────────────────
+   * /r puts the spark code on this page as s1; campid/sub1 are also accepted so a
+   * hand-built test link works.
+   *
+   * The values are PERSISTED on arrival because this page's own copy sends the
+   * visitor away to Apple Wallet and tells them to come back — and that return
+   * trip carries no query string. Reading location.search alone therefore loses
+   * attribution on exactly the second click, the one the instructions view exists
+   * to produce, and those conversions reach the network with no sub-ID at all.
+   *
+   * This RESTORES what this browser genuinely arrived with. It never invents one:
+   * a fabricated sub-ID credits somebody else's account, which is strictly worse
+   * than landing in `unmatched` where it is visible and fixable.
+   */
+  var SUBID_ALIASES = ["s1", "campid", "sub1"];
+  var EXTRA_PARAMS = ["ttclid", "s3"];
+
+  function fromUrl(name) {
+    return (PARAMS.get(name) || "").trim();
+  }
+
+  function urlSubId() {
+    for (var i = 0; i < SUBID_ALIASES.length; i++) {
+      var v = fromUrl(SUBID_ALIASES[i]);
+      if (v) return v;
+    }
+    return "";
+  }
+
+  // Only overwrite a stored value when THIS visit carries one, so a bare return
+  // visit cannot blank out the attribution captured on the way in.
+  (function captureAttribution() {
+    var dirty = false;
+    var sub = urlSubId();
+    if (sub && STATE.sub !== sub) { STATE.sub = sub; dirty = true; }
+    EXTRA_PARAMS.forEach(function (k) {
+      var v = fromUrl(k);
+      if (v && STATE[k] !== v) { STATE[k] = v; dirty = true; }
+    });
+    if (dirty) saveState();
+  })();
+
+  /** Our redirector + the sub-ID + the params the network needs downstream. */
+  function offerUrl() {
+    var out = new URLSearchParams();
+    var sub = urlSubId() || String(STATE.sub || "");
+    if (sub) out.set("campid", sub);
+    EXTRA_PARAMS.forEach(function (k) {
+      var v = fromUrl(k) || String(STATE[k] || "");
+      if (v) out.set(k, v);
+    });
+    var qs = out.toString();
+    return qs ? OFFER_DOOR + "?" + qs : OFFER_DOOR;
+  }
+
+  /* ── views ─────────────────────────────────────────────────────────────────*/
+  var qualifyView = document.getElementById("view-qualify");
+  var instrView = document.getElementById("view-instructions");
+  var statusText = document.getElementById("statusText");
+  var rewardsList = document.getElementById("rewardsList");
+  var overlay = document.getElementById("overlay");
+  var unavailable = {};
+  var ticker = null;
+
+  function showInstructions() {
+    qualifyView.classList.add("hidden");
+    instrView.classList.remove("hidden");
+  }
+
+  /**
+   * Activation time, clamped. A stored timestamp in the FUTURE — a device whose
+   * clock resynced backwards, or one that crossed a manual clock change — would
+   * make every elapsed-time subtraction negative and freeze progress at 0/3
+   * permanently, with no way for the visitor to recover but clearing site data.
+   */
+  function activatedAt() {
+    var ts = parseInt(STATE.activatedAt, 10);
+    if (!ts || isNaN(ts) || ts <= 0) return 0;
+    var now = Date.now();
+    if (ts > now) { STATE.activatedAt = ts = now; saveState(); }
+    return ts;
+  }
+
+  var TOTAL_TASKS = REWARDS.length * TASKS_PER_REWARD;
+
+  function tasksCompleted() {
+    var since = activatedAt();
+    if (!since) return 0;
+    return Math.min(TOTAL_TASKS, Math.floor((Date.now() - since) / TASK_INTERVAL_MS));
+  }
+
+  /** <tag class="..">text</tag>, appended to parent. Keeps the markup readable. */
+  function add(parent, tag, className, text) {
+    var el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text != null) el.textContent = text;
+    parent.appendChild(el);
+    return el;
+  }
+
+  // Static markup, no interpolation — safe as a literal and not worth building
+  // node by node in the SVG namespace.
+  var WARN_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none">' +
+    '<circle cx="12" cy="12" r="9" stroke="hsl(0,80%,65%)" stroke-width="2"/>' +
+    '<path d="M12 7v5M12 15.5h.01" stroke="hsl(0,80%,65%)" stroke-width="2" stroke-linecap="round"/></svg>';
+
+  function rewardCard(r, index, done) {
+    var ready = done >= TASKS_PER_REWARD;
+    var card = document.createElement("div");
+    card.className = "reward anim" + (ready ? " ready" : "");
+    card.style.animationDelay = (0.3 + index * 0.05) + "s";
+
+    var top = add(card, "div", "reward-top");
+    var tile = add(top, "div", "reward-tile");
+    tile.style.background = r.tile;
+    if (ready) tile.style.boxShadow = "0 0 16px " + r.ring;
+    var img = add(tile, "img");
+    img.src = r.logo;
+    img.alt = r.name;
+
+    var info = add(top, "div", "reward-info");
+    add(info, "h4", null, r.name);
+    add(info, "p", null, r.task);
+
+    var prize = add(top, "div", "reward-prize", r.rate);
+    add(prize, "span", null, "per hour");
+
+    var row = add(card, "div", "progress-row");
+    add(row, "span", "lbl", "Tasks completed");
+    add(row, "span", "cnt", done + "/" + TASKS_PER_REWARD);
+
+    var bar = add(card, "div", "pbar");
+    add(bar, "div", "pbar-fill").style.width = Math.round((done / TASKS_PER_REWARD) * 100) + "%";
+
+    if (unavailable[r.id]) {
+      var note = add(card, "div", "reward-unavailable");
+      note.innerHTML = WARN_SVG;
+      note.appendChild(document.createTextNode("Currently Unavailable"));
+      return card;
+    }
+
+    var btn = add(card, "button", "reward-btn " + (ready ? "ready" : "locked"),
+      ready ? "UNLOCK " + r.name.toUpperCase()
+            : "LOCKED • " + (TASKS_PER_REWARD - done) + " TASKS LEFT");
+    btn.type = "button";
+    if (!ready) {
+      btn.disabled = true;
+      return card;
+    }
+    // Closed over `r` — no data-id round-trip through the DOM to read it back.
+    btn.addEventListener("click", function () {
+      unavailable[r.id] = true;
+      renderRewards();
+    });
+    return card;
+  }
+
+  function renderRewards() {
+    var total = tasksCompleted();
+    statusText.textContent = total >= TOTAL_TASKS
+      ? "All rewards unlocked — checking availability…"
+      : "Wallet pass active • Complete tasks to unlock rewards";
+
+    rewardsList.textContent = "";
+    REWARDS.forEach(function (r, i) {
+      var done = Math.max(0, Math.min(TASKS_PER_REWARD, total - i * TASKS_PER_REWARD));
+      rewardsList.appendChild(rewardCard(r, i, done));
+    });
+
+    // Nothing left to count up to — stop re-rendering the same three cards every
+    // 5s for as long as the tab stays open.
+    if (total >= TOTAL_TASKS && ticker) { clearInterval(ticker); ticker = null; }
+  }
+
+  function startTicker() {
+    if (ticker) return;
+    ticker = setInterval(function () {
+      if (!instrView.classList.contains("hidden")) renderRewards();
+    }, TICK_MS);
+  }
+
+  function goToInstructions() {
+    if (!activatedAt()) { STATE.activatedAt = Date.now(); saveState(); }
+    showInstructions();
+    renderRewards();
+    startTicker();
+  }
+
+  function handleAddWallet() {
+    // Built BEFORE the view swap so the outbound URL can never depend on render
+    // state, and captured in a local so both exit paths send the same thing.
+    var url = offerUrl();
+    goToInstructions();
+    overlay.classList.add("hidden");
+    // New tab so the instructions stay behind the offer, as the page's copy
+    // promises. In-app browsers (TikTok, IG) block window.open often enough that
+    // a swallowed popup would silently eat a paid click — fall back to this tab.
+    var opened = null;
+    try { opened = window.open(url, "_blank", "noopener,noreferrer"); } catch (e) {}
+    if (!opened) window.location.href = url;
+  }
+
+  function closeOverlay() { overlay.classList.add("hidden"); }
+
+  // ── wire up ────────────────────────────────────────────────────────────────
+  document.getElementById("continueBtn").addEventListener("click", function () {
+    overlay.classList.remove("hidden");
+  });
+  document.getElementById("addWalletBtn").addEventListener("click", handleAddWallet);
+  document.getElementById("activateBtn2").addEventListener("click", handleAddWallet);
+  document.getElementById("modalClose").addEventListener("click", closeOverlay);
+  overlay.addEventListener("click", function (e) { if (e.target === overlay) closeOverlay(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !overlay.classList.contains("hidden")) closeOverlay();
+  });
+
+  // Already activated on a previous visit — go straight to the instructions.
+  if (activatedAt()) {
+    showInstructions();
+    renderRewards();
+    startTicker();
+  }
+})();
+</script>
+
+<!-- TikTok ttclid passthrough — backfills an empty ttclid from the _ttclid cookie. Renders
+     identically for everyone, so it is not cloaking. Same as every other lander. -->
+<script src="/js/ttclid.js" async></script>
+</body>
+</html>

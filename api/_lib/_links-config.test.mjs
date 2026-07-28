@@ -126,9 +126,19 @@ eq('nested path resolves',
 eq('a .html file resolves', resolveOverrideLander('FCTT.html'), `${DEFAULT_LANDER_ORIGIN}/FCTT.html`);
 eq('full URL on our host resolves',
   resolveOverrideLander('https://www.tokrwd.co/trt-page'), 'https://www.tokrwd.co/trt-page');
-// The live alias, not a fixture: this asserts the real OVERRIDE_LANDERS entry works.
+// The live aliases, not fixtures: these assert the real OVERRIDE_LANDERS entries work.
 eq('registered alias resolves', resolveOverrideLander('trt'), `${DEFAULT_LANDER_ORIGIN}/trt`);
 eq('alias lookup is case-insensitive', resolveOverrideLander('TrT'), `${DEFAULT_LANDER_ORIGIN}/trt`);
+// The alias key is lowercase but the PATH is not — /ESGP is an uppercase folder, and Vercel
+// serves it case-sensitively. A lowercased path would 404 every one of Edwin's clicks.
+eq('esgp alias resolves to the uppercase folder',
+  resolveOverrideLander('esgp'), `${DEFAULT_LANDER_ORIGIN}/ESGP`);
+eq('esgp alias is reachable in any case', resolveOverrideLander('ESGP'), `${DEFAULT_LANDER_ORIGIN}/ESGP`);
+eq('esgp is bound to Edwin\'s offer', offerForLander(`${DEFAULT_LANDER_ORIGIN}/ESGP`), 'gravypass-esgp');
+// Scaler landers are override-ONLY on purpose: no o= key and not in LANDER_URLS, so an
+// affiliate cannot route their own traffic onto Edwin's link.
+eq('no o= key reaches the esgp lander',
+  Object.values(OFFER_KEYS).filter(u => /\/ESGP$/i.test(u)), []);
 
 // rejected forms — each falls through to normal routing rather than erroring
 eq('foreign host is rejected', resolveOverrideLander('https://evil.com/x'), '');

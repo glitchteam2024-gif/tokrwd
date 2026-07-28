@@ -329,6 +329,7 @@ export const OFFERS = {
   'freecash-uk':  { label: 'Freecash UK',          match: '/c/frrcsh-uk-off' },
   'freecash-ca':  { label: 'Freecash CA',          match: '/c/frrcsh-ca-off' },
   'testerup-mon': { label: 'Testerup (Monetise)',  match: '/c/testerup-us-mon-off' },
+  'gravypass-esgp': { label: 'Gravy Pass (Edwin)', match: '/c/esgp-off' },
 };
 
 /**
@@ -356,6 +357,11 @@ export const OVERRIDE_LANDERS = {
     path: '/trt',
     offer: 'testerup-mon',
     owner: 'Trae / TenX — scaler (aff #2)',
+  },
+  esgp: {
+    path: '/ESGP',
+    offer: 'gravypass-esgp',
+    owner: 'Edwin — scaler (own affiliate link, settles by invoice)',
   },
 };
 
@@ -778,6 +784,20 @@ export const OFFER_LINKS = [
     mode: 'direct',
     destination: 'https://montrk3.co.uk/?a=26648&c=56065',
     forwardParam: 's1',
+    enabled: true,
+  },
+  // Gravy Pass — Edwin's OWN affiliate link, fired only by the /ESGP scaler lander.
+  //
+  // `direct` because the payout is Edwin's, not ours: the click must not walk the SPRK
+  // door, which would resolve it to a SPRK affiliate and credit the conversion inside our
+  // network. He settles by invoice off his own network numbers, so `sub1` carrying the
+  // spark code is purely so we can reconcile his reported volume against our traffic —
+  // there is no clicks row and no click_id on this path, by design.
+  {
+    slug: 'esgp-off',
+    mode: 'direct',
+    destination: 'https://www.phef6trk.com/213T8QJ/32BB7QT/',
+    forwardParam: 'sub1',
     enabled: true,
   },
 ];
