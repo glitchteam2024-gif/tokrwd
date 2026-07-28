@@ -409,6 +409,20 @@ export function offerForOfferKey(carrdUrl) {
 }
 
 /**
+ * First path segments that are never a landing page — our own routes and asset
+ * directories. A lander path resolving to one of these is always a mistake or an
+ * attack, in either direction:
+ *
+ *   lp=admin  put paid traffic on the dashboard
+ *   lp=pre    put it on a prelander with nothing to forward to (a dead click)
+ *   lp=c/…    fired our own redirector with a client-chosen sub-ID and no ad spend
+ *
+ * All three resolved cleanly before this list existed — `lp=` accepted any path on
+ * our origin, and nothing downstream re-checked it.
+ */
+const RESERVED_LANDER_ROOTS = new Set(['api', 'c', 'r', 'pre', 'admin', 'js', 'images', 'postback']);
+
+/**
  * Normalise the path half of an override. Returns '' for anything suspicious.
  *
  * Rejects, rather than sanitises, because a rejected override falls through to
@@ -427,7 +441,10 @@ function cleanLanderPath(input) {
   if (!/^\/[A-Za-z0-9._/-]*$/.test(withSlash)) return '';
   if (withSlash.split('/').some(seg => seg === '..')) return '';
   // Collapse `//` so `lp=//evil.com` cannot survive as a protocol-relative URL.
-  return withSlash.replace(/\/{2,}/g, '/');
+  const collapsed = withSlash.replace(/\/{2,}/g, '/');
+  // Reject our own routes AFTER collapsing, or `lp=//admin` walks straight past this.
+  if (RESERVED_LANDER_ROOTS.has(collapsed.split('/')[1].toLowerCase())) return '';
+  return collapsed;
 }
 
 /**
@@ -687,6 +704,134 @@ export function buildLanderUrl(landerUrl, campid, carrdUrl) {
   return url.toString();
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+ * THE PRELANDER — /pre, in front of every landing page
+ * ══════════════════════════════════════════════════════════════════════════════
+ *
+ * TikTok's in-app webview has been failing on real devices, so a click is handed
+ * to the visitor's real browser before it reaches the offer page:
+ *
+ *     ad -> Carrd -> /r -> /pre?…&to=/CLFC -> lander -> door -> offer
+ *
+ * WHY THE WRAP HAPPENS HERE AND NOT IN THE LANDERS
+ * /r is the single choke point every routing rule already passes through — `lp=`,
+ * campaign, `o=`, CARRD_ROUTES and the default all funnel into resolveLander().
+ * Wrapping its answer gives every one of them a prelander while leaving all ~1000
+ * lander files untouched, and keeps the escape mechanism in exactly one page
+ * (pre/index.html + js/breakout.js) instead of smeared across the tree. That
+ * containment is what _tracking-audit.test.mjs now enforces.
+ *
+ * WHY IT IS NOT DONE INSIDE buildLanderUrl()
+ * buildLanderUrl answers "what is the lander URL for this click?", and the admin
+ * panel, the tests and traceOfferChain all rely on that answer being the lander.
+ * The prelander is a separate, switchable hop in front of it.
+ *
+ * The wrap FAILS OPEN: anything it cannot safely wrap is returned unchanged, so a
+ * lander outside PRELANDER_ALLOWED_ROOTS loses its prelander rather than its click.
+ */
+
+/** Where the prelander lives. Served from pre/index.html by cleanUrls. */
+export const PRELANDER_PATH = '/pre';
+
+/** The param carrying the lander PATH the prelander forwards to. */
+export const PRELANDER_PARAM = 'to';
+
+/**
+ * The kill switch. Flip to false and deploy to take the prelander back out of every
+ * funnel at once — /r goes straight to the lander again and the admin panel stops
+ * showing the hop. Nothing else has to change.
+ */
+export const PRELANDER_ENABLED = true;
+
+/**
+ * First path segment of every page /pre may forward to, lowercased.
+ *
+ * MUST STAY IN SYNC with ALLOWED_ROOTS in js/breakout.js — _links-config.test.mjs
+ * reads that file off disk and fails the build when the two disagree, because the
+ * drift is silent in both directions: /r would emit a `to` the page then refuses,
+ * and the visitor would sit on a prelander that goes nowhere.
+ *
+ * An allowlist, not a denylist, because `to` is read from a public URL on a static
+ * page. Left free-form it would let anyone fire /c/<slug> with an arbitrary sub-ID
+ * and no ad spend, reach /api/*, or point /pre at itself and loop forever.
+ *
+ * Deliberately absent: `go`, `Playful`, `ApplePay`, `EOZ.html`. They are orphaned
+ * redirector pages, not landers; nothing routes to them, and if something ever does
+ * the fail-open behaviour just means no prelander.
+ */
+export const PRELANDER_ALLOWED_ROOTS = [
+  '50fc', '50fcii', '50tu', 'ak50', 'ap50', 'apay1k', 'apay750', 'cash', 'cb',
+  'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk', 'cltu', 'cr50', 'cs50', 'esgp',
+  'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd', 'rs', 'rs50', 'rewards',
+  'seph', 'sh50', 'shein', 'sp50', 'tsup', 'tu', 'uber', 'ue50', 'trt',
+];
+
+const PRELANDER_ROOT_SET = new Set(PRELANDER_ALLOWED_ROOTS);
+
+/**
+ * True when /pre is allowed to forward to this path.
+ *
+ * cleanLanderPath already rejects RESERVED_LANDER_ROOTS, traversal and anything
+ * protocol-relative; this adds the positive allowlist on top, so a page has to be a
+ * known lander rather than merely not-obviously-hostile.
+ */
+export function prelanderCanForward(path) {
+  const clean = cleanLanderPath(path);
+  if (!clean || clean === '/') return false;
+  return PRELANDER_ROOT_SET.has(clean.split('/')[1].toLowerCase());
+}
+
+/**
+ * Put the prelander in front of a resolved lander URL.
+ *
+ * Every param stays TOP-LEVEL on the /pre URL — s1 especially. Folding them into
+ * the `to` value would hide the spark code from anything that inspects the link,
+ * and js/breakout.js rebuilds the lander URL from the top-level query anyway.
+ *
+ * Returns the input unchanged when the prelander is off, the URL is unparseable, or
+ * the path is not one /pre will forward to. Losing the prelander is recoverable;
+ * losing the click is not.
+ */
+export function wrapPrelander(landerUrl) {
+  if (!PRELANDER_ENABLED) return landerUrl;
+
+  const raw = String(landerUrl == null ? '' : landerUrl).trim();
+  if (!raw) return landerUrl;
+
+  let u;
+  try {
+    u = new URL(raw);
+  } catch {
+    return landerUrl;
+  }
+  if (u.protocol !== 'https:') return landerUrl;
+
+  // The prelander only exists on hosts we deploy. Without this the wrap would bolt
+  // /pre onto whatever origin the lander was on — and resolveLander's `campaign`
+  // branch returns a store-supplied lander_url gated ONLY by isSafeDestination
+  // (https, any host). A campaign mapped to a third-party URL would have turned every
+  // one of its clicks into a 404 on someone else's domain.
+  if (!isOwnLanderHost(raw)) return landerUrl;
+
+  const path = cleanLanderPath(u.pathname);
+  if (!prelanderCanForward(path)) return landerUrl;
+
+  const pre = new URL(`${u.origin}${PRELANDER_PATH}`);
+  for (const [key, value] of u.searchParams) pre.searchParams.set(key, value);
+  // Set last so `to` reads at the end of the link rather than buried mid-query.
+  pre.searchParams.set(PRELANDER_PARAM, path);
+  return pre.toString();
+}
+
+/** True when this URL is a /pre link rather than a lander. */
+export function isPrelanderUrl(url) {
+  try {
+    return new URL(String(url == null ? '' : url)).pathname.replace(/\/+$/, '') === PRELANDER_PATH;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * THE routing decision: which lander does this click get?
  *
@@ -911,6 +1056,10 @@ export function buildDirectUrl(destination, forwardParam, subId, extras = {}) {
  * `ok:false` with a `reason` whenever the chain cannot complete, because every one
  * of those cases is silent in production: the visitor just meets a 404 or the
  * conversion lands unattributed.
+ *
+ * `hops[]` steps, in order: 'Prelander' (only when /pre fronts this lander),
+ * 'Landing page', then either 'SPRK door' or 'Our redirector' + 'Their network'.
+ * Read them by STEP NAME, never by index — the prelander hop shifts every position.
  */
 export function traceOfferChain(landerUrl, subId, extras = {}) {
   const lander = String(landerUrl || '').trim();
@@ -925,6 +1074,15 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
   const landerWithSub = new URL(lander);
   if (code) landerWithSub.searchParams.set(SUBID_PARAM, code);
   for (const [k, v] of Object.entries(carry)) landerWithSub.searchParams.set(k, v);
+
+  // The prelander is what /r actually hands the Carrd page, so it is the first hop
+  // the click walks — built by the SAME wrapPrelander() live traffic gets, never
+  // re-derived here. Absent when the prelander is switched off or the lander is not
+  // one /pre will forward to, which is exactly when live traffic skips it too.
+  const preUrl = wrapPrelander(landerWithSub.toString());
+  if (preUrl !== landerWithSub.toString()) {
+    hops.push({ step: 'Prelander', url: preUrl });
+  }
   hops.push({ step: 'Landing page', url: landerWithSub.toString() });
 
   const offer = offerForLander(lander);
@@ -1004,6 +1162,19 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
       : `${forwardParam} — empty, because no tracking code was given. The click still converts, ` +
         'but it lands unattributed in their reports.',
   };
+}
+
+/**
+ * The URL of one named hop in a traced chain, or '' when that hop is absent.
+ *
+ * Every consumer must go through this rather than indexing `hops[]`: the prelander
+ * hop shifts every later position, and the last time a consumer hard-coded an index
+ * (`hops[2]` for the network) it kept returning a URL — just the wrong one.
+ */
+export function hopUrl(chain, step) {
+  const hops = (chain && chain.hops) || [];
+  const hit = hops.find(h => h && h.step === step);
+  return hit ? hit.url : '';
 }
 
 /** Carrd pages bound to this lander by host, so the panel can show the real ad link. */

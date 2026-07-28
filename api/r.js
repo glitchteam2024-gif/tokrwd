@@ -4,8 +4,13 @@
  * The Carrd page POSTs here with device type, campid, and carrd URL.
  * This endpoint decides: is this a real targeted human, or a bot/reviewer?
  * 
- * Pass → returns { url: "https://yourlander.com/page.html?s1=..." }
+ * Pass → returns { url: "https://www.tokrwd.co/pre?s1=…&to=/CLFC" }
  * Fail → returns {} (empty object, Carrd shows decoy)
+ *
+ * That URL is the PRELANDER, not the lander: /pre hands the visitor to their real
+ * browser before the offer page, because TikTok's in-app webview has been failing on
+ * real devices. See the prelander section in _lib/links-config.js. When the prelander
+ * is switched off (PRELANDER_ENABLED) the same call returns the lander directly.
  * 
  * Decision logic:
  *   1. Must be a POST request
@@ -28,6 +33,7 @@ import {
   buildLanderUrl,
   extractSparkCode,
   resolveLander,
+  wrapPrelander,
 } from './_lib/links-config.js';
 
 // Known bot/datacenter indicators in user-agent
@@ -218,12 +224,21 @@ export default function handler(req, res) {
     return res.status(200).json({});
   }
 
-  const redirectUrl = buildLanderUrl(landerUrl, campid, carrdUrl);
+  const builtLanderUrl = buildLanderUrl(landerUrl, campid, carrdUrl);
 
-  if (!redirectUrl) {
+  if (!builtLanderUrl) {
     // buildLanderUrl failed (bad lander URL) → reject
     return res.status(200).json({});
   }
+
+  // Put /pre in front of whichever lander won. Doing it HERE, on the one answer every
+  // routing rule funnels into, is what gives `lp=`, campaign, `o=`, CARRD_ROUTES and
+  // the default a prelander without touching a single lander file.
+  //
+  // wrapPrelander fails open — a lander it will not wrap comes back unchanged and the
+  // click goes straight to the page, exactly as it did before. The prelander is worth
+  // losing; the click is not.
+  const redirectUrl = wrapPrelander(builtLanderUrl);
 
   // Track the Carrd page usage
   const carrdPage = store.carrd_pages.find(p => carrdUrl.includes(p.subdomain));

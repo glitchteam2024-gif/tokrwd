@@ -64,6 +64,8 @@ const SKIP_FILES = new Set([
   'api/_lib/links-config.js',      // the one place a network host belongs
   'api/_lib/_tracking-audit.test.mjs',
   'api/_lib/_links-config.test.mjs',
+  'api/_lib/_traffic-filter.test.mjs',  // its fixtures ARE in-app user agents, by definition
+  'api/_lib/_prelander-page.test.mjs',  // ditto — it asserts ON the breakout patterns
   'api/detector.js', 'api/harness.js', 'api/signatures.js', // cloaking QA tooling
   'admin/index.html', 'admin/carrd-script.js',              // dashboard + paste-in snippet
 ]);
@@ -153,6 +155,54 @@ for (const rel of files) {
   }
 }
 report('no third-party tracking script on a deployed page', thirdPartyTrackers);
+
+// ── 6. The in-app-browser escape lives in ONE place, and nowhere else ─────────
+//
+// /pre (pre/index.html + js/breakout.js) hands the visitor to their real browser
+// before the offer page, because TikTok's in-app webview has been failing on real
+// devices. That mechanism is deliberate and contained to those two files.
+//
+// Everywhere ELSE it is the thing that got this domain's landers flagged in the first
+// place, and it was stripped out of all ~1000 of them on 2026-07-23. This check is the
+// grep that used to live in the skill doc, promoted to a build failure: a lander that
+// re-grows a scheme jump, a UA sniff or a blank-page gate fails here instead of being
+// noticed months later.
+//
+// Note what is NOT excused by the carve-out: the blank-page cloak patterns below are
+// listed too, and pre/index.html and js/breakout.js are checked against them like any
+// other file. The escape is sanctioned; serving different content to a reviewer is not.
+const BREAKOUT_OK = new Set(['pre/index.html', 'js/breakout.js']);
+const CLOAK_PATTERNS = [
+  { re: /x-safari-http/i,                    what: 'iOS scheme breakout',      escapable: true },
+  { re: /intent:\/\//i,                      what: 'Android intent breakout',  escapable: true },
+  { re: /googlechrome(?:s)?:\/\//i,          what: 'Chrome scheme breakout',   escapable: true },
+  { re: /\b(?:musical_ly|bytedance|FB_IAB)\b/i, what: 'in-app UA sniff',       escapable: true },
+  { re: /__SUBID_OK/,                        what: 'blank-page SubID gate',    escapable: false },
+  { re: /display\s*:\s*none\s*!important/i,  what: 'blank-page cloak gate',    escapable: false },
+  { re: /document\.write\s*\(/i,             what: 'document.write cloak gate', escapable: false },
+];
+/**
+ * Comments are documentation, not behaviour — js/safe.js explaining that it avoids
+ * document.write() must not read as using it.
+ *
+ * Block and HTML comments only, plus `//` lines that START a line. A blanket `//`
+ * strip would be actively harmful here: it would eat `intent://…` mid-statement and
+ * turn the single most important pattern in this check into a false negative.
+ */
+const stripComments = (src) => src
+  .replace(/\/\*[\s\S]*?\*\//g, ' ')
+  .replace(/<!--[\s\S]*?-->/g, ' ')
+  .replace(/^[ \t]*\/\/.*$/gm, ' ');
+
+const cloaking = [];
+for (const rel of files) {
+  const src = stripComments(readFileSync(new URL(rel, REPO), 'utf8'));
+  for (const p of CLOAK_PATTERNS) {
+    if (p.escapable && BREAKOUT_OK.has(rel)) continue;
+    if (p.re.test(src)) cloaking.push(`${rel}: ${p.what}`);
+  }
+}
+report('cloaking/breakout code appears only in the sanctioned prelander files', cloaking);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

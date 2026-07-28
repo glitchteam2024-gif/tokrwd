@@ -21,10 +21,13 @@ import {
   OFFER_KEYS,
   OVERRIDE_LANDERS,
   OVERRIDE_PARAM,
+  PRELANDER_ENABLED,
+  PRELANDER_PATH,
   SUBID_PARAM,
   buildLanderUrl,
   carrdRouteProblems,
   extractSparkCode,
+  hopUrl,
   isCanonicalSpk,
   isOwnLanderHost,
   offerForLander,
@@ -34,6 +37,7 @@ import {
   routableLanders,
   carrdHostsForLander,
   traceOfferChain,
+  wrapPrelander,
 } from '../_lib/links-config.js';
 
 /**
@@ -124,15 +128,25 @@ export default async function handler(req, res) {
         // destination rather than re-deriving it and drifting.
         carrd_routes: CARRD_ROUTES.map((r) => {
           const url = resolveRouteLander(r.lander);
+          // Same wrapPrelander() /r runs, so the table cannot claim a prelander the
+          // redirect does not put in front. Empty means the click goes straight to
+          // the lander — which is a legitimate state, not a fault.
+          const prelander = url ? wrapPrelander(url) : '';
           return {
             host: String(r.host || '').trim().toLowerCase().replace(/^www\./, ''),
             lander: r.lander,
             url,
             offer: url ? offerForLander(url) : '',
             valid: !!url,
+            prelander: prelander !== url ? prelander : '',
           };
         }),
         carrd_route_problems: carrdRouteProblems(),
+        // The prelander that fronts every landing page. Exposed so the panel can say
+        // whether it is on rather than assuming, and stops showing the hop the moment
+        // PRELANDER_ENABLED is flipped off.
+        prelander_enabled: PRELANDER_ENABLED,
+        prelander_path: PRELANDER_PATH,
       },
     });
   }
@@ -307,7 +321,15 @@ export default async function handler(req, res) {
           handoff,
           // No Carrd page bound → the operator needs lp= to reach this page through /r.
           fallback_ad_link: adLinks.length ? '' : `?campid=${encodeURIComponent(code || 'CODE')}&${OVERRIDE_PARAM}=${encodeURIComponent(landerRaw)}`,
-          preview_url: chain.hops && chain.hops.length ? chain.hops[0].url : lander,
+          // Both previews the panel shows, in the order the visitor meets them.
+          //
+          // Keyed by STEP NAME, not by index. This used to be `chain.hops[0].url`,
+          // which silently became the PRELANDER the moment a hop was added in front —
+          // the iframe would have changed meaning with no edit to the dashboard and a
+          // caption still reading "the page as they will see it".
+          prelander_preview_url: hopUrl(chain, 'Prelander'),
+          preview_url: hopUrl(chain, 'Landing page') || lander,
+          prelander_enabled: PRELANDER_ENABLED,
           reachable: reach ? reach.ok : null,
           reachable_status: reach ? reach.status : null,
           chain,
@@ -336,6 +358,11 @@ export default async function handler(req, res) {
           campaigns: store.campaigns,
         });
         const destination = lander ? buildLanderUrl(lander, campid, carrdUrl) : '';
+        // What /r actually hands back for this ad link — the prelander when one fronts
+        // this lander, the lander itself otherwise. Same wrapPrelander() live traffic
+        // runs, so the panel cannot show a hop the redirect does not take.
+        const returnedUrl = destination ? wrapPrelander(destination) : '';
+        const prelanderUrl = returnedUrl !== destination ? returnedUrl : '';
 
         // Everything that makes a test link look healthy while producing nothing.
         const warnings = [];
@@ -397,6 +424,12 @@ export default async function handler(req, res) {
           offer_label: offer ? (OFFERS[offer] && OFFERS[offer].label) || offer : '',
           offer_conflict: offerConflict,
           destination,
+          // `destination` stays the LANDING PAGE. These two say what /r hands the Carrd
+          // page and which prelander fronts it — kept as separate fields so nothing that
+          // already reads `destination` silently starts reading a different hop.
+          returned_url: returnedUrl,
+          prelander_url: prelanderUrl,
+          prelander_enabled: PRELANDER_ENABLED,
           override_input: overrideRaw,
           override_resolves_to: overrideRaw ? resolveOverrideLander(overrideRaw) : '',
           campid,

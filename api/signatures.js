@@ -61,9 +61,12 @@ export const SIGNATURES = [
     id: "DEST_INJECTION",
     weight: 45,
     desc: "Destination URL is read from a query param at runtime (?dest=) rather than hard-coded — page is a redirector/doorway.",
+    // `to` is in this list because it is the param OUR OWN /pre reads. The detector
+    // is only useful if it scores our pages the way it scores anyone else's — leaving
+    // our param out would have made /pre look cleaner than it is.
     any: [
       /get\(\s*['"`]dest['"`]\s*\)/i,
-      /(searchParams|params)\.get\(\s*['"`](dest|url|goto|target|redirect|r|u)['"`]\s*\)[\s\S]{0,200}?(new\s+URL|location\.(href|replace|assign))/i
+      /(searchParams|params)\.get\(\s*['"`](dest|url|goto|target|redirect|to|r|u)['"`]\s*\)[\s\S]{0,200}?(new\s+URL|location\.(href|replace|assign))/i
     ]
   },
   {

@@ -128,6 +128,12 @@ td a:hover { color: var(--purple-hover); }
 /* Hand-to-scaler: live preview + the hop chain */
 .hnd-split { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-top: 16px; }
 .hnd-preview { flex: 0 0 auto; }
+/* Prelander then landing page, in the order the visitor meets them. Wraps as a unit
+   so the pair never splits across the detail column on a narrow window. */
+.hnd-pair { display: flex; gap: 16px; flex-wrap: wrap; }
+.hnd-step-tag { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.hnd-step-tag .n { width: 17px; height: 17px; border-radius: 50%; background: var(--purple-dim); border: 1px solid var(--input-border); color: var(--purple); font-size: 10px; display: flex; align-items: center; justify-content: center; }
+.hnd-arrow { align-self: center; color: var(--muted); font-size: 20px; padding-bottom: 30px; }
 .hnd-phone { width: 300px; height: 620px; border-radius: 26px; border: 8px solid #23232e; background: #000; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,.5); }
 /* The lander is same-origin on the live domain, so it renders here. X-Frame-Options
    is SAMEORIGIN — an iframe of a page on ANOTHER host would be blank, which is why
@@ -333,7 +339,7 @@ td a:hover { color: var(--purple-hover); }
     <h3>Live Assignments <span class="item-count" id="asgCount">0 assigned</span></h3>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Carrd page</th><th>Landing page</th><th>Offer</th><th>Status</th></tr></thead>
+        <thead><tr><th>Carrd page</th><th>Prelander</th><th>Landing page</th><th>Offer</th><th>Status</th></tr></thead>
         <tbody id="asgTable"></tbody>
       </table>
     </div>
@@ -853,25 +859,22 @@ async function tlAffLink(code) {
   panel.innerHTML = `
     <div class="hnd-split">
       <div class="hnd-preview">
-        <div class="hnd-phone"><iframe src="${esc(r.preview_url)}" title="Landing page preview"
-          sandbox="allow-scripts allow-same-origin"></iframe></div>
-        <div class="hnd-caption">
-          <!-- r.code, not aff.code: every other value on this screen comes from the
-               server's trace, and a caption sourced from the local record could
-               disagree with the link shown beside it. One source. -->
-          ${esc(aff.name)}'s page, with <b>s1=${esc(r.code)}</b>.
-          <a href="${esc(r.preview_url)}" target="_blank" rel="noopener">Open in a new tab ↗</a>
-          ${hndPreviewBlocked(r.preview_url)
-            ? '<br><b style="color:var(--yellow)">Frame blocked:</b> open this dashboard on ' +
-              'www.tokrwd.co to see the inline preview, or use the link above.'
-            : ''}
-        </div>
+        <!-- r.code, not aff.code: every other value on this screen comes from the
+             server's trace, and a caption sourced from the local record could
+             disagree with the link shown beside it. One source. -->
+        ${hndPhonePair(r.prelander_preview_url, r.preview_url,
+          `${esc(aff.name)}'s page, with <b>s1=${esc(r.code)}</b>.`)}
       </div>
       <div class="hnd-detail">
         <div class="resolve-panel" style="margin-top:0;">
           <div class="resolve-row"><span class="k">Person</span><span class="v">${esc(aff.name)}${aff.email ? ' · ' + esc(aff.email) : ''}</span></div>
           <div class="resolve-row"><span class="k">Offer</span><span class="v">${
             chain.offer_label ? esc(chain.offer_label) : '<span class="bad-pill">not bound</span>'}</span></div>
+          <div class="resolve-row"><span class="k">Prelander</span><span class="v">${
+            r.prelander_preview_url
+              ? '<span class="ok-pill">on</span> — opens their real browser first'
+              : '<span class="unk-pill">none</span>'
+          }</span></div>
           <div class="resolve-row"><span class="k">Routing</span><span class="v">${
             h ? (h.bound ? '<span class="ok-pill">page assigned</span>' : '<span class="unk-pill">via lp= on the link</span>') : '—'
           }</span></div>
@@ -1175,6 +1178,9 @@ function asgRender() {
   document.getElementById('asgTable').innerHTML = routes.map(r => `
     <tr>
       <td><a href="https://${esc(r.host)}" target="_blank" rel="noopener">${esc(r.host)}</a></td>
+      <td>${r.prelander
+        ? `<a href="${esc(r.prelander)}" target="_blank" rel="noopener" class="ok-pill" style="text-decoration:none;">/pre</a>`
+        : '<span class="unk-pill">none</span>'}</td>
       <td style="font-family:monospace;font-size:12px;">${esc(r.url || r.lander)}</td>
       <td>${r.offer ? esc(asgOfferLabel(r.offer)) : '<span class="bad-pill">not bound</span>'}</td>
       <td>${r.valid ? '<span class="ok-pill">live</span>' : '<span class="bad-pill">broken</span>'}</td>
@@ -1218,18 +1224,32 @@ async function asgCheck() {
   } },`;
 
   panel.innerHTML = '<div class="resolve-panel">Checking…</div>';
-  let r;
+  let r, t;
   try {
-    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+    const post = (body) => fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      body: JSON.stringify(body)
+    }).then(res => res.json());
+
+    // Two questions, two calls. `resolve_lander` answers "where does this page route
+    // TODAY"; `trace_chain` answers "what would the visitor actually walk once it is
+    // assigned to THIS lander" — which is what the previews below show. The proposed
+    // pairing is not live yet, so resolve_lander cannot answer for it.
+    [r, t] = await Promise.all([
+      post({
         action: 'resolve_lander',
         carrd_url: `https://${host}/?campid=SPK-A1B2-C3D4`,
         allow_custom_campid: true
-      })
-    });
-    r = await res.json();
+      }),
+      post({
+        action: 'trace_chain',
+        lander: key,
+        code: 'SPK-A1B2-C3D4',
+        carrd: host,
+        allow_custom_campid: true
+      }),
+    ]);
   } catch (e) {
     panel.innerHTML = '<div class="resolve-panel">Could not reach the API.</div>';
     return;
@@ -1238,6 +1258,7 @@ async function asgCheck() {
     panel.innerHTML = `<div class="resolve-panel">${esc(r.error || 'Error')}</div>`;
     return;
   }
+  t = t || {};
 
   const isLive = r.source === 'carrd_route' && r.lander === (lander && lander.url);
   const status = isLive
@@ -1251,6 +1272,13 @@ async function asgCheck() {
       <div class="resolve-row"><span class="k">Fires offer</span><span class="v">${
         lander && lander.offer ? esc(asgOfferLabel(lander.offer)) : '<span class="bad-pill">not bound</span>'
       }</span></div>
+      <div class="resolve-row"><span class="k">Prelander</span><span class="v">${
+        t.prelander_preview_url
+          ? '<span class="ok-pill">on</span> — <span style="font-family:inherit">the visitor meets /pre first, which hands them to their real browser</span>'
+          : (t.prelander_enabled === false
+              ? '<span class="unk-pill">off</span> — PRELANDER_ENABLED is false in links-config.js'
+              : '<span class="unk-pill">none</span> — this page is not in PRELANDER_ALLOWED_ROOTS, so the click goes straight to it')
+      }</span></div>
       <div class="resolve-row"><span class="k">Right now</span><span class="v">${
         esc(r.lander || '—')} <span style="color:var(--muted)">(by ${esc(r.source)})</span></span></div>
       <div class="resolve-row"><span class="k">Status</span><span class="v">${status}</span></div>
@@ -1262,7 +1290,12 @@ async function asgCheck() {
           <button class="btn btn-copy" onclick="copyText(document.getElementById('asgLine').textContent)">📋 Copy</button>
         </div>`}
       ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
-    </div>`;
+      ${(t.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+    </div>
+    ${t.preview_url ? `
+      <div class="hop-step" style="margin-top:18px;">What the visitor sees, in order</div>
+      ${hndPhonePair(t.prelander_preview_url, t.preview_url,
+        'The landing page this assignment sends them to.')}` : ''}`;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -1308,6 +1341,55 @@ function hndPreviewBlocked(previewUrl) {
   } catch (e) {
     return false;
   }
+}
+
+/**
+ * One phone frame. `url` is what opens in a new tab; `frameUrl` is what the iframe
+ * loads — they differ for the prelander, which gets &preview=1 so it renders its
+ * card instead of forwarding the frame to the lander within a second.
+ */
+function hndPhone(n, label, url, caption, frameUrl) {
+  if (!url) return '';
+  const src = frameUrl || url;
+  return `
+    <div>
+      <div class="hnd-step-tag"><span class="n">${n}</span>${esc(label)}</div>
+      <div class="hnd-phone"><iframe src="${esc(src)}" title="${esc(label)} preview"
+        sandbox="allow-scripts allow-same-origin"></iframe></div>
+      <div class="hnd-caption">
+        ${caption}
+        <a href="${esc(url)}" target="_blank" rel="noopener">Open in a new tab ↗</a>
+        ${hndPreviewBlocked(url)
+          ? '<br><b style="color:var(--yellow)">Frame blocked:</b> these pages send ' +
+            'X-Frame-Options SAMEORIGIN, and this dashboard is not on their origin. ' +
+            'Open the dashboard on www.tokrwd.co for the inline preview, or use the link above.'
+          : ''}
+      </div>
+    </div>`;
+}
+
+/**
+ * The visitor's route, previewed in order: prelander first, landing page beside it.
+ *
+ * `preUrl` is empty whenever no prelander fronts this lander — PRELANDER_ENABLED is
+ * off, or the path is outside PRELANDER_ALLOWED_ROOTS — and then this degrades to
+ * the single phone the panel showed before. That emptiness comes from the server
+ * running the same wrapPrelander() live traffic runs, so the panel can never show a
+ * hop the redirect does not actually take.
+ *
+ * The prelander frame carries &preview=1. Belt to the braces of js/breakout.js's own
+ * `window.top !== window.self` check: without one of the two, the preview would
+ * escape-and-redirect itself inside the dashboard and both phones would end up
+ * showing the lander.
+ */
+function hndPhonePair(preUrl, landerUrl, landerCaption) {
+  const pre = hndPhone(
+    1, 'Prelander', preUrl,
+    'Hands them to their real browser before the offer page.',
+    preUrl ? preUrl + (preUrl.includes('?') ? '&' : '?') + 'preview=1' : ''
+  );
+  const lander = hndPhone(preUrl ? 2 : 1, 'Landing page', landerUrl, landerCaption);
+  return `<div class="hnd-pair">${pre}${pre ? '<div class="hnd-arrow">→</div>' : ''}${lander}</div>`;
 }
 
 async function hndTrace() {
@@ -1373,22 +1455,20 @@ async function hndTrace() {
   panel.innerHTML = `
     <div class="hnd-split">
       <div class="hnd-preview">
-        <div class="hnd-phone"><iframe src="${esc(r.preview_url)}" title="Landing page preview"
-          sandbox="allow-scripts allow-same-origin"></iframe></div>
-        <div class="hnd-caption">
-          Rendered with <b>s1=${esc(r.code)}</b> — the page as they will see it.
-          <a href="${esc(r.preview_url)}" target="_blank" rel="noopener">Open in a new tab ↗</a>
-          ${hndPreviewBlocked(r.preview_url)
-            ? '<br><b style="color:var(--yellow)">Frame blocked:</b> landers send ' +
-              'X-Frame-Options SAMEORIGIN, and this dashboard is not on their origin. ' +
-              'Open the dashboard on www.tokrwd.co for the inline preview, or use the link above.'
-            : ''}
-        </div>
+        ${hndPhonePair(r.prelander_preview_url, r.preview_url,
+          `Rendered with <b>s1=${esc(r.code)}</b> — the page as they will see it.`)}
       </div>
       <div class="hnd-detail">
         <div class="resolve-panel" style="margin-top:0;">
           <div class="resolve-row"><span class="k">Offer</span><span class="v">${
             chain.offer_label ? esc(chain.offer_label) : '<span class="bad-pill">not bound</span>'
+          }</span></div>
+          <div class="resolve-row"><span class="k">Prelander</span><span class="v">${
+            r.prelander_preview_url
+              ? '<span class="ok-pill">on</span> — opens their real browser first'
+              : (r.prelander_enabled === false
+                  ? '<span class="unk-pill">off</span> — PRELANDER_ENABLED is false'
+                  : '<span class="unk-pill">none</span> — this page is not in PRELANDER_ALLOWED_ROOTS')
           }</span></div>
           <div class="resolve-row"><span class="k">Page status</span><span class="v">${reach}</span></div>
           <div class="resolve-row"><span class="k">Assigned page</span><span class="v">${
@@ -1453,6 +1533,10 @@ async function tlResolve() {
       ? `<span class="bad-pill">not reachable · ${esc(r.reachable_status)}</span>`
       : '<span class="unk-pill">unknown</span>';
 
+  // "Visitor gets" shows r.returned_url — literally what /r hands the Carrd script,
+  // which is the prelander when one fronts this lander and the lander itself when not.
+  // r.destination stays the LANDING PAGE and moves to its own row, so neither line can
+  // drift from what the redirect actually does.
   panel.innerHTML = `
     <div class="resolve-panel">
       <div class="resolve-row"><span class="k">Routed by</span><span class="v">${esc(SOURCE_LABEL[r.source] || r.source)}</span></div>
@@ -1461,7 +1545,10 @@ async function tlResolve() {
         r.offer ? esc(r.offer_label || r.offer) : '<span class="bad-pill">not bound</span>'
       }</span></div>
       <div class="resolve-row"><span class="k">Page status</span><span class="v">${reach}</span></div>
-      <div class="resolve-row"><span class="k">Visitor gets</span><span class="v">${esc(r.destination || '—')}</span></div>
+      ${r.prelander_url
+        ? `<div class="resolve-row"><span class="k">Then the page</span><span class="v">${esc(r.destination || '—')}</span></div>`
+        : ''}
+      <div class="resolve-row"><span class="k">Visitor gets</span><span class="v">${esc(r.returned_url || r.destination || '—')}</span></div>
       ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
     </div>`;
 }

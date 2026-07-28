@@ -21,12 +21,18 @@ wire scheme see the `sprk-new-offer` skill; for "affiliate's conversions look wr
 
 ## The funnel (current, since 2026-07-21)
 
-    ad ( ?s1=<SPK>&s2=<pub>&s3=<adacct>&s4=&ttclid= )  ->  lander  ->  door  ->  offer
+    ad ( ?s1=<SPK>&s2=<pub>&s3=<adacct>&s4=&ttclid= )  ->  /r  ->  /pre  ->  lander  ->  door  ->  offer
 
-**One hop. No prelander. No cloaking.** The lander renders the SAME markup for every visitor
-(including ad-review crawlers) and forwards the whole query string to its door untouched. There used
-to be an in-app-breakout **prelander** step in front of the landers — it was removed 2026-07-21
-(see Changelog). Do not re-introduce a prelander/breakout hop without an explicit ask.
+**No cloaking.** The lander renders the SAME markup for every visitor (including ad-review
+crawlers) and forwards the whole query string to its door untouched.
+
+**One prelander, in front of everything (added 2026-07-27 — Migi asked; TikTok's in-app webview
+was failing on real devices).** `/pre` hands the visitor to their real browser before the offer
+page. It is ONE page — `pre/index.html` + `js/breakout.js` — and no lander file contains any part
+of it. See "The prelander" below before touching either. Prior history: an in-app-breakout
+prelander per brand existed until 2026-07-21 and was removed for cloaking; the thing that made
+those pages cloaking (`looksLikeReview()` → a different page for reviewers) is deliberately absent
+from this one.
 
 ## Offer → door → canonical file → copies
 
@@ -126,9 +132,17 @@ and emits the `CARRD_ROUTES` line.
 ### Handing a lander to a scaler (admin: "Hand a Landing Page to a Scaler")
 
 Same tab, below the assignment section. Pick a lander + the tracking code they settle against and it
-shows: the page **rendered in an iframe** with `s1` applied, the ad link to send them (from the host
-binding), every hop the click walks, and — the thing they actually need — **which param their sub-ID
-arrives in at their own network**.
+shows: **two phones side by side — `1 Prelander`, then `2 Landing page`** — with `s1` applied, the
+ad link to send them (from the host binding), every hop the click walks, and — the thing they
+actually need — **which param their sub-ID arrives in at their own network**.
+
+The same pair renders in **Assign a Landing Page to a Carrd Page** (under "What the visitor sees, in
+order") and in the per-affiliate **🔗 Link** panel; Live Assignments has a Prelander column. All of
+them come from `hndPhonePair()`, and all of the URLs come from the server — the prelander frame
+carries `&preview=1`, and `js/breakout.js` also refuses to navigate when `window.top !== window.self`,
+because without both the preview would escape-and-redirect itself inside the dashboard and both
+phones would end up showing the lander. A missing left-hand phone is meaningful: it means no
+prelander fronts that lander (kill switch off, or the path is outside `PRELANDER_ALLOWED_ROOTS`).
 
 The hop chain comes from the server action `trace_chain` → `traceOfferChain()` in `links-config.js`,
 which walks `offerForLander` → `OFFERS[].match` → `OFFER_LINKS[]` and builds the final URL with the
@@ -207,6 +221,84 @@ Three cloaking patterns were removed from every deployed page — recognize them
 archived/demo references and are kept OUT of the deploy via `.vercelignore`. Never link to them and
 never let them deploy. `api/detector.js`, `api/harness.js`, `api/signatures.js` are cloaking
 *detector* QA tooling (they find cloaking, they don't serve it) — leave them.
+
+**Pattern 2 now exists on purpose, in exactly two files** — `pre/index.html` and `js/breakout.js`.
+That is the sanctioned carve-out and nowhere else counts:
+`node api/_lib/_tracking-audit.test.mjs` check 6 **fails the build** if a scheme jump, an in-app UA
+test, `__SUBID_OK`, `display:none!important` or `document.write` appears in any other deployed file.
+The old repo-wide grep was a doc note nobody ran; it is now a test.
+
+## The prelander — `/pre` (2026-07-27)
+
+`ad -> Carrd -> /r -> /pre?…&to=/CLFC -> lander -> door -> offer`
+
+**Why it is one page and not 1000.** `/r` is the single choke point every routing rule already
+funnels into (`lp=` > campaign > `o=` > `CARRD_ROUTES` > default), so `wrapPrelander()` wraps
+whatever `resolveLander()` picked. Every rule gets a prelander; no lander file changed. Put the
+breakout in the landers instead and you have re-smeared it over ~1000 files and lost the
+containment test above.
+
+    api/_lib/links-config.js   PRELANDER_ENABLED · PRELANDER_ALLOWED_ROOTS · wrapPrelander() · hopUrl()
+    api/r.js                   wraps buildLanderUrl()'s answer — the ONLY wrap site
+    pre/index.html             the card. Renders for everyone, identically.
+    js/breakout.js             cleanPath / in-app detection / the escapes / the watchdog
+
+**`PRELANDER_ENABLED = false` + deploy is the kill switch.** `/r` returns landers again and the
+admin panel stops showing the hop. Nothing else has to change.
+
+**Do NOT wrap inside `buildLanderUrl()`.** That function answers "what is the lander URL", and the
+admin panel, the tests and `traceOfferChain` all depend on that answer being the lander.
+
+**Read hops by STEP NAME, never by index** — `hopUrl(chain, 'Their network')`. The prelander shifts
+every later position, and `api/admin/data.js` used `chain.hops[0].url` for `preview_url`, which
+silently became the prelander the moment a hop went in front of it.
+
+### The rules the page holds to (all four are tested)
+
+1. **One destination for everyone.** No UA/IP/bot check ever changes where the visitor goes — only
+   which mechanism opens it. A crawler takes the same branch a desktop buyer does.
+2. **One page for everyone.** No gate, no blanking, no `document.write`. There is deliberately no
+   `looksLikeReview()` — *that*, not the scheme jump, is what made the 2026-07-21 prelanders cloaking.
+3. **The scheme fires only inside a detected webview.** `x-safari-https://` in real Safari renders
+   "the address is invalid" and replaces the document, which would kill the watchdog with it and
+   lose the click. Real browsers get a straight `location.replace`.
+4. **The click is never lost.** Escape worked, escape blocked, user tapped, or the 6s watchdog
+   fires — every path ends on the lander.
+
+### `to=` is the security surface
+
+It is read by a STATIC page with no server in front of it. Both of these were live holes in the
+first cut, so do not relax the checks:
+
+- `to=//evil.com/x` satisfies `^/[A-Za-z0-9._/-]*$` **and** `new URL()` resolves it off-origin. The
+  charset is not the control — collapsing leading `/` and `\` **before** resolving is.
+- `to=/pre` looped forever; `to=/c/<slug>` was a public way to fire our redirector with a chosen
+  sub-ID and no ad spend. Hence `PRELANDER_ALLOWED_ROOTS` (an allowlist, not a denylist) plus
+  `RESERVED_LANDER_ROOTS` in `cleanLanderPath`.
+
+`RESERVED_LANDER_ROOTS` also fixed a pre-existing hole in `lp=`: **`lp=admin` used to resolve**, so
+an ad link could put paid traffic on the dashboard. Reserved paths now fall THROUGH to normal
+routing rather than resolving, so the click still converts.
+
+**Adding a lander folder?** Add its first path segment to `PRELANDER_ALLOWED_ROOTS` *and* to
+`ALLOWED_ROOTS` in `js/breakout.js` — `_links-config.test.mjs` pins the two lists together. Forget
+it and the lander silently loses its prelander (fail-open: the click still lands).
+
+### Known limits — say these out loud rather than rediscovering them
+
+- **Rollout tail.** The Carrd embed caches `/r`'s answer in `sessionStorage` (`_rurl_<campid>`) and
+  reads it *before* it POSTs, so an in-session visitor keeps the old direct-lander URL. Self-heals
+  when the session ends. It cannot be fixed from this repo — `admin/carrd-script.js` is one big
+  comment; the live code is pasted into each Carrd page by hand.
+- **iOS escape is best-effort.** WKWebView hosts drop unregistered schemes silently. The visible
+  "Open in my browser" tap, the instructions and Copy link are the reliable route; the scheme is a
+  bonus. Android's `intent://` carries `S.browser_fallback_url` and encodes `#`/`;`, without which
+  a `#` in a forwarded `ttclid` truncates the target.
+- **`/pre` scores over BLOCK_THRESHOLD on our own `api/signatures.js`.** Expected — the detector's
+  job is to find this mechanism, and this is the one place we run it deliberately. `to` is listed in
+  `DEST_INJECTION` on purpose, so the detector scores our page the way it scores anyone else's.
+- **Forced browser escape is its own TikTok policy question**, separate from cloaking. Migi's call,
+  made 2026-07-27; `PRELANDER_ENABLED` is the lever if it needs reversing.
 
 ## GENERATED landers: ONE PAGE PER GEO, one language per geo (2026-07-26)
 
@@ -477,12 +569,21 @@ Load each edited lander with a full query, e.g. `http://localhost:8899/50FC/FC1/
 - images load (no 404 from the deeper folder path),
 - a BARE visit (no query) does not fabricate an `s1` (no `s1=mc`).
 
-Repo-wide clean check (must return nothing outside `justincase/` and `SIGNAT~1/`):
+The prelander sits in front now, so also load it and confirm the whole chain:
+`http://localhost:8899/pre/index.html?s1=SPK-TEST-0001&s3=acct7&ttclid=TT1&to=%2F50FC%2FFC1` —
+a desktop browser must land on the lander with `s1`/`ttclid`/`s3` intact, **no `to=` on the door
+URL**, and `&preview=1` must render the card without navigating (that is the admin iframe path).
+
+Run the suite. All four must be green — the last two are the prelander's:
 
 ```bash
-grep -rlE "x-safari|intent://|googlechrome-x-callback|musical_ly|bytedance|__SUBID_OK|display:none!important" \
-  --include="*.html" --include="*.js" . | grep -vE "/(\.git|justincase|SIGNAT~1)/"
+for t in _links-config _tracking-audit _traffic-filter _prelander-page; do node "api/_lib/$t.test.mjs" | tail -1; done
 ```
+
+The old repo-wide clean grep is now **check 6 of `_tracking-audit.test.mjs`**, which strips comments
+first (so `js/safe.js` saying it avoids `document.write` no longer reads as using it) and allows the
+scheme patterns only in `pre/index.html` + `js/breakout.js`. Run the test rather than the grep — the
+grep flagged those two sanctioned files and every comment mentioning the patterns.
 
 ## Deploy / push mechanics
 
@@ -518,6 +619,18 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
   and `carrd_route_problems`. Confirmed while doing this: **`appflowconnect.com` is an alias domain of
   this same Vercel project** — the Carrd embed posts to `appflowconnect.com/r`, which runs this repo's
   `api/r.js`, so this repo's `CARRD_ROUTES` is what that traffic follows.
+- **2026-07-27** — **`/pre` prelander in front of every landing page** (Migi: TikTok's in-app browser
+  was failing on his phone). New `pre/index.html` + `js/breakout.js`; `wrapPrelander()` in
+  `links-config.js` applied at the single `/r` choke point, so `lp=`/campaign/`o=`/`CARRD_ROUTES`/
+  default all get one and **no lander file changed**. `traceOfferChain` gained a `Prelander` hop, and
+  every consumer now reads hops by name (`hopUrl`) instead of by index. Admin shows the prelander
+  BESIDE the landing page in all three panels + a Prelander column on Live Assignments.
+  Closed while doing it: `to=//evil.com` was a live open redirect, `to=/pre` looped, `to=/c/<slug>`
+  minted clicks for free — and, pre-existing, **`lp=admin` resolved**, so an ad link could route paid
+  traffic to the dashboard (`RESERVED_LANDER_ROOTS` now makes those fall through). New tests:
+  `_prelander-page.test.mjs` (executes the SHIPPED `js/breakout.js` against a fake DOM; also
+  syntax-checks the admin panel's inline script, after a backtick inside an HTML comment silently
+  killed the whole dashboard) and audit check 6 (breakout code confined to the two sanctioned files).
 - **2026-07-27** — Admin section **Hand a Landing Page to a Scaler**: iframe preview of the lander with
   `s1` applied, the ad link to send, the full hop chain, and the sub-ID param their network receives.
   New `traceOfferChain()` + `carrdHostsForLander()`; new admin action `trace_chain`. **`buildDirectUrl`

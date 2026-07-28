@@ -13,6 +13,8 @@ import {
   resolveOverrideLander, resolveLander, buildLanderUrl, isOwnLanderHost,
   resolveRouteLander, routableLanders,
   traceOfferChain, carrdHostsForLander, buildDirectUrl, getConfiguredOfferLink,
+  PRELANDER_ENABLED, PRELANDER_PATH, PRELANDER_PARAM, PRELANDER_ALLOWED_ROOTS,
+  wrapPrelander, prelanderCanForward, isPrelanderUrl, hopUrl,
 } from './links-config.js';
 
 let pass = 0, fail = 0;
@@ -399,25 +401,38 @@ for (const [name, url] of Object.entries(LANDER_URLS)) {
   eq('…and names his offer', chain.offer, 'gravypass-esgp');
   eq('…as a direct hop, NOT the SPRK door', chain.mode, 'direct');
   eq('…through our own /c/ slug', chain.slug, 'esgp-off');
-  eq('…in three hops: lander → our redirector → their network',
-    chain.hops.map(h => h.step), ['Landing page', 'Our redirector', 'Their network']);
+  // Hops are read BY STEP NAME everywhere, never by index. The prelander shifts every
+  // later position, and the last version of this test indexed hops[2] for the network
+  // hop — which kept returning a URL after the shift, just the wrong one.
+  eq('…in four hops: prelander → lander → our redirector → their network',
+    chain.hops.map(h => h.step),
+    (PRELANDER_ENABLED ? ['Prelander'] : []).concat(['Landing page', 'Our redirector', 'Their network']));
 
   const link = getConfiguredOfferLink('esgp-off');
   eq('the final hop is EXACTLY what /c/esgp-off will emit',
-    chain.hops[2].url,
+    hopUrl(chain, 'Their network'),
     buildDirectUrl(link.destination, link.forwardParam, 'EDWIN-01', { ttclid: 'TT9', s3: 'acct7' }));
   eq('the sub-ID rides in the param his network reads', chain.forward_param, 'sub1');
-  eq('…and the value is his code', new URL(chain.hops[2].url).searchParams.get('sub1'), 'EDWIN-01');
-  eq('ttclid reaches his network', new URL(chain.hops[2].url).searchParams.get('ttclid'), 'TT9');
+  eq('…and the value is his code', new URL(hopUrl(chain, 'Their network')).searchParams.get('sub1'), 'EDWIN-01');
+  eq('ttclid reaches his network', new URL(hopUrl(chain, 'Their network')).searchParams.get('ttclid'), 'TT9');
   eq('the lander hop carries s1 for the page to read',
-    new URL(chain.hops[0].url).searchParams.get('s1'), 'EDWIN-01');
+    new URL(hopUrl(chain, 'Landing page')).searchParams.get('s1'), 'EDWIN-01');
+  // The prelander is hop 1 and must carry s1 at TOP LEVEL. Folded inside `to=` it
+  // would be invisible to anything inspecting the link, and js/breakout.js rebuilds
+  // the lander URL from the top-level query — the code would never reach the door.
+  eq('the prelander hop carries s1 at top level',
+    PRELANDER_ENABLED ? new URL(hopUrl(chain, 'Prelander')).searchParams.get('s1') : 'EDWIN-01',
+    'EDWIN-01');
+  eq('…and points `to` at the lander path',
+    PRELANDER_ENABLED ? new URL(hopUrl(chain, 'Prelander')).searchParams.get(PRELANDER_PARAM) : '/ESGP',
+    '/ESGP');
 
   // No code → the click must still be describable, but the panel has to SAY the
   // sub-ID is empty rather than quietly showing a URL with a missing param.
   const bare = traceOfferChain(ESGP, '');
   eq('a missing code still traces', bare.ok, true);
   eq('…with no sub-ID on the outbound hop',
-    new URL(bare.hops[2].url).searchParams.get('sub1'), null);
+    new URL(hopUrl(bare, 'Their network')).searchParams.get('sub1'), null);
   eq('…and says so in tracks_as', /unattributed/.test(bare.tracks_as), true);
 
   // A door-routed offer is a different story and must not be described as if the
@@ -432,6 +447,85 @@ for (const [name, url] of Object.entries(LANDER_URLS)) {
   eq('an offer-unbound lander does not fake a chain', unbound.ok, false);
   eq('…and explains why', /not bound to an offer/.test(unbound.reason), true);
   eq('no lander at all is rejected', traceOfferChain('', 'X').ok, false);
+}
+
+// ── the prelander (/pre) ─────────────────────────────────────────────────────
+// `to` arrives on a PUBLIC url and is read by a STATIC page with no server in front
+// of it, so these are the assertions standing between a query param and an open
+// redirect on www.tokrwd.co. Every rejection below was a live hole in the first cut.
+{
+  const W = (u) => wrapPrelander(u);
+  const FC = `${DEFAULT_LANDER_ORIGIN}/CLFC?s1=SPK-A1B2-C3D4&ttclid=TT1&s3=acct7`;
+
+  const wrapped = new URL(W(FC));
+  eq('the wrap lands on /pre', wrapped.origin + wrapped.pathname, `${DEFAULT_LANDER_ORIGIN}${PRELANDER_PATH}`);
+  eq('…carrying the lander path in `to`', wrapped.searchParams.get(PRELANDER_PARAM), '/CLFC');
+  eq('…with s1 still TOP LEVEL', wrapped.searchParams.get('s1'), 'SPK-A1B2-C3D4');
+  eq('…ttclid still top level', wrapped.searchParams.get('ttclid'), 'TT1');
+  eq('…s3 still top level', wrapped.searchParams.get('s3'), 'acct7');
+  eq('the wrapped URL is recognisable as a prelander', isPrelanderUrl(W(FC)), true);
+  eq('…and a bare lander is not', isPrelanderUrl(FC), false);
+
+  // Open redirect. `//evil.com/x` passes a naive ^/[A-Za-z0-9._/-]*$ test and
+  // `new URL('//evil.com/x', origin)` resolves it to https://evil.com/x — the
+  // charset is not the control, the order of normalisation is.
+  eq('protocol-relative // is not forwardable', prelanderCanForward('//evil.com/x'), false);
+  eq('backslash-relative is not forwardable', prelanderCanForward('/\\evil.com'), false);
+  eq('traversal is not forwardable', prelanderCanForward('/../../etc/passwd'), false);
+  eq('an absolute URL is not a path', prelanderCanForward('https://evil.com/CLFC'), false);
+  eq('a trailing newline does not slip past', prelanderCanForward('/CLFC\n'), true); // trimmed, then allowed
+  eq('an unknown root is not forwardable', prelanderCanForward('/nope'), false);
+  eq('bare / is not forwardable', prelanderCanForward('/'), false);
+  eq('empty is not forwardable', prelanderCanForward(''), false);
+
+  // Reserved roots. /pre?to=/pre loops forever, and /pre?to=/c/<slug> is a public,
+  // unauthenticated way to fire our redirector with an arbitrary sub-ID and no spend.
+  for (const bad of ['/pre', '/api/admin/data', '/c/esgp-off', '/r', '/admin', '/js/breakout.js', '/images/x.png']) {
+    eq(`reserved: ${bad} is never forwardable`, prelanderCanForward(bad), false);
+    // …and they are not landers either. `lp=admin` used to resolve, which put paid
+    // traffic on the dashboard; `lp=pre` resolved to a prelander with no `to`, which
+    // is a dead click. Both now fall THROUGH to normal routing rather than resolving.
+    eq(`reserved: lp=${bad} does not resolve as a lander`, resolveOverrideLander(bad), '');
+  }
+  eq('lp=//admin cannot sneak past the slash collapse', resolveOverrideLander('//admin'), '');
+  eq('an ad link with lp=pre still routes normally',
+    resolveLander({ carrdUrl: 'https://any.carrd.co/?campid=SPK-A1B2-C3D4&lp=pre' }).source, 'default');
+  eq('so /pre never wraps itself', W(`${DEFAULT_LANDER_ORIGIN}${PRELANDER_PATH}?to=/CLFC`),
+    `${DEFAULT_LANDER_ORIGIN}${PRELANDER_PATH}?to=/CLFC`);
+
+  // Fail OPEN. Anything unwrappable comes back untouched so the click still lands —
+  // losing the prelander is recoverable, losing a paid click is not.
+  eq('an unwrappable lander is returned unchanged',
+    W(`${DEFAULT_LANDER_ORIGIN}/Playful?s1=X`), `${DEFAULT_LANDER_ORIGIN}/Playful?s1=X`);
+  eq('http is returned unchanged', W('http://www.tokrwd.co/CLFC'), 'http://www.tokrwd.co/CLFC');
+  eq('junk is returned unchanged', W('not a url'), 'not a url');
+  eq('empty is returned unchanged', W(''), '');
+
+  // Nested folders and the .html lander have to survive, or those landers silently
+  // lose their prelander while everything else keeps one.
+  eq('a nested clone path is forwardable', prelanderCanForward('/50FC/FC7'), true);
+  eq('the .html lander is forwardable', prelanderCanForward('/FCTT.html'), true);
+  eq('casing is preserved for Vercel',
+    new URL(W(`${DEFAULT_LANDER_ORIGIN}/ESGP`)).searchParams.get(PRELANDER_PARAM), '/ESGP');
+
+  // Every lander the admin can actually assign must get a prelander. A lander missing
+  // from PRELANDER_ALLOWED_ROOTS is silent: /r just stops wrapping it.
+  for (const row of routableLanders()) {
+    eq(`routable lander ${row.name} is prelander-forwardable`,
+      prelanderCanForward(new URL(row.url).pathname), true);
+  }
+
+  // js/breakout.js re-implements this allowlist because it is a static page and
+  // cannot import. Drift is silent in both directions — /r emits a `to` the page then
+  // refuses, and the visitor sits on a prelander that goes nowhere — so pin them.
+  const breakout = readFileSync(new URL('../../js/breakout.js', import.meta.url), 'utf8');
+  const declared = breakout.match(/var ALLOWED_ROOTS\s*=\s*\[([\s\S]*?)\]/);
+  eq('js/breakout.js declares ALLOWED_ROOTS', !!declared, true);
+  const pageRoots = declared
+    ? [...declared[1].matchAll(/'([^']+)'/g)].map(m => m[1]).sort()
+    : ['<unparseable>'];
+  eq('…and it matches PRELANDER_ALLOWED_ROOTS exactly',
+    pageRoots, [...PRELANDER_ALLOWED_ROOTS].sort());
 }
 
 // The ad link handed over comes from the host binding, so the reverse lookup has to
