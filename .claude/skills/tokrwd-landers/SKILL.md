@@ -123,6 +123,32 @@ Admin UI: **Test Lander → "Assign a Landing Page to a Carrd Page."** It lists 
 warns when a host is already assigned (a duplicate host is dead config — the first row always wins),
 and emits the `CARRD_ROUTES` line.
 
+### Handing a lander to a scaler (admin: "Hand a Landing Page to a Scaler")
+
+Same tab, below the assignment section. Pick a lander + the tracking code they settle against and it
+shows: the page **rendered in an iframe** with `s1` applied, the ad link to send them (from the host
+binding), every hop the click walks, and — the thing they actually need — **which param their sub-ID
+arrives in at their own network**.
+
+The hop chain comes from the server action `trace_chain` → `traceOfferChain()` in `links-config.js`,
+which walks `offerForLander` → `OFFERS[].match` → `OFFER_LINKS[]` and builds the final URL with the
+**same `buildDirectUrl`** `api/c/[slug].js` uses. That sharing is load-bearing: `buildDirectUrl` was
+moved out of `api/c/[slug].js` into `links-config.js` precisely so the panel cannot promise a scaler a
+sub-ID param the live redirect does not send. Never re-derive these URLs in the browser.
+
+`traceOfferChain` fails loudly (`ok:false` + `reason`) when a lander is offer-unbound or its `/c/`
+slug is missing/disabled, because both are silent in production — the click just 404s or lands
+unattributed.
+
+Two limits the UI states rather than hides:
+- **The preview iframe needs same-origin.** Landers send `X-Frame-Options: SAMEORIGIN`, so the frame
+  only renders when the dashboard is opened on `www.tokrwd.co/admin`. On `appflowconnect.com/admin`
+  (an alias of the same deploy, but a different origin to the browser) it is refused — `hndPreviewBlocked()`
+  detects that and shows an explanation plus an open-in-new-tab link, instead of an empty black box.
+- **A lander with no Carrd page bound has no ad link to hand over.** The panel says so and gives the
+  `?campid=…&lp=<alias>` form to append to a page you already run, rather than handing over a raw
+  lander URL — that would skip `/r`, which is what filters bots and desktops.
+
 **There is deliberately no Save button, and don't add one.** The admin store is per-lambda in-memory
 (`api/_lib/store.js`), so a write from the dashboard lands in the admin lambda's heap and `/api/r`
 can never read it — the assignment would look saved while every click kept going to the default
@@ -471,3 +497,8 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
   and `carrd_route_problems`. Confirmed while doing this: **`appflowconnect.com` is an alias domain of
   this same Vercel project** — the Carrd embed posts to `appflowconnect.com/r`, which runs this repo's
   `api/r.js`, so this repo's `CARRD_ROUTES` is what that traffic follows.
+- **2026-07-27** — Admin section **Hand a Landing Page to a Scaler**: iframe preview of the lander with
+  `s1` applied, the ad link to send, the full hop chain, and the sub-ID param their network receives.
+  New `traceOfferChain()` + `carrdHostsForLander()`; new admin action `trace_chain`. **`buildDirectUrl`
+  moved from `api/c/[slug].js` into `links-config.js`** so the panel and the live redirect share one
+  builder — verified byte-identical against the production redirect before and after the move.

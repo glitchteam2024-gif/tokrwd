@@ -872,6 +872,152 @@ export function getConfiguredOfferLink(slug) {
 }
 
 /**
+ * Build a direct-mode destination by STRING CONCATENATION, not URL.searchParams.
+ *
+ * searchParams.set() round-trips the existing query, which rewrites
+ * `extra=a%20b` → `extra=a+b` and `?flag` → `?flag=`. Tracker tokens can be
+ * sensitive to both, so the operator-supplied destination is never re-serialised.
+ *
+ * Lives here rather than in api/c/[slug].js because the admin panel shows the
+ * scaler the exact URL their network will receive. Two copies of this would drift,
+ * and the drift would be invisible: the screen would promise one sub-ID param
+ * while the redirect sent another, which is precisely the thing a scaler is
+ * trusting the screen about.
+ */
+export function buildDirectUrl(destination, forwardParam, subId, extras = {}) {
+  let url = String(destination || '');
+  const sep = url.includes('?') ? '&' : '?';
+  const parts = [];
+
+  if (subId) {
+    parts.push(encodeURIComponent(forwardParam) + '=' + encodeURIComponent(subId));
+  }
+  for (const [key, val] of Object.entries(extras)) {
+    if (val) parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(val));
+  }
+
+  return parts.length ? url + sep + parts.join('&') : url;
+}
+
+/**
+ * Every hop a click walks from a lander to the network, computed from config.
+ *
+ * This is the question a scaler actually asks: "what sub-ID will I see in my own
+ * reports, and in which param?" Answering it from the same OFFER_LINKS row and the
+ * same builder /c/:slug uses at runtime is the whole point — a re-implementation
+ * would let the panel promise a sub-ID the redirect does not send.
+ *
+ * Returns { ok, offer, offer_label, mode, slug, hops[], tracks_as, reason }.
+ * `ok:false` with a `reason` whenever the chain cannot complete, because every one
+ * of those cases is silent in production: the visitor just meets a 404 or the
+ * conversion lands unattributed.
+ */
+export function traceOfferChain(landerUrl, subId, extras = {}) {
+  const lander = String(landerUrl || '').trim();
+  if (!lander) return { ok: false, reason: 'No landing page selected.' };
+
+  const code = extractSparkCode(subId);
+  const carry = {};
+  if (extras.ttclid) carry.ttclid = String(extras.ttclid).trim();
+  if (extras.s3) carry.s3 = String(extras.s3).trim();
+
+  const hops = [];
+  const landerWithSub = new URL(lander);
+  if (code) landerWithSub.searchParams.set(SUBID_PARAM, code);
+  for (const [k, v] of Object.entries(carry)) landerWithSub.searchParams.set(k, v);
+  hops.push({ step: 'Landing page', url: landerWithSub.toString() });
+
+  const offer = offerForLander(lander);
+  if (!offer) {
+    return {
+      ok: false, offer: '', offer_label: '', hops,
+      reason: 'This landing page is not bound to an offer, so the outbound hop cannot be derived. ' +
+              'Add it to OVERRIDE_LANDERS (path + offer + owner).',
+    };
+  }
+  const label = (OFFERS[offer] && OFFERS[offer].label) || offer;
+  const match = String((OFFERS[offer] && OFFERS[offer].match) || '');
+
+  // A door-routed offer: the door re-stamps subids itself, so what the affiliate
+  // ends up seeing is decided there, not here. Say so instead of inventing it.
+  const doorMatch = match.match(/^sprktrax\.org\/api\/link\/([a-z0-9-]+)$/i);
+  if (doorMatch) {
+    const doorUrl = new URL(`${DOOR_BASE}/${doorMatch[1]}`);
+    doorUrl.searchParams.set('s1', code);
+    for (const [k, v] of Object.entries(carry)) doorUrl.searchParams.set(k, v);
+    hops.push({ step: 'SPRK door', url: doorUrl.toString() });
+    return {
+      ok: true, offer, offer_label: label, mode: 'door', slug: doorMatch[1], hops,
+      tracks_as: 's1 → the door rewrites it: the affiliate number lands in s1, the spark code moves ' +
+                 'to s2, and a click_id is minted into s5.',
+    };
+  }
+
+  const slugMatch = match.match(/^\/c\/([a-z0-9-]+)$/i);
+  if (!slugMatch) {
+    return { ok: false, offer, offer_label: label, hops, reason: `Offer "${offer}" has an unrecognised match string.` };
+  }
+  const slug = slugMatch[1];
+  const link = getConfiguredOfferLink(slug);
+  if (!link) {
+    return {
+      ok: false, offer, offer_label: label, slug, hops,
+      reason: `/c/${slug} is missing or disabled in OFFER_LINKS, so this hop 404s. ` +
+              'Every click on this page would die there.',
+    };
+  }
+
+  const hop = new URL(`${DEFAULT_LANDER_ORIGIN}/c/${slug}`);
+  if (code) hop.searchParams.set('campid', code);
+  for (const [k, v] of Object.entries(carry)) hop.searchParams.set(k, v);
+  hops.push({ step: 'Our redirector', url: hop.toString() });
+
+  if (link.mode === 'door') {
+    const doorUrl = new URL(`${DOOR_BASE}/${link.doorSlug || slug}`);
+    doorUrl.searchParams.set('s1', code);
+    for (const [k, v] of Object.entries(carry)) doorUrl.searchParams.set(k, v);
+    hops.push({ step: 'SPRK door', url: doorUrl.toString() });
+    return {
+      ok: true, offer, offer_label: label, mode: 'door', slug, hops,
+      tracks_as: 's1 → the door rewrites it before the network sees it.',
+    };
+  }
+
+  if (!link.destination || !isSafeDestination(link.destination)) {
+    return {
+      ok: false, offer, offer_label: label, slug, hops,
+      reason: `/c/${slug} has no usable https destination, so it 404s.`,
+    };
+  }
+
+  const forwardParam = link.forwardParam || link.forward_param || 'sub1';
+  hops.push({
+    step: 'Their network',
+    url: buildDirectUrl(link.destination, forwardParam, code, carry),
+  });
+
+  return {
+    ok: true, offer, offer_label: label, mode: 'direct', slug, hops,
+    forward_param: forwardParam,
+    tracks_as: code
+      ? `${forwardParam}=${code} — this is the value they look for in their own reports.`
+      : `${forwardParam} — empty, because no tracking code was given. The click still converts, ` +
+        'but it lands unattributed in their reports.',
+  };
+}
+
+/** Carrd pages bound to this lander by host, so the panel can show the real ad link. */
+export function carrdHostsForLander(landerUrl) {
+  const target = String(landerUrl || '').trim().replace(/\/+$/, '');
+  if (!target) return [];
+  const hosts = [];
+  for (const [host, value] of CARRD_HOST_MAP.entries()) {
+    if (resolveRouteLander(value).replace(/\/+$/, '') === target) hosts.push(host);
+  }
+  return hosts;
+}
+
+/**
  * Only ever redirect to https, and never to a host we did not intend. An offer
  * link's destination is operator-supplied, but /c/ is a public endpoint and an
  * unchecked destination is an open redirect one bad config line away.

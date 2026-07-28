@@ -124,6 +124,29 @@ td a:hover { color: var(--purple-hover); }
 .ok-pill { background: var(--green-dim); color: var(--green); padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .bad-pill { background: var(--red-dim); color: var(--red); padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .unk-pill { background: rgba(139,139,158,.15); color: var(--muted); padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+
+/* Hand-to-scaler: live preview + the hop chain */
+.hnd-split { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; margin-top: 16px; }
+.hnd-preview { flex: 0 0 auto; }
+.hnd-phone { width: 300px; height: 620px; border-radius: 26px; border: 8px solid #23232e; background: #000; overflow: hidden; box-shadow: 0 14px 40px rgba(0,0,0,.5); }
+/* The lander is same-origin on the live domain, so it renders here. X-Frame-Options
+   is SAMEORIGIN — an iframe of a page on ANOTHER host would be blank, which is why
+   only our own landers are previewable. */
+.hnd-phone iframe { width: 100%; height: 100%; border: 0; display: block; background: #000; }
+.hnd-caption { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; width: 300px; line-height: 1.5; }
+.hnd-detail { flex: 1; min-width: 300px; }
+.hop { display: flex; gap: 11px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+.hop:last-child { border-bottom: 0; }
+.hop-n { flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--purple-dim); border: 1px solid var(--input-border); color: var(--purple); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.hop-body { flex: 1; min-width: 0; }
+.hop-step { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 3px; }
+.hop-url { font-family: 'SF Mono','Fira Code',monospace; font-size: 11.5px; word-break: break-all; color: var(--text); }
+.tracks-as { background: var(--green-dim); border-left: 3px solid var(--green); border-radius: 4px; padding: 10px 12px; margin-top: 12px; font-size: 12.5px; line-height: 1.55; color: #a7f3d0; }
+.tracks-as b { color: #fff; }
+.handoff-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px 14px; margin-top: 10px; }
+.handoff-box .lbl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+.handoff-row { display: flex; align-items: center; gap: 10px; }
+.handoff-row span { flex: 1; font-family: 'SF Mono','Fira Code',monospace; font-size: 12px; word-break: break-all; }
 </style>
 </head>
 <body>
@@ -274,6 +297,36 @@ td a:hover { color: var(--purple-hover); }
       per-lambda memory that <code>/api/r</code> cannot read, so this screen builds the line rather
       than pretending to save it.
     </p>
+  </div>
+
+  <!-- HAND A LANDING PAGE TO A SCALER --------------------------------------
+       Pick the page + the code they settle against, see the page rendered, and get
+       the link to send them plus the exact sub-ID their own network will receive.
+       Every URL here comes from the server's trace_chain, which runs the same
+       config and the same builder /c/:slug uses — so the panel cannot promise a
+       sub-ID the live redirect does not send. -->
+  <div class="card">
+    <h3>Hand a Landing Page to a Scaler</h3>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;">
+        <label>Landing page *</label>
+        <select id="hndLander"></select>
+      </div>
+      <div class="form-group">
+        <label>Tracking code — s1 *</label>
+        <input type="text" id="hndCode" placeholder="EDWIN-01  or  SPK-A1B2-C3D4" />
+      </div>
+      <div class="form-group">
+        <label>s3 — ad account (optional)</label>
+        <input type="text" id="hndS3" placeholder="acct7" />
+      </div>
+      <button class="btn btn-purple" onclick="hndTrace()">▶ Build &amp; Preview</button>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:10px;">
+      <input type="checkbox" id="hndScaler" checked />
+      Scaler — they name their own tracking codes, so don't warn about non-SPK codes
+    </label>
+    <div id="hndOut"></div>
   </div>
 
   <div class="card">
@@ -941,6 +994,9 @@ function asgRender() {
                   group('override', 'Scaler landers (override-only)');
   if (previous) sel.value = previous;
 
+  // Same vocabulary in the handover section below.
+  hndRenderLanderSelect();
+
   // Carrd-page suggestions from the pages already saved on the Carrd Links tab.
   document.getElementById('asgHostList').innerHTML = (DATA.carrd_pages || [])
     .map(p => `<option value="${esc(asgNormHost(p.url))}"></option>`).join('');
@@ -1037,6 +1093,149 @@ async function asgCheck() {
           <button class="btn btn-copy" onclick="copyText(document.getElementById('asgLine').textContent)">📋 Copy</button>
         </div>`}
       ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * HAND A LANDING PAGE TO A SCALER
+ * ══════════════════════════════════════════════════════════════════════════════
+ * Answers the only two questions that matter at handover time: does the page look
+ * right, and what sub-ID will land in THEIR reports.
+ *
+ * Every URL shown comes from the server (`trace_chain`) rather than being rebuilt
+ * here. A client-side re-derivation is exactly how a panel ends up promising a
+ * sub-ID param the live redirect does not send — and the scaler reconciles against
+ * what this screen told them.
+ */
+function hndRenderLanderSelect() {
+  const sel = document.getElementById('hndLander');
+  if (!sel) return;
+  const previous = sel.value;
+  const landers = asgLanders();
+  const group = (kind, label) => {
+    const rows = landers.filter(l => l.kind === kind);
+    if (!rows.length) return '';
+    return `<optgroup label="${label}">` + rows.map(l =>
+      `<option value="${esc(l.key)}">${esc(l.name)} → ${esc(asgOfferLabel(l.offer) || 'unbound')}${
+        l.owner ? ' · ' + esc(l.owner) : ''}</option>`).join('') + '</optgroup>';
+  };
+  sel.innerHTML = group('override', 'Scaler landers (override-only)') +
+                  group('standing', 'Standing landers (affiliate offers)');
+  if (previous) sel.value = previous;
+}
+
+/**
+ * Will the inline preview be refused?
+ *
+ * Landers send X-Frame-Options: SAMEORIGIN, so the iframe only renders when the
+ * dashboard is served from the lander's own origin — true on www.tokrwd.co/admin,
+ * false on appflowconnect.com/admin (an alias of the same deploy, but a different
+ * origin to the browser). Detected up front because a refused frame renders as an
+ * empty black box with nothing in the UI to explain it.
+ */
+function hndPreviewBlocked(previewUrl) {
+  try {
+    return new URL(previewUrl, location.href).origin !== location.origin;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function hndTrace() {
+  const lander = document.getElementById('hndLander').value;
+  const code = document.getElementById('hndCode').value.trim();
+  const s3 = document.getElementById('hndS3').value.trim();
+  const isScaler = document.getElementById('hndScaler').checked;
+  const panel = document.getElementById('hndOut');
+
+  if (!lander) return showToast('Pick a landing page', true);
+  if (!code) return showToast('Tracking code required — without one their conversions land unattributed', true);
+
+  panel.innerHTML = '<div class="resolve-panel">Building…</div>';
+  let r;
+  try {
+    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'trace_chain', lander, code, s3, allow_custom_campid: isScaler })
+    });
+    r = await res.json();
+  } catch (e) {
+    panel.innerHTML = '<div class="resolve-panel">Could not reach the API.</div>';
+    return;
+  }
+  if (!r.success) {
+    panel.innerHTML = `<div class="resolve-panel">${esc(r.error || 'Error')}</div>`;
+    return;
+  }
+
+  const chain = r.chain || {};
+  const hops = (chain.hops || []).map((h, i) => `
+    <div class="hop">
+      <span class="hop-n">${i + 1}</span>
+      <div class="hop-body">
+        <div class="hop-step">${esc(h.step)}</div>
+        <div class="hop-url">${esc(h.url)}</div>
+      </div>
+    </div>`).join('');
+
+  // The link that actually gets sent. A bound Carrd page IS the ad link; with none
+  // bound, say so plainly instead of handing over a URL that skips /r entirely.
+  const handoff = (r.ad_links && r.ad_links.length)
+    ? r.ad_links.map((l, i) => `
+        <div class="handoff-box">
+          <div class="lbl">Send them this link${r.ad_links.length > 1 ? ' (' + (i + 1) + ')' : ''}</div>
+          <div class="handoff-row">
+            <span id="hndLink${i}">${esc(l)}</span>
+            <button class="btn btn-copy" onclick="copyText(document.getElementById('hndLink${i}').textContent)">📋 Copy</button>
+          </div>
+        </div>`).join('')
+    : `<div class="warn">No Carrd page is assigned to this landing page, so there is no ad link to
+        hand over yet. Either assign one above, or append
+        <code>${esc(r.fallback_ad_link || '')}</code> to a Carrd page you already run — the raw lander
+        URL would skip <code>/r</code>, which is what filters bots and desktops.</div>`;
+
+  const reach = r.reachable === true
+    ? `<span class="ok-pill">live · ${esc(r.reachable_status)}</span>`
+    : r.reachable === false
+      ? `<span class="bad-pill">not reachable · ${esc(r.reachable_status)}</span>`
+      : '<span class="unk-pill">unknown</span>';
+
+  panel.innerHTML = `
+    <div class="hnd-split">
+      <div class="hnd-preview">
+        <div class="hnd-phone"><iframe src="${esc(r.preview_url)}" title="Landing page preview"
+          sandbox="allow-scripts allow-same-origin"></iframe></div>
+        <div class="hnd-caption">
+          Rendered with <b>s1=${esc(r.code)}</b> — the page as they will see it.
+          <a href="${esc(r.preview_url)}" target="_blank" rel="noopener">Open in a new tab ↗</a>
+          ${hndPreviewBlocked(r.preview_url)
+            ? '<br><b style="color:var(--yellow)">Frame blocked:</b> landers send ' +
+              'X-Frame-Options SAMEORIGIN, and this dashboard is not on their origin. ' +
+              'Open the dashboard on www.tokrwd.co for the inline preview, or use the link above.'
+            : ''}
+        </div>
+      </div>
+      <div class="hnd-detail">
+        <div class="resolve-panel" style="margin-top:0;">
+          <div class="resolve-row"><span class="k">Offer</span><span class="v">${
+            chain.offer_label ? esc(chain.offer_label) : '<span class="bad-pill">not bound</span>'
+          }</span></div>
+          <div class="resolve-row"><span class="k">Page status</span><span class="v">${reach}</span></div>
+          <div class="resolve-row"><span class="k">Assigned page</span><span class="v">${
+            (r.carrd_hosts || []).length ? esc(r.carrd_hosts.join(', ')) : '<span class="unk-pill">none</span>'
+          }</span></div>
+        </div>
+        ${handoff}
+        <div class="resolve-panel">
+          <div class="hop-step" style="margin-bottom:6px;">Where the click goes</div>
+          ${hops}
+          ${chain.ok
+            ? `<div class="tracks-as"><b>They track on:</b> ${esc(chain.tracks_as)}</div>`
+            : `<div class="warn"><b>This chain does not complete.</b> ${esc(chain.reason || '')}</div>`}
+        </div>
+        ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+      </div>
     </div>`;
 }
 

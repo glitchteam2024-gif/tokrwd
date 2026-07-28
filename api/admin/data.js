@@ -32,6 +32,8 @@ import {
   resolveOverrideLander,
   resolveRouteLander,
   routableLanders,
+  carrdHostsForLander,
+  traceOfferChain,
 } from '../_lib/links-config.js';
 
 /**
@@ -207,6 +209,73 @@ export default async function handler(req, res) {
       // gate in /r is not re-run here: it judges the request that is asking, and
       // the request that is asking is a desktop browser in the dashboard, which
       // would always fail. The warnings below cover the same ground for a link.
+      /**
+       * The full hop chain for a landing page + tracking code, for the panel's
+       * "hand this to a scaler" section. Computed from the SAME config and the
+       * SAME URL builder /c/:slug uses, so what the screen shows a scaler is
+       * exactly what their network will receive.
+       */
+      case 'trace_chain': {
+        const landerRaw = String(body.lander || '').trim();
+        if (!landerRaw) return res.status(400).json({ error: 'lander required' });
+
+        // Accept an override alias, a bare path, or a full URL — the same vocabulary
+        // the rest of this tab speaks, resolved through the same allowlist.
+        const lander = resolveRouteLander(landerRaw) || resolveOverrideLander(landerRaw);
+        if (!lander) {
+          return res.status(400).json({
+            error: 'That landing page did not resolve. It must be a declared lander, an ' +
+                   'OVERRIDE_LANDERS alias, or a path on a host we own.',
+          });
+        }
+
+        const code = String(body.code || '').trim();
+        const chain = traceOfferChain(lander, code, {
+          ttclid: body.ttclid || '',
+          s3: body.s3 || '',
+        });
+
+        const warnings = [];
+        if (!code) {
+          warnings.push(
+            'No tracking code, so the sub-ID goes out EMPTY and their conversions land ' +
+            'unattributed. Put the code you want to settle against on the link.'
+          );
+        } else if (!isCanonicalSpk(extractSparkCode(code)) && !body.allow_custom_campid) {
+          warnings.push(
+            `"${code}" is not a canonical SPK-XXXX-XXXX spark code. That is correct for a ` +
+            'self-managed scaler, who names their own codes — tick Scaler on their row to ' +
+            'silence this. For a network affiliate it means every conversion lands unmatched.'
+          );
+        }
+
+        const hosts = carrdHostsForLander(lander);
+        // The link actually handed over. A bound Carrd page is the real ad link; with
+        // none bound the lander URL is direct-only and needs lp= to route through /r.
+        const adLinks = hosts.map((h) => {
+          const u = new URL(`https://${h}/`);
+          if (code) u.searchParams.set('campid', code);
+          return u.toString();
+        });
+
+        const reach = await checkReachable(lander);
+
+        return res.status(200).json({
+          success: true,
+          lander,
+          code,
+          carrd_hosts: hosts,
+          ad_links: adLinks,
+          // No Carrd page bound → the operator needs lp= to reach this page through /r.
+          fallback_ad_link: adLinks.length ? '' : `?campid=${encodeURIComponent(code || 'CODE')}&${OVERRIDE_PARAM}=${encodeURIComponent(landerRaw)}`,
+          preview_url: chain.hops && chain.hops.length ? chain.hops[0].url : lander,
+          reachable: reach ? reach.ok : null,
+          reachable_status: reach ? reach.status : null,
+          chain,
+          warnings,
+        });
+      }
+
       case 'resolve_lander': {
         const carrdUrl = String(body.carrd_url || '').trim();
         if (!carrdUrl) return res.status(400).json({ error: 'carrd_url required' });

@@ -12,6 +12,7 @@ import {
   landerForCarrd, landerForOfferKey, landerForOverride,
   resolveOverrideLander, resolveLander, buildLanderUrl, isOwnLanderHost,
   resolveRouteLander, routableLanders,
+  traceOfferChain, carrdHostsForLander, buildDirectUrl, getConfiguredOfferLink,
 } from './links-config.js';
 
 let pass = 0, fail = 0;
@@ -385,6 +386,75 @@ for (const [name, url] of Object.entries(LANDER_URLS)) {
   eq('no o= on the link means nothing to conflict with', noKey.offerConflict, null);
   eq('the override still reports its own offer', noKey.offer, 'testerup-mon');
 }
+
+// ── the hop chain shown to a scaler ──────────────────────────────────────────
+// This is what the admin panel promises someone who settles by invoice, so the
+// sub-ID and the param it rides in have to be the REAL ones. Asserted against the
+// OFFER_LINKS row rather than a hardcoded string, so repointing Edwin's link keeps
+// the test honest instead of turning it red.
+{
+  const ESGP = `${DEFAULT_LANDER_ORIGIN}/ESGP`;
+  const chain = traceOfferChain(ESGP, 'EDWIN-01', { ttclid: 'TT9', s3: 'acct7' });
+  eq('chain completes for the scaler lander', chain.ok, true);
+  eq('…and names his offer', chain.offer, 'gravypass-esgp');
+  eq('…as a direct hop, NOT the SPRK door', chain.mode, 'direct');
+  eq('…through our own /c/ slug', chain.slug, 'esgp-off');
+  eq('…in three hops: lander → our redirector → their network',
+    chain.hops.map(h => h.step), ['Landing page', 'Our redirector', 'Their network']);
+
+  const link = getConfiguredOfferLink('esgp-off');
+  eq('the final hop is EXACTLY what /c/esgp-off will emit',
+    chain.hops[2].url,
+    buildDirectUrl(link.destination, link.forwardParam, 'EDWIN-01', { ttclid: 'TT9', s3: 'acct7' }));
+  eq('the sub-ID rides in the param his network reads', chain.forward_param, 'sub1');
+  eq('…and the value is his code', new URL(chain.hops[2].url).searchParams.get('sub1'), 'EDWIN-01');
+  eq('ttclid reaches his network', new URL(chain.hops[2].url).searchParams.get('ttclid'), 'TT9');
+  eq('the lander hop carries s1 for the page to read',
+    new URL(chain.hops[0].url).searchParams.get('s1'), 'EDWIN-01');
+
+  // No code → the click must still be describable, but the panel has to SAY the
+  // sub-ID is empty rather than quietly showing a URL with a missing param.
+  const bare = traceOfferChain(ESGP, '');
+  eq('a missing code still traces', bare.ok, true);
+  eq('…with no sub-ID on the outbound hop',
+    new URL(bare.hops[2].url).searchParams.get('sub1'), null);
+  eq('…and says so in tracks_as', /unattributed/.test(bare.tracks_as), true);
+
+  // A door-routed offer is a different story and must not be described as if the
+  // scaler's own code survives to the network.
+  const door = traceOfferChain(LANDER_URLS.FC, 'SPK-A1B2-C3D4');
+  eq('a door-routed lander traces as door mode', door.mode, 'door');
+  eq('…and says the door rewrites the subids', /door rewrites/.test(door.tracks_as), true);
+
+  // An unbound page cannot have its outbound derived — must fail loudly, since the
+  // whole value of this screen is telling a scaler the truth about their tracking.
+  const unbound = traceOfferChain(`${DEFAULT_LANDER_ORIGIN}/GP`, 'X');
+  eq('an offer-unbound lander does not fake a chain', unbound.ok, false);
+  eq('…and explains why', /not bound to an offer/.test(unbound.reason), true);
+  eq('no lander at all is rejected', traceOfferChain('', 'X').ok, false);
+}
+
+// The ad link handed over comes from the host binding, so the reverse lookup has to
+// agree with CARRD_ROUTES or the operator sends a link that routes somewhere else.
+eq('the ESGP lander reverse-maps to Edwin\'s Carrd page',
+  carrdHostsForLander(`${DEFAULT_LANDER_ORIGIN}/ESGP`), ['laboedomegan.carrd.co']);
+eq('an unbound lander maps to no Carrd page',
+  carrdHostsForLander(`${DEFAULT_LANDER_ORIGIN}/trt`), []);
+
+// buildDirectUrl must not re-serialise the operator's destination: `?flag` becoming
+// `?flag=` or `%20` becoming `+` can break a tracker token.
+eq('an existing query is preserved byte-for-byte, and & is used',
+  buildDirectUrl('https://n.example/?a=1&flag&sp=x%20y', 'sub1', 'C1', {}),
+  'https://n.example/?a=1&flag&sp=x%20y&sub1=C1');
+eq('a destination with no query gets ?',
+  buildDirectUrl('https://n.example/p', 'sub1', 'C1', {}), 'https://n.example/p?sub1=C1');
+eq('an empty sub-ID adds no param',
+  buildDirectUrl('https://n.example/p', 'sub1', '', {}), 'https://n.example/p');
+eq('extras are appended after the sub-ID',
+  buildDirectUrl('https://n.example/p', 'sub1', 'C1', { s3: 'a', ttclid: 'T' }),
+  'https://n.example/p?sub1=C1&s3=a&ttclid=T');
+eq('a sub-ID needing encoding is encoded',
+  buildDirectUrl('https://n.example/p', 'sub1', 'a b&c', {}), 'https://n.example/p?sub1=a%20b%26c');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

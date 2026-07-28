@@ -31,6 +31,7 @@ import { getOfferLink } from '../_lib/store.js';
 import {
   DOOR_BASE,
   PASSTHROUGH_PARAMS,
+  buildDirectUrl,
   extractSparkCode,
   getConfiguredOfferLink,
   isSafeDestination,
@@ -60,36 +61,9 @@ function noStore(res) {
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
 }
 
-/**
- * Build the direct-mode destination URL using string concatenation instead of
- * URL.searchParams to avoid re-serialization that mutates the query string.
- * 
- * The issue: new URL(dest).searchParams.set() round-trips the existing query,
- * which rewrites `extra=a%20b` → `extra=a+b` and `?flag` → `?flag=`. Tracker
- * tokens can be sensitive to both.
- */
-function buildDirectUrl(destination, forwardParam, subId, extras) {
-  let url = destination;
-  const sep = url.includes('?') ? '&' : '?';
-  const parts = [];
-
-  if (subId) {
-    parts.push(encodeURIComponent(forwardParam) + '=' + encodeURIComponent(subId));
-  }
-
-  // Append extras (ttclid, s3) without touching the existing query
-  for (const [key, val] of Object.entries(extras)) {
-    if (val) {
-      parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(val));
-    }
-  }
-
-  if (parts.length > 0) {
-    url += sep + parts.join('&');
-  }
-
-  return url;
-}
+// buildDirectUrl moved to _lib/links-config.js — the admin panel shows scalers the
+// exact URL their network receives, and a second copy here would drift silently:
+// the screen would promise one sub-ID param while this redirect sent another.
 
 export default function handler(req, res) {
   const query = req.query || {};
