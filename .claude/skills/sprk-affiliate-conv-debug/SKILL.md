@@ -282,6 +282,51 @@ without comparing against `cake_conversions`.
 - **Fix/status:** FC folder 50/50 forwarding as of `adbeae8`. When a NEW attribution-blank report
   comes in, always verify the assigned lander forwards before blaming the wire/postback.
 
+### 8. "The tile says N clicks but the SubID rows add up to less" — CAKE-only codes had no row
+- **Presents:** Migi/an affiliate screenshots the Home dashboard: CLICKS tile (and the "All SubIDs"
+  row, same number) shows N, the visible SubID rows sum to fewer. Triggering case 2026-07-27:
+  ssammyofficial18 (aff #12) — tile 7, one row "Izzy / SPK-A10E-2374" showing 4.
+- **Root cause:** the tile sums CAKE landed clicks for EVERY code the affiliate owns
+  (`_applyClicksSpend` over `ce.spks`), but the LIST was seeded from `creativesData`, which is EMPTY
+  on the `moneySource='none'` path, plus two partial backfills — one over `data.creatives`
+  (my-analytics = postback conversions ∪ **in-window door clicks**) and one gated on `clicksMerged`,
+  which is never true while CAKE is the basis (`_cakeSpks` is only ever set together with
+  `clicksSource='cake'`, so that merge block is unreachable). A code with CAKE clicks but **no door
+  row inside the window** and no conversion was counted and never listed. Aff #12's missing 3 were
+  SPK-186D-9E04 — also named "Izzy", whose door traffic all ran 22:00–03:00 UTC, i.e. the previous
+  EASTERN day, so it had zero door rows in the Today/ET window.
+- **Fix/status:** SHIPPED (branch `claude/click-accuracy-fix`, commit `f70be12`, off origin/main —
+  NOT yet merged). One `_ensureClickRows()` replaces both backfills and runs on every path: any code
+  with clicks > 0 gets a row. `my-analytics` now also returns `spk_meta` (live codes' display name /
+  thumbnail / offer) so a CAKE-only row is labelled with the creative's name, not the raw code.
+  Regression pin: `api/_lib/_dashboard-click-rows.test.mjs`.
+- **DIAGNOSTIC SHORTCUT for the next one of these:** the gap is almost always CAKE-vs-door WINDOW
+  skew, not lost traffic. Compare
+  `select spk_code, count(*) from clicks where spk_code in (…their codes…) and created_at >= <ET midnight> group by 1`
+  against a live CAKE /Clicks pull for the same window. CAKE's clock IS UTC (verified 2026-07-27:
+  requesting "07/27/2026 04:00:00" returned a payload whose earliest click_date was
+  2026-07-27T04:06:49, matching the door log 1:1), and `cake_clicks_daily.stat_day` is the click's
+  UTC calendar day — so a code that ran in the evening ET straddles two of its buckets.
+
+### 9. Day-granularity charts were bucketed in UTC while the whole dashboard says "Eastern (ET)"
+- **Presents:** the 7D/30D chart shows traffic (or earnings) on days the affiliate knows they had
+  none, and a day they DID run shows almost nothing. The tile totals are correct, so it reads as "the
+  graph is broken", not "my numbers are wrong".
+- **Root cause:** every day bucket key was a raw `toISOString().slice(0,10)` — UTC — in
+  `my-analytics` (`dayKey`), `_timelineFromEvents`, `buildSeries` and `_seriesByGroup`, while
+  `rangeLabel()` appends the tz abbreviation and the header badge is hard-coded Eastern. ET is
+  UTC−4/−5, so everything between 00:00 and 04:00 UTC plotted one bar LATE. Aff #12, 7D: chart drew
+  94 on 07-21 and 89 on 07-23 (ZERO Eastern clicks on both) while 07-20 showed 2 instead of 96 and
+  07-22 showed 21 instead of 110. The HOURLY path was always correct (UTC hour buckets relabelled
+  through Intl — US zones are whole-hour offsets).
+- **Fix/status:** SHIPPED in the same commit `f70be12`. `_dayKeyOf` / `_nextDayKey` (tz-aware,
+  DST-safe calendar walk) key every daily bucket, and the dashboard sends `tz` to `my-analytics` so
+  the server buckets in the same zone. `setTz` now refetches on day granularity too (the buckets
+  themselves change, a relabel is no longer enough). Pin: `api/_lib/_dashboard-day-buckets.test.mjs`.
+- **Still UTC-bucketed elsewhere (NOT fixed, admin surfaces):** `cake_clicks_daily.stat_day` and
+  every perf/admin surface built on it. Don't compare an affiliate's dashboard day to an admin-board
+  day and assume one of them is broken.
+
 ## Closing the loop
 
 - Tell Migi plainly: what the affiliate sees, what admin sees, which known issue explains the gap,
