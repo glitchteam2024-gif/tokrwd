@@ -68,6 +68,9 @@ network must be able to route traffic onto it. They are registered in `OVERRIDE_
 | `lp=trt`  | `trt/`  | `appflowconnect.com/c/testerup-us-mon-off`       | montrk `a=26648 c=56132`          | Trae / TenX — scaler (aff #2)      |
 | `lp=esgp` | `ESGP/` | `/c/esgp-off` (relative → `www.tokrwd.co`)       | `phef6trk.com/213T8QJ/32BB7QT/`   | Edwin — scaler, own affiliate link |
 
+`ESGP` is also bound to `laboedomegan.carrd.co` by host (see `CARRD_ROUTES` below), so Edwin's ad links
+need no `lp=` on them.
+
 These use `mode:'direct'` on purpose: the payout is the scaler's, so the click must **not** walk the
 SPRK door (which would resolve it to a SPRK affiliate and credit the conversion inside our network).
 No clicks row and no click_id on this path, by design — they settle by invoice, and `sub1` carries the
@@ -96,6 +99,36 @@ lowercased before the alias lookup) but `OVERRIDE_LANDERS.esgp.path` must stay `
 Nothing else. The admin **Test Lander** tab reads `OVERRIDE_LANDERS` from `/api/admin/data`, so the new
 alias appears in its dropdown as `alias → Offer label · owner` automatically, where it gets paired with
 a Carrd page + campid to produce the ad link.
+
+### Binding a Carrd page to a lander (`CARRD_ROUTES`)
+
+`lp=` puts the lander on the AD LINK. `CARRD_ROUTES` binds it to the **Carrd page's hostname**, so
+every ad link on that page routes there with nothing extra on the URL. That is the durable way to give
+someone a page: they get `https://theirpage.carrd.co/?campid=<code>` and never have to carry `lp=`.
+
+    { host: 'laboedomegan.carrd.co', lander: 'esgp' },   // alias into OVERRIDE_LANDERS
+    { host: 'somepage',              lander: LANDER_URLS.FCCA },  // or a standing lander
+
+A row's `lander` is either a `LANDER_URLS` value **or an `OVERRIDE_LANDERS` alias**. The alias form is
+what lets a Carrd page point at a scaler lander that is deliberately kept out of `LANDER_URLS` — see
+`resolveRouteLander`, which also explains why the expansion is lazy (`CARRD_ROUTES` is declared above
+`OVERRIDE_LANDERS`, so resolving in the array literal hits the TDZ).
+
+Precedence is unchanged and matters: **`lp=` > campaign > `o=` > `CARRD_ROUTES` > default.** A host
+binding is the standing assignment; `lp=` and `o=` still override it for a one-off test, which is why
+you can test a new lander on an already-assigned page without unpicking the assignment.
+
+Admin UI: **Test Lander → "Assign a Landing Page to a Carrd Page."** It lists the committed routes
+(host → lander → offer → live/broken), resolves a proposed pairing through the real `resolveLander`,
+warns when a host is already assigned (a duplicate host is dead config — the first row always wins),
+and emits the `CARRD_ROUTES` line.
+
+**There is deliberately no Save button, and don't add one.** The admin store is per-lambda in-memory
+(`api/_lib/store.js`), so a write from the dashboard lands in the admin lambda's heap and `/api/r`
+can never read it — the assignment would look saved while every click kept going to the default
+offer. Assignments are committed config and go live on deploy. Wiring a real Save means giving the
+project an actual datastore (Vercel KV is referenced in a stale `store.js` comment but is **not**
+implemented), not adding a button.
 
 Gotcha when writing a scaler page: the clean check below greps for `display:none` carrying an
 `!important` flag, because that is the blank-page cloaking gate's signature. A legitimate
@@ -430,3 +463,11 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
   "our tracking only" rule). Also fixed on intake: a double-`?` that made the outbound URL malformed,
   a `window.open` with no popup-blocked fallback (silently ate the click in in-app browsers), and
   hotlinked freepik/gstatic/jsdelivr logos repointed at local `/images/`.
+- **2026-07-27** — `CARRD_ROUTES` rows may now name an `OVERRIDE_LANDERS` alias, not just a
+  `LANDER_URLS` value (`resolveRouteLander`), so a Carrd page can be bound to an override-only scaler
+  lander. Bound `laboedomegan.carrd.co` → `esgp`. New admin section **Test Lander → Assign a Landing
+  Page to a Carrd Page** (lists committed routes, resolves through the real router, emits the config
+  line, no fake Save). `/api/admin/data` now returns `carrd_routes`, `routable_landers`, `lander_urls`
+  and `carrd_route_problems`. Confirmed while doing this: **`appflowconnect.com` is an alias domain of
+  this same Vercel project** — the Carrd embed posts to `appflowconnect.com/r`, which runs this repo's
+  `api/r.js`, so this repo's `CARRD_ROUTES` is what that traffic follows.

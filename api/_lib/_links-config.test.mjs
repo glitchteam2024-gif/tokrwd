@@ -11,6 +11,7 @@ import {
   carrdRouteProblems, offerKeyProblems, overrideLanderProblems, offerForLander,
   landerForCarrd, landerForOfferKey, landerForOverride,
   resolveOverrideLander, resolveLander, buildLanderUrl, isOwnLanderHost,
+  resolveRouteLander, routableLanders,
 } from './links-config.js';
 
 let pass = 0, fail = 0;
@@ -24,6 +25,43 @@ const eq = (name, got, want) => {
 // ── the live table ───────────────────────────────────────────────────────────
 eq(`CARRD_ROUTES is valid (${CARRD_ROUTES.length} route(s))`, carrdRouteProblems(), []);
 
+// Route-target resolution. Placed here (not with the routing assertions further
+// down) because it needs only hoisted helpers — the precedence checks that use the
+// `route` const live after its definition.
+//
+// A route may name an OVERRIDE_LANDERS alias, because a scaler lander is kept out
+// of LANDER_URLS so no public `o=` key can reach it.
+eq('an override alias is a valid route target', resolveRouteLander('esgp'), `${DEFAULT_LANDER_ORIGIN}/ESGP`);
+eq('alias route targets are case-insensitive', resolveRouteLander('ESGP'), `${DEFAULT_LANDER_ORIGIN}/ESGP`);
+eq('a standing LANDER_URLS value is still a valid target',
+  resolveRouteLander(LANDER_URLS.FCCA), LANDER_URLS.FCCA);
+// Anything else must resolve to '' — handing the raw string to the Carrd script
+// would 404 every click on that page instead of failing the build.
+eq('an unknown alias is rejected', resolveRouteLander('nope'), '');
+eq('an arbitrary URL is rejected even on our own host',
+  resolveRouteLander('https://www.tokrwd.co/NOT-A-DECLARED-LANDER'), '');
+eq('a foreign route target is rejected', resolveRouteLander('https://evil.com/x'), '');
+eq('empty / null route targets are rejected',
+  [resolveRouteLander(''), resolveRouteLander(null)], ['', '']);
+
+// ── host-bound assignment: Edwin's Carrd page → his own lander ───────────────
+eq('laboedomegan.carrd.co resolves to the ESGP lander',
+  landerForCarrd('https://laboedomegan.carrd.co/?campid=EDWIN-01&ttclid=TT1'),
+  `${DEFAULT_LANDER_ORIGIN}/ESGP`);
+eq('www. and casing on the Carrd host do not break the match',
+  landerForCarrd('https://WWW.LaboEdoMegan.carrd.co/?campid=X'), `${DEFAULT_LANDER_ORIGIN}/ESGP`);
+// Exact-host matching still holds: a page whose name merely CONTAINS his must not
+// inherit his lander, or its clicks silently credit Edwin's link.
+eq('a longer lookalike host does not inherit the route',
+  landerForCarrd('https://notlaboedomegan.carrd.co/?campid=X'), '');
+
+// The routable-lander list feeds the admin dropdown; every row must be a target
+// the validator would then accept, or the UI offers a choice that cannot work.
+eq('every routableLanders() row resolves as a route target',
+  routableLanders().filter(l => !resolveRouteLander(l.key)), []);
+eq('routableLanders() covers both kinds',
+  [...new Set(routableLanders().map(l => l.kind))].sort(), ['override', 'standing']);
+
 // ── hostname matching is EXACT, not substring ────────────────────────────────
 // This is the bug that appears once there are many similarly-named pages: a substring test
 // lets 'hoodie.carrd.co' capture every click meant for 'thegoodhoodie.carrd.co'.
@@ -35,10 +73,12 @@ eq('null input', landerForCarrd(null), '');
 
 // ── validator catches the mistakes that matter ───────────────────────────────
 // Re-implemented against synthetic tables so the checks run regardless of what is configured.
+// Mirrors carrdRouteProblems(), including its use of resolveRouteLander — so an
+// alias target validates here exactly as it does in the real one. If this drifts
+// from the real validator the synthetic cases below start proving nothing.
 function problemsFor(routes) {
   const problems = [];
   const seen = new Map();
-  const known = new Set(Object.values(LANDER_URLS));
   routes.forEach((route, i) => {
     let h = String(route.host || '').trim().toLowerCase().replace(/^www\./, '');
     if (h && !h.includes('.')) h = `${h}.carrd.co`;
@@ -47,7 +87,9 @@ function problemsFor(routes) {
     if (seen.has(h)) problems.push(`duplicate host "${h}" (routes ${seen.get(h)} and ${i}) — the first wins, the second is dead`);
     else seen.set(h, i);
     if (!route.lander) problems.push(`route ${i} (${h}): missing lander`);
-    else if (!known.has(route.lander)) problems.push(`route ${i} (${h}): lander "${route.lander}" is not in LANDER_URLS`);
+    else if (!resolveRouteLander(route.lander)) {
+      problems.push(`route ${i} (${h}): lander "${route.lander}" is neither a LANDER_URLS value nor an OVERRIDE_LANDERS alias`);
+    }
   });
   return problems;
 }
@@ -115,6 +157,36 @@ const AD = (qs) => `https://x.carrd.co/?campid=SPK-A1B2-C3D4&${qs}`;
 const route = (opts) => { const r = resolveLander(opts); return { url: r.url, source: r.source }; };
 
 eq(`OVERRIDE_LANDERS is valid (${Object.keys(OVERRIDE_LANDERS).length} entr(y/ies))`, overrideLanderProblems(), []);
+
+// ── the host assignment, end to end ──────────────────────────────────────────
+// The whole point of a CARRD_ROUTES row is that the ad link carries NOTHING: no
+// lp=, no o=. That bare form is what Edwin's live ads actually use, so it is the
+// case worth asserting.
+{
+  const EDWIN = 'https://laboedomegan.carrd.co/?campid=EDWIN-01&ttclid=TT9';
+  eq('a bare ad link routes by carrd_route, not to the default offer',
+    route({ carrdUrl: EDWIN }),
+    { url: `${DEFAULT_LANDER_ORIGIN}/ESGP`, source: 'carrd_route' });
+  eq('…and reports Edwin\'s offer, so the admin panel can name it',
+    resolveLander({ carrdUrl: EDWIN }).offer, 'gravypass-esgp');
+  // A host assignment is not an `o=`, so there is no ad-vs-lander offer claim to
+  // disagree with — this must not surface a phantom conflict.
+  eq('…with no phantom offer conflict', resolveLander({ carrdUrl: EDWIN }).offerConflict, null);
+  // s1 still has to reach the lander, or the sub-ID never gets to his network.
+  const built = new URL(buildLanderUrl(resolveLander({ carrdUrl: EDWIN }).url, 'EDWIN-01', EDWIN));
+  eq('a custom (non-SPK) scaler campid survives to the lander as s1',
+    built.searchParams.get('s1'), 'EDWIN-01');
+  eq('ttclid survives the host-assigned hop', built.searchParams.get('ttclid'), 'TT9');
+
+  // lp= and o= must still WIN over a host assignment — that is what keeps them
+  // usable for a one-off test on a page that is already assigned.
+  eq('lp= still beats the host assignment',
+    route({ carrdUrl: 'https://laboedomegan.carrd.co/?campid=X&lp=trt' }),
+    { url: `${DEFAULT_LANDER_ORIGIN}/trt`, source: 'override' });
+  eq('o= still beats the host assignment',
+    route({ carrdUrl: 'https://laboedomegan.carrd.co/?campid=X&o=tu' }),
+    { url: LANDER_URLS.TU, source: 'offer_key' });
+}
 
 // accepted forms
 eq('bare path resolves to the lander site',

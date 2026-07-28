@@ -161,9 +161,17 @@ export const LANDER_URLS = {
  * `node api/_lib/_links-config.test.mjs` after editing — it fails on duplicate hosts and on a
  * lander that is not in LANDER_URLS.
  */
+/**
+ * A row's `lander` is either a LANDER_URLS value or an OVERRIDE_LANDERS alias
+ * (a bare string like 'esgp'). See resolveRouteLander for why both are allowed.
+ */
 export const CARRD_ROUTES = [
   // { host: 'thegoodhoodie.carrd.co', lander: LANDER_URLS.FCCA },
   // { host: 'anotherpage',            lander: LANDER_URLS.TU   },
+
+  // Edwin's page → his own Gravy Pass lander. Bound by HOST, so every click off
+  // this Carrd page lands on /ESGP with no `lp=` needed on the ad link.
+  { host: 'laboedomegan.carrd.co', lander: 'esgp' },
 ];
 
 /**
@@ -538,6 +546,55 @@ const CARRD_HOST_MAP = (() => {
 })();
 
 /**
+ * Resolve a CARRD_ROUTES `lander` field to an absolute lander URL.
+ *
+ * Accepts two forms:
+ *   - a LANDER_URLS value        — the standing, `o=`-addressable landers
+ *   - an OVERRIDE_LANDERS alias  — a bare key like 'esgp'
+ *
+ * The alias form exists because a scaler lander is deliberately absent from
+ * LANDER_URLS: that is what stops any `o=` key on a public ad link from routing
+ * traffic onto somebody's private affiliate deal. Binding ONE named Carrd page to
+ * it is a different decision — made by an operator, here in committed config,
+ * not by whatever a client puts on the URL — so it is allowed.
+ *
+ * Anything else resolves to '' and is reported by carrdRouteProblems(). Returning
+ * '' rather than the raw string is the load-bearing part: a typo'd URL would
+ * otherwise be handed to the Carrd script and 404 every click on that page.
+ *
+ * Resolved lazily, at call time, NOT at module load: CARRD_ROUTES is declared
+ * above OVERRIDE_LANDERS in this file, so expanding an alias inside the array
+ * literal would hit the temporal dead zone on OVERRIDE_LANDER_MAP.
+ */
+export function resolveRouteLander(target) {
+  const raw = String(target == null ? '' : target).trim();
+  if (!raw) return '';
+  if (OVERRIDE_LANDER_MAP.has(raw.toLowerCase())) return resolveOverrideLander(raw);
+  return Object.values(LANDER_URLS).includes(raw) ? raw : '';
+}
+
+/**
+ * Every lander a CARRD_ROUTES row may point at, for the admin assignment UI.
+ * One source of truth, so the dropdown cannot offer something the validator
+ * would then reject.
+ */
+export function routableLanders() {
+  const rows = Object.entries(LANDER_URLS).map(([name, url]) => ({
+    key: url, name, url, offer: offerForLander(url), kind: 'standing', owner: '',
+  }));
+  for (const [alias, entry] of Object.entries(OVERRIDE_LANDERS)) {
+    const url = resolveOverrideLander(entry.path);
+    if (url) {
+      rows.push({
+        key: alias, name: alias, url, offer: entry.offer, kind: 'override',
+        owner: entry.owner || '',
+      });
+    }
+  }
+  return rows;
+}
+
+/**
  * Resolve the Carrd page URL the script sent as `h` to a lander.
  * Returns '' when nothing matches, so the caller applies its own default.
  */
@@ -550,7 +607,7 @@ export function landerForCarrd(carrdUrl) {
   } catch {
     return ''; // not a URL — fall back to the default lander rather than guessing
   }
-  return CARRD_HOST_MAP.get(host) || '';
+  return resolveRouteLander(CARRD_HOST_MAP.get(host) || '');
 }
 
 /**
@@ -560,7 +617,6 @@ export function landerForCarrd(carrdUrl) {
 export function carrdRouteProblems() {
   const problems = [];
   const seen = new Map();
-  const known = new Set(Object.values(LANDER_URLS));
 
   CARRD_ROUTES.forEach((route, i) => {
     const h = normHost(route.host);
@@ -569,7 +625,11 @@ export function carrdRouteProblems() {
     if (seen.has(h)) problems.push(`duplicate host "${h}" (routes ${seen.get(h)} and ${i}) — the first wins, the second is dead`);
     else seen.set(h, i);
     if (!route.lander) problems.push(`route ${i} (${h}): missing lander`);
-    else if (!known.has(route.lander)) problems.push(`route ${i} (${h}): lander "${route.lander}" is not in LANDER_URLS`);
+    else if (!resolveRouteLander(route.lander)) {
+      problems.push(
+        `route ${i} (${h}): lander "${route.lander}" is neither a LANDER_URLS value nor an OVERRIDE_LANDERS alias`
+      );
+    }
   });
 
   return problems;

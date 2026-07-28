@@ -243,6 +243,51 @@ td a:hover { color: var(--purple-hover); }
 
 <!-- TEST LANDER TAB -->
 <div class="tab-panel" id="panel-testlander">
+
+  <!-- ASSIGN A LANDING PAGE TO A CARRD PAGE ---------------------------------
+       Host-based routing: every click off the chosen Carrd page gets the chosen
+       lander, with no `lp=` needed on the ad link. This is CARRD_ROUTES, which
+       lives in committed config rather than the admin store, because the store is
+       per-lambda in-memory — a write here is invisible to /api/r. So the section
+       assigns, resolves it through the REAL routing code, and emits the one config
+       line; it never pretends a browser-only save changed live traffic. -->
+  <div class="card">
+    <h3>Assign a Landing Page to a Carrd Page</h3>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;">
+        <label>Carrd page *</label>
+        <input type="text" id="asgHost" list="asgHostList" placeholder="laboedomegan.carrd.co" />
+        <datalist id="asgHostList"></datalist>
+      </div>
+      <div class="form-group" style="flex:2;">
+        <label>Landing page *</label>
+        <select id="asgLander"></select>
+      </div>
+      <button class="btn btn-purple" onclick="asgCheck()">🔍 Check</button>
+    </div>
+    <div id="asgOut"></div>
+    <p class="hint" style="margin-top:12px;">
+      Binds by <b>hostname</b>, so it applies to every ad link on that page — nothing to add to the
+      URL. An <code>lp=</code> or <code>o=</code> on a link still wins over this (that is what makes
+      them usable for a one-off test). Assignments live in <code>CARRD_ROUTES</code> in
+      <code>api/_lib/links-config.js</code> and <b>go live on deploy</b> — the admin store is
+      per-lambda memory that <code>/api/r</code> cannot read, so this screen builds the line rather
+      than pretending to save it.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Live Assignments <span class="item-count" id="asgCount">0 assigned</span></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Carrd page</th><th>Landing page</th><th>Offer</th><th>Status</th></tr></thead>
+        <tbody id="asgTable"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="asgEmpty">No Carrd pages assigned yet — unassigned pages fall through to the default offer.</div>
+    <div id="asgProblems"></div>
+  </div>
+
   <div class="card">
     <h3>Add a Landing Page to Test</h3>
     <div class="form-row">
@@ -463,6 +508,7 @@ function render() {
   renderLanders();
   renderPostbacks();
   tlRender();
+  asgRender();
 }
 
 function renderCarrd() {
@@ -839,6 +885,159 @@ function tlBuild() {
   if (s3) u.searchParams.set('s3', s3); else u.searchParams.delete('s3');
   out.textContent = u.toString();
   return u.toString();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * ASSIGN A LANDING PAGE TO A CARRD PAGE  (CARRD_ROUTES)
+ * ══════════════════════════════════════════════════════════════════════════════
+ * Host-based routing. Reads the COMMITTED table from /api/admin/data, so what this
+ * screen lists is what live traffic follows — not a browser-local wish list.
+ *
+ * There is deliberately no "Save" button. The admin store is per-lambda in-memory
+ * (see api/_lib/store.js), so a save here would land in the admin lambda's heap
+ * and /api/r would never see it: the assignment would read as done and every
+ * click would keep going to the default offer. A button that silently does
+ * nothing is worse than no button, so this emits the config line instead.
+ */
+function asgRoutes() {
+  return (DATA.routing && DATA.routing.carrd_routes) || [];
+}
+
+function asgLanders() {
+  return (DATA.routing && DATA.routing.routable_landers) || [];
+}
+
+function asgOfferLabel(key) {
+  const offers = (DATA.routing && DATA.routing.offers) || {};
+  return (offers[key] && offers[key].label) || key || '';
+}
+
+/** Same normalisation the server applies, so the UI and the config agree. */
+function asgNormHost(input) {
+  let h = String(input || '').trim().toLowerCase();
+  if (!h) return '';
+  h = h.replace(/^https?:\/\//, '').split('/')[0].split('?')[0].replace(/^www\./, '');
+  if (!h) return '';
+  return h.includes('.') ? h : h + '.carrd.co';
+}
+
+function asgRender() {
+  const routes = asgRoutes();
+  const landers = asgLanders();
+
+  // Landing-page picker, grouped so a scaler's private page is never mistaken for
+  // one of the standing affiliate landers.
+  const sel = document.getElementById('asgLander');
+  const previous = sel.value;
+  const group = (kind, label) => {
+    const rows = landers.filter(l => l.kind === kind);
+    if (!rows.length) return '';
+    return `<optgroup label="${label}">` + rows.map(l =>
+      `<option value="${esc(l.key)}">${esc(l.name)} → ${esc(asgOfferLabel(l.offer) || 'unbound')}${
+        l.owner ? ' · ' + esc(l.owner) : ''
+      }</option>`).join('') + '</optgroup>';
+  };
+  sel.innerHTML = group('standing', 'Standing landers (affiliate offers)') +
+                  group('override', 'Scaler landers (override-only)');
+  if (previous) sel.value = previous;
+
+  // Carrd-page suggestions from the pages already saved on the Carrd Links tab.
+  document.getElementById('asgHostList').innerHTML = (DATA.carrd_pages || [])
+    .map(p => `<option value="${esc(asgNormHost(p.url))}"></option>`).join('');
+
+  document.getElementById('asgCount').textContent = routes.length + ' assigned';
+  document.getElementById('asgEmpty').style.display = routes.length ? 'none' : 'block';
+  document.getElementById('asgTable').innerHTML = routes.map(r => `
+    <tr>
+      <td><a href="https://${esc(r.host)}" target="_blank" rel="noopener">${esc(r.host)}</a></td>
+      <td style="font-family:monospace;font-size:12px;">${esc(r.url || r.lander)}</td>
+      <td>${r.offer ? esc(asgOfferLabel(r.offer)) : '<span class="bad-pill">not bound</span>'}</td>
+      <td>${r.valid ? '<span class="ok-pill">live</span>' : '<span class="bad-pill">broken</span>'}</td>
+    </tr>
+  `).join('');
+
+  // Config problems are printed rather than swallowed: every one of them is silent
+  // at runtime — /r just returns a different page than the screen implies.
+  const problems = (DATA.routing && DATA.routing.carrd_route_problems) || [];
+  document.getElementById('asgProblems').innerHTML = problems.length
+    ? problems.map(p => `<div class="warn">${esc(p)}</div>`).join('')
+    : '';
+}
+
+/**
+ * Resolve the proposed assignment through the REAL routing code and show both the
+ * outcome and the line to commit. Sends a bare ad link (no lp=, no o=) because
+ * those two beat CARRD_ROUTES — including them would prove the wrong thing.
+ */
+async function asgCheck() {
+  const host = asgNormHost(document.getElementById('asgHost').value);
+  const key = document.getElementById('asgLander').value;
+  const panel = document.getElementById('asgOut');
+
+  if (!host) return showToast('Carrd page required', true);
+  if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(host)) return showToast('That is not a valid hostname', true);
+  if (!key) return showToast('Pick a landing page', true);
+
+  const lander = asgLanders().find(l => l.key === key);
+  const existing = asgRoutes().find(r => r.host === host);
+  // A second row for the same host is DEAD — the first match wins — so say that
+  // now rather than letting it be committed and quietly ignored.
+  const dupWarning = existing
+    ? `<div class="warn"><b>${esc(host)} is already assigned</b> to ${esc(existing.url || existing.lander)}. ` +
+      `Edit that row in CARRD_ROUTES instead of adding a second one — a duplicate host is dead config, ` +
+      `the first entry always wins.</div>`
+    : '';
+
+  const line = `  { host: '${host}', lander: ${
+    lander && lander.kind === 'override' ? `'${key}'` : 'LANDER_URLS.' + (lander ? lander.name : '?')
+  } },`;
+
+  panel.innerHTML = '<div class="resolve-panel">Checking…</div>';
+  let r;
+  try {
+    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'resolve_lander',
+        carrd_url: `https://${host}/?campid=SPK-A1B2-C3D4`,
+        allow_custom_campid: true
+      })
+    });
+    r = await res.json();
+  } catch (e) {
+    panel.innerHTML = '<div class="resolve-panel">Could not reach the API.</div>';
+    return;
+  }
+  if (!r.success) {
+    panel.innerHTML = `<div class="resolve-panel">${esc(r.error || 'Error')}</div>`;
+    return;
+  }
+
+  const isLive = r.source === 'carrd_route' && r.lander === (lander && lander.url);
+  const status = isLive
+    ? '<span class="ok-pill">already live</span>'
+    : '<span class="unk-pill">needs deploy</span>';
+
+  panel.innerHTML = `
+    <div class="resolve-panel">
+      <div class="resolve-row"><span class="k">Carrd page</span><span class="v">${esc(host)}</span></div>
+      <div class="resolve-row"><span class="k">Assign to</span><span class="v">${esc((lander && lander.url) || key)}</span></div>
+      <div class="resolve-row"><span class="k">Fires offer</span><span class="v">${
+        lander && lander.offer ? esc(asgOfferLabel(lander.offer)) : '<span class="bad-pill">not bound</span>'
+      }</span></div>
+      <div class="resolve-row"><span class="k">Right now</span><span class="v">${
+        esc(r.lander || '—')} <span style="color:var(--muted)">(by ${esc(r.source)})</span></span></div>
+      <div class="resolve-row"><span class="k">Status</span><span class="v">${status}</span></div>
+      ${dupWarning}
+      ${isLive ? '' : `
+        <div class="resolve-row" style="margin-top:10px;"><span class="k">Add to</span><span class="v">CARRD_ROUTES in api/_lib/links-config.js</span></div>
+        <div class="result-box" style="margin-top:8px;">
+          <span id="asgLine">${esc(line)}</span>
+          <button class="btn btn-copy" onclick="copyText(document.getElementById('asgLine').textContent)">📋 Copy</button>
+        </div>`}
+      ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+    </div>`;
 }
 
 async function tlResolve() {

@@ -15,17 +15,23 @@ import {
   getSettings, updateSettings, getPostbackLog, setCampaign
 } from '../_lib/store.js';
 import {
+  CARRD_ROUTES,
+  LANDER_URLS,
   OFFERS,
   OFFER_KEYS,
   OVERRIDE_LANDERS,
   OVERRIDE_PARAM,
   SUBID_PARAM,
   buildLanderUrl,
+  carrdRouteProblems,
   extractSparkCode,
   isCanonicalSpk,
   isOwnLanderHost,
+  offerForLander,
   resolveLander,
   resolveOverrideLander,
+  resolveRouteLander,
+  routableLanders,
 } from '../_lib/links-config.js';
 
 /**
@@ -107,6 +113,24 @@ export default async function handler(req, res) {
         offer_keys: OFFER_KEYS,
         offers: OFFERS,
         override_landers: OVERRIDE_LANDERS,
+        lander_urls: LANDER_URLS,
+        // Every lander an assignment may target, already paired with its offer, so
+        // the UI dropdown cannot offer something carrdRouteProblems() would reject.
+        routable_landers: routableLanders(),
+        // The COMMITTED host → lander assignments — the ones live traffic actually
+        // follows. Resolved and offer-labelled here so the dashboard shows the real
+        // destination rather than re-deriving it and drifting.
+        carrd_routes: CARRD_ROUTES.map((r) => {
+          const url = resolveRouteLander(r.lander);
+          return {
+            host: String(r.host || '').trim().toLowerCase().replace(/^www\./, ''),
+            lander: r.lander,
+            url,
+            offer: url ? offerForLander(url) : '',
+            valid: !!url,
+          };
+        }),
+        carrd_route_problems: carrdRouteProblems(),
       },
     });
   }
