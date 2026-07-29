@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<!--
+  The PARTNER portal. A different audience from /admin, and deliberately a separate
+  page: a partner should never see the operator's dashboard, the other partners, or
+  anything they cannot act on.
+
+  It is one static file with no build step and no server of its own, so it can be
+  deployed as its own Vercel project (Root Directory = portal) and still work — it
+  calls the tokrwd deploy's /api/partner cross-origin, authorised by the access code
+  rather than by the origin it was loaded from.
+
+  What a partner can do here: register the Carrd pages they run, set the affiliate
+  link their own clicks end on, and copy the script and links those pages need.
+  What they cannot do: change which landing page they run, or their tracking code —
+  those two decide routing and attribution, they can collide with other partners,
+  and they stay the operator's in /admin.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Partner Portal</title>
+<style>
+  :root {
+    --bg: #0a0a0c; --card: #131318; --line: #24242c; --text: #f2f2f5;
+    --muted: #8b8b98; --accent: #7c5cff; --ok: #2fbf71; --warn: #f5a524; --bad: #f0506e;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 14px; }
+  .sub { color: var(--muted); margin: 0 0 26px; font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  input {
+    width: 100%; padding: 12px 14px; background: #0e0e12; color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px; font-family: inherit;
+    /* 16px exactly: anything smaller makes iOS Safari zoom the page on focus and
+       never zoom back, which strands a partner mid-form on a phone. */
+    font-size: 16px;
+  }
+  input:focus { outline: none; border-color: var(--accent); }
+  button {
+    background: var(--accent); color: #fff; border: 0; border-radius: 10px;
+    padding: 12px 18px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  button:hover { filter: brightness(1.1); }
+  button.ghost { background: #22222b; color: var(--text); }
+  /* 44px is the smallest reliable thumb target. Copy and Remove sit side by side and
+     one of them is destructive, so they also get real space between them. */
+  button.tiny { padding: 11px 14px; font-size: 13px; min-height: 44px; }
+  .page button + button { margin-left: 8px; }
+  .row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .row > div { flex: 1; min-width: 200px; }
+  .kv { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .kv:last-child { border-bottom: 0; }
+  .kv .k { color: var(--muted); width: 132px; flex-shrink: 0; }
+  .kv .v { word-break: break-word; }
+  .mono { font-family: var(--mono); font-size: 12.5px; }
+  .box {
+    background: #0e0e12; border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; margin-top: 10px;
+  }
+  .box code, .box pre { flex: 1; margin: 0; font-family: var(--mono); font-size: 12px; word-break: break-all; white-space: pre-wrap; }
+  /* Capped: unbounded, the embed script was taller than the phone screen several
+     times over and buried everything the partner actually needs to read. */
+  .box pre { max-height: 168px; overflow: auto; }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .pill.ok { background: rgba(47,191,113,.15); color: var(--ok); }
+  .pill.warn { background: rgba(245,165,36,.15); color: var(--warn); }
+  .msg { border-radius: 10px; padding: 11px 14px; font-size: 13.5px; margin-top: 12px; }
+  .msg.bad { background: rgba(240,80,110,.12); color: #ffb3c1; border: 1px solid rgba(240,80,110,.3); }
+  .msg.ok { background: rgba(47,191,113,.12); color: #a7e9c4; border: 1px solid rgba(47,191,113,.3); }
+  .page { display: flex; gap: 10px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .page:last-child { border-bottom: 0; }
+  .page .host { font-weight: 600; }
+  .hint { color: var(--muted); font-size: 13px; margin-top: 14px; }
+  .steps { counter-reset: s; padding: 0; margin: 0; list-style: none; }
+  .steps > li { counter-increment: s; position: relative; padding-left: 34px; margin-bottom: 18px; }
+  .steps > li::before {
+    content: counter(s); position: absolute; left: 0; top: 0;
+    width: 24px; height: 24px; border-radius: 50%; background: var(--accent);
+    color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center;
+  }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="loginView">
+    <h1>Partner Portal</h1>
+    <p class="sub">Enter the access code you were given.</p>
+    <div class="card">
+      <label for="accessInput">Access code</label>
+      <input id="accessInput" placeholder="ABCDE-FGHJK-MNPQR-STUVW" autocomplete="off"
+             autocapitalize="characters" spellcheck="false" />
+      <div style="margin-top:14px;"><button onclick="doLogin()">Open my portal</button></div>
+      <div id="loginMsg"></div>
+      <p class="hint">Lost it? Ask for a new one — codes can be reissued at any time.</p>
+    </div>
+  </div>
+
+  <div id="mainView" class="hide">
+    <h1 id="hello">Your links</h1>
+    <p class="sub" id="helloSub"></p>
+
+    <div class="card">
+      <h2>Your setup</h2>
+      <div id="setup"></div>
+      <div id="chainProblem"></div>
+    </div>
+
+    <div class="card">
+      <h2>Your offer link</h2>
+      <label for="offerInput">The affiliate URL from your network</label>
+      <input id="offerInput" placeholder="https://www.yournetwork.com/ABC123/DEF456/"
+             autocomplete="off" spellcheck="false" autocapitalize="none" inputmode="url" />
+      <div class="row" style="margin-top:12px;">
+        <div style="max-width:180px;">
+          <label for="paramInput">Sub-ID parameter</label>
+          <input id="paramInput" placeholder="sub1" />
+        </div>
+        <button onclick="saveOffer()">Save offer link</button>
+      </div>
+      <div id="offerMsg"></div>
+      <p class="hint">
+        This is where your clicks end up, and it is yours to set. Your tracking code is added to it
+        automatically as the sub-ID, so leave that part off — just paste the plain link from your
+        network. Changes take up to 30 seconds.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Your Carrd pages</h2>
+      <div class="row">
+        <div>
+          <label for="hostInput">Add a Carrd page</label>
+          <input id="hostInput" placeholder="yourpage.carrd.co" autocomplete="off" spellcheck="false"
+                 autocapitalize="none" autocorrect="off" inputmode="url" />
+        </div>
+        <button onclick="addPage()">Add page</button>
+      </div>
+      <div id="pageMsg"></div>
+      <div id="pages" style="margin-top:16px;"></div>
+      <p class="hint">
+        Add a page here and every ad link on it routes to your landing page automatically —
+        nothing extra on the URL. Adding a page takes up to 30 seconds to go live.
+      </p>
+    </div>
+
+    <div class="card" id="setupSteps">
+      <h2>How to set a page up</h2>
+      <ol class="steps">
+        <li>
+          <b>Paste this into your Carrd page.</b> Carrd → <i>+ Embed</i> → Type: <i>Code</i>,
+          Style: <i>Hidden</i>, then paste. Same code on every page — nothing in it changes per page.
+          <div class="box"><pre id="embed"></pre><button class="ghost tiny" onclick="copyEl('embed', this)">Copy</button></div>
+        </li>
+        <li>
+          <b>Use this as your ad's destination URL.</b> One per page, listed above. It already
+          carries your tracking code.
+        </li>
+        <li>
+          <b>Run it on TikTok.</b> The page only redirects for a real TikTok ad click, because
+          TikTok adds a <code>ttclid</code> to the URL and that is what tells us the visit is a
+          genuine buyer rather than a bot or an ad reviewer.
+          <div class="msg bad" style="margin-top:10px;">
+            <b>On another ad network?</b> Facebook, Snap, Google and organic traffic do
+            <b>not</b> add a <code>ttclid</code>, so every one of those clicks will see the
+            placeholder page instead of your offer, and you will pay for nothing. Ask before you
+            point non-TikTok traffic at these links.
+          </div>
+        </li>
+        <li>
+          <b>Testing it yourself will not redirect.</b> Opening the link in your own browser —
+          phone or desktop — shows the placeholder page, because your visit has no
+          <code>ttclid</code>. That is working correctly, not a fault.
+        </li>
+      </ol>
+    </div>
+
+    <div class="card" id="hopsCard">
+      <h2>Where your clicks go</h2>
+      <div id="hops"></div>
+      <p class="hint" id="tracksAs"></p>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="ghost tiny" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/**
+ * Where the API lives.
+ *
+ * This page is meant to be deployable on its own domain, so it cannot assume the
+ * API is same-origin. When it is served from the tokrwd deploy, a relative path
+ * keeps everything on one origin; anywhere else it calls the deploy directly, which
+ * is allowed because the access code — not the origin — is what authorises the call.
+ */
+var API_HOST = 'https://www.tokrwd.co';
+/**
+ * A relative path ONLY when this page is served by the deploy that owns the API.
+ *
+ * Matching any *.tokrwd.co host was a trap: a portal published on its own project at
+ * partners.tokrwd.co would call a relative /api/partner that project has no function
+ * for, and every partner would meet a permanent "the server did not answer properly"
+ * with nothing to explain it. Same-origin is the only safe test.
+ */
+var API = (function () {
+  var h = location.hostname.toLowerCase();
+  var sameDeploy = h === 'www.tokrwd.co' || h === 'tokrwd.co' ||
+                   h === 'appflowconnect.com' || h === 'www.appflowconnect.com' ||
+                   h === 'localhost' || h === '127.0.0.1';
+  return sameDeploy ? '/api/partner' : API_HOST + '/api/partner';
+})();
+
+var STORE = 'tokrwd_partner_access';
+var ACCESS = '';
+var VIEW = null;
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function show(id, msg, kind) {
+  document.getElementById(id).innerHTML = msg
+    ? '<div class="msg ' + (kind || 'bad') + '">' + esc(msg) + '</div>' : '';
+}
+
+/**
+ * Copy, and SAY SO. The button element is captured up front: reading event.target
+ * inside the .then() callback finds nothing, so the confirmation never appeared —
+ * on the one action this whole page exists to support. The catch matters too:
+ * navigator.clipboard is absent in insecure contexts and some in-app browsers, and
+ * without it the tap did nothing at all, silently.
+ */
+function copyValue(text, btn) {
+  var done = function (msg) {
+    if (!btn) return;
+    var old = btn.dataset.label || btn.textContent;
+    btn.dataset.label = old;
+    btn.textContent = msg;
+    setTimeout(function () { btn.textContent = old; }, 1400);
+  };
+  if (!navigator.clipboard) {
+    // Select it so they can copy by hand rather than being left with a dead button.
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      return done('Copied');
+    } catch (e) { return done('Copy failed'); }
+  }
+  navigator.clipboard.writeText(text).then(function () { done('Copied'); },
+                                          function () { done('Copy failed'); });
+}
+
+function copyEl(id, btn) {
+  copyValue(document.getElementById(id).textContent, btn);
+}
+
+async function call(action, extra) {
+  var body = Object.assign({ action: action, access: ACCESS }, extra || {});
+  var res;
+  try {
+    res = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+  } catch (e) {
+    // Offline, DNS failure, blocked request. Unhandled this rejected inside the
+    // click handler and the button just sat on "Checking…" forever.
+    return { error: 'Could not reach the server. Check your connection and try again.' };
+  }
+  var data;
+  try { data = await res.json(); }
+  catch (e) { return { error: 'The server did not answer properly. Try again in a moment.' }; }
+  // A response with neither an error nor a view would otherwise reach render() and
+  // throw halfway through, leaving a half-drawn portal on screen.
+  if (!data || (!data.error && !data.view)) {
+    return { error: 'The server sent an answer we could not read. Try again in a moment.' };
+  }
+  return data;
+}
+
+async function doLogin() {
+  var code = document.getElementById('accessInput').value.trim();
+  if (!code) return show('loginMsg', 'Enter your access code.');
+  show('loginMsg', 'Checking…', 'ok');
+  ACCESS = code;
+  var r = await call('me');
+  if (r.error || !r.view) { ACCESS = ''; return show('loginMsg', r.error || 'Could not open your portal.'); }
+  try { localStorage.setItem(STORE, code); } catch (e) {}
+  show('loginMsg', '');
+  render(r.view);
+}
+
+function signOut() {
+  try { localStorage.removeItem(STORE); } catch (e) {}
+  ACCESS = ''; VIEW = null;
+  document.getElementById('mainView').classList.add('hide');
+  document.getElementById('loginView').classList.remove('hide');
+  document.getElementById('accessInput').value = '';
+  show('loginMsg', '');
+  show('pageMsg', '');
+}
+
+/** The embed script, exactly as it goes into Carrd. Byte-identical for every page. */
+function embedScript() {
+  var origin = VIEW.lander_origin.replace(/\/+$/, '');
+  return [
+    '<div id="po-ld" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:999999;display:flex;align-items:center;justify-content:center;">',
+    '<div style="width:40px;height:40px;border:3px solid #F3F3F3;border-top:3px solid #555;border-radius:50%;animation:r 0.8s linear infinite;"></div>',
+    '</div>',
+    '<style>@keyframes r{to{transform:rotate(360deg)}}</style>',
+    '<' + 'script>',
+    '!function(){try{',
+    'var w=window,d=document,n=navigator,l=location,ua=n.userAgent,',
+    "m=/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)?'t':/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)?'m':'d',",
+    "ci=(function(){try{var q=new URLSearchParams(l.search);return q.get('campid')||q.get('s1')||q.get('cid')||q.get('c')||'';}catch(e){return '';}})(),",
+    "ok=(l.search.match(/[?&]o=([^&]*)/)||['',''])[1],",
+    "ck='_rurl_'+ci+'_'+ok,redirected=false,rUrl;",
+    "function hd(){var el=d.getElementById('po-ld');if(el){el.style.opacity='0';setTimeout(function(){el.style.display='none'},200);}}",
+    'function go(u){redirected=true;rUrl=u;',
+    'try{sessionStorage.setItem(ck,u);}catch(e){}',
+    "try{history.pushState(null,'',l.href);}catch(e){}",
+    'l.replace(u);}',
+    "w.addEventListener('pageshow',function(ev){if(ev.persisted&&rUrl)l.replace(rUrl);});",
+    "w.addEventListener('popstate',function(){if(rUrl)l.replace(rUrl);});",
+    "if(m==='d'){hd();return;}",
+    'if(!ci){hd();return;}',
+    'try{var cached=sessionStorage.getItem(ck);if(cached){go(cached);return;}}catch(e){}',
+    "var enc=encodeURIComponent,body='d='+enc(m)+'&c='+enc(ci)+'&h='+enc(l.href);",
+    'function send(retry){var x=new XMLHttpRequest();',
+    "x.open('POST','" + origin + "/r',!0);",
+    "x.setRequestHeader('Content-Type','application/x-www-form-urlencoded');",
+    'x.timeout=3500;',
+    'x.onload=function(){if(x.status===200){',
+    'try{var j=JSON.parse(x.responseText);if(j.url)go(j.url);else{hd();}}catch(e){hd();}',
+    '}else{if(!retry)send(true);else{hd();}}};',
+    'x.onerror=x.ontimeout=function(){if(!retry)send(true);else{hd();}};',
+    'x.send(body);}',
+    'send(false);',
+    "}catch(e){var el=d.getElementById('po-ld');if(el)el.style.display='none';}}();",
+    '<' + '/script>'
+  ].join('\n');
+}
+
+function render(view) {
+  VIEW = view;
+  document.getElementById('loginView').classList.add('hide');
+  document.getElementById('mainView').classList.remove('hide');
+  // Deliberately NOT view.owner: that field is the operator's note about this
+  // person ("Edwin — scaler, settles by invoice"), written for the admin table and
+  // not for the partner to read about themselves.
+  document.getElementById('hello').textContent = 'Your links';
+  document.getElementById('helloSub').textContent =
+    'Everything you need to point your Carrd pages at your offer.';
+
+  document.getElementById('setup').innerHTML = [
+    kv('Your offer', esc(view.offer || '—')),
+    kv('Landing page', '<span class="mono">' + esc(view.landing_page) + '</span>'),
+    kv('Your tracking code', '<span class="mono">' + esc(view.code) + '</span>'),
+    kv('Your offer link', '<span class="mono">' + esc(view.offer_link || '—') + '</span>' +
+      (view.offer_origin === 'partner' ? ' <span class="pill ok">set by you</span>' : '')),
+    kv('You track on', '<span class="mono">' + esc(view.forward_param) + '</span>')
+  ].join('');
+
+  // A broken chain is the one thing a partner cannot fix themselves, so it says so
+  // rather than showing links that would not convert.
+  document.getElementById('chainProblem').innerHTML = view.chain_ok ? '' :
+    '<div class="msg bad">' + esc(view.chain_problem || 'This setup is incomplete.') +
+    ' Send this message to whoever gave you access — it is not something you can fix here.</div>';
+
+  // A chain that cannot complete means every link on this page would burn budget on
+  // the decoy. Show the pages, but never a ready-to-send link.
+  var broken = !view.chain_ok;
+  document.getElementById('pages').innerHTML = broken
+    ? '<p class="hint">Your pages are listed once the setup above is fixed.</p>'
+    : view.pages.length
+    ? view.pages.map(function (p) {
+        return '<div class="page">' +
+          '<div style="flex:1;min-width:200px;">' +
+            '<div class="host">' + esc(p.host) + '</div>' +
+            '<div class="mono" style="color:var(--muted);">' + esc(p.ad_link) + '</div>' +
+          '</div>' +
+          '<button class="ghost tiny" onclick="copyText(' + JSON.stringify(p.ad_link).replace(/"/g, '&quot;') + ', this)">Copy ad link</button>' +
+          (p.removable
+            ? '<button class="ghost tiny" onclick="removePage(' + JSON.stringify(p.host).replace(/"/g, '&quot;') + ')">Remove</button>'
+            : '<span class="pill ok">main</span>') +
+        '</div>';
+      }).join('')
+    : '<p class="hint">No pages yet — add your first one above.</p>';
+
+  document.getElementById('offerInput').value = view.offer_link || '';
+  document.getElementById('paramInput').value = view.forward_param || 'sub1';
+
+  document.getElementById('embed').textContent = broken ? '' : embedScript();
+  document.getElementById('setupSteps').style.display = broken ? 'none' : '';
+  document.getElementById('hopsCard').style.display = (view.hops || []).length ? '' : 'none';
+
+  document.getElementById('hops').innerHTML = (view.hops || []).map(function (h, i) {
+    return kv((i + 1) + '. ' + esc(h.step), '<span class="mono">' + esc(h.url) + '</span>');
+  }).join('');
+  // The server's phrasing is written about the partner, for the operator. Say it to
+  // them directly instead of handing them a sentence about themselves in third person.
+  document.getElementById('tracksAs').textContent = view.code
+    ? 'In your own network\'s reports, look for ' + view.forward_param + '=' + view.code + '.'
+    : '';
+}
+
+function kv(k, v) {
+  return '<div class="kv"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>';
+}
+
+function copyText(t, btn) { copyValue(t, btn); }
+
+/** Mirrors the server's host normalisation closely enough to label a duplicate. */
+function normHostGuess(input) {
+  var h = String(input || '').trim().toLowerCase()
+    .replace(/^https?:\/\//, '').split('/')[0].split('?')[0].replace(/^(www\.)+/, '');
+  if (h && h.indexOf('.') === -1) h += '.carrd.co';
+  return h;
+}
+
+async function saveOffer() {
+  var dest = document.getElementById('offerInput').value.trim();
+  var param = document.getElementById('paramInput').value.trim() || 'sub1';
+  if (!dest) return show('offerMsg', 'Paste the affiliate link from your network.');
+  if (!/^https:\/\//i.test(dest)) return show('offerMsg', 'It has to start with https://');
+  show('offerMsg', 'Saving…', 'ok');
+  var r = await call('set_offer', { destination: dest, forward_param: param });
+  if (r.error) return show('offerMsg', r.error);
+  show('offerMsg', 'Saved. Your clicks go here from now on — give it up to 30 seconds.', 'ok');
+  render(r.view);
+}
+
+async function addPage() {
+  var host = document.getElementById('hostInput').value.trim();
+  if (!host) return show('pageMsg', 'Type the address of your Carrd page.');
+  show('pageMsg', 'Adding…', 'ok');
+  var r = await call('add_page', { host: host });
+  if (r.error) return show('pageMsg', r.error);
+  var had = (VIEW && VIEW.pages || []).some(function (p) { return p.host === normHostGuess(host); });
+  document.getElementById('hostInput').value = '';
+  show('pageMsg', had
+    ? 'That page was already on your list.'
+    : 'Added. Give it up to 30 seconds to go live.', 'ok');
+  render(r.view);
+}
+
+async function removePage(host) {
+  if (!window.confirm('Remove ' + host + '? Ads on that page will stop routing to your offer.')) return;
+  var r = await call('remove_page', { host: host });
+  if (r.error) return show('pageMsg', r.error);
+  show('pageMsg', 'Removed.', 'ok');
+  render(r.view);
+}
+
+document.getElementById('accessInput').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('hostInput')?.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') addPage();
+});
+
+// Stay signed in on this device. The code is the only credential, so a stale one
+// simply fails and drops back to the login box rather than showing a broken portal.
+(function () {
+  var saved = '';
+  try { saved = localStorage.getItem(STORE) || ''; } catch (e) {}
+  if (!saved) return;
+  ACCESS = saved;
+  call('me').then(function (r) {
+    if (r && r.view) render(r.view);
+    else { ACCESS = ''; try { localStorage.removeItem(STORE); } catch (e) {} }
+  });
+})();
+</script>
+</body>
+</html>

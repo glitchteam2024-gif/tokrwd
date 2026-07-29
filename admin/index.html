@@ -184,6 +184,9 @@ td a:hover { color: var(--purple-hover); }
   <button class="tab" data-tab="testlander" onclick="switchTab('testlander')">
     <span class="tab-icon">🧪</span> Test Lander
   </button>
+  <button class="tab" data-tab="partners" onclick="switchTab('partners')">
+    <span class="tab-icon">🤝</span> Partner Links
+  </button>
   <button class="tab" data-tab="postbacks" onclick="switchTab('postbacks')">
     <span class="tab-icon">🔔</span> Postbacks
   </button>
@@ -299,9 +302,12 @@ td a:hover { color: var(--purple-hover); }
       Binds by <b>hostname</b>, so it applies to every ad link on that page — nothing to add to the
       URL. An <code>lp=</code> or <code>o=</code> on a link still wins over this (that is what makes
       them usable for a one-off test). Assignments live in <code>CARRD_ROUTES</code> in
-      <code>api/_lib/links-config.js</code> and <b>go live on deploy</b> — the admin store is
-      per-lambda memory that <code>/api/r</code> cannot read, so this screen builds the line rather
-      than pretending to save it.
+      <code>api/_lib/links-config.js</code> and <b>go live on deploy</b>; this screen resolves the
+      pairing through the real router and hands you the line to commit.
+      <br /><br />
+      To assign a page to a <b>person</b> — with their own affiliate link, saved without a deploy —
+      use the <b>Partner Links</b> tab instead. That one is backed by a datastore every function can
+      read (once one is connected — that tab says which state it is in), which this section predates.
     </p>
   </div>
 
@@ -469,11 +475,107 @@ td a:hover { color: var(--purple-hover); }
     </div>
     <div class="empty" id="tlEmpty">No test landing pages saved yet.</div>
     <p class="hint" style="margin-top:12px;">
-      Saved in this browser only. There is no shared database behind this dashboard — each API route
-      is its own lambda with its own memory, so a server-side list here could never be read by the
-      endpoint that routes traffic. The link is what carries the override, which is why it works the
-      moment you paste it and needs no deploy.
+      Saved in this browser only — this is a scratch list for testing, not routing. The
+      <code>lp=</code> on the link is what carries the override, which is why it works the moment
+      you paste it and needs no deploy.
+      <br /><br />
+      Standing assignments are a different thing and are not kept here: they live in
+      <b>Partner Links</b>, which is backed by a datastore that <code>/api/r</code> and
+      <code>/c/</code> both read. That tab shows whether one is connected yet.
     </p>
+  </div>
+</div>
+
+<!-- PARTNER LINKS TAB ---------------------------------------------------------
+     One person, one row: their Carrd page, the landing page they run, and THEIR
+     OWN affiliate link from whatever network they are on. The lander keeps firing
+     the same /c/ slug it always has; what changes per person is the destination
+     that slug resolves to, keyed on their tracking code. That is what lets two
+     people run the same landing page on two different affiliate accounts.
+
+     Rows saved here are live as soon as a datastore is connected. Rows in
+     PARTNER_LINKS (api/_lib/links-config.js) go live on deploy and always win a
+     collision, so a saved row can add a person but never silently repoint one that
+     is in source control. -->
+<div class="tab-panel" id="panel-partners">
+
+  <div class="card">
+    <h3>Assign a Link to Someone</h3>
+    <div id="plStorage"></div>
+    <div class="form-row">
+      <div class="form-group" style="flex:2;">
+        <label>Who is it for *</label>
+        <input type="text" id="plOwner" placeholder="Edwin — Gravy Pass" oninput="plSuggestKey()" />
+      </div>
+      <div class="form-group" style="flex:2;">
+        <label>Their Carrd page *</label>
+        <input type="text" id="plCarrd" list="asgHostList" placeholder="fuomgihatetiktok.carrd.co" />
+      </div>
+      <div class="form-group" style="flex:2;">
+        <label>Landing page *</label>
+        <select id="plLander"></select>
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:12px;">
+      <div class="form-group" style="flex:3;">
+        <label>Their offer link — the affiliate URL from their network *</label>
+        <input type="text" id="plDest" placeholder="https://www.phef6trk.com/213T8QJ/32BB7QT/" />
+      </div>
+      <div class="form-group">
+        <label>Their tracking code *</label>
+        <input type="text" id="plCode" placeholder="EDWIN-01" />
+      </div>
+      <div class="form-group" style="max-width:150px;">
+        <label>Sub-ID param</label>
+        <input type="text" id="plParam" placeholder="sub1" value="sub1" />
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:12px;align-items:center;">
+      <div class="form-group" style="max-width:220px;">
+        <label>Row id</label>
+        <input type="text" id="plKey" placeholder="edwin" />
+      </div>
+      <button class="btn btn-purple" onclick="plPreview()">🔍 Preview</button>
+      <button class="btn btn-primary" onclick="plSave()">💾 Save &amp; go live</button>
+    </div>
+    <div id="plOut"></div>
+    <p class="hint" style="margin-top:12px;">
+      The <b>tracking code is the routing key</b>, not a label — it is what tells
+      <code>/c/</code> whose affiliate link this click gets, so it must be the
+      <code>campid</code> on their ad links and it must be unique to them. Their offer link
+      never appears in any page's source; the visitor only ever sees our own redirector.
+      <br /><br />
+      This assigns an <b>existing</b> landing page to a person — it does not create one. A brand
+      new lander is still a commit (the folder, plus its offer binding and prelander root).
+      <br /><br />
+      <b>Already-running visitors keep the old route.</b> The Carrd embed caches the answer from
+      <code>/r</code> in <code>sessionStorage</code> for the length of a session, so a
+      re-assignment reaches a mid-session visitor only once their session ends.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Partner Links <span class="item-count" id="plCount">0 assigned</span></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Who</th><th>Carrd page</th><th>Landing page</th><th>Their code</th>
+          <th>Their offer link</th><th>Where</th><th>Portal</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="plTable"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="plEmpty">No partner links yet.</div>
+    <div id="plProblems"></div>
+  </div>
+
+  <div class="card">
+    <h3>What they get</h3>
+    <div id="plPreviewOut">
+      <p class="hint">Pick a row above and press <b>Preview</b>, or fill the form and preview a
+      pairing before you save it. This shows the exact link to send them, every hop the click
+      walks, and which param their sub-ID arrives in at their own network.</p>
+    </div>
   </div>
 </div>
 
@@ -504,6 +606,13 @@ td a:hover { color: var(--purple-hover); }
 
 <script>
 let ADMIN_KEY = '';
+// Held in memory only, never in localStorage — so that a lander XSS on this shared
+// origin, which CAN read lm_key, still cannot save an assignment.
+//
+// That separation only exists once ADMIN_WRITE_KEY is set in Vercel. Without it the
+// server accepts the ordinary admin key for writes too (see writeSecret() in
+// api/admin/data.js), and this stays empty because it is never asked for.
+let WRITE_KEY = '';
 let DATA = {};
 const API_BASE = '/api/admin/data';
 // Declared up here, not beside the Test Lander code below: render() reaches
@@ -536,10 +645,21 @@ function doAuth() {
   }
 })();
 
+/**
+ * Auth headers. The key travels in a header rather than the query string, because
+ * a query string ends up in every request log and in browser history — and this
+ * key now decides where paid traffic goes, not just what a dashboard shows.
+ */
+function adminHeaders(extra) {
+  const h = { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY };
+  if (WRITE_KEY) h['X-Admin-Write-Key'] = WRITE_KEY;
+  return Object.assign(h, extra || {});
+}
+
 // Fetch all data
 async function fetchData() {
   try {
-    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY));
+    const res = await fetch(API_BASE, { headers: { 'X-Admin-Key': ADMIN_KEY } });
     if (!res.ok) return false;
     DATA = await res.json();
     render();
@@ -549,18 +669,34 @@ async function fetchData() {
 
 // API call helper
 async function apiCall(action, body) {
-  const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+  const res = await fetch(API_BASE, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: adminHeaders(),
     body: JSON.stringify({ action, ...body })
   });
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch (e) {
+    // A platform 500 is an HTML page. Say so rather than throwing out of the click.
+    showToast('The server returned an error page — nothing was changed.', true);
+    return {};
+  }
   if (data.success) {
     await fetchData();
     showToast('Done!');
-  } else {
-    showToast(data.error || 'Error', true);
+    return data;
   }
+  // A separate ADMIN_WRITE_KEY is optional. When the server says the write key is
+  // wrong, ask for it once and retry — it is deliberately never persisted, so a
+  // stolen lm_key on this shared origin still cannot re-route traffic.
+  if (res.status === 401 && !WRITE_KEY) {
+    WRITE_KEY = (window.prompt('Write key (ADMIN_WRITE_KEY — not saved in this browser):') || '').trim();
+    if (WRITE_KEY) return apiCall(action, body);
+  }
+  if (res.status === 401) WRITE_KEY = '';
+  showToast(data.error || 'Error', true);
+  return data;
 }
 
 // Tab switching
@@ -579,6 +715,7 @@ function render() {
   renderPostbacks();
   tlRender();
   asgRender();
+  plRender();
 }
 
 function renderCarrd() {
@@ -802,9 +939,9 @@ async function tlAffLink(code) {
   panel.innerHTML = '<div class="resolve-panel">Building…</div>';
   let r;
   try {
-    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+    const res = await fetch(API_BASE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify({
         action: 'trace_chain',
         lander: aff.lander,
@@ -1226,9 +1363,9 @@ async function asgCheck() {
   panel.innerHTML = '<div class="resolve-panel">Checking…</div>';
   let r, t;
   try {
-    const post = (body) => fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+    const post = (body) => fetch(API_BASE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify(body)
     }).then(res => res.json());
 
@@ -1405,9 +1542,9 @@ async function hndTrace() {
   panel.innerHTML = '<div class="resolve-panel">Building…</div>';
   let r;
   try {
-    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+    const res = await fetch(API_BASE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify({ action: 'trace_chain', lander, code, s3, allow_custom_campid: isScaler })
     });
     r = await res.json();
@@ -1496,9 +1633,9 @@ async function tlResolve() {
   panel.innerHTML = '<div class="resolve-panel">Checking…</div>';
   let r;
   try {
-    const res = await fetch(API_BASE + '?admin_key=' + encodeURIComponent(ADMIN_KEY), {
+    const res = await fetch(API_BASE, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders(),
       body: JSON.stringify({
         action: 'resolve_lander',
         carrd_url: link,
@@ -1552,6 +1689,405 @@ async function tlResolve() {
       ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
     </div>`;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+ * PARTNER LINKS — assign a link to someone
+ * ══════════════════════════════════════════════════════════════════════════════
+ * Their Carrd page, the landing page they run, and their own affiliate link.
+ * Every URL on this screen comes from the server, which resolves it with the same
+ * code a live click runs, so the panel cannot promise a destination or a sub-ID
+ * param that the redirect does not actually send.
+ */
+
+function plRows()    { return DATA.partners || []; }
+function plStorage() { return DATA.storage || {}; }
+
+/** Never put an operator-supplied URL in an href without checking its scheme. */
+function plSafeHref(u) {
+  try { return new URL(u).protocol === 'https:' ? u : '#'; } catch (e) { return '#'; }
+}
+
+/**
+ * A row key, safe to drop inside an onclick="fn('...')" attribute.
+ *
+ * esc() is not enough on its own in that position: the HTML parser decodes entities
+ * in an attribute value BEFORE the JS is parsed, so an escaped quote turns back into
+ * a real one and closes the string. The server already restricts keys to this
+ * charset on both the write and the read path — this repeats it at the point of use
+ * so the guarantee is visible here rather than three files away.
+ */
+function plKeyAttr(k) {
+  return String(k == null ? '' : k).replace(/[^a-z0-9-]/gi, '');
+}
+
+/** Trim a long tracker URL for the table without hiding which host it is on. */
+function plShort(u, n) {
+  const s = String(u || '');
+  return s.length > n ? s.slice(0, n - 1) + '…' : s;
+}
+
+/** Suggest a row id from the person's name, so the operator never has to invent one. */
+function plSuggestKey() {
+  const keyEl = document.getElementById('plKey');
+  if (!keyEl || keyEl.dataset.touched === '1') return;
+  const owner = document.getElementById('plOwner').value || '';
+  keyEl.value = owner.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32);
+}
+
+function plRender() {
+  const rows = plRows();
+  const store = plStorage();
+
+  // The landing-page picker, same vocabulary as the rest of the dashboard.
+  const sel = document.getElementById('plLander');
+  if (sel) {
+    const previous = sel.value;
+    const landers = asgLanders();
+    const group = (kind, label) => {
+      const list = landers.filter(l => l.kind === kind);
+      if (!list.length) return '';
+      return '<optgroup label="' + label + '">' + list.map(l =>
+        `<option value="${esc(l.key)}">${esc(l.name)} → ${esc(asgOfferLabel(l.offer) || 'unbound')}</option>`
+      ).join('') + '</optgroup>';
+    };
+    // The empty first option is load-bearing: without it the select opens already
+    // showing whichever lander happens to render first, plValidate's "pick a landing
+    // page" check can never fire, and an operator who fills the other fields saves a
+    // row bound to a page they never chose — which validates clean.
+    sel.innerHTML = '<option value="">— pick a landing page —</option>' +
+                    group('override', 'Scaler landers (override-only)') +
+                    group('standing', 'Standing landers (affiliate offers)');
+    if (previous) sel.value = previous;
+  }
+
+  // Whether Save can actually persist. Said out loud rather than discovered by
+  // pressing the button: a save that looks like it worked and did not is the exact
+  // failure this whole tab exists to remove.
+  const box = document.getElementById('plStorage');
+  if (box) {
+    if (store.enabled && store.writable) {
+      box.innerHTML = '<div class="resolve-panel"><div class="resolve-row"><span class="k">Saving</span>' +
+        '<span class="v"><span class="ok-pill">live</span> — rows saved here route real traffic within 30 seconds.</span></div></div>';
+    } else {
+      const missing = [];
+      if (!store.enabled) missing.push('connect a Redis (Upstash) database in Vercel → Storage');
+      if (!store.writable) missing.push('set ADMIN_KEY in Vercel → Settings → Environment Variables');
+      box.innerHTML = '<div class="warn"><b>Live saving is off.</b> To turn it on: ' +
+        esc(missing.join(', then ')) + ', then redeploy. Until then this tab still checks an ' +
+        'assignment and hands you the exact row to paste into PARTNER_LINKS in ' +
+        'api/_lib/links-config.js, which goes live on deploy.</div>';
+    }
+  }
+
+  document.getElementById('plCount').textContent = rows.length + ' assigned';
+  document.getElementById('plEmpty').style.display = rows.length ? 'none' : 'block';
+  document.getElementById('plTable').innerHTML = rows.map(p => {
+    const where = p.origin === 'store'
+      ? '<span class="ok-pill">saved here</span>'
+      : '<span class="unk-pill">in code</span>';
+    const lander = p.lander_url
+      ? `<a href="${esc(plSafeHref(p.lander_url))}" target="_blank" rel="noopener">${esc(p.lander)}</a>`
+      : `<span class="bad-pill">${esc(p.lander)} — broken</span>`;
+    // Pages the partner added themselves, through their portal.
+    const extra = (p.hosts || []).length
+      ? `<div style="color:var(--muted);font-size:11px;">+${p.hosts.length} they added</div>` : '';
+    return `
+    <tr>
+      <td>${esc(p.owner || p.key)}</td>
+      <td>
+        <a href="https://${esc(p.carrd)}" target="_blank" rel="noopener">${esc(p.carrd)}</a>
+        ${extra}
+      </td>
+      <td>${lander}</td>
+      <td style="font-family:monospace;font-size:12px;">${esc(p.code)}</td>
+      <td style="font-family:monospace;font-size:11px;" title="${esc(p.destination)}">
+        ${esc(plShort(p.destination, 38))}
+        ${p.offer_origin === 'partner'
+          ? '<div><span class="unk-pill">they set this</span></div>'
+          : ''}
+      </td>
+      <td>${p.has_access
+        ? '<span class="ok-pill">can log in</span>'
+        : '<span class="unk-pill">no login</span>'}</td>
+      <td class="actions">
+        <button class="btn btn-purple btn-sm" onclick="plPreviewRow('${plKeyAttr(p.key)}')" title="Preview">👁</button>
+        <button class="btn btn-copy btn-sm" onclick="plEdit('${plKeyAttr(p.key)}')" title="Edit">✎</button>
+        <button class="btn btn-copy btn-sm" onclick="plAccess('${plKeyAttr(p.key)}')"
+          title="${p.has_access ? 'Replace their portal code' : 'Give them a portal login'}">
+          ${p.has_access ? '🔑' : '🔓'}</button>
+        ${p.origin === 'store'
+          ? `<button class="btn btn-danger btn-sm" onclick="plDelete('${plKeyAttr(p.key)}')" title="Remove">🗑</button>`
+          : ''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Config problems are printed, never swallowed: each one is silent at runtime.
+  const problems = (DATA.partner_problems || [])
+    .concat((DATA.routing && DATA.routing.override_lander_problems) || [])
+    .concat((DATA.routing && DATA.routing.offer_key_problems) || []);
+  document.getElementById('plProblems').innerHTML = problems.length
+    ? problems.map(p => `<div class="warn">${esc(p)}</div>`).join('')
+    : '';
+}
+
+/** Load a row back into the form so it can be corrected rather than retyped. */
+function plEdit(key) {
+  const p = plRows().find(r => r.key === key);
+  if (!p) return;
+  document.getElementById('plKey').value = p.key;
+  document.getElementById('plKey').dataset.touched = '1';
+  document.getElementById('plOwner').value = p.owner || '';
+  document.getElementById('plCarrd').value = p.carrd || '';
+  document.getElementById('plLander').value = p.lander || '';
+  document.getElementById('plCode').value = p.code || '';
+  document.getElementById('plDest').value = p.destination || '';
+  document.getElementById('plParam').value = p.forward_param || 'sub1';
+  if (p.origin !== 'store') {
+    showToast('This row lives in links-config.js — saving will create a store row that cannot override it', true);
+  }
+  document.getElementById('plOwner').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/** Read the form, normalised the same way the server will normalise it. */
+function plForm() {
+  let carrd = (document.getElementById('plCarrd').value || '').trim().toLowerCase()
+    .replace(/^https?:\/\//, '').split('/')[0].split('?')[0].replace(/^www\./, '');
+  if (carrd && !carrd.includes('.')) carrd += '.carrd.co';
+  // Derive the row id here as well as on input. It is an internal handle, not
+  // something the operator should have to think about, and a paste-filled form
+  // never fires the input event that plSuggestKey listens for.
+  const owner = (document.getElementById('plOwner').value || '').trim();
+  let key = (document.getElementById('plKey').value || '').trim().toLowerCase();
+  if (!key) {
+    key = owner.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 32);
+    document.getElementById('plKey').value = key;
+  }
+  return {
+    key: key,
+    owner: owner,
+    carrd: carrd,
+    lander: document.getElementById('plLander').value,
+    code: (document.getElementById('plCode').value || '').trim(),
+    destination: (document.getElementById('plDest').value || '').trim(),
+    forward_param: (document.getElementById('plParam').value || 'sub1').trim(),
+  };
+}
+
+/**
+ * Mirror the server's checks before the round trip, so the obvious mistakes are
+ * caught while the operator is still looking at the field that caused them. The
+ * server re-runs all of it — this is convenience, never the gate.
+ */
+function plValidate(f) {
+  if (!f.owner) return 'Say who this is for.';
+  if (!f.key || !/^[a-z0-9-]{1,64}$/.test(f.key)) return 'Row id must be lowercase letters, digits or dashes.';
+  if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(f.carrd)) return 'That Carrd page is not a valid hostname.';
+  if (!f.lander) return 'Pick a landing page.';
+  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/.test(f.code)) return 'Their tracking code must be 3-64 characters of A-Z 0-9 . _ -';
+  // A SPK-XXXX-XXXX code was minted by SPRK and already belongs to a network
+  // affiliate. Using one here would hand that affiliate's clicks to this partner.
+  if (/^SPK-[0-9A-F]{4}-[0-9A-F]{4}(-\d+)?$/i.test(f.code)) {
+    return 'That is a SPRK-minted spark code — it belongs to a network affiliate. Give this partner a code of their own.';
+  }
+  if (!/^https:\/\//.test(f.destination)) return 'Their offer link must be an https:// URL.';
+  const clash = plRows().find(r => r.key !== f.key && r.code.toUpperCase() === f.code.toUpperCase() && r.lander === f.lander);
+  if (clash) return `That code already belongs to ${clash.owner || clash.key} on this landing page — their clicks would land on the other person's link.`;
+  return '';
+}
+
+/** Preview the pairing currently in the form, without saving it. */
+async function plPreview() {
+  const f = plForm();
+  const bad = plValidate(f);
+  if (bad) return showToast(bad, true);
+  await plTrace(f.lander, f.code, f.carrd, f.destination);
+}
+
+/** Preview a row that is already live. */
+async function plPreviewRow(key) {
+  const p = plRows().find(r => r.key === key);
+  if (!p) return;
+  await plTrace(p.lander, p.code, p.carrd, p.destination);
+  document.getElementById('plPreviewOut').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/**
+ * Ask the server to walk the chain for this landing page and this code. Every URL
+ * shown comes back from trace_chain, which runs the same resolver and the same URL
+ * builder /c/:slug uses at runtime.
+ */
+async function plTrace(lander, code, carrd, expectDest) {
+  const panel = document.getElementById('plPreviewOut');
+  panel.innerHTML = '<div class="resolve-panel">Building…</div>';
+  let r;
+  try {
+    const res = await fetch(API_BASE, {
+      method: 'POST',
+      headers: adminHeaders(),
+      body: JSON.stringify({
+        action: 'trace_chain', lander: lander, code: code, carrd: carrd, allow_custom_campid: true
+      })
+    });
+    r = await res.json();
+  } catch (e) {
+    panel.innerHTML = '<div class="resolve-panel">Could not reach the API.</div>';
+    return;
+  }
+  if (!r.success) {
+    panel.innerHTML = `<div class="resolve-panel">${esc(r.error || 'Error')}</div>`;
+    return;
+  }
+
+  const chain = r.chain || {};
+  const link = r.handoff && r.handoff.url ? r.handoff.url : (r.ad_links || [])[0] || '';
+  const hops = (chain.hops || []).map((h, i) =>
+    `<div class="resolve-row"><span class="k">${i + 1}. ${esc(h.step)}</span>` +
+    `<span class="v" style="font-family:monospace;font-size:11px;word-break:break-all;">${esc(h.url)}</span></div>`
+  ).join('');
+
+  // The last hop is the thing being promised. Say plainly whether it is THIS
+  // person's link or the house one — a partner code that silently missed would
+  // otherwise look identical on screen while paying somebody else.
+  const finalUrl = (chain.hops || []).length ? chain.hops[chain.hops.length - 1].url : '';
+  let claim = '';
+  if (chain.mode === 'direct') {
+    const isTheirs = chain.partner ? true : false;
+    claim = isTheirs
+      ? '<span class="ok-pill">their own link</span> — this code resolves to their affiliate URL.'
+      : '<span class="unk-pill">the shared link</span> — no partner row claimed this code, so the ' +
+        'click goes to the offer\'s default destination. Save the row to change that.';
+    if (expectDest && finalUrl && finalUrl.indexOf(expectDest.split('?')[0]) === -1) {
+      claim += '<br /><b style="color:var(--yellow)">Note:</b> that is not the offer link in the form ' +
+               'above — this preview reflects what is LIVE, not what is unsaved.';
+    }
+  }
+
+  const notLive = chain.ok === false
+    ? `<div class="warn">${esc(chain.reason || 'This chain cannot complete.')}</div>` : '';
+
+  panel.innerHTML = `
+    <div class="resolve-panel">
+      <div class="resolve-row"><span class="k">Send them</span><span class="v" style="word-break:break-all;">${esc(link || 'no Carrd page bound yet')}</span></div>
+      <div class="resolve-row"><span class="k">Offer</span><span class="v">${esc(chain.offer_label || '—')}</span></div>
+      ${claim ? `<div class="resolve-row"><span class="k">Last hop is</span><span class="v">${claim}</span></div>` : ''}
+      <div class="resolve-row"><span class="k">They track on</span><span class="v">${esc(chain.tracks_as || '—')}</span></div>
+      ${r.partner ? `<div class="resolve-row"><span class="k">Belongs to</span><span class="v">${esc(r.partner.owner || r.partner.key)}</span></div>` : ''}
+      ${notLive}
+      ${(r.warnings || []).map(w => `<div class="warn">${esc(w)}</div>`).join('')}
+    </div>
+    ${link ? `<div class="result-box" style="margin-top:10px;">
+      <span id="plLinkOut">${esc(link)}</span>
+      <button class="btn btn-copy" onclick="copyText(document.getElementById('plLinkOut').textContent)">📋 Copy</button>
+    </div>` : ''}
+    <div class="hop-step" style="margin-top:18px;">Every hop the click walks</div>
+    <div class="resolve-panel">${hops}</div>
+    ${r.preview_url ? `
+      <div class="hop-step" style="margin-top:18px;">What the visitor sees, in order</div>
+      ${hndPhonePair(r.prelander_preview_url, r.preview_url, 'The landing page they run.')}` : ''}`;
+}
+
+/** Save the assignment. The server validates against the live table before writing. */
+async function plSave() {
+  const f = plForm();
+  const bad = plValidate(f);
+  if (bad) return showToast(bad, true);
+
+  const res = await fetch(API_BASE, {
+    method: 'POST', headers: adminHeaders(), body: JSON.stringify({ action: 'save_partner', ...f })
+  });
+  // A 500 from the platform is an HTML page, not JSON. Unguarded, res.json() throws
+  // here and the whole click handler dies silently — the operator sees an unchanged
+  // screen and no error, which is exactly what a failed save must never look like.
+  let data;
+  try {
+    data = await res.json();
+  } catch (e) {
+    data = { error: 'The server returned an error page instead of an answer — the save did NOT go through.' };
+  }
+
+  // Same one-shot write-key prompt apiCall uses. Not folded into apiCall because
+  // this call needs the config_line out of the response body either way.
+  if (res.status === 401 && !WRITE_KEY) {
+    WRITE_KEY = (window.prompt('Write key (ADMIN_WRITE_KEY — not saved in this browser):') || '').trim();
+    if (WRITE_KEY) return plSave();
+  }
+
+  if (data.success) {
+    await fetchData();
+    showToast('Saved — this is live now');
+    await plTrace(f.lander, f.code, f.carrd, f.destination);
+    return;
+  }
+
+  // No datastore connected: the assignment is still valid, so hand over the exact
+  // row to commit rather than just refusing.
+  const panel = document.getElementById('plOut');
+  panel.innerHTML = `
+    <div class="warn">${esc(data.error || 'Could not save.')}</div>
+    ${data.config_line ? `
+      <div class="resolve-row" style="margin-top:10px;"><span class="k">Add to</span>
+        <span class="v">PARTNER_LINKS in api/_lib/links-config.js</span></div>
+      <div class="result-box" style="margin-top:8px;">
+        <pre id="plCfg" style="margin:0;white-space:pre;font-size:12px;">${esc(data.config_line)}</pre>
+        <button class="btn btn-copy" onclick="copyText(document.getElementById('plCfg').textContent)">📋 Copy</button>
+      </div>` : ''}`;
+}
+
+/**
+ * Give a partner a login to their own portal — or replace the one they have.
+ *
+ * The code is shown ONCE, here, and never again: only its hash is stored. So this
+ * renders it big, with a copy button, and says plainly that closing the box loses
+ * it. Losing it is cheap (mint another); storing it retrievably would not be.
+ */
+async function plAccess(key) {
+  const p = plRows().find(r => r.key === key);
+  if (!p) return;
+  if (p.has_access && !window.confirm(
+    `${p.owner || key} already has a portal code. Making a new one STOPS THE OLD ONE WORKING. Continue?`
+  )) return;
+
+  const res = await fetch(API_BASE, {
+    method: 'POST', headers: adminHeaders(),
+    body: JSON.stringify({ action: 'issue_access', key: key })
+  });
+  let data;
+  try { data = await res.json(); } catch (e) { data = { error: 'The server returned an error page.' }; }
+
+  if (res.status === 401 && !WRITE_KEY) {
+    WRITE_KEY = (window.prompt('Write key (ADMIN_WRITE_KEY — not saved in this browser):') || '').trim();
+    if (WRITE_KEY) return plAccess(key);
+  }
+  if (!data.success) return showToast(data.error || 'Could not issue a code', true);
+
+  await fetchData();
+  const portal = location.origin + '/portal';
+  document.getElementById('plOut').innerHTML = `
+    <div class="resolve-panel">
+      <div class="resolve-row"><span class="k">Portal code for</span><span class="v">${esc(p.owner || key)}</span></div>
+      <div class="resolve-row"><span class="k">Send them</span><span class="v">${esc(portal)}</span></div>
+    </div>
+    <div class="result-box" style="margin-top:8px;">
+      <span id="plAccessCode" style="font-size:18px;letter-spacing:1px;">${esc(data.access_code)}</span>
+      <button class="btn btn-copy" onclick="copyText(document.getElementById('plAccessCode').textContent)">📋 Copy</button>
+    </div>
+    <div class="warn" style="margin-top:8px;">
+      <b>Shown once.</b> Copy it now — reloading will not bring it back, and there is nothing stored
+      that could: only a hash of it is kept. If it goes astray, issue a new one; that kills the old.
+    </div>`;
+  document.getElementById('plOut').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  showToast('Code issued — copy it now');
+}
+
+async function plDelete(key) {
+  const p = plRows().find(r => r.key === key);
+  if (!p) return;
+  if (!window.confirm(`Remove ${p.owner || key}? Their Carrd page falls back to the default offer.`)) return;
+  await apiCall('delete_partner', { key: key });
+}
+
+document.getElementById('plKey')?.addEventListener('input', function () { this.dataset.touched = '1'; });
 
 ['tlCarrd', 'tlCampid', 'tlS3'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', tlBuild);

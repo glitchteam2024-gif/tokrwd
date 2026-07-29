@@ -60,11 +60,20 @@
       ]
     },
     {
-      "source": "/api/admin/(.*)",
+      "source": "/api/partner",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
+    {
+      "source": "/api/admin/(.*)",
+      "headers": [
         { "key": "Access-Control-Allow-Methods", "value": "GET, POST, DELETE, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, X-Admin-Key" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, X-Admin-Key, X-Admin-Write-Key" },
         { "key": "Cache-Control", "value": "no-store" }
       ]
     },

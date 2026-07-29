@@ -106,6 +106,116 @@ Nothing else. The admin **Test Lander** tab reads `OVERRIDE_LANDERS` from `/api/
 alias appears in its dropdown as `alias → Offer label · owner` automatically, where it gets paired with
 a Carrd page + campid to produce the ad link.
 
+### Partner links — one person, their page, their OWN affiliate link (2026-07-28)
+
+**This is the answer to "assign a link to someone", and it is the first thing in this repo that
+saves from the dashboard and actually routes.** `PARTNER_LINKS` in `links-config.js` is one row per
+person:
+
+```js
+{ key:'fuomgi', owner:'…', carrd:'fuomgihatetiktok.carrd.co', lander:'esgp',
+  code:'FUOMGI-01', destination:'https://www.phef6trk.com/213T8QJ/32BB7QT/', forwardParam:'sub1' }
+```
+
+**A row binds; it does not create.** It points at an *existing* `OVERRIDE_LANDERS` alias (or a
+`LANDER_URLS` value), which already carries the offer, which already names an existing `/c/` slug.
+Only `CARRD_ROUTES` is derived from it (`...PARTNER_LINKS.map(...)`, spread into the literal ABOVE
+`CARRD_HOST_MAP` — pushing to the array after module load validates clean and routes nothing).
+
+**Two people can share ONE lander on two different affiliate links.** The lander hardcodes one
+`/c/<slug>`; `api/c/[slug].js` swaps the DESTINATION when the inbound sub-ID is a partner's code.
+So `/ESGP` serves Edwin and the fuomgi page from the same HTML, on different accounts, with zero new
+files and zero new slugs. Rules that make it safe, all tested:
+
+- **The code is the routing key.** `partnerKey()` = `extractSparkCode()` + upper-case, used on write,
+  on read, AND for the outbound sub-ID. If those three ever disagree, the click routes to one person
+  while the payout claim names another. A code that does not round-trip is refused at write time.
+- **Slug-scoped.** A code only overrides the slug ITS OWN lander fires. Otherwise
+  `/c/frrcsh-us-off?campid=<their code>` would aim house traffic at their link.
+- **Door-mode slugs are never partner-influenced** — those attribute inside SPRK at the door.
+- **A miss is indistinguishable from a hit** on the house destination: a distinguishable miss is an
+  oracle for enumerating partner codes.
+- Lookup is a `Map` keyed `slug` + NUL + `CODE`, never a plain object (`?campid=__proto__`).
+
+**Deriving OVERRIDE_LANDERS / OFFERS / OFFER_LINKS per partner does NOT work** — three separate
+build checks reject it (a shared lander makes `offerForLander` return the first match; every partner
+on `/ESGP` would have to claim the same `match` string; a per-partner `/c/` slug appears in no
+lander's HTML). Derive `CARRD_ROUTES` only.
+
+### Saving without a deploy — the datastore (2026-07-28)
+
+`api/_lib/kv.js` (Upstash Redis over plain `fetch`, no npm) + `api/_lib/partner-store.js`.
+**This is the thing that was missing every previous time the answer was "there is no database".**
+
+- **Committed rows are the FLOOR and always win a collision** on key, host or `(lander, code)`. A
+  stored row may ADD a person; it may never silently repoint one that is in source control — the
+  tracking audit is a static read of the tree and cannot see Redis.
+- **Three read outcomes, TWO of which mean "use committed config":** OK / UNAVAILABLE / ABSENT.
+  `ABSENT` must never read as "there are no partners" — a flushed Redis would otherwise route every
+  partner click to the house destination and look normal on every dashboard until invoice time.
+- Every record is re-validated **on read** (`sanitizePartnerRow`, field-whitelisted, never spread).
+  The lambda that saved it is a different process; the writer's validator is not in the reader's path.
+- 30s in-lambda cache, `_inflight` coalescing, 250ms abort. `/r` reads the store **only** when
+  committed routing returned `default`; `/c/` only for direct-mode slugs with a sub-ID. House traffic
+  pays nothing.
+- **Setup is Migi's, and env vars bind at build time:** Vercel → Storage → Create Database → Redis
+  (Upstash) → Free → us-east-1 → connect to the project, **then redeploy**. Without it the panel
+  still validates and emits the `PARTNER_LINKS` row to paste; `storage.enabled:false` makes the panel
+  say so instead of pretending.
+- **Writes fail closed.** `ADMIN_KEY` must be genuinely set in env — the committed `'sprk2026'`
+  default is accepted for reads (so a deploy cannot lock Migi out) and never for writes. Optional
+  `ADMIN_WRITE_KEY` is a second secret, held in memory only. Header-only (`X-Admin-Key`), origin
+  checked, every mutation logged.
+- `isSafePartnerDestination()` gates the operator-supplied URL: https, no userinfo, no port, no IP
+  literal, no punycode, no private host, and **not a host we own** (a destination pointing back into
+  our own funnel loops).
+
+Tests: `node api/_lib/_partner-links.test.mjs` and `node api/_lib/_partner-store.test.mjs` (the
+second stands up a stub Upstash and drives the REAL handlers, including the store-is-dead fallback).
+Both are in `_tracking-audit`'s `SKIP_FILES` — their fixtures are network URLs by definition.
+
+### The partner portal — `/portal` (2026-07-28)
+
+**A second, separate front end for the SCALERS themselves** (Edwin, Osvaldo), so they stop needing
+Migi in the loop to wire up a new Carrd page. `portal/index.html` + `api/partner.js` +
+`api/_lib/partner-access.js`.
+
+- **One static file, no server of its own.** It can be deployed as its own Vercel project (Root
+  Directory = `portal`) and still work: it calls `https://www.tokrwd.co/api/partner` cross-origin,
+  and the ACCESS CODE authorises the call, not the origin. Served from tokrwd it uses a relative
+  path instead. That is why `/api/partner` is the one endpoint with `Access-Control-Allow-Origin: *`.
+- **Access codes are not tracking codes.** A tracking code rides on every ad link — it is public by
+  construction, so it could never be a login. An access code is separate, random, 20 chars from an
+  alphabet with no `0/O/1/I/l`, and **only its SHA-256 is stored**. Shown once at mint time; the
+  answer to "I lost it" is to mint another, which revokes the old one.
+- **The code identifies you; it never selects who you are asking about.** `api/partner.js` resolves
+  the partner ONCE, up front, and no action takes a partner key from the request. Passing
+  `key: 'someone-else'` alongside a valid code changes nothing — asserted.
+- **A partner may change their own Carrd pages AND their own offer link. Nothing else.** The
+  lander and the tracking code stay the operator's: those two decide ROUTING and ATTRIBUTION and
+  can collide with another partner, so they are read-only in the portal. Migi widened this on
+  2026-07-28 ("my brother can put his carrd.co link and his affiliate offer") — the earlier build
+  was pages-only.
+- **The offer link is the one field a partner controls that points OFF our domain.** It lives in an
+  `offers` map in the same document, is gated by `isSafePartnerDestination` on write *and* on every
+  read, supersedes the row's destination (a committed row's included), and every change is logged
+  with the value it replaced (`[partner] offer changed`). The panel labels it *"they set this"* and
+  keeps the operator's original visible as `operator_destination`.
+  **"Committed rows win" still holds for IDENTITY** — key, Carrd page, tracking code. A stored
+  record can never impersonate a committed partner or take their traffic; it may only update where
+  that partner's own clicks are sent.
+- **A partner can never claim someone else's page.** Refused on write against committed rows, stored
+  rows and other partners' hosts — and stripped again at merge time, where committed rows are
+  assigned first. A silent accept would leave them looking at a page they think is wired while every
+  click on it pays somebody else.
+- Extra pages live in the `hosts` map of the SAME KV document as the rows, so they cost no extra
+  round trip on the click path. **`writeStoredRows` carries `hosts` forward** — an admin saving one
+  partner must not unregister every page every partner added.
+- `portal` is in `RESERVED_LANDER_ROOTS`, for the same reason `admin` is: `lp=portal` would otherwise
+  put paid traffic on a login screen.
+
+Test: `node api/_lib/_partner-portal.test.mjs` (drives the real handlers against a stub Upstash).
+
 ### Binding a Carrd page to a lander (`CARRD_ROUTES`)
 
 `lp=` puts the lander on the AD LINK. `CARRD_ROUTES` binds it to the **Carrd page's hostname**, so
@@ -184,12 +294,15 @@ the real affiliate roster (that lives in SPRK). Routing still comes only from co
 `CARRD_ROUTES`, which is why a row shows `missing` when its saved `lander` key no longer resolves: an
 alias renamed in config would otherwise leave a row that silently builds a default-offer link.
 
-**There is deliberately no Save button, and don't add one.** The admin store is per-lambda in-memory
-(`api/_lib/store.js`), so a write from the dashboard lands in the admin lambda's heap and `/api/r`
-can never read it — the assignment would look saved while every click kept going to the default
-offer. Assignments are committed config and go live on deploy. Wiring a real Save means giving the
-project an actual datastore (Vercel KV is referenced in a stale `store.js` comment but is **not**
-implemented), not adding a button.
+**This roster and these two sections have no Save button, and still should not get one.** The admin
+store is per-lambda in-memory (`api/_lib/store.js`), so a write here lands in the admin lambda's heap
+and `/api/r` can never read it — the assignment would look saved while every click kept going to the
+default offer.
+
+**Partner Links is the exception, and it is the one that got the datastore.** See "Partner links"
+above: it writes to Upstash, `/r` and `/c/` both read it, and committed rows still win. If the ask is
+"let me assign a link to someone from the panel", that tab is the answer — do not re-derive the
+"there is no database" explanation, and do not bolt a fake Save onto the sections here.
 
 Gotcha when writing a scaler page: the clean check below greps for `display:none` carrying an
 `!important` flag, because that is the blank-page cloaking gate's signature. A legitimate
@@ -631,6 +744,19 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
   `_prelander-page.test.mjs` (executes the SHIPPED `js/breakout.js` against a fake DOM; also
   syntax-checks the admin panel's inline script, after a backtick inside an HTML comment silently
   killed the whole dashboard) and audit check 6 (breakout code confined to the two sanctioned files).
+- **2026-07-28** — **Partner Links** (Migi asked repeatedly; every previous answer was "there is no
+  database"). New `PARTNER_LINKS` table, new `api/_lib/kv.js` + `api/_lib/partner-store.js`, new admin
+  tab. One row = a person + their Carrd page + an existing lander + THEIR OWN affiliate link + their
+  tracking code; the code is the routing key and `api/c/[slug].js` swaps the destination on it, so one
+  lander serves many partners on different accounts. `CARRD_ROUTES` is now derived from it (Edwin's
+  hand-written row deleted, behaviour proven identical). `fuomgihatetiktok.carrd.co` → `/ESGP` →
+  `phef6trk` shipped as a committed row. Hardened while doing it: writes fail closed on an unset
+  `ADMIN_KEY` (the committed `'sprk2026'` default is reads-only now), header-only auth + origin check
+  + audit log, `isSafePartnerDestination`, `carrdHostsForLander` gained a partner scope (unscoped it
+  handed one person a link on another's Carrd page — which, under per-code routing, *works*), and
+  `ESGP/index.html`'s `localStorage` sub-ID replay got a 30-minute TTL (per-origin storage on a shared
+  lander would otherwise route a returning device to the previous partner's link). `overrideLanderProblems`
+  and `offerKeyProblems` now reach the panel; they were exported and called by nothing.
 - **2026-07-27** — Admin section **Hand a Landing Page to a Scaler**: iframe preview of the lander with
   `s1` applied, the ad link to send, the full hop chain, and the sub-ID param their network receives.
   New `traceOfferChain()` + `carrdHostsForLander()`; new admin action `trace_chain`. **`buildDirectUrl`

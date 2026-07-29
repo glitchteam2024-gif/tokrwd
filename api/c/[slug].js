@@ -28,6 +28,7 @@
  */
 
 import { getOfferLink } from '../_lib/store.js';
+import { getPartnerRows } from '../_lib/partner-store.js';
 import {
   DOOR_BASE,
   PASSTHROUGH_PARAMS,
@@ -35,6 +36,8 @@ import {
   extractSparkCode,
   getConfiguredOfferLink,
   isSafeDestination,
+  offerLinkFor,
+  partnerKey,
 } from '../_lib/links-config.js';
 
 /** Read a query param that may arrive as a repeated key (Vercel gives an array). */
@@ -65,7 +68,7 @@ function noStore(res) {
 // exact URL their network receives, and a second copy here would drift silently:
 // the screen would promise one sub-ID param while this redirect sent another.
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const query = req.query || {};
   const slug = qparam(query, 'slug');
 
@@ -75,9 +78,38 @@ export default function handler(req, res) {
     return res.status(404).send('Not found');
   }
 
+  // Read UP HERE, before the lookup: the sub-ID now decides WHICH destination this
+  // slug resolves to, not just what gets stamped on the way out.
+  const subId = readSubId(query);
+
   // Committed config first; the in-memory store is only a scratch overlay holding
   // links added through the admin dashboard during one lambda's lifetime.
-  const link = getConfiguredOfferLink(slug) || getOfferLink(slug);
+  const committed = getConfiguredOfferLink(slug);
+
+  /**
+   * Whose affiliate link does this click get?
+   *
+   * A PARTNER_LINKS row can swap the destination of a DIRECT-mode slug when the
+   * inbound sub-ID is that partner's code — which is what lets two people run the
+   * same landing page on two different affiliate accounts.
+   *
+   * Two things are deliberately narrow. Door-mode slugs are never consulted: those
+   * attribute inside SPRK at the door, which owns the destination. And a code that
+   * matches nothing falls through to the committed row SILENTLY — an observable
+   * difference between "unknown code" and "known code" would turn this public URL
+   * into an oracle for enumerating partner codes.
+   *
+   * The store read is skipped entirely for door-mode slugs and for a click with no
+   * sub-ID. It is NOT free for house traffic on a direct slug — those carry a
+   * sub-ID too — but the answer is cached per lambda for 30s and failures back off,
+   * so the cost is one round trip per instance per half-minute, not per click.
+   */
+  let link = committed;
+  if (committed && committed.mode === 'direct' && subId) {
+    const rows = await getPartnerRows();     // fail-open: committed table on any error
+    link = offerLinkFor(slug, subId, rows) || committed;
+  }
+  link = link || getOfferLink(slug);
 
   // The enabled check has to apply to BOTH sources: the store is seeded from the
   // same config, so a link disabled there would otherwise come back through the
@@ -86,7 +118,12 @@ export default function handler(req, res) {
     return res.status(404).send('Not found');
   }
 
-  const subId = readSubId(query);
+  // A partner destination is the one case where the URL a click leaves on is not
+  // the one in this repo's committed config. Say so in the log rather than leaving
+  // an invoice dispute with nothing to check against.
+  if (link.partner) {
+    console.log('[c] partner destination:', slug, '->', link.partner);
+  }
 
   // ── Door mode ──────────────────────────────────────────────────────────────
   if (link.mode === 'door') {
@@ -115,7 +152,22 @@ export default function handler(req, res) {
   }
 
   const forwardParam = link.forwardParam || link.forward_param || 'sub1';
-  const sparkCode = subId ? extractSparkCode(subId) : '';
+
+  /**
+   * The sub-ID sent onward MUST be the same string the routing decision was made
+   * on, whenever a partner row won.
+   *
+   * They are computed differently by default: routing normalises with partnerKey()
+   * (extractSparkCode + upper-case), the wire has always used extractSparkCode()
+   * alone. So `?campid=edwin-01` routes as EDWIN-01 and then stamps `sub1=edwin-01`
+   * — a value that reconciles against nothing in the partner's own reports. Worse,
+   * toUpperCase() folds some non-ASCII onto ASCII, so a crafted campid could reach a
+   * partner's row while carrying a code nobody can trace.
+   *
+   * Only the partner branch is changed: the house path keeps extractSparkCode so a
+   * scaler already registered in SPRK on a lowercase custom code is unaffected.
+   */
+  const sparkCode = subId ? (link.partner ? partnerKey(subId) : extractSparkCode(subId)) : '';
 
   // Build URL using string concat to avoid searchParams re-serialization
   const extras = {};

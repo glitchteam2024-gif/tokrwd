@@ -530,8 +530,19 @@ for (const [name, url] of Object.entries(LANDER_URLS)) {
 
 // The ad link handed over comes from the host binding, so the reverse lookup has to
 // agree with CARRD_ROUTES or the operator sends a link that routes somewhere else.
+//
+// Deliberately NOT an exact-list assertion any more: /ESGP is shared by more than one
+// partner, which is the whole point of PARTNER_LINKS. What still has to hold exactly is
+// the PARTNER-SCOPED answer — unscoped, this returns every page on the lander, and the
+// panel would hand one person a link on somebody else's Carrd page.
 eq('the ESGP lander reverse-maps to Edwin\'s Carrd page',
-  carrdHostsForLander(`${DEFAULT_LANDER_ORIGIN}/ESGP`), ['laboedomegan.carrd.co']);
+  carrdHostsForLander(`${DEFAULT_LANDER_ORIGIN}/ESGP`).includes('laboedomegan.carrd.co'), true);
+eq('…and scoping to a partner narrows it to that person\'s page',
+  carrdHostsForLander(`${DEFAULT_LANDER_ORIGIN}/ESGP`, 'edwin'), ['laboedomegan.carrd.co']);
+eq('…a different partner on the same lander gets their own page',
+  carrdHostsForLander(`${DEFAULT_LANDER_ORIGIN}/ESGP`, 'fuomgi'), ['fuomgihatetiktok.carrd.co']);
+eq('…and an unknown partner gets none of them',
+  carrdHostsForLander(`${DEFAULT_LANDER_ORIGIN}/ESGP`, 'nobody'), []);
 eq('an unbound lander maps to no Carrd page',
   carrdHostsForLander(`${DEFAULT_LANDER_ORIGIN}/trt`), []);
 

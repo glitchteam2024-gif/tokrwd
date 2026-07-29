@@ -298,10 +298,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
   // Only overwrite a stored value when THIS visit carries one, so a bare return
   // visit cannot blank out the attribution captured on the way in.
+  /**
+   * How long a stored sub-ID may still be replayed on a query-less visit.
+   *
+   * It exists for the Apple Wallet round trip, which takes minutes — and it has to
+   * EXPIRE, because localStorage is per ORIGIN, not per person. This page is shared
+   * by more than one partner, and /c/ now picks the outbound affiliate link from the
+   * sub-ID: without a bound, a device that walked one partner's funnel and later
+   * opened this page bare would replay that code and send the click, and the payout,
+   * to the wrong person.
+   */
+  /**
+   * Deliberately much longer than the page's own unlock timer
+   * (TASKS_PER_REWARD x TASK_INTERVAL_MS = 30 minutes). The instructions view tells
+   * the visitor to complete three tasks and come back, so a 30-minute window would
+   * expire attribution at exactly the moment the funnel is designed to pay — the
+   * second click. Six hours still bounds the cross-partner replay to one sitting.
+   */
+  var SUB_TTL_MS = 6 * 60 * 60 * 1000;
+
   (function captureAttribution() {
     var dirty = false;
     var sub = urlSubId();
     if (sub && STATE.sub !== sub) { STATE.sub = sub; dirty = true; }
+    // Stamped only when THIS visit carried a sub-ID, so the window measures how long
+    // ago attribution actually arrived rather than when any state was last touched.
+    if (sub) { STATE.ts = Date.now(); dirty = true; }
+    // Backfill for a device that stored a sub-ID before this timestamp existed.
+    // Without it, everyone mid-funnel at deploy time loses attribution on their very
+    // next bare visit — the return tap this whole persistence exists to serve.
+    if (!sub && STATE.sub && !STATE.ts) { STATE.ts = Date.now(); dirty = true; }
     EXTRA_PARAMS.forEach(function (k) {
       var v = fromUrl(k);
       if (v && STATE[k] !== v) { STATE[k] = v; dirty = true; }
@@ -312,7 +338,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   /** Our redirector + the sub-ID + the params the network needs downstream. */
   function offerUrl() {
     var out = new URLSearchParams();
-    var sub = urlSubId() || String(STATE.sub || "");
+    var fresh = STATE.ts && (Date.now() - STATE.ts) < SUB_TTL_MS;
+    var sub = urlSubId() || (fresh ? String(STATE.sub || "") : "");
     if (sub) out.set("campid", sub);
     EXTRA_PARAMS.forEach(function (k) {
       var v = fromUrl(k) || String(STATE[k] || "");

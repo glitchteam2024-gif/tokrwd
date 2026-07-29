@@ -161,6 +161,69 @@ export const LANDER_URLS = {
  * `node api/_lib/_links-config.test.mjs` after editing — it fails on duplicate hosts and on a
  * lander that is not in LANDER_URLS.
  */
+/* ══════════════════════════════════════════════════════════════════════════════
+ * PARTNER LINKS — one row per person we hand a landing page to
+ * ══════════════════════════════════════════════════════════════════════════════
+ *
+ * A row does NOT create a lander, an offer, or a /c/ slug. It BINDS three things
+ * that already exist to one person:
+ *
+ *     their Carrd page  ->  an existing lander  ->  THEIR OWN affiliate link
+ *
+ * The lander keeps firing the same shared `/c/<slug>` it has always fired; what
+ * changes is the DESTINATION that slug resolves to, and it changes per tracking
+ * code (see partnerFor / offerLinkFor). That is the whole trick: two people can
+ * run /ESGP on two different affiliate accounts with no new lander files, no new
+ * slugs, and no edit to the lander's HTML.
+ *
+ * WHY IT IS NOT FOUR TABLES. The obvious design derives a row into
+ * OVERRIDE_LANDERS + OFFERS + OFFER_LINKS + CARRD_ROUTES. Three of those break:
+ * a per-partner OVERRIDE_LANDERS row fails the "declared offer == the page's real
+ * door" build check (offerForLander returns the FIRST match on a shared lander); a
+ * per-partner OFFERS row has to claim the same `match` string as its sibling,
+ * because that string is the only door in the page's HTML; and a per-partner
+ * OFFER_LINKS slug names a `/c/` path that appears in no lander, which the
+ * tracking audit rejects. Only CARRD_ROUTES is derived.
+ *
+ *   key          stable slug for this row, /^[a-z0-9-]+$/. Never reuse one.
+ *   owner        free text, shown in the panel. Not routing.
+ *   carrd        their Carrd host. A bare subdomain expands to <h>.carrd.co.
+ *   lander       an OVERRIDE_LANDERS alias ('esgp') or a LANDER_URLS value.
+ *   code         their tracking code / sub-ID. THIS IS THE ROUTING KEY — it must
+ *                already be normalised (partnerLinkProblems refuses one that is not).
+ *   destination  their own https affiliate URL. Gated by isSafePartnerDestination.
+ *   forwardParam the param their network reads the sub-ID from. Default 'sub1'.
+ *
+ * DECLARED HERE, ABOVE CARRD_ROUTES, ON PURPOSE. CARRD_HOST_MAP is built once at
+ * module load from the CARRD_ROUTES literal; a row pushed onto CARRD_ROUTES after
+ * that validates clean and routes NOTHING, because landerForCarrd reads the map,
+ * not the array. Same trap the file already documents on resolveRouteLander.
+ *
+ * This is also the ONE file where a third-party network host may legally appear
+ * (see SKIP_FILES in _tracking-audit.test.mjs). Do not move this table out of it.
+ * Run `node api/_lib/_partner-links.test.mjs` after editing.
+ */
+export const PARTNER_LINKS = [
+  {
+    key: 'edwin',
+    owner: 'Edwin — scaler (own affiliate link, settles by invoice)',
+    carrd: 'laboedomegan.carrd.co',
+    lander: 'esgp',
+    code: 'EDWIN-01',
+    destination: 'https://www.phef6trk.com/213T8QJ/32BB7QT/',
+    forwardParam: 'sub1',
+  },
+  {
+    key: 'fuomgi',
+    owner: 'Gravy Pass — fuomgihatetiktok page',
+    carrd: 'fuomgihatetiktok.carrd.co',
+    lander: 'esgp',
+    code: 'FUOMGI-01',
+    destination: 'https://www.phef6trk.com/213T8QJ/32BB7QT/',
+    forwardParam: 'sub1',
+  },
+];
+
 /**
  * A row's `lander` is either a LANDER_URLS value or an OVERRIDE_LANDERS alias
  * (a bare string like 'esgp'). See resolveRouteLander for why both are allowed.
@@ -169,9 +232,10 @@ export const CARRD_ROUTES = [
   // { host: 'thegoodhoodie.carrd.co', lander: LANDER_URLS.FCCA },
   // { host: 'anotherpage',            lander: LANDER_URLS.TU   },
 
-  // Edwin's page → his own Gravy Pass lander. Bound by HOST, so every click off
-  // this Carrd page lands on /ESGP with no `lp=` needed on the ad link.
-  { host: 'laboedomegan.carrd.co', lander: 'esgp' },
+  // Derived from PARTNER_LINKS, so the panel's rows and the router's rows are the
+  // SAME rows. `partner` rides along so a reverse lookup (which Carrd page belongs
+  // to whom?) stays answerable once two people share one lander.
+  ...PARTNER_LINKS.map(p => ({ host: p.carrd, lander: p.lander, partner: p.key })),
 ];
 
 /**
@@ -303,9 +367,15 @@ export const DEFAULT_LANDER_ORIGIN = 'https://www.tokrwd.co';
  */
 export const EXTRA_LANDER_HOSTS = [];
 
-/** www-insensitive comparison key for a hostname. */
+/**
+ * www-insensitive comparison key for a hostname.
+ *
+ * Strips EVERY leading `www.`, not just one: with a single strip,
+ * `www.www.tokrwd.co` keys as `www.tokrwd.co`… which is not what the allowlist
+ * holds, so an own-host check on it answered wrongly.
+ */
 function hostKey(host) {
-  return String(host == null ? '' : host).trim().toLowerCase().replace(/^www\./, '');
+  return String(host == null ? '' : host).trim().toLowerCase().replace(/^(www\.)+/, '');
 }
 
 // Every host an override may name: the default origin, every host already in
@@ -337,7 +407,11 @@ export const OFFERS = {
   'freecash-uk':  { label: 'Freecash UK',          match: '/c/frrcsh-uk-off' },
   'freecash-ca':  { label: 'Freecash CA',          match: '/c/frrcsh-ca-off' },
   'testerup-mon': { label: 'Testerup (Monetise)',  match: '/c/testerup-us-mon-off' },
-  'gravypass-esgp': { label: 'Gravy Pass (Edwin)', match: '/c/esgp-off' },
+  // Named for the OFFER, not for one person: /ESGP is shared by every partner in
+  // PARTNER_LINKS that points at it, each on their own affiliate link. The label
+  // shows up beside the lander in the admin pickers, where "(Edwin)" would read as
+  // "this page belongs to Edwin" to whoever assigns it next.
+  'gravypass-esgp': { label: 'Gravy Pass (partner links)', match: '/c/esgp-off' },
 };
 
 /**
@@ -420,7 +494,12 @@ export function offerForOfferKey(carrdUrl) {
  * All three resolved cleanly before this list existed — `lp=` accepted any path on
  * our origin, and nothing downstream re-checked it.
  */
-const RESERVED_LANDER_ROOTS = new Set(['api', 'c', 'r', 'pre', 'admin', 'js', 'images', 'postback']);
+const RESERVED_LANDER_ROOTS = new Set([
+  'api', 'c', 'r', 'pre', 'admin', 'js', 'images', 'postback',
+  // The partner portal, for the same reason as `admin`: `lp=portal` would otherwise
+  // resolve and put paid traffic on a login screen.
+  'portal',
+]);
 
 /**
  * Normalise the path half of an override. Returns '' for anything suspicious.
@@ -553,11 +632,17 @@ function normHost(host) {
 }
 
 // Built once at module load — 50+ routes resolve by hash lookup instead of a linear scan.
+//
+// Stores the WHOLE row, not just `route.lander`. Once two people share one lander
+// the URL alone no longer identifies whose Carrd page this is, and the admin panel
+// builds a handover link off exactly that reverse lookup — a link on the wrong
+// person's page carrying the right person's code would work, which is worse than
+// breaking.
 const CARRD_HOST_MAP = (() => {
   const map = new Map();
   for (const route of CARRD_ROUTES) {
     const h = normHost(route.host);
-    if (h && route.lander && !map.has(h)) map.set(h, route.lander);
+    if (h && route.lander && !map.has(h)) map.set(h, route);
   }
   return map;
 })();
@@ -611,20 +696,33 @@ export function routableLanders() {
   return rows;
 }
 
-/**
- * Resolve the Carrd page URL the script sent as `h` to a lander.
- * Returns '' when nothing matches, so the caller applies its own default.
- */
-export function landerForCarrd(carrdUrl) {
+/** The hostname half of a Carrd URL, normalised for map lookup. '' when unparseable. */
+function carrdHostOf(carrdUrl) {
   const raw = String(carrdUrl == null ? '' : carrdUrl).trim();
   if (!raw) return '';
-  let host;
   try {
-    host = new URL(raw).hostname.toLowerCase().replace(/^www\./, '');
+    return new URL(raw).hostname.toLowerCase().replace(/^www\./, '');
   } catch {
     return ''; // not a URL — fall back to the default lander rather than guessing
   }
-  return resolveRouteLander(CARRD_HOST_MAP.get(host) || '');
+}
+
+/**
+ * Resolve the Carrd page URL the script sent as `h` to a lander.
+ * Returns '' when nothing matches, so the caller applies its own default.
+ *
+ * `overlay` is the request-time partner overlay (rows added through the admin
+ * panel, which live in a datastore rather than in this file). Committed rows are
+ * checked FIRST and always win: a stored row may add a Carrd page, it may never
+ * silently repoint one that is in source control.
+ */
+export function landerForCarrd(carrdUrl, overlay = null) {
+  const host = carrdHostOf(carrdUrl);
+  if (!host) return '';
+  const row = CARRD_HOST_MAP.get(host);
+  if (row) return resolveRouteLander(row.lander);
+  const extra = overlay ? overlayHostMap(overlay).get(host) : null;
+  return extra ? resolveRouteLander(extra.lander) : '';
 }
 
 /**
@@ -865,10 +963,10 @@ export function isPrelanderUrl(url) {
  * traffic is worse) but the disagreement is surfaced instead of swallowed.
  * url is '' only when nothing is configured at all.
  */
-export function resolveLander({ carrdUrl = '', campid = '', campaigns = {} } = {}) {
+export function resolveLander({ carrdUrl = '', campid = '', campaigns = {}, partners = null } = {}) {
   // One shape from every branch: the admin panel and /r both read `offer`, and a
   // branch that quietly omitted it would read as "this lander fires no offer".
-  const pick = (url, source) => {
+  const pick = (url, source, partner = '') => {
     const offer = offerForLander(url);
     // The ad was bought against SOME offer; `o=` is the only place the link says
     // which. When an override sends the click to a page that fires a different
@@ -880,6 +978,11 @@ export function resolveLander({ carrdUrl = '', campid = '', campaigns = {} } = {
       url,
       source,
       offer,
+      // Which PARTNER_LINKS row won, when a row is what routed this click. Kept as
+      // a separate FIELD rather than a new `source` value on purpose: the admin
+      // panel's liveness check compares `source === 'carrd_route'`, and /r logs on
+      // `source === 'override'` — a sixth source would silently change both.
+      partner,
       offerConflict: conflict ? { adOffer, landerOffer: offer } : null,
     };
   };
@@ -904,13 +1007,13 @@ export function resolveLander({ carrdUrl = '', campid = '', campaigns = {} } = {
   const byOffer = landerForOfferKey(carrdUrl);
   if (byOffer) return pick(byOffer, 'offer_key');
 
-  const byCarrd = landerForCarrd(carrdUrl);
-  if (byCarrd) return pick(byCarrd, 'carrd_route');
+  const byCarrd = landerForCarrd(carrdUrl, partners);
+  if (byCarrd) return pick(byCarrd, 'carrd_route', partnerForCarrdHost(carrdUrl, partners));
 
   // Unmapped Carrd page → default offer rather than dropping a paid click.
   if (LANDERS.length > 0) return pick(LANDERS[0].url, 'default');
 
-  return { url: '', source: 'none', offer: '', offerConflict: null };
+  return { url: '', source: 'none', offer: '', partner: '', offerConflict: null };
 }
 
 /**
@@ -1016,6 +1119,359 @@ export function getConfiguredOfferLink(slug) {
   return link && link.enabled !== false ? link : undefined;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+ * PARTNER RESOLUTION — which affiliate link does THIS tracking code get?
+ * ══════════════════════════════════════════════════════════════════════════════
+ *
+ * Everything below is a hoisted `function` declaration, called only at request
+ * time. That is deliberate: these read OFFERS, OVERRIDE_LANDERS and OFFER_LINKS,
+ * all of which are declared BELOW the PARTNER_LINKS table, so a `const` here would
+ * hit the temporal dead zone at module load and take every lambda down with it.
+ */
+
+/**
+ * THE single normaliser for a tracking code.
+ *
+ * Used in three places that must agree exactly: when a row is saved, when an
+ * inbound click is matched against the table, and when the sub-ID is stamped onto
+ * the outbound URL. If the lookup key and the outbound value were computed
+ * differently the click would route to one partner while the payout claim named
+ * another — the single worst failure this feature can have.
+ *
+ * It is extractSparkCode + upper-casing, because extractSparkCode is already what
+ * api/c/[slug].js sends outbound.
+ */
+export function partnerKey(campid) {
+  return extractSparkCode(campid).trim().toUpperCase();
+}
+
+/**
+ * A tracking code that may key a partner row. Deliberately narrow: this string is
+ * a routing key read from a public URL, and it is used to build a Map key.
+ */
+const PARTNER_CODE_RE = /^[A-Z0-9][A-Z0-9._-]{2,63}$/;
+
+/**
+ * Hostnames that are never a legitimate partner destination.
+ *
+ * A NAME blocklist, and it stops typos and copy-paste accidents, not an adversary:
+ * `127.0.0.1.nip.io` and friends resolve internally and are not matched. That is
+ * tolerable here because `/c/` 302s the VISITOR'S browser — this is not a server-side
+ * fetch, so it is not an SSRF primitive. The one place we do fetch (checkReachable in
+ * api/admin/data.js) is separately gated on isOwnLanderHost.
+ */
+const PRIVATE_HOST_RE = /^(localhost|.*\.local|.*\.internal|.*\.localhost|metadata(\..*)?)$/i;
+
+/**
+ * The gate on an OPERATOR-SUPPLIED destination.
+ *
+ * isSafeDestination() checks the scheme and nothing else. That was tolerable while
+ * a destination could only arrive through a reviewed commit; a panel that writes
+ * one makes it an open redirect a single paste away. /c/:slug 302s to this value,
+ * so everything here is the difference between "our redirector" and "anyone's".
+ */
+export function isSafePartnerDestination(raw) {
+  const s = String(raw == null ? '' : raw);
+  if (!s || s.length > 500) return false;
+  // Control characters and whitespace: header-splitting and copy-paste damage.
+  if (/[\u0000-\u001f\u007f\s]/.test(s)) return false;
+
+  let u;
+  try { u = new URL(s); } catch { return false; }
+
+  if (u.protocol !== 'https:') return false;
+  // https://www.phef6trk.com@evil.com/ reads as the tracker to a human and
+  // resolves to evil.com in a browser.
+  if (u.username || u.password) return false;
+  if (u.port !== '') return false;
+  // buildDirectUrl appends the sub-ID by string concatenation and chooses its
+  // separator on `?` alone. A destination carrying a fragment therefore produces
+  // `…/x#?sub1=CODE` — the param lands in the fragment, never reaches the network,
+  // and the panel previews the same wrong string back with total confidence.
+  //
+  // Tested on the RAW string, not on u.hash: a bare trailing `#` parses to an EMPTY
+  // hash, so the parsed check would pass it while concatenation still breaks.
+  if (s.includes('#')) return false;
+
+  const host = u.hostname.toLowerCase();
+  if (host.startsWith('[')) return false;                 // IPv6 literal
+  if (/^[0-9.]+$/.test(host)) return false;               // dotted or decimal IPv4
+  if (/^0x[0-9a-f]+$/i.test(host)) return false;          // hex IPv4
+  if (!/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/.test(host)) return false;
+  if (host.split('.').some(l => l.startsWith('xn--'))) return false;   // IDN homograph
+  if (PRIVATE_HOST_RE.test(host)) return false;
+
+  // Never let a destination point back into our own funnel: /c/ pointed at /c/
+  // burns one lambda per hop, and a destination pointed at a lander re-enters the
+  // door and double-counts the click.
+  const key = hostKey(host);
+  if (LANDER_HOST_SET.has(key)) return false;
+  if (key === 'sprktrax.org') return false;
+  if (key === 'appflowconnect.com') return false;
+
+  return true;
+}
+
+/**
+ * The `/c/` slug a partner's lander actually fires, or '' when it is door-routed
+ * or offer-unbound.
+ *
+ * This is what SCOPES a partner code. A code may only swap the destination of the
+ * slug its own lander fires; presented against any other slug it is ignored. Without
+ * that scoping, `/c/frrcsh-us-off?campid=<a partner's code>` would aim house traffic
+ * at that partner's link.
+ */
+export function partnerSlugFor(lander) {
+  const url = resolveRouteLander(lander) || resolveOverrideLander(lander);
+  if (!url) return '';
+  const offer = offerForLander(url);
+  const match = offer && Object.prototype.hasOwnProperty.call(OFFERS, offer)
+    ? String(OFFERS[offer].match || '')
+    : '';
+  const m = match.match(/^\/c\/([a-z0-9-]+)$/i);
+  return m ? m[1].toLowerCase() : '';
+}
+
+/**
+ * Validate the partner table. [] means fine.
+ *
+ * Every failure below is silent in production — the click still 302s, it just
+ * 302s somewhere nobody chose — which is the same argument carrdRouteProblems()
+ * and overrideLanderProblems() already exist on. Run against a candidate row list
+ * before saving, and against the live table in the test suite and the panel.
+ */
+export function partnerLinkProblems(rows = PARTNER_LINKS) {
+  const problems = [];
+  const seenKey = new Map(), seenCode = new Map(), seenHost = new Map();
+
+  (Array.isArray(rows) ? rows : []).forEach((p, i) => {
+    const label = `partner ${p && p.key ? p.key : i}`;
+    if (!p || typeof p !== 'object' || Array.isArray(p)) {
+      problems.push(`${label}: not an object`);
+      return;
+    }
+
+    if (!/^[a-z0-9-]{1,64}$/.test(String(p.key || ''))) {
+      problems.push(`${label}: key must be lowercase letters, digits or dashes`);
+    } else if (seenKey.has(p.key)) {
+      problems.push(`${label}: duplicate key (also ${seenKey.get(p.key)})`);
+    } else {
+      seenKey.set(p.key, label);
+    }
+
+    if (!String(p.owner || '').trim()) {
+      problems.push(`${label}: missing owner — say whose page this is`);
+    }
+
+    const h = normHost(p.carrd);
+    if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(h)) {
+      problems.push(`${label}: "${p.carrd}" is not a valid hostname`);
+    } else if (seenHost.has(h)) {
+      problems.push(
+        `${label}: Carrd page ${h} is already bound to ${seenHost.get(h)} — the first row ` +
+        'wins, so this one is dead config'
+      );
+    } else {
+      seenHost.set(h, label);
+    }
+
+    // Pages the partner registered through their own portal count as theirs. Without
+    // this, saving a row whose `carrd` is a page somebody already runs is accepted
+    // silently: their live ads keep spending, their page disappears from their
+    // portal with no message, and every click on it fires the wrong offer.
+    for (const extra of (Array.isArray(p.hosts) ? p.hosts : [])) {
+      const eh = normHost(extra);
+      if (!eh) continue;
+      if (seenHost.has(eh) && seenHost.get(eh) !== label) {
+        problems.push(
+          `${label}: ${eh} is already used by ${seenHost.get(eh)} — one of the two loses ` +
+          'its traffic, silently'
+        );
+      } else {
+        seenHost.set(eh, label);
+      }
+    }
+
+    const landerUrl = resolveRouteLander(p.lander);
+    if (!landerUrl) {
+      problems.push(
+        `${label}: lander "${p.lander}" is neither a LANDER_URLS value nor an OVERRIDE_LANDERS alias`
+      );
+    }
+
+    const raw = String(p.code || '').trim();
+    const key = partnerKey(raw);
+    if (!PARTNER_CODE_RE.test(key)) {
+      problems.push(`${label}: code "${raw}" must be 3-64 characters of A-Z 0-9 . _ -`);
+    } else if (isCanonicalSpk(key)) {
+      // A SPK-XXXX-XXXX code is MINTED BY SPRK and already belongs to a network
+      // affiliate, who is attributed at the door. Accepting one here would let a
+      // partner row hijack that affiliate's clicks: every click carrying their own
+      // spark code would 302 to the partner's link instead, still stamped with the
+      // affiliate's code, and nothing on any dashboard would say why.
+      problems.push(
+        `${label}: "${key}" is a SPRK-minted spark code — it belongs to a network affiliate and is ` +
+        'attributed at the door. Give this partner a code of their own.'
+      );
+    } else if (key !== raw.toUpperCase()) {
+      // A compound campid collapses to its embedded spark code on the way in, so a
+      // row keyed on the wrapper could never be hit. Refuse it at write time rather
+      // than letting it sit in the table looking assigned and never matching.
+      problems.push(`${label}: code "${raw}" normalises to "${key}" — register "${key}" instead`);
+    }
+
+    const slug = landerUrl ? partnerSlugFor(p.lander) : '';
+    if (landerUrl && !slug) {
+      problems.push(
+        `${label}: "${p.lander}" is door-routed or not bound to an offer, so a partner ` +
+        'destination cannot override it. Door-routed offers are attributed inside SPRK by design.'
+      );
+    }
+
+    const ck = `${slug}\u0000${key}`;
+    if (slug && PARTNER_CODE_RE.test(key)) {
+      if (seenCode.has(ck)) {
+        problems.push(
+          `${label}: code ${key} on /c/${slug} already belongs to ${seenCode.get(ck)} — ` +
+          "their clicks would land on the other person's affiliate link"
+        );
+      } else {
+        seenCode.set(ck, label);
+      }
+    }
+
+    if (!isSafePartnerDestination(p.destination)) {
+      problems.push(`${label}: destination "${p.destination}" is not a safe third-party https URL`);
+    }
+    if (p.forwardParam && !/^[a-z0-9_]{1,32}$/i.test(String(p.forwardParam))) {
+      problems.push(`${label}: forwardParam must be 1-32 characters of a-z 0-9 _`);
+    }
+  });
+
+  return problems;
+}
+
+/** Committed table, or the request-time overlay when one was supplied. */
+function partnerRows(overlay) {
+  return Array.isArray(overlay) ? overlay : PARTNER_LINKS;
+}
+
+// Memoised on the ROW ARRAY's identity, not rebuilt per call: /c/ and /r both hit
+// these on the paid-click path, and the overlay array is itself cached upstream for
+// 30s, so identity is stable exactly as long as the data is.
+let _pMapRows = null, _pMap = null;
+let _hMapRows = null, _hMap = null;
+
+/**
+ * `${slug}\u0000${CODE}` -> row.
+ *
+ * A Map, never a plain object. The lookup key comes straight off a public URL, and
+ * a plain-object lookup resolves INHERITED keys — `?campid=__proto__` has already
+ * produced exactly that class of bug twice in this file (OFFER_KEY_MAP, campaigns).
+ */
+function partnerMap(overlay) {
+  const rows = partnerRows(overlay);
+  if (_pMap && rows === _pMapRows) return _pMap;
+  const map = new Map();
+  for (const p of rows) {
+    if (!p || typeof p !== 'object') continue;
+    const slug = partnerSlugFor(p.lander);
+    const key = partnerKey(p.code);
+    if (!slug || !PARTNER_CODE_RE.test(key)) continue;
+    // Re-gated on READ, not just on write. The lambda that saved a row is a
+    // different process from the one serving this click; the writer's validator is
+    // not in this request's path.
+    if (!isSafePartnerDestination(p.destination)) continue;
+    const k = `${slug}\u0000${key}`;
+    if (!map.has(k)) map.set(k, p);     // first wins; the duplicate is reported by the validator
+  }
+  _pMapRows = rows; _pMap = map;
+  return map;
+}
+
+/**
+ * Carrd host -> partner row, for the request-time overlay only.
+ *
+ * Indexes a row's primary `carrd` AND every page in `hosts[]` — the extra pages a
+ * partner registered through their own portal. They are the same kind of binding as
+ * the primary one, so they resolve the same way; the only difference is who typed
+ * them in. First writer wins here, and the merge upstream has already stripped any
+ * host another partner holds, so this cannot hand one partner another's page.
+ */
+function overlayHostMap(overlay) {
+  const rows = partnerRows(overlay);
+  if (_hMap && rows === _hMapRows) return _hMap;
+  const map = new Map();
+  for (const p of rows) {
+    if (!p || typeof p !== 'object' || !p.lander) continue;
+    const all = [p.carrd, ...(Array.isArray(p.hosts) ? p.hosts : [])];
+    for (const raw of all) {
+      const h = normHost(raw);
+      if (!h || map.has(h)) continue;
+      map.set(h, { host: h, lander: p.lander, partner: p.key });
+    }
+  }
+  _hMapRows = rows; _hMap = map;
+  return map;
+}
+
+/** Which partner owns the Carrd page this click came from. '' when none. */
+function partnerForCarrdHost(carrdUrl, overlay) {
+  const host = carrdHostOf(carrdUrl);
+  if (!host) return '';
+  const row = CARRD_HOST_MAP.get(host) || (overlay ? overlayHostMap(overlay).get(host) : null);
+  return row ? String(row.partner || '') : '';
+}
+
+/**
+ * Resolve (slug, inbound sub-ID) -> partner row, or null.
+ *
+ * A miss is INDISTINGUISHABLE from a hit on the house destination — same status,
+ * same shape, no error. That is on purpose: a distinguishable miss turns /c/ into
+ * an oracle for enumerating partner codes.
+ */
+export function partnerFor(slug, subId, overlay = null) {
+  const s = String(slug || '').trim().toLowerCase();
+  if (!s) return null;
+  const key = partnerKey(subId);
+  if (!PARTNER_CODE_RE.test(key)) return null;
+
+  const map = partnerMap(overlay);
+  const hit = map.get(`${s}\u0000${key}`);
+  if (hit) return hit;
+
+  // Relaunch children: SPRK mints `SPK-A1B2-C3D4-7` as a child of `SPK-A1B2-C3D4`,
+  // and they are different strings. Fall back to the parent — but ONLY for a
+  // canonical spark code with a numeric suffix. A general prefix match is how one
+  // partner would silently inherit another's traffic.
+  const child = key.match(/^(SPK-[0-9A-F]{4}-[0-9A-F]{4})-\d+$/);
+  return child ? (map.get(`${s}\u0000${child[1]}`) || null) : null;
+}
+
+/**
+ * getConfiguredOfferLink, but aware of who is clicking.
+ *
+ * Returns the same row shape plus `partner`. Falls through to the committed row
+ * whenever the code is unknown, out of scope, or the slug is door-routed —
+ * dropping a paid click is always worse than crediting the house.
+ *
+ * Door-mode links are NEVER partner-influenced: those attribute inside SPRK at the
+ * door, which owns the destination. A partner row claiming one is refused by
+ * partnerLinkProblems rather than half-honoured here.
+ */
+export function offerLinkFor(slug, subId, overlay = null) {
+  const base = getConfiguredOfferLink(slug);
+  if (!base || base.mode !== 'direct') return base;
+  const p = partnerFor(slug, subId, overlay);
+  if (!p) return base;
+  return {
+    ...base,
+    destination: p.destination,
+    forwardParam: p.forwardParam || base.forwardParam || 'sub1',
+    partner: p.key,
+  };
+}
+
 /**
  * Build a direct-mode destination by STRING CONCATENATION, not URL.searchParams.
  *
@@ -1116,7 +1572,11 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
     return { ok: false, offer, offer_label: label, hops, reason: `Offer "${offer}" has an unrecognised match string.` };
   }
   const slug = slugMatch[1];
-  const link = getConfiguredOfferLink(slug);
+  // The SAME resolver /c/:slug runs, given the SAME code — so when this landing
+  // page belongs to a partner, the panel shows THEIR affiliate URL rather than the
+  // house one. Re-deriving it here is exactly the drift buildDirectUrl was moved
+  // out of api/c/[slug].js to prevent.
+  const link = offerLinkFor(slug, code, extras.partners || null);
   if (!link) {
     return {
       ok: false, offer, offer_label: label, slug, hops,
@@ -1157,6 +1617,9 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
   return {
     ok: true, offer, offer_label: label, mode: 'direct', slug, hops,
     forward_param: forwardParam,
+    // Non-empty when a PARTNER_LINKS row claimed this code, i.e. the final hop
+    // above is that person's own affiliate link rather than the house one.
+    partner: link.partner || '',
     tracks_as: code
       ? `${forwardParam}=${code} — this is the value they look for in their own reports.`
       : `${forwardParam} — empty, because no tracking code was given. The click still converts, ` +
@@ -1177,14 +1640,29 @@ export function hopUrl(chain, step) {
   return hit ? hit.url : '';
 }
 
-/** Carrd pages bound to this lander by host, so the panel can show the real ad link. */
-export function carrdHostsForLander(landerUrl) {
+/**
+ * Carrd pages bound to this lander by host, so the panel can show the real ad link.
+ *
+ * `partner` narrows the answer to ONE person's pages. That argument is load-bearing
+ * once two people share a lander: without it this returns both hosts, and the panel
+ * hands person A a ready-to-send link on person B's Carrd page carrying A's code.
+ * Under per-code destination resolution that link WORKS — A's clicks would land on
+ * A's offer off B's page — so the mistake is invisible instead of loud.
+ *
+ * `overlay` adds datastore-sourced partner rows; committed rows are listed first.
+ */
+export function carrdHostsForLander(landerUrl, partner = '', overlay = null) {
   const target = String(landerUrl || '').trim().replace(/\/+$/, '');
   if (!target) return [];
+  const want = String(partner || '').trim().toLowerCase();
   const hosts = [];
-  for (const [host, value] of CARRD_HOST_MAP.entries()) {
-    if (resolveRouteLander(value).replace(/\/+$/, '') === target) hosts.push(host);
-  }
+  const consider = (host, row) => {
+    if (hosts.includes(host)) return;
+    if (want && String(row.partner || '').toLowerCase() !== want) return;
+    if (resolveRouteLander(row.lander).replace(/\/+$/, '') === target) hosts.push(host);
+  };
+  for (const [host, row] of CARRD_HOST_MAP.entries()) consider(host, row);
+  if (overlay) for (const [host, row] of overlayHostMap(overlay).entries()) consider(host, row);
   return hosts;
 }
 

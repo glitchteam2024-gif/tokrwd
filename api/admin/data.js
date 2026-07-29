@@ -21,6 +21,7 @@ import {
   OFFER_KEYS,
   OVERRIDE_LANDERS,
   OVERRIDE_PARAM,
+  PARTNER_LINKS,
   PRELANDER_ENABLED,
   PRELANDER_PATH,
   SUBID_PARAM,
@@ -31,6 +32,12 @@ import {
   isCanonicalSpk,
   isOwnLanderHost,
   offerForLander,
+  offerKeyProblems,
+  overrideLanderProblems,
+  partnerFor,
+  partnerKey,
+  partnerLinkProblems,
+  partnerSlugFor,
   resolveLander,
   resolveOverrideLander,
   resolveRouteLander,
@@ -39,6 +46,10 @@ import {
   traceOfferChain,
   wrapPrelander,
 } from '../_lib/links-config.js';
+import { kvEnabled } from '../_lib/kv.js';
+import { clearPartnerHosts, getPartnerRows, readStoredRows, writeStoredRows } from '../_lib/partner-store.js';
+import { accessSummary, issueAccessCode, revokeAccessCode } from '../_lib/partner-access.js';
+import { timingSafeEqual } from 'node:crypto';
 
 /**
  * Does the lander actually exist on the live site?
@@ -76,18 +87,134 @@ async function checkReachable(url) {
   }
 }
 
-// Simple auth check — in production, use a proper auth system
+/** Constant-time compare. Lengths are compared first, so it never throws. */
+function secretEq(a, b) {
+  const A = Buffer.from(String(a == null ? '' : a), 'utf8');
+  const B = Buffer.from(String(b == null ? '' : b), 'utf8');
+  if (A.length === 0 || A.length !== B.length) return false;
+  return timingSafeEqual(A, B);
+}
+
+// Simple auth check — in production, use a proper auth system.
+// Left exactly as it was, INCLUDING the legacy default: tightening the read path
+// would lock the operator out of their own dashboard on the next deploy if
+// ADMIN_KEY was never set. The write path below is where the fail-closed rule goes.
 function isAuthorized(req) {
   const key = req.query.admin_key || req.headers['x-admin-key'] || '';
   const envKey = process.env.ADMIN_KEY || 'sprk2026';
   return key === envKey;
 }
 
+/**
+ * The secret a MUTATION must present.
+ *
+ * A dedicated ADMIN_WRITE_KEY when there is one, otherwise ADMIN_KEY — but only
+ * when it is genuinely set in the environment. `'sprk2026'` is a committed,
+ * public string; it was tolerable while writes landed in a throwaway in-memory
+ * object, and it stops being tolerable the moment a write decides where paid
+ * traffic goes. Unset means writes are refused, never that they are open.
+ *
+ * BE HONEST ABOUT WHAT THE FALLBACK BUYS. With only ADMIN_KEY set — the documented
+ * minimum — the read key IS the write key, and that key sits in localStorage on the
+ * same origin as ~1000 lander pages. Setting ADMIN_WRITE_KEY as well is what
+ * actually separates them: the panel holds that one in memory only, so a stolen
+ * ADMIN_KEY can read the dashboard but cannot re-point paid traffic. The fallback
+ * exists so the feature works on day one, not because the two are equivalent.
+ */
+function writeSecret() {
+  return process.env.ADMIN_WRITE_KEY || process.env.ADMIN_KEY || '';
+}
+
+/** Header only — a credential in a query string lands in every request log. */
+function isWriteAuthorized(req) {
+  const want = writeSecret();
+  if (!want) return false;
+  const given = req.headers['x-admin-write-key'] || req.headers['x-admin-key'] || '';
+  return secretEq(given, want);
+}
+
+/**
+ * Where a write may be submitted from. The panel is served from the same deploy,
+ * so a same-origin fetch (which usually omits Origin) is the normal case; anything
+ * that names a foreign origin is a cross-site request, not the operator.
+ */
+const ALLOWED_ORIGINS = new Set([
+  'https://www.tokrwd.co',
+  'https://tokrwd.co',
+  'https://appflowconnect.com',
+  'https://www.appflowconnect.com',
+]);
+
+function originOk(req) {
+  const o = req.headers.origin;
+  if (!o) return true;
+
+  let host;
+  try { host = new URL(o).host.toLowerCase(); } catch { return false; }
+
+  // SAME-ORIGIN IS ALWAYS FINE, whatever domain this deploy is being served on.
+  // Comparing against a fixed list alone was wrong in a way that only shows up
+  // later: browsers attach Origin to every non-GET request, including the panel's
+  // own, so a preview deployment, a renamed project URL or a local run would all
+  // have 403'd every save with a message about cross-site requests.
+  const self = String(req.headers.host || '').trim().toLowerCase();
+  if (self && host === self) return true;
+
+  return ALLOWED_ORIGINS.has(String(o).trim().toLowerCase());
+}
+
+/**
+ * Actions that CHANGE something. Deny-by-default: an action absent from this set
+ * is treated as read-only, so a new mutating action has to be added here
+ * deliberately rather than inheriting write access by being forgotten.
+ */
+const WRITE_ACTIONS = new Set([
+  'add_carrd', 'remove_carrd', 'update_carrd_status',
+  'add_offer_link', 'update_offer_link', 'remove_offer_link',
+  'add_lander', 'remove_lander', 'set_campaign', 'update_settings',
+  'save_partner', 'delete_partner', 'issue_access', 'revoke_access',
+]);
+
+/** Rows that live in source control and therefore cannot be edited from here. */
+const PARTNER_LINKS_KEYS = new Set(PARTNER_LINKS.map(p => p.key));
+
+/**
+ * The PARTNER_LINKS row for a proposed assignment, ready to paste.
+ *
+ * This is the fallback when no datastore is connected, and it is also the honest
+ * answer for anyone who would rather keep assignments in source control: the panel
+ * and the committed table take the exact same shape.
+ */
+function buildPartnerConfigLine(row) {
+  const q = (v) => `'${String(v == null ? '' : v).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  return [
+    '  {',
+    `    key: ${q(row.key)},`,
+    `    owner: ${q(row.owner)},`,
+    `    carrd: ${q(row.carrd)},`,
+    `    lander: ${q(row.lander)},`,
+    `    code: ${q(row.code)},`,
+    `    destination: ${q(row.destination)},`,
+    `    forwardParam: ${q(row.forwardParam || 'sub1')},`,
+    '  },',
+  ].join('\n');
+}
+
 export default async function handler(req, res) {
-  // CORS for dashboard
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS for dashboard.
+  //
+  // Echo an allowlisted origin instead of `*`. This response now carries every
+  // partner's private affiliate URL alongside the rest of the routing table, and
+  // with `*` any web page could read it as a simple cross-origin request the moment
+  // it had the key. Same-origin requests (the panel itself) send no Origin and are
+  // unaffected.
+  const reqOrigin = String(req.headers.origin || '').trim().toLowerCase();
+  if (ALLOWED_ORIGINS.has(reqOrigin)) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    res.setHeader('Vary', 'Origin');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Key, X-Admin-Write-Key');
   res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
@@ -103,6 +230,14 @@ export default async function handler(req, res) {
     const host = req.headers.host || 'yourdomain.com';
     const settings = getSettings();
     if (!settings.domain) settings.domain = host;
+
+    // Committed rows merged with whatever the datastore holds — the SAME list a
+    // click is routed by, so the table on screen cannot disagree with the router.
+    const partners = await getPartnerRows();
+    // WHO has a portal login, never the codes themselves — those exist only as
+    // hashes and were shown once at mint time.
+    let access = {};
+    try { access = await accessSummary(); } catch { access = {}; }
 
     return res.status(200).json({
       carrd_pages: getCarrdPages(),
@@ -142,11 +277,53 @@ export default async function handler(req, res) {
           };
         }),
         carrd_route_problems: carrdRouteProblems(),
+        // Both of these are exported and validated by the test suite but were
+        // reaching NOTHING at runtime, so a broken alias or a half-added geo was
+        // invisible in the panel until someone happened to run the tests.
+        override_lander_problems: overrideLanderProblems(),
+        offer_key_problems: offerKeyProblems(),
         // The prelander that fronts every landing page. Exposed so the panel can say
         // whether it is on rather than assuming, and stops showing the hop the moment
         // PRELANDER_ENABLED is flipped off.
         prelander_enabled: PRELANDER_ENABLED,
         prelander_path: PRELANDER_PATH,
+      },
+      // ── Partner links ────────────────────────────────────────────────────────
+      partners: partners.map((p) => ({
+        key: p.key,
+        owner: p.owner || '',
+        carrd: String(p.carrd || '').toLowerCase(),
+        lander: p.lander,
+        lander_url: resolveRouteLander(p.lander),
+        code: partnerKey(p.code),
+        destination: p.destination,
+        forward_param: p.forwardParam || 'sub1',
+        slug: partnerSlugFor(p.lander),
+        // 'committed' rows live in links-config.js and go live on deploy; 'store'
+        // rows were saved through this panel and are live already. The panel labels
+        // them differently because only one of the two can be edited here.
+        origin: p.origin || 'committed',
+        updated: p.updated || '',
+        // Extra Carrd pages this partner registered through their own portal.
+        hosts: Array.isArray(p.hosts) ? p.hosts : [],
+        // Whether the live offer link is the one YOU set or one they changed in
+        // their portal, and what yours was. A partner-set link is the only thing
+        // here that can send traffic somewhere you did not choose.
+        offer_origin: p.offer_origin || 'operator',
+        offer_updated: p.offer_updated || '',
+        operator_destination: p.operator_destination || p.destination,
+        // Whether they can log in, and when the code was made. Not the code.
+        has_access: !!access[p.key],
+        access_created: (access[p.key] && access[p.key].created) || '',
+      })),
+      partner_problems: partnerLinkProblems(partners),
+      // Whether Save can actually persist. The panel refuses to pretend otherwise:
+      // a button that looks like it worked and did not is the exact failure this
+      // whole feature exists to remove.
+      storage: {
+        enabled: kvEnabled(),
+        writable: !!writeSecret(),
+        admin_key_from_env: !!process.env.ADMIN_KEY,
       },
     });
   }
@@ -155,6 +332,31 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const body = req.body || {};
     const action = body.action || req.query.action;
+
+    // Every mutation, gated once, here — rather than per-case where the next new
+    // action would quietly ship without one.
+    if (WRITE_ACTIONS.has(action)) {
+      if (!originOk(req)) {
+        return res.status(403).json({ error: 'This write came from an origin we do not serve the panel on.' });
+      }
+      if (!isWriteAuthorized(req)) {
+        return res.status(401).json({
+          error: writeSecret()
+            ? 'Wrong write key.'
+            : 'Writing is switched off because no ADMIN_KEY is set in Vercel. Set ADMIN_KEY (or ' +
+              'ADMIN_WRITE_KEY) in the project\'s Environment Variables, redeploy, then try again — ' +
+              'the built-in default is a public string and is deliberately not accepted for writes.',
+        });
+      }
+      // An assignment that sends paid traffic somewhere new is worth a line in the
+      // function log, so a change is answerable after the fact.
+      console.log('[admin] write', JSON.stringify({
+        action,
+        at: new Date().toISOString(),
+        ip: req.headers['x-forwarded-for'] || '',
+        target: body.key || body.slug || body.url || body.carrd || '',
+      }));
+    }
 
     switch (action) {
       // === CARRD PAGES ===
@@ -244,10 +446,17 @@ export default async function handler(req, res) {
         }
 
         const code = String(body.code || '').trim();
+        const partnerRows = await getPartnerRows();
         const chain = traceOfferChain(lander, code, {
           ttclid: body.ttclid || '',
           s3: body.s3 || '',
+          // The panel must resolve the partner the SAME way /c/:slug will, or it
+          // shows the house destination to someone whose clicks go elsewhere.
+          partners: partnerRows,
         });
+        // Who this code belongs to, resolved through the live resolver rather than
+        // matched by hand here.
+        const owner = partnerFor(partnerSlugFor(landerRaw), code, partnerRows);
 
         const warnings = [];
         if (!code) {
@@ -263,7 +472,11 @@ export default async function handler(req, res) {
           );
         }
 
-        const hosts = carrdHostsForLander(lander);
+        // SCOPED to whoever owns this code. Unscoped, a lander shared by two people
+        // returns both their Carrd pages, and the "ad link to send them" below would
+        // be built on the wrong person's page — a link that, under per-code routing,
+        // works, so nobody would notice until the invoices disagreed.
+        const hosts = carrdHostsForLander(lander, owner ? owner.key : '', partnerRows);
         // The link actually handed over. A bound Carrd page is the real ad link; with
         // none bound the lander URL is direct-only and needs lp= to route through /r.
         const adLinks = hosts.map((h) => {
@@ -332,9 +545,157 @@ export default async function handler(req, res) {
           prelander_enabled: PRELANDER_ENABLED,
           reachable: reach ? reach.ok : null,
           reachable_status: reach ? reach.status : null,
+          // Named when this code belongs to somebody, so the screen can say whose
+          // affiliate link the last hop actually is.
+          partner: owner ? { key: owner.key, owner: owner.owner || '' } : null,
           chain,
           warnings,
         });
+      }
+
+      /**
+       * Create or update ONE partner assignment: their Carrd page, the landing page
+       * they run, and their own affiliate link.
+       *
+       * Validated against the LIVE table (committed rows included) before anything is
+       * written, so a duplicate code — the failure that silently pays one person for
+       * another's traffic — is refused rather than saved and reported afterwards.
+       */
+      case 'save_partner': {
+        const row = {
+          key: String(body.key || '').trim().toLowerCase(),
+          owner: String(body.owner || '').trim(),
+          carrd: String(body.carrd || '').trim().toLowerCase()
+            .replace(/^https?:\/\//, '').split('/')[0].split('?')[0].replace(/^www\./, ''),
+          lander: String(body.lander || '').trim(),
+          code: partnerKey(body.code || ''),
+          destination: String(body.destination || '').trim(),
+          forwardParam: String(body.forward_param || 'sub1').trim(),
+        };
+        if (row.carrd && !row.carrd.includes('.')) row.carrd = `${row.carrd}.carrd.co`;
+
+        // VALIDATE FIRST, and validate in the merged world the router will actually
+        // see — a code is only a duplicate relative to everything else that is live.
+        // Doing this before the storage check matters: otherwise a broken row with no
+        // datastore connected comes back as a ready-to-paste config line.
+        const problems = partnerLinkProblems([
+          ...(await getPartnerRows()).filter(r => r.key !== row.key),
+          row,
+        ]);
+        if (problems.length) {
+          return res.status(400).json({ error: problems.join(' · ') });
+        }
+
+        if (!kvEnabled()) {
+          return res.status(503).json({
+            error:
+              'No datastore is connected, so this cannot be saved live. In Vercel: Storage → ' +
+              'Create Database → Redis (Upstash) → Free → connect it to this project, then ' +
+              'redeploy. The assignment itself is valid — paste the row below into ' +
+              'PARTNER_LINKS in api/_lib/links-config.js and deploy to run it today.',
+            config_line: buildPartnerConfigLine(row),
+          });
+        }
+
+        // The datastore can be CONFIGURED and still unreachable — wrong token,
+        // rotated credentials, an outage. Unhandled, that rejection escapes the
+        // handler, Vercel answers with an HTML 500, and the panel's res.json()
+        // throws inside a click handler: no toast, no error, nothing on screen.
+        // A save that silently does nothing is the exact failure this tab exists
+        // to remove, so it is caught and reported like the not-configured case.
+        let saved;
+        try {
+          const existing = await readStoredRows();
+          const others = existing.filter(r => r.key !== row.key);
+          saved = await writeStoredRows([...others, { ...row, updated: new Date().toISOString() }]);
+        } catch (e) {
+          console.error('[admin] save_partner store failure:', e && e.message);
+          return res.status(503).json({
+            error: `The datastore did not accept the write (${(e && e.message) || 'unknown error'}). ` +
+                   'Nothing was saved. Check KV_REST_API_URL / KV_REST_API_TOKEN in Vercel, or paste ' +
+                   'the row below into PARTNER_LINKS and deploy.',
+            config_line: buildPartnerConfigLine(row),
+          });
+        }
+        return res.status(200).json({
+          success: true,
+          rows: saved.length,
+          // Handed back on success too: an operator who would rather keep assignments
+          // in source control can commit the identical row.
+          config_line: buildPartnerConfigLine(row),
+        });
+      }
+
+      /**
+       * Mint a portal login for one partner. The plaintext is returned ONCE and is
+       * not stored — only its hash is — so it cannot be looked up later. That is the
+       * point: a datastore dump hands over no working logins, and "I lost it" has
+       * exactly one answer, which is to mint another.
+       *
+       * Minting REPLACES any previous code, so this doubles as the fix for a code
+       * that reached the wrong person.
+       */
+      case 'issue_access': {
+        const key = String(body.key || '').trim().toLowerCase();
+        const rows = await getPartnerRows();
+        if (!rows.some(r => r.key === key)) {
+          return res.status(400).json({ error: `No partner called "${key}".` });
+        }
+        try {
+          const code = await issueAccessCode(key);
+          return res.status(200).json({
+            success: true,
+            key,
+            access_code: code,
+            note: 'Shown once. Send it to them now — it cannot be retrieved again, only replaced.',
+          });
+        } catch (e) {
+          return res.status(503).json({
+            error: `Could not issue a code (${(e && e.message) || 'unknown error'}). ` +
+                   'Portal logins need the datastore connected.',
+          });
+        }
+      }
+
+      case 'revoke_access': {
+        const key = String(body.key || '').trim().toLowerCase();
+        try {
+          const removed = await revokeAccessCode(key);
+          return res.status(200).json({ success: true, removed });
+        } catch (e) {
+          return res.status(503).json({ error: (e && e.message) || 'Could not revoke.' });
+        }
+      }
+
+      case 'delete_partner': {
+        const key = String(body.key || '').trim().toLowerCase();
+        if (!key) return res.status(400).json({ error: 'key required' });
+        // A committed row is in source control; deleting it here would look like it
+        // worked and be undone by the next deploy.
+        if (PARTNER_LINKS_KEYS.has(key)) {
+          return res.status(400).json({
+            error: `"${key}" is committed in api/_lib/links-config.js, so it cannot be removed from ` +
+                   'here — delete its row in PARTNER_LINKS and deploy.',
+          });
+        }
+        try {
+          const existing = await readStoredRows();
+          const saved = await writeStoredRows(existing.filter(r => r.key !== key));
+          // Deleting the row is not enough. Their access code survives, and if the
+          // same key slug is ever reused for a DIFFERENT person the old holder gets
+          // that person's portal — their affiliate link, their code, and the power to
+          // de-register their pages. Their registered pages must go too, or the host
+          // stays claimed by a partner who no longer exists and nobody can take it.
+          await revokeAccessCode(key).catch(() => {});
+          await clearPartnerHosts(key).catch(() => {});
+          return res.status(200).json({ success: true, rows: saved.length });
+        } catch (e) {
+          console.error('[admin] delete_partner store failure:', e && e.message);
+          return res.status(503).json({
+            error: `The datastore did not accept the change (${(e && e.message) || 'unknown error'}). ` +
+                   'Nothing was removed — this row is still live.',
+          });
+        }
       }
 
       case 'resolve_lander': {
@@ -356,6 +717,10 @@ export default async function handler(req, res) {
           carrdUrl,
           campid,
           campaigns: store.campaigns,
+          // Partner assignments saved through the panel route real traffic, so this
+          // "where does this link actually go?" check has to see them too — otherwise
+          // it reports the default offer for a page that is in fact assigned.
+          partners: await getPartnerRows(),
         });
         const destination = lander ? buildLanderUrl(lander, campid, carrdUrl) : '';
         // What /r actually hands back for this ad link — the prelander when one fronts

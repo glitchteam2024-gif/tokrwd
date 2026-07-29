@@ -66,6 +66,9 @@ const SKIP_FILES = new Set([
   'api/_lib/_links-config.test.mjs',
   'api/_lib/_traffic-filter.test.mjs',  // its fixtures ARE in-app user agents, by definition
   'api/_lib/_prelander-page.test.mjs',  // ditto — it asserts ON the breakout patterns
+  'api/_lib/_partner-links.test.mjs',   // its fixtures are partner destinations, i.e. network URLs
+  'api/_lib/_partner-store.test.mjs',   // ditto — it drives the real handlers with them
+  'api/_lib/_partner-portal.test.mjs',  // ditto — the partner-facing half
   'api/detector.js', 'api/harness.js', 'api/signatures.js', // cloaking QA tooling
   'admin/index.html', 'admin/carrd-script.js',              // dashboard + paste-in snippet
 ]);

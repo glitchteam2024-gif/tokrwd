@@ -28,6 +28,7 @@
  */
 
 import { getStore } from './_lib/store.js';
+import { getPartnerRows } from './_lib/partner-store.js';
 import { evaluateRequest } from './_lib/traffic-filter.js';
 import {
   buildLanderUrl,
@@ -75,7 +76,7 @@ function getClientIP(req) {
     '';
 }
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // CORS headers for cross-origin Carrd requests
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -187,11 +188,30 @@ export default function handler(req, res) {
   // === PASSED ALL CHECKS — Route to lander ===
 
   const store = getStore();
-  const { url: landerUrl, source, offer, offerConflict } = resolveLander({
+  let { url: landerUrl, source, offer, offerConflict, partner } = resolveLander({
     carrdUrl,
     campid,
     campaigns: store.campaigns,
   });
+
+  // Only a Carrd page that matched NOTHING committed can be one the admin panel
+  // assigned since the last deploy — every other outcome already won on a rule that
+  // lives in this bundle. So the store is read only on that miss, and existing
+  // traffic never pays for the lookup.
+  //
+  // `default` is not a failure: an unassigned page still converts on the default
+  // offer. This just gives a freshly-assigned page a chance to be found first.
+  if (source === 'default') {
+    const partners = await getPartnerRows();   // fail-open: committed table on any error
+    const retry = resolveLander({ carrdUrl, campid, campaigns: store.campaigns, partners });
+    if (retry.source !== 'default') {
+      ({ url: landerUrl, source, offer, offerConflict, partner } = retry);
+    }
+  }
+
+  if (partner) {
+    console.log('[r] partner route:', partner, '->', landerUrl);
+  }
 
   if (!landerUrl) {
     // No landers configured → reject
