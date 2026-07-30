@@ -63,11 +63,9 @@
   /* header */
   .brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 0 6px;}
   .brand img{height:34px;width:auto;display:block;object-fit:contain;}
-  /* Playful's glowing app-icon ring, scaled down for the 34px header lockup. */
+  /* Playful's glowing app-icon ring, scaled down for the 34px header. */
   .brand .brandmark{border-radius:9px;box-shadow:0 0 0 2px rgba(168,85,247,.5),0 6px 22px rgba(139,0,255,.45);}
   .brand .x{color:var(--muted2);font-size:18px;font-weight:600;}
-  .brand .lockup{display:flex;align-items:center;gap:9px;}
-  .brand .wm{font-size:17px;font-weight:800;letter-spacing:-.35px;color:#fff;white-space:nowrap;}
   .verified{display:flex;align-items:center;justify-content:center;gap:7px;margin:8px auto 4px;
     width:max-content;padding:6px 14px;border-radius:999px;border:1px solid rgba(168,85,247,.40);
     background:rgba(168,85,247,.12);color:var(--violet4);font-size:12.5px;font-weight:700;}
@@ -156,7 +154,7 @@
   .important b{font-size:15px;font-weight:800;display:block;margin-bottom:6px;}
   .important p{font-size:12.5px;color:var(--muted);line-height:1.5;}
 
-  @media (max-width:360px){h1.title{font-size:25px}.game .ico{width:56px;height:56px}.brand .wm{font-size:15px}}
+  @media (max-width:360px){h1.title{font-size:25px}.game .ico{width:56px;height:56px}}
   @media (prefers-reduced-motion:reduce){*{animation:none!important}.rise{opacity:1;transform:none}}
 </style>
 </head>
@@ -171,10 +169,9 @@
   <div class="brand rise d1">
     <img src="/images/tiktok-icon-free-png.png" alt="TikTok">
     <span class="x">&times;</span>
-    <span class="lockup">
-      <img class="brandmark" src="/images/playful-rewards-logo.png" alt="Playful Rewards">
-      <span class="wm">Playful Rewards</span>
-    </span>
+    <!-- Mark only, no visible wordmark — Migi's call. alt= stays: that is screen-reader and
+         crawler text, not a visible title. See _lp-generator/playful.js. -->
+    <img class="brandmark" src="/images/playful-rewards-logo.png" alt="Playful Rewards">
   </div>
   <div class="verified rise d1">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
@@ -232,10 +229,9 @@
   <div class="brand">
     <img src="/images/tiktok-icon-free-png.png" alt="TikTok">
     <span class="x">&times;</span>
-    <span class="lockup">
-      <img class="brandmark" src="/images/playful-rewards-logo.png" alt="Playful Rewards">
-      <span class="wm">Playful Rewards</span>
-    </span>
+    <!-- Mark only, no visible wordmark — Migi's call. alt= stays: that is screen-reader and
+         crawler text, not a visible title. See _lp-generator/playful.js. -->
+    <img class="brandmark" src="/images/playful-rewards-logo.png" alt="Playful Rewards">
   </div>
 
   <h1 class="claimtitle"><span class="grad">You're In!</span></h1>

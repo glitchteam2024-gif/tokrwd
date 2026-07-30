@@ -501,6 +501,11 @@ losing a decorative block to a stray edit is invisible in a diff of 51 generated
 PNG that the orphaned `Playful/index.html` had inlined — it is the actual app icon, and the same mark
 the offer tile uses. Don't regenerate it; and if a tile is ever needed, `sprk-offer-tiles` can use it.
 
+**The header is MARK ONLY — no visible "Playful Rewards" wordmark.** Migi had it removed 2026-07-30;
+it shipped with one for about an hour. `alt="Playful Rewards"` stays on the `<img>` — that is
+screen-reader and crawler text, not a visible title, and stripping it would leave the brand nameless
+to both. Don't "restore" the wordmark as a fix for the header looking sparse.
+
 **Two copy strings deliberately diverge from the Testerup page, and both are compliance:**
 - `Verified by TikTok` → `Free to download`. A platform endorsement TikTok never gave is a false
   third-party claim, and reproducing it onto a new page is authoring it. The pill itself is kept.
