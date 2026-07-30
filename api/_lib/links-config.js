@@ -904,6 +904,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
+  'shrtl', 'sr50',
   'sp50', 'tsup',
   'tu', 'uber', 'ue50', 'trt',
 ];

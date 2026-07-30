@@ -181,6 +181,22 @@ const BRANDS = [
              logoWeight: 800, logoSpacing: '-.02em', logoSize: '2.3rem', ctaRadius: '2px' },
   },
   {
+    // SHEIN RETAIL STYLE $750 [US] — offer "Rewards US - Retail Style - Shein $750".
+    // A THIRD Shein offer, separate from the standing SHEIN sweep set and from Back to School: its
+    // own offer row, own door slug, own lander pool, so spend/caps/reporting stay separable. It is
+    // NOT a geo or a variant of shein-us — do not point it at SH50.
+    //
+    // Badge deliberately left at the language default ("2026 Summer Drop"). "Retail Style" reads as
+    // an internal creative angle, not a consumer campaign the way "Back to School" is, and inventing
+    // a shopper-facing campaign name is not something to guess at. Set `badge` here if Migi wants one.
+    dir: 'SHRTL', family: 'SR50', doorSlug: 'shein-retail', kind: 'giftcard',
+    wordmark: 'SHEIN', pixelName: 'SHEIN Retail', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#000', muted: '#737373', accent: '#000', accentHover: '#333',
+             tint: '#f7f7f7', line: '#e6e6e6', badgeBg: '#000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.02em', logoSize: '2.3rem', ctaRadius: '2px' },
+  },
+  {
     // SHEIN BACK TO SCHOOL $1,000 [US] — offer "Rewards US - Shein $1000 Back to School".
     // A SEPARATE offer from the standing Shein $750, not a variant of it: its own offer row, its
     // own door slug, its own landing_pages row. Sharing SHEIN's slug would collapse both onto one

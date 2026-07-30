@@ -29,6 +29,28 @@
 -- ⚠️ REVSHARE (Playful): leave offers.payout_by_geo and offers.payout EMPTY — the first flattens the
 --    price, the second inverts chargebacks. Set the cut with offers.sprk_cut_pct.
 
+-- ══ VERIFIED LIVE 2026-07-30, before you run this ════════════════════════════════════════════
+-- Probed each slug at the door (invalid s1, so nothing converts) and read the HTTP status:
+--
+--   playful-us      302 -> …/GS3NQC1D/    row EXISTS, per-geo destination set
+--   playful-gb      302 -> …/GS7TDJSD/    row EXISTS, DIFFERENT destination
+--   playful-ca      302 -> …/GSLX3JXR/    row EXISTS, DIFFERENT destination
+--   playful-au      302 -> …/GSLZGFND/    row EXISTS, DIFFERENT destination
+--   shein-b2s-us    302 -> …/GZ5TJ172/    row EXISTS
+--   shein-retail-us 404                   ROW MISSING — this is the one row you actually need
+--
+-- Four distinct destinations across the four Playful geos is the proof that destination_by_geo is
+-- genuinely populated per geo rather than every row collapsing onto one destination_url.
+--
+-- So five of the six INSERTs below are NO-OPS (WHERE NOT EXISTS skips them). Running the whole
+-- script is still the right move — it is idempotent, and it is the record of what should exist.
+--
+-- ⚠️ SEPARATELY: `shein-us` — the STANDING Shein $750 door — returns 404, behaving identically to a
+--    slug that does not exist, while an invalid s1 sails straight through on playful-us. So it is
+--    failing before the spark gate, at `if (!lp || !lp.offer_id) return 404`. Either that row or its
+--    offer is archived/missing. If "Rewards US - Retail Style - Shein $750" REPLACED the old $750
+--    offer that is expected; if the old one is meant to still be running, its clicks are dying now.
+
 BEGIN;
 
 -- ── 0. Confirm the offer names match reality before anything writes ──────────────────────────
@@ -57,6 +79,10 @@ BEGIN
   IF (SELECT count(*) FROM offers WHERE name = 'Rewards US - Shein $1000 Back to School' AND coalesce(status, '') <> 'archived') > 1 THEN
     RAISE EXCEPTION 'More than one live offer with that Shein B2S name — disambiguate by id before running this.';
   END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM offers WHERE name = 'Rewards US - Retail Style - Shein $750' AND coalesce(status, '') <> 'archived') THEN
+    RAISE EXCEPTION 'No live offer named "Rewards US - Retail Style - Shein $750". Run the SELECT above and correct the literal.';
+  END IF;
 END $do$;
 
 -- ── 1. The rows ──────────────────────────────────────────────────────────────────────────────
@@ -76,7 +102,12 @@ SELECT v.name, v.slug, v.link, o.id, v.status, v.capacity::int, v.geo, v.enforce
     ('Playful Rewards (CA)', 'playful-ca', 'https://www.tokrwd.co/PR50/CA1', 'Playful Rewards', 'active', 30, 'ca', false),
     ('Playful Rewards (AU)', 'playful-au', 'https://www.tokrwd.co/PR50/AU1', 'Playful Rewards', 'active', 30, 'au', false),
     ('Rewards US - Shein $1000 Back to School (US)', 'shein-b2s-us', 'https://www.tokrwd.co/SB50/US1',
-       'Rewards US - Shein $1000 Back to School', 'active', 30, 'us', false)
+       'Rewards US - Shein $1000 Back to School', 'active', 30, 'us', false),
+    -- The only row that does not already exist. Its lander is SHRTL/US + SR50/US1..US30, door
+    -- shein-retail-us — a SEPARATE pool from SH50 (shein-us) so spend, caps and reporting stay
+    -- separable between the three Shein offers.
+    ('Rewards US - Retail Style - Shein $750 (US)', 'shein-retail-us', 'https://www.tokrwd.co/SR50/US1',
+       'Rewards US - Retail Style - Shein $750', 'active', 30, 'us', false)
   ) AS v(name, slug, link, offer_name, status, capacity, geo, enforce_assignment)
   JOIN offers o ON o.name = v.offer_name AND coalesce(o.status, '') <> 'archived'
  WHERE NOT EXISTS (
@@ -84,11 +115,11 @@ SELECT v.name, v.slug, v.link, o.id, v.status, v.capacity::int, v.geo, v.enforce
  );
 
 -- ── 2. Prove it landed, before you commit ────────────────────────────────────────────────────
--- Expect 5 rows, every geo non-null, every enforce_assignment false.
+-- Expect 6 rows, every geo non-null, every enforce_assignment false.
 SELECT lp.slug, lp.geo, lp.capacity, lp.status, lp.enforce_assignment, lp.link, o.name AS offer
   FROM landing_pages lp
   JOIN offers o ON o.id = lp.offer_id
- WHERE lp.slug IN ('playful-us','playful-gb','playful-ca','playful-au','shein-b2s-us')
+ WHERE lp.slug IN ('playful-us','playful-gb','playful-ca','playful-au','shein-b2s-us','shein-retail-us')
  ORDER BY o.name, lp.geo;
 
 COMMIT;
@@ -111,4 +142,4 @@ COMMIT;
 --
 -- To roll back just these rows:
 --   UPDATE landing_pages SET status = 'archived'
---    WHERE slug IN ('playful-us','playful-gb','playful-ca','playful-au','shein-b2s-us');
+--    WHERE slug IN ('playful-us','playful-gb','playful-ca','playful-au','shein-b2s-us','shein-retail-us');
