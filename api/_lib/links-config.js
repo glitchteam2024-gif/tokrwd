@@ -412,7 +412,13 @@ export const OFFERS = {
   // shows up beside the lander in the admin pickers, where "(Edwin)" would read as
   // "this page belongs to Edwin" to whoever assigns it next.
   'gravypass-esgp': { label: 'Gravy Pass (partner links)', match: '/c/esgp-off' },
-  playful:        { label: 'Playful Rewards',      match: 'sprktrax.org/api/link/playful' },
+  // Playful Rewards is fanned out PER GEO, so there is no bare `playful` door — the slugs are
+  // playful-us / -gb / -ca / -au / -fr / -de, one `landing_pages` row each. This `match` names the
+  // US door because the registered lander (`/PLAY`, what lp=play and the admin preview resolve to)
+  // serves the US page. The other five geos are reached through the PR50/<GEO>n pools that SPRK
+  // assigns, exactly like Freecash's FCASH/* pages — they are deliberately not `lp=`-routable, so
+  // no public offer key can aim traffic at the wrong language.
+  playful:        { label: 'Playful Rewards',      match: 'sprktrax.org/api/link/playful-us' },
 };
 
 /**
@@ -890,10 +896,11 @@ export const PRELANDER_ENABLED = true;
  * the fail-open behaviour just means no prelander.
  */
 export const PRELANDER_ALLOWED_ROOTS = [
-  '50fc', '50fcii', '50tu', 'ak50', 'ap50', 'apay1k', 'apay750', 'cash', 'cb',
-  'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk', 'cltu', 'cr50', 'cs50', 'esgp',
-  'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd', 'play', 'pr50', 'rs', 'rs50',
-  'rewards', 'seph', 'sh50', 'shein', 'sp50', 'tsup', 'tu', 'uber', 'ue50', 'trt',
+  '50fc', '50fcii', '50tu', 'ac50', 'acash', 'af50', 'ak50', 'ap50', 'apay1k',
+  'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
+  'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
+  'play', 'pr50', 'rs', 'rs50', 'rewards', 'seph', 'sh50', 'shein', 'sp50', 'tsup',
+  'tu', 'uber', 'ue50', 'trt',
 ];
 
 const PRELANDER_ROOT_SET = new Set(PRELANDER_ALLOWED_ROOTS);

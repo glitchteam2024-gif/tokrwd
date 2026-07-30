@@ -57,7 +57,7 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Apple Pay $1000 | door `applepay1000-us` (Path A)         | `APAY1K/US/index.html`    | `AK50/US1-30`                                     |
 | Uber Eats £50 | door `ubereats-gb` (Path A)               | `UBER/GB/index.html`      | `UE50/GB1-30`                                     |
 | Freecash (per-geo) | door `freecash-<geo>` (Path A)         | `FCASH/<GEO>/index.html`  | `50FC/<GEO>1-30` — US GB CA JP DE AT NL           |
-| Playful Rewards | `sprktrax.org/api/link/playful` (Path A)  | `PLAY/index.html`         | `PR50/PR1-50` — generated, `lp=play`              |
+| Playful Rewards | door `playful-<geo>` (Path A)             | `PLAY/<GEO>/index.html`   | `PR50/<GEO>1-30` — US GB CA AU (English only)     |
 | Reco Social  | `/api/reco` → montrk (Path B)              | `RS/index.html`           | `RS50/RS1-50` are interstitials that forward to `/RS/` (2 distinct variants: RS1 unique, RS2–50 identical) |
 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
@@ -475,11 +475,73 @@ stamping a guessed geo on every clicks row.
 **`/trt` itself is left alone** — it is registered in `OVERRIDE_LANDERS` (Trae / TenX) and pinned by
 `_links-config.test.mjs` to fire `testerup-mon` through that `/c/` hop. Only `50TU/` is generated.
 
-## Playful Rewards is the /trt design in purple — `_lp-generator/playful.js`
+## Playful Rewards is the /trt design in purple, PER GEO — `_lp-generator/playful.js`
 
 ```bash
-node _lp-generator/playful.js --clones 50      # PLAY/index.html + PR50/PR1..PR50 = 51 files, one md5
+node _lp-generator/playful.js --clones 30      # 4 geos x (1 canonical + 30 clones) + bare /PLAY = 125 files
 ```
+
+**Geo is the unit, exactly as with Freecash.** `PLAY/<GEO>/index.html` + `PR50/<GEO>1..30` for
+**US GB CA AU** — English only. One geo picks the language AND the door slug `playful-<geo>`, so a
+page cannot render in one language and hand the visitor another geo's offer.
+
+⚠️ **FR and DE are BUILT AND TRANSLATED BUT SWITCHED OFF, and the reason is creative, not copy.**
+The two claim-screen videos are **English-language UGC**. A French visitor would read French copy and
+then watch two people speak English on the page's most prominent proof element — that reads as a scam
+page and converts worse than not running the geo. Migi pulled them 2026-07-30. `T.fr` and `T.de` stay
+in `playful.js`, complete and reviewed; re-enabling is ONE COMMENTED LINE EACH in `GEOS` the day there
+is localised video (or the videos come off the claim screen for those geos). **Do not re-translate
+from scratch** — see the purpose-vs-promise section below for why that wording was expensive. `?lg=<GEO>` is the affiliate's geo selector and keeps the
+clone index (`/PR50/US7?lg=DE` → `/PR50/DE7`); `lg` is stripped before the door because it routes the
+lander, not the network. No runtime geo detection anywhere — not cloaking, it keys off an explicit
+query param and renders identically for crawlers.
+
+**No money on this page**, so unlike Freecash there is no currency question at all — the only numeric
+strings are "2 offers" and "2 minutes". Don't add a figure to "localise" it.
+
+⚠️ **`PR50/PR1..PR50` (the old single-geo pool) was DELETED when the geo pools landed.** Keeping both
+would put two same-geo pools on one offer, which is the `50FC/FC1-50` vs `50FC/US1-30` trap — the
+per-geo affiliate guard refuses the same affiliate on two same-geo landers. The bare `/PLAY` survives
+as a byte copy of `PLAY/US` so the `lp=play` / `lp=playful` aliases, the admin preview and any link
+already handed out keep working. `?lg=` cannot re-route from `/PLAY` (no geo segment in the path for
+the regex to swap) — fail-safe, and real traffic lands on `PR50/<GEO>n` where the geo IS in the path.
+`OFFERS.playful.match` therefore names `playful-us`, not a bare `playful` slug — there is no bare one.
+
+⚠️ **Cash App operates in the US and GB ONLY.** The claim screen's second video caption said "paid via
+Cash App"; on CA/AU/FR/DE that promises a rail the visitor cannot use. It is now per-geo (`cashApp` in
+`GEOS`) — the other four get a wallet-worded caption restating the page's own step-3 claim. The FR and
+DE string tables do not even contain the Cash App variant, and the generator asserts `Cash App` appears
+nowhere on a `cashApp:false` page. **Still unconfirmed: what Playful actually pays through in those
+four markets.** Ask Migi before scaling spend there.
+
+**This generator PRUNES, and it is the only one here that does.** Output is a pure function of
+`GEOS` + `--clones`: it deletes any `PLAY/<GEO>` or `PR50/<GEO><n>` the current config no longer
+emits. Turning FR/DE off otherwise left 62 live orphan folders — still deployed, still serving, never
+regenerated again, walking a door slug the offer no longer sells. That is the RS50/RS1 drift shape
+with worse consequences. The prune is scoped to this family's own `<GEO>` / `<GEO><n>` name shape so
+it can never reach another offer's folders, even though `PLAY` and `PR50` are shared roots. Verified
+idempotent across three consecutive runs.
+
+### Translation rule learned here — purpose vs promise
+
+Both a native-speaker review and a compliance review independently caught the same drift in the first
+FR and DE drafts, and it is the thing to watch on every future translation:
+
+> English says "Pick a game **to start** earning" — a PURPOSE infinitive. Picking is the means toward
+> a possibility. Both drafts rendered it as coordinated imperatives — "Pick a game **and** earn" —
+> which German ad review in particular reads as a conditional promise: *do this and you get that.*
+
+Every instance is now `um … zu` / `pour + infinitif`. **A translation must never claim more than the
+English it was approved from.** Two more of the same family, both fixed and worth not undoing:
+- DE `importantBody` once ended `…Subway Surfers und vielen mehr Geld zu verdienen`, putting **"mehr
+  Geld" adjacent** — a German reader parses that comparative first ("earn MORE money"), but the
+  English "and more" modifies the GAME LIST. Word order alone manufactured an earnings claim.
+- Both `<title>`s are the bare brand, matching the English. A localised tagline would put a claim in
+  the title the English title does not make.
+
+The generator asserts translated endorsement strings too (`Vérifié par TikTok`, `Von TikTok
+verifiziert`, `TikTok-geprüft`, `500.000`) — the English needles alone would not catch a translated
+false claim, and the tracking audit greps English only.
 
 `playful-template.html` is a FORK of `testerup-template.html`, not a translation of it — Migi asked
 for "the Testerup landing page made into Playful Rewards, purple, keep the Block Blast logo". Four
@@ -827,6 +889,16 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
   `ESGP/index.html`'s `localStorage` sub-ID replay got a 30-minute TTL (per-origin storage on a shared
   lander would otherwise route a returning device to the previous partner's link). `overrideLanderProblems`
   and `offerKeyProblems` now reach the panel; they were exported and called by nothing.
+- **2026-07-30** — **Playful Rewards fanned out per geo** (`PLAY/<GEO>` + `PR50/<GEO>1-30`, door
+  `playful-<geo>`, `?lg=` router). Built for six geos with reviewed FR/DE translations, then cut to
+  **US GB CA AU** on Migi's call — the claim-screen videos are English UGC and would confuse a FR/DE
+  prospect on the page's main proof element. FR/DE string tables retained in the generator, one
+  commented line from returning. Retired the old single-geo `PR50/PR1-50` pool (two same-geo pools on
+  one offer is the `50FC/FC1-50` trap). The generator now PRUNES output the config no longer emits —
+  the FR/DE cut would otherwise have left 62 live orphan folders. Fixed a gap in someone else's
+  Apple Pay/Flash Poll/Apple Cash commit while merging: `ac50`, `acash`, `af50`, `apayfp` were missing
+  from `PRELANDER_ALLOWED_ROOTS` + `js/breakout.js`, so four live lander families were silently
+  running with no prelander — fail-open, so clicks landed, but the in-app breakout never fired.
 - **2026-07-30** — **Playful Rewards lander** (Migi: "the Testerup landing page, made into Playful
   Rewards, purple, keep the Block Blast logo"). New `_lp-generator/playful.js` +
   `playful-template.html` → `PLAY/index.html` + `PR50/PR1..PR50` (51 files, one md5), door slug
