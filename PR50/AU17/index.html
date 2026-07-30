@@ -11,7 +11,7 @@
      so without this the tab shows the browser's blank-page glyph on a paid click. -->
 <script>
 (function(){
-  var GEOS = ["US","GB","CA","AU","FR","DE"], THIS_GEO = "AU";
+  var GEOS = ["US","GB","CA","AU"], THIS_GEO = "AU";
   var q = new URLSearchParams(location.search);
   var want = (q.get('lg') || '').trim().toUpperCase();
   if (want === 'UK') want = 'GB';

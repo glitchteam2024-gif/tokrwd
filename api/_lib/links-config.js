@@ -896,10 +896,11 @@ export const PRELANDER_ENABLED = true;
  * the fail-open behaviour just means no prelander.
  */
 export const PRELANDER_ALLOWED_ROOTS = [
-  '50fc', '50fcii', '50tu', 'ak50', 'ap50', 'apay1k', 'apay750', 'cash', 'cb',
-  'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk', 'cltu', 'cr50', 'cs50', 'esgp',
-  'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd', 'play', 'pr50', 'rs', 'rs50',
-  'rewards', 'seph', 'sh50', 'shein', 'sp50', 'tsup', 'tu', 'uber', 'ue50', 'trt',
+  '50fc', '50fcii', '50tu', 'ac50', 'acash', 'af50', 'ak50', 'ap50', 'apay1k',
+  'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
+  'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
+  'play', 'pr50', 'rs', 'rs50', 'rewards', 'seph', 'sh50', 'shein', 'sp50', 'tsup',
+  'tu', 'uber', 'ue50', 'trt',
 ];
 
 const PRELANDER_ROOT_SET = new Set(PRELANDER_ALLOWED_ROOTS);

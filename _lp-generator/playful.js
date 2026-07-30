@@ -85,15 +85,30 @@ const CANON_DIR = 'PLAY';        // canonical page per geo: PLAY/<GEO>/index.htm
 const FAMILY = 'PR50';           // numbered pool per geo: PR50/<GEO>1..<GEO>n
 const HOME_GEO = 'US';           // what the bare /PLAY serves (see the write step)
 
-// The offer sells in exactly these six (SPRK offer row: US GB CA AU FR DE).
-// `cashApp` gates the second video caption — see the header note.
+/**
+ * ENGLISH-SPEAKING GEOS ONLY — and that is a creative constraint, not an oversight.
+ *
+ * The offer row sells US GB CA AU FR DE, and FR/DE pages were built and translated. Migi pulled
+ * them on 2026-07-30 for a reason that no amount of copy work fixes: **the two claim-screen videos
+ * are English-language UGC.** A French visitor would read French copy and then watch two people
+ * talk in English on the page's most prominent proof element. That reads as a scam page and kills
+ * the conversion, which is worse than not running the geo at all.
+ *
+ * So FR/DE are OFF, not deleted. `T.fr` and `T.de` below are complete, reviewed by a native speaker
+ * AND a compliance pass, and stay in this file. Re-enabling is ONE LINE EACH here — the day there is
+ * French/German video creative (or the videos come out of the claim screen for those geos), add the
+ * rows back and re-run. Do not re-translate from scratch; the wording below was hard-won, see the
+ * purpose-vs-promise note in the header.
+ *
+ * `cashApp` gates the second video caption — Cash App is US/GB only, see the header note.
+ */
 const GEOS = {
   US: { lang: 'en', cashApp: true },
   GB: { lang: 'en', cashApp: true },
   CA: { lang: 'en', cashApp: false },
   AU: { lang: 'en', cashApp: false },
-  FR: { lang: 'fr', cashApp: false },
-  DE: { lang: 'de', cashApp: false },
+  // FR: { lang: 'fr', cashApp: false },   // OFF — English videos, see above
+  // DE: { lang: 'de', cashApp: false },   // OFF — English videos, see above
 };
 
 // Every visible string, per language. Generated from the reviewed translation sets — see the
@@ -426,6 +441,49 @@ const CLONES = ci > -1 ? parseInt(argv[ci + 1], 10) : 30;
 if (!Number.isFinite(CLONES) || CLONES < 0) { console.error('--clones must be a non-negative integer'); process.exit(1); }
 
 const repoRoot = path.join(__dirname, '..');
+const GEO_KEYS = Object.keys(GEOS);
+
+/**
+ * Delete output this config no longer produces, so the tree is a PURE FUNCTION of GEOS + --clones.
+ *
+ * Without this, shrinking anything leaves live orphans: turning FR/DE off left PLAY/FR, PLAY/DE and
+ * 60 PR50/FR*|DE* folders on disk, still deployed, still serving — pages nobody re-generates, which
+ * silently drift from the template and become exactly the RS50/RS1 / FC1 incident this generator's
+ * one-md5 rule exists to prevent. A stale geo page is worse than a missing one: it renders fine and
+ * walks a door slug the offer no longer sells.
+ *
+ * Scoped deliberately narrowly — it only ever removes a directory whose name matches this family's
+ * own <GEO> or <GEO><n> shape, so it can never reach another offer's folders even though PR50 and
+ * PLAY are shared roots.
+ */
+function prune() {
+  const removed = [];
+  const rmdir = (p, label) => { fs.rmSync(p, { recursive: true, force: true }); removed.push(label); };
+
+  // Canonical pages: PLAY/<GEO> for a geo we no longer emit.
+  const canonRoot = path.join(repoRoot, CANON_DIR);
+  if (fs.existsSync(canonRoot)) {
+    for (const name of fs.readdirSync(canonRoot)) {
+      if (!/^[A-Z]{2}$/.test(name)) continue;                 // leaves index.html and anything else alone
+      if (!GEO_KEYS.includes(name)) rmdir(path.join(canonRoot, name), `${CANON_DIR}/${name}`);
+    }
+  }
+
+  // Clone pools: PR50/<GEO><n> for a dropped geo, or an index above the current --clones.
+  const famRoot = path.join(repoRoot, FAMILY);
+  if (fs.existsSync(famRoot)) {
+    for (const name of fs.readdirSync(famRoot)) {
+      const m = /^([A-Z]{2})([0-9]+)$/.exec(name);
+      if (!m) continue;
+      const [, geo, idx] = m;
+      if (!GEO_KEYS.includes(geo) || Number(idx) > CLONES || Number(idx) < 1) {
+        rmdir(path.join(famRoot, name), `${FAMILY}/${name}`);
+      }
+    }
+  }
+  return removed;
+}
+
 let written = 0;
 
 for (const geo of Object.keys(GEOS)) {
@@ -463,4 +521,7 @@ for (const geo of Object.keys(GEOS)) {
   );
 }
 
-console.log(`\n${written} files written (${Object.keys(GEOS).length} geos x 1 canonical + ${CLONES} clones, + the bare /${CANON_DIR})`);
+const pruned = prune();
+if (pruned.length) console.log(`\n  pruned ${pruned.length} stale folder(s) this config no longer emits: ${pruned.slice(0, 6).join(', ')}${pruned.length > 6 ? ` … +${pruned.length - 6} more` : ''}`);
+
+console.log(`\n${written} files written (${GEO_KEYS.length} geos x 1 canonical + ${CLONES} clones, + the bare /${CANON_DIR})`);
