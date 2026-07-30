@@ -174,9 +174,42 @@ const BRANDS = [
              logoWeight: 600, logoSpacing: '-.02em', logoSize: '2.1rem', ctaRadius: '980px' },
   },
   {
+    // APPLE PAY $1,000 — one Monetise offer PER GEO, so one page and one door slug per geo:
+    //   GB -> Rewards UK - Apple Pay £1000   (FL222093)
+    //   CA -> Rewards CA - Apple Pay $1000   (FL222209)
+    //   AU -> Rewards AU - Apple Pay $1000   (FL222190)
+    // US has no $1,000 Apple Pay offer on the network yet — the US slice is kept because it is
+    // already live at /AK50/US1..30 and its landing_pages row exists; it stays unlinked until
+    // Migi adds the offer. GB quotes pounds because the offer itself is priced in pounds; CA and
+    // AU quote a plain '$' exactly as SH50/SP50 do for those geos (no C$/A$ — house convention).
     dir: 'APAY1K', family: 'AK50', doorSlug: 'applepay1000', kind: 'wallet',
     wordmark: 'Apple Pay', pixel: 'D6CF3ABC77U56TVAPJPG',
-    amounts: { US: ['$1,000', 1000] },
+    amounts: { US: ['$1,000', 1000], GB: ['£1,000', 1000], CA: ['$1,000', 1000], AU: ['$1,000', 1000] },
+    theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
+             tint: '#f5f5f7', line: '#d2d2d7', badgeBg: '#1d1d1f', badgeInk: '#fff',
+             logoWeight: 600, logoSpacing: '-.02em', logoSize: '2.1rem', ctaRadius: '980px' },
+  },
+  {
+    // APPLE PAY $750, FLASH POLL funnel [US] — Rewards US - Flash Poll - Apple Pay $750 (FL222114).
+    // Same brand, geo and figure as APAY750, but it is a DIFFERENT network offer and therefore needs
+    // its OWN door slug — and because the slug is baked into the page at build time, its own family.
+    // Two offers can never share one lander directory. The pre-lander copy stays generic on purpose:
+    // the "Flash Poll" wording describes Monetise's funnel AFTER the door, not our page.
+    dir: 'APAYFP', family: 'AF50', doorSlug: 'applepayflash', kind: 'wallet',
+    wordmark: 'Apple Pay', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
+             tint: '#f5f5f7', line: '#d2d2d7', badgeBg: '#1d1d1f', badgeInk: '#fff',
+             logoWeight: 600, logoSpacing: '-.02em', logoSize: '2.1rem', ctaRadius: '980px' },
+  },
+  {
+    // APPLE CASH $750 [US] — Rewards US - Cash Style - Apple Cash $750 (FL222670). Its own offer,
+    // so its own slug and family (see APAYFP above). Wordmark is 'Apple Cash', which is the product
+    // the money actually lands in; `kind: 'wallet'` keeps the "sent straight to your Apple Pay
+    // wallet" line, which is where the Apple Cash card lives.
+    dir: 'ACASH', family: 'AC50', doorSlug: 'applecash', kind: 'wallet',
+    wordmark: 'Apple Cash', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
     theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
              tint: '#f5f5f7', line: '#d2d2d7', badgeBg: '#1d1d1f', badgeInk: '#fff',
              logoWeight: 600, logoSpacing: '-.02em', logoSize: '2.1rem', ctaRadius: '980px' },

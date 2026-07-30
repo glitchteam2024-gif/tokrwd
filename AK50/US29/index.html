@@ -27,7 +27,7 @@
      NOT CLOAKING: keyed on an explicit query param, never the user agent, identical for crawlers. -->
 <script>
 (function(){
-  var GEOS = ["US"], THIS_GEO = "US";
+  var GEOS = ["US","GB","CA","AU"], THIS_GEO = "US";
   var q = new URLSearchParams(location.search);
   var want = (q.get('lg') || '').trim().toUpperCase();
   if (want === 'UK') want = 'GB';
