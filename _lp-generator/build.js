@@ -146,11 +146,17 @@ const STRINGS = {
 };
 
 // Page <title> per language. Kept next to STRINGS so a new language is one object, not a hunt.
+//
+// The campaign name comes from {badge}, NOT a second hardcoded copy of the season. It used to be
+// written out again here, which meant a brand with its own badge (Shein Back to School) rendered
+// "Back to School 2026" on the page and "2026 Summer Drop" in the tab and in every link preview —
+// two different campaign names for one page. The old `ja` title also disagreed with the `ja` badge
+// by a space, which is what a duplicated constant always eventually does.
 const TITLES = {
-  en: '{brand} {sub} - 2026 Summer Drop',
-  ja: '{brand} {sub} - 2026年サマーキャンペーン',
-  de: '{brand} {sub} - Sommer-Aktion 2026',
-  nl: '{brand} {sub} - Zomeractie 2026',
+  en: '{brand} {sub} - {badge}',
+  ja: '{brand} {sub} - {badge}',
+  de: '{brand} {sub} - {badge}',
+  nl: '{brand} {sub} - {badge}',
 };
 
 const fill = (tpl, vars) => String(tpl).replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? vars[k] : ''));
@@ -170,6 +176,26 @@ const BRANDS = [
     dir: 'SHEIN', family: 'SH50', doorSlug: 'shein', kind: 'giftcard',
     wordmark: 'SHEIN', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$750', 750], GB: ['£750', 750], CA: ['$750', 750], AU: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#000', muted: '#737373', accent: '#000', accentHover: '#333',
+             tint: '#f7f7f7', line: '#e6e6e6', badgeBg: '#000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.02em', logoSize: '2.3rem', ctaRadius: '2px' },
+  },
+  {
+    // SHEIN BACK TO SCHOOL $1,000 [US] — offer "Rewards US - Shein $1000 Back to School".
+    // A SEPARATE offer from the standing Shein $750, not a variant of it: its own offer row, its
+    // own door slug, its own landing_pages row. Sharing SHEIN's slug would collapse both onto one
+    // row and credit every B2S conversion to the $750 offer.
+    //
+    // Same wordmark and theme as SHEIN on purpose — it IS Shein, and an affiliate should recognise
+    // it instantly. What separates them on the page is the AMOUNT ($1,000 vs $750) and the campaign
+    // badge, which is why `badge` exists at all.
+    //
+    // US only, because that is what the offer sells. Do not add geos here without a
+    // destination_by_geo entry and a landing_pages row for each — a geo with neither resolves to
+    // the US destination and stamps a guessed geo on every clicks row.
+    dir: 'SHB2S', family: 'SB50', doorSlug: 'shein-b2s', kind: 'giftcard',
+    wordmark: 'SHEIN', badge: 'Back to School 2026', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$1,000', 1000] },
     theme: { bg: '#fff', ink: '#000', muted: '#737373', accent: '#000', accentHover: '#333',
              tint: '#f7f7f7', line: '#e6e6e6', badgeBg: '#000', badgeInk: '#fff',
              logoWeight: 800, logoSpacing: '-.02em', logoSize: '2.3rem', ctaRadius: '2px' },
@@ -308,7 +334,12 @@ const page = (b, geo, variant = 'a') => {
   if (b.amounts && !pair) throw new Error(`${b.dir}: no amount for geo ${geo}`);
   const amt = pair ? pair[0] : null;      // display string, or null = this brand quotes no figure
   const val = pair ? pair[1] : 0;         // numeric, for pixel events
-  const V = { amount: amt, brand: b.wordmark, sub: S.subByKind[b.kind] };
+  // Campaign badge. Defaults to the language's seasonal string; a brand may override it when the
+  // OFFER is the campaign (Shein Back to School vs the standing Shein $750). English-only override
+  // on purpose — if such a brand ever ships a non-English geo, add a per-lang map here rather than
+  // letting an English badge sit on a German page.
+  const badge = b.badge || S.badge;
+  const V = { amount: amt, brand: b.wordmark, sub: S.subByKind[b.kind], badge };
   const pick = (withAmt, without) => fill(amt ? S[withAmt] : S[without], V);
   // ONE DOOR SLUG PER GEO. Each geo needs its own landing_pages row so that row can carry
   // landing_pages.geo — which is what the click door now routes on. A shared slug would collapse
@@ -325,7 +356,7 @@ const page = (b, geo, variant = 'a') => {
   // Same head, same tracking tail, same theme, same DOM hooks (#ctaBtn · #statsBar ·
   // [data-geo-amount] — the shared script queries all three and a rename ships a dead CTA).
   // Only the composition of the card changes.
-  const cardA = `    <div class="badge"><span class="dot"></span>${S.badge}</div>
+  const cardA = `    <div class="badge"><span class="dot"></span>${badge}</div>
     <div class="logo-wrap">
       <div class="logo-mark">${b.wordmark}</div>
       <div class="logo-sub">${V.sub}</div>
@@ -369,7 +400,7 @@ const page = (b, geo, variant = 'a') => {
   // B · THREE STEPS — the process leads, the figure is the payoff at the end.
   const cardB = `    <div class="vhead">
       <span class="logo-mark">${b.wordmark}</span>
-      <span class="badge"><span class="dot"></span>${S.badge}</span>
+      <span class="badge"><span class="dot"></span>${badge}</span>
     </div>
     <h1 class="vlede">${pick('bHeadline','bHeadlineNoAmount')}</h1>
     <div class="vstage">
@@ -393,7 +424,7 @@ const page = (b, geo, variant = 'a') => {
     <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>`;
 
   // C · QUESTIONS FIRST — objections lead. Native <details>, no JS.
-  const cardC = `    <div class="badge"><span class="dot"></span>${S.badge}</div>
+  const cardC = `    <div class="badge"><span class="dot"></span>${badge}</div>
     <div class="logo-wrap">
       <div class="logo-mark">${b.wordmark}</div>
       <div class="logo-sub">${V.sub}</div>

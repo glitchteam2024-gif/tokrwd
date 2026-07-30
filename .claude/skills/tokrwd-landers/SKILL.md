@@ -51,6 +51,7 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Testerup ALT | `monetisetrk8.co.uk` DIRECT (Path B)       | `TSUP/index.html` + `js/tsup-offer.js` | —                                      |
 | Testerup TRT | `/c/testerup-us-mon-off` (Path B)          | `trt/index.html`          | — (game-picker variant under test, `lp=trt`) |
 | Shein $750   | door `shein-<geo>` (Path A)                | `SHEIN/<GEO>/index.html`  | `SH50/<GEO>1-30` — US GB CA AU, generated         |
+| Shein B2S $1,000 | door `shein-b2s-us` (Path A)          | `SHB2S/US/index.html`     | `SB50/US1-30` — US only, generated                |
 | Sephora $750 | door `sephora-<geo>` (Path A)              | `SEPH/<GEO>/index.html`   | `SP50/<GEO>1-30` — US GB CA AU                    |
 | Cash Prize   | door `cash-<geo>` (Path A)                 | `CASH/<GEO>/index.html`   | `CS50/<GEO>1-30` — US GB AU                       |
 | Apple Pay $750 | door `applepay750-us` (Path A)           | `APAY750/US/index.html`   | `AP50/US1-30`                                     |
@@ -474,6 +475,35 @@ stamping a guessed geo on every clicks row.
 
 **`/trt` itself is left alone** — it is registered in `OVERRIDE_LANDERS` (Trae / TenX) and pinned by
 `_links-config.test.mjs` to fire `testerup-mon` through that `/c/` hop. Only `50TU/` is generated.
+
+## Shein Back to School is a SEPARATE offer, not a Shein variant
+
+```bash
+node _lp-generator/build.js --only SHB2S --clones 30    # SHB2S/US + SB50/US1-30
+```
+
+Offer *"Rewards US - Shein $1000 Back to School"*, US only, $1,000. It shares SHEIN's wordmark and
+theme deliberately — it IS Shein, and an affiliate should recognise it instantly. What separates them
+is the amount and the **campaign badge**.
+
+⚠️ **It has its own offer row, its own door slug (`shein-b2s-us`, not `shein-us`) and its own
+`landing_pages` row.** Sharing SHEIN's slug would collapse both offers onto one row and credit every
+Back-to-School conversion to the standing $750 offer. They are NOT two geos of one thing — and note
+both are geo `us`, so the per-geo assign guard will 409 if you try to put one affiliate on both. That
+409 is correct behaviour, not a bug to work around.
+
+**`badge` is now a per-brand override in `build.js`.** It defaults to the language's seasonal string
+(`2026 Summer Drop`); a brand sets its own when the OFFER is the campaign. Adding it exposed a real
+bug: `TITLES` carried a SECOND hardcoded copy of the season, so the first build rendered
+"Back to School 2026" in the badge and "2026 Summer Drop" in the tab and every link preview — two
+campaign names for one page. `TITLES` now interpolates `{badge}`, so they cannot disagree. (The old
+`ja` title had already drifted from the `ja` badge by a space, which is what a duplicated constant
+always eventually does.) Verified: regenerating all 1,147 sweep files changes **nothing** outside the
+new B2S dirs — the override is genuinely opt-in.
+
+The badge override is English-only. `SHB2S` is US-only so that is moot today; if a non-English geo is
+ever added to a custom-badge brand, make `badge` a per-language map first or an English badge ships
+onto a translated page.
 
 ## Playful Rewards is the /trt design in purple, PER GEO — `_lp-generator/playful.js`
 
