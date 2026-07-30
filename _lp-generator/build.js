@@ -194,7 +194,8 @@ const BRANDS = [
     // destination_by_geo entry and a landing_pages row for each — a geo with neither resolves to
     // the US destination and stamps a guessed geo on every clicks row.
     dir: 'SHB2S', family: 'SB50', doorSlug: 'shein-b2s', kind: 'giftcard',
-    wordmark: 'SHEIN', badge: 'Back to School 2026', pixel: 'D6CF3ABC77U56TVAPJPG',
+    wordmark: 'SHEIN', badge: 'Back to School 2026', pixelName: 'SHEIN B2S',
+    pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$1,000', 1000] },
     theme: { bg: '#fff', ink: '#000', muted: '#737373', accent: '#000', accentHover: '#333',
              tint: '#f7f7f7', line: '#e6e6e6', badgeBg: '#000', badgeInk: '#fff',
@@ -339,6 +340,16 @@ const page = (b, geo, variant = 'a') => {
   // on purpose — if such a brand ever ships a non-English geo, add a per-lang map here rather than
   // letting an English badge sit on a German page.
   const badge = b.badge || S.badge;
+  // TikTok pixel event label. Defaults to the wordmark, which is what every brand shipped before —
+  // so existing brands keep byte-identical event names and their reporting history stays continuous.
+  //
+  // ⚠️ THE WORDMARK IS NOT UNIQUE. 'SHEIN' is shared by SHEIN and SHB2S; 'Apple Pay' by APAY750,
+  // APAY1K and APAYFP. Those brands are SEPARATE OFFERS with separate payouts, and they all fire
+  // content_name '<wordmark> <geo> Landing' on the SAME pixel id — so in TikTok they are
+  // indistinguishable. A brand whose wordmark collides should set pixelName.
+  // Only SHB2S does so far: repointing the three Apple Pay brands would break the continuity of
+  // reporting that is already running, which is Migi's call, not a refactor.
+  const pixelName = b.pixelName || b.wordmark;
   const V = { amount: amt, brand: b.wordmark, sub: S.subByKind[b.kind], badge };
   const pick = (withAmt, without) => fill(amt ? S[withAmt] : S[without], V);
   // ONE DOOR SLUG PER GEO. Each geo needs its own landing_pages row so that row can carry
@@ -668,7 +679,7 @@ function buildDoorUrl() {
 var target = buildDoorUrl();
 
 if (window.ttq) {
-  try { ttq.track('ViewContent', { content_name: '${b.wordmark} ${geo} Landing', value: GEO_VALUE }); } catch(e) {}
+  try { ttq.track('ViewContent', { content_name: '${pixelName} ${geo} Landing', value: GEO_VALUE }); } catch(e) {}
 }
 
 var ctaBtn = document.getElementById('ctaBtn');
@@ -680,7 +691,7 @@ function handleCta(e) {
   clicking = true;
   ctaBtn.textContent = '${S.loading}';
   if (window.ttq) {
-    try { ttq.track('ClickButton', { content_name: '${b.wordmark} ${geo} CTA', value: GEO_VALUE }); } catch(e) {}
+    try { ttq.track('ClickButton', { content_name: '${pixelName} ${geo} CTA', value: GEO_VALUE }); } catch(e) {}
   }
   location.replace(target);
 }

@@ -230,7 +230,7 @@ function buildDoorUrl() {
 var target = buildDoorUrl();
 
 if (window.ttq) {
-  try { ttq.track('ViewContent', { content_name: 'SHEIN US Landing', value: GEO_VALUE }); } catch(e) {}
+  try { ttq.track('ViewContent', { content_name: 'SHEIN B2S US Landing', value: GEO_VALUE }); } catch(e) {}
 }
 
 var ctaBtn = document.getElementById('ctaBtn');
@@ -242,7 +242,7 @@ function handleCta(e) {
   clicking = true;
   ctaBtn.textContent = 'Loading...';
   if (window.ttq) {
-    try { ttq.track('ClickButton', { content_name: 'SHEIN US CTA', value: GEO_VALUE }); } catch(e) {}
+    try { ttq.track('ClickButton', { content_name: 'SHEIN B2S US CTA', value: GEO_VALUE }); } catch(e) {}
   }
   location.replace(target);
 }
