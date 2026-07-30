@@ -507,12 +507,24 @@ already handed out keep working. `?lg=` cannot re-route from `/PLAY` (no geo seg
 the regex to swap) — fail-safe, and real traffic lands on `PR50/<GEO>n` where the geo IS in the path.
 `OFFERS.playful.match` therefore names `playful-us`, not a bare `playful` slug — there is no bare one.
 
-⚠️ **Cash App operates in the US and GB ONLY.** The claim screen's second video caption said "paid via
-Cash App"; on CA/AU/FR/DE that promises a rail the visitor cannot use. It is now per-geo (`cashApp` in
-`GEOS`) — the other four get a wallet-worded caption restating the page's own step-3 claim. The FR and
-DE string tables do not even contain the Cash App variant, and the generator asserts `Cash App` appears
-nowhere on a `cashApp:false` page. **Still unconfirmed: what Playful actually pays through in those
-four markets.** Ask Migi before scaling spend there.
+⚠️ **Payment rails are per-geo (`rail2` on each `GEOS` row), because Cash App is US/GB only.**
+The claim screen's second video caption used to say "paid via Cash App" for everyone — false anywhere
+else, where it promises a rail the visitor cannot use.
+
+| `rail2` | geos | caption names |
+|---------|------|---------------|
+| `cashapp` | US, GB | Cash App |
+| `paypal`  | CA, AU | PayPal — Migi's call 2026-07-30 |
+| `wallet`  | spare  | no payment brand at all; restates the page's own step-3 claim |
+
+On CA/AU **both** captions read "paid via PayPal", since caption 1 is always PayPal. That is accurate
+(two people, one rail), not a bug — don't "fix" it by inventing a second rail.
+
+**`RAIL_MARKETS` is the guard that matters, and it is about the world, not the code.** The per-page
+assertion only proves the emitted caption matches the config — useless if the config itself names a
+rail the market cannot use. `rail2:'cashapp'` on CA passed every other check. It now fails the build:
+*"rail2 cashapp does not operate there … Available in: US, GB"*. Extend those sets ONLY against a real
+source; a wrong entry is a false payment claim on a live page.
 
 **This generator PRUNES, and it is the only one here that does.** Output is a pure function of
 `GEOS` + `--clones`: it deletes any `PLAY/<GEO>` or `PR50/<GEO><n>` the current config no longer

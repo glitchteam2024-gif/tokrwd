@@ -62,12 +62,17 @@
  *     claim in the title that the English title does not make.
  *
  * ── CASH APP IS NOT GLOBAL, AND THE SECOND VIDEO CAPTION KNOWS IT ────────────────────────────
- * Cash App operates in the US and GB only. The claim screen's second caption says "paid via Cash
- * App" — true for those two, FALSE for CA / AU / FR / DE, where it would promise a visitor a
- * payment rail they cannot use. So the caption is per-geo (`cashApp` below): the other four get a
- * wallet-worded caption that restates the page's own step-3 claim and names no unavailable
- * service. The FR and DE string tables do not even CONTAIN the Cash App variant, so it cannot be
- * selected there by accident. If Migi confirms the real rails per market, name them here.
+ * Cash App operates in the US and GB only. The claim screen's second caption said "paid via Cash
+ * App" for everyone — true for those two, FALSE anywhere else, where it promises a visitor a
+ * payment rail they cannot use. The caption is therefore per-geo, via `rail2` on each GEOS row:
+ *
+ *   rail2:'cashapp'  US, GB   — Cash App
+ *   rail2:'paypal'   CA, AU   — PayPal (Migi's call 2026-07-30; PayPal operates in both)
+ *   rail2:'wallet'   spare    — names no payment brand at all, restates the page's own step-3
+ *                               claim. Use it for a market where neither rail is confirmed.
+ *
+ * `assertPage` refuses to emit "Cash App" on any page whose rail2 is not 'cashapp', so a geo added
+ * without thinking about its rails fails the build instead of publishing an unusable promise.
  *
  * NEVER HAND-EDIT A CLONE. Every file in a geo slice is written from ONE buffer, so each slice is
  * exactly one md5 — that is how the RS50/RS1 and FC1 drift incidents are prevented. Change the
@@ -100,15 +105,39 @@ const HOME_GEO = 'US';           // what the bare /PLAY serves (see the write st
  * rows back and re-run. Do not re-translate from scratch; the wording below was hard-won, see the
  * purpose-vs-promise note in the header.
  *
- * `cashApp` gates the second video caption — Cash App is US/GB only, see the header note.
+ * `rail2` names the payment rail in the SECOND video caption, per geo. See the header note: the
+ * first caption is always PayPal, and Cash App is US/GB only.
  */
+const RAILS = { cashapp: 'vidCap2CashApp', paypal: 'vidCap2PayPal', wallet: 'vidCap2Wallet' };
+
+/**
+ * Where each rail actually operates. This is the guard that matters, and it is about the WORLD, not
+ * about this codebase: the per-page assertion below only proves the emitted caption matches the
+ * config, which is useless if the config itself names a rail the market cannot use. Setting
+ * `rail2:'cashapp'` on CA passed every other check and would have published a payment promise a
+ * Canadian visitor cannot act on.
+ *
+ * `null` = available everywhere we sell, so nothing to check. Extend these sets ONLY against a real
+ * source; a wrong entry here is a false claim on a live page, which is the exact failure mode the
+ * whole rails split exists to prevent.
+ */
+const RAIL_MARKETS = {
+  cashapp: new Set(['US', 'GB']),
+  paypal: null,
+  wallet: null,
+};
+
 const GEOS = {
-  US: { lang: 'en', cashApp: true },
-  GB: { lang: 'en', cashApp: true },
-  CA: { lang: 'en', cashApp: false },
-  AU: { lang: 'en', cashApp: false },
-  // FR: { lang: 'fr', cashApp: false },   // OFF — English videos, see above
-  // DE: { lang: 'de', cashApp: false },   // OFF — English videos, see above
+  US: { lang: 'en', rail2: 'cashapp' },
+  GB: { lang: 'en', rail2: 'cashapp' },
+  // Cash App does not operate in CA or AU. Migi's call (2026-07-30) is to name PayPal rather than
+  // hedge to the wallet wording — PayPal does operate in both, and a named rail converts better
+  // than a vague one. Consequence to know and not "fix": caption 1 is ALSO PayPal, so on these two
+  // geos both videos carry the same caption. That is accurate (two people, one rail), not a bug.
+  CA: { lang: 'en', rail2: 'paypal' },
+  AU: { lang: 'en', rail2: 'paypal' },
+  // FR: { lang: 'fr', rail2: 'paypal' },  // OFF — English videos, see above
+  // DE: { lang: 'de', rail2: 'paypal' },  // OFF — English videos, see above
 };
 
 // Every visible string, per language. Generated from the reviewed translation sets — see the
@@ -134,6 +163,7 @@ const T = {
     tapSound: "Tap for sound",
     vidCap1: "After 2 offers &middot; paid via <b>PayPal</b>",
     vidCap2CashApp: "After 2 offers &middot; paid via <b>Cash App</b>",
+    vidCap2PayPal: "After 2 offers &middot; paid via <b>PayPal</b>",
     vidCap2Wallet: "After 2 offers &middot; straight to your <b>wallet</b>",
     cta: "Install App &amp; Start Earning",
     sectionLabel: "YOUR EARNING JOURNEY",
@@ -169,6 +199,7 @@ const T = {
     unlocked: "Débloqué",
     tapSound: "Active le son",
     vidCap1: "Après 2 offres &middot; paiement via <b>PayPal</b>",
+    vidCap2PayPal: "Après 2 offres &middot; paiement via <b>PayPal</b>",
     vidCap2Wallet: "Après 2 offres &middot; directement dans ton <b>portefeuille</b>",
     cta: "Installe et commence à gagner",
     sectionLabel: "COMMENT TU GAGNES",
@@ -204,6 +235,7 @@ const T = {
     unlocked: "Freigeschaltet",
     tapSound: "Für Ton tippen",
     vidCap1: "Nach 2 Angeboten &middot; Auszahlung per <b>PayPal</b>",
+    vidCap2PayPal: "Nach 2 Angeboten &middot; Auszahlung per <b>PayPal</b>",
     vidCap2Wallet: "Nach 2 Angeboten &middot; direkt in dein <b>Wallet</b>",
     cta: "App installieren &amp; verdienen",
     sectionLabel: "DEIN WEG ZUM VERDIENEN",
@@ -241,11 +273,8 @@ function page(geo) {
   const t = T[g.lang];
   if (!t) throw new Error(`no string table for lang "${g.lang}" (geo ${geo})`);
   for (const k of Object.keys(T.en)) {
-    if (k === 'vidCap2CashApp') continue;                    // en-only by design, see header
+    if (Object.values(RAILS).includes(k)) continue;          // rail variants are per-geo, checked below
     if (typeof t[k] !== 'string') throw new Error(`T.${g.lang} is missing key "${k}" (geo ${geo})`);
-  }
-  if (g.cashApp && typeof t.vidCap2CashApp !== 'string') {
-    throw new Error(`geo ${geo} is marked cashApp:true but T.${g.lang} has no vidCap2CashApp`);
   }
 
   let h = TEMPLATE;
@@ -307,8 +336,15 @@ function page(geo) {
   h = sub(h, '<span class="badge">Unlocked</span>', `<span class="badge">${t.unlocked}</span>`, 2);
   h = sub(h, '</svg>Tap for sound</span>', `</svg>${t.tapSound}</span>`, 2);
   h = sub(h, '<span>After 2 offers &middot; paid via <b>PayPal</b></span>', `<span>${t.vidCap1}</span>`);
+  const rail2Key = RAILS[g.rail2];
+  if (!rail2Key) throw new Error(`geo ${geo}: unknown rail2 "${g.rail2}" (expected one of ${Object.keys(RAILS).join(', ')})`);
+  const market = RAIL_MARKETS[g.rail2];
+  if (market && !market.has(geo)) {
+    throw new Error(`geo ${geo}: rail2 "${g.rail2}" does not operate there — it would promise a payment method the visitor cannot use. Available in: ${[...market].join(', ')}`);
+  }
+  if (typeof t[rail2Key] !== 'string') throw new Error(`geo ${geo}: T.${g.lang} has no ${rail2Key} for rail2="${g.rail2}"`);
   h = sub(h, '<span>After 2 offers &middot; paid via <b>Cash App</b></span>',
-             `<span>${g.cashApp ? t.vidCap2CashApp : t.vidCap2Wallet}</span>`);
+             `<span>${t[rail2Key]}</span>`);
   h = sub(h, '>Install App &amp; Start Earning</a>', `>${t.cta}</a>`);
   h = sub(h, '>YOUR EARNING JOURNEY</div>', `>${t.sectionLabel}</div>`);
   h = sub(h, '<h3>Install the Playful Rewards app</h3>', `<h3>${t.step1Title}</h3>`);
@@ -401,7 +437,7 @@ function assertPage(h, geo) {
   never(h, '232,103,26', 'Testerup orange left in a glow/border rgba()');
 
   // Cash App must not appear on a page for a market where it does not operate.
-  if (!g.cashApp) never(h, 'Cash App', `Cash App does not operate in ${geo} — the wallet caption must be used`);
+  if (g.rail2 !== 'cashapp') never(h, 'Cash App', `Cash App does not operate in ${geo} — rail2 is "${g.rail2}"`);
 }
 
 /**
@@ -517,7 +553,7 @@ for (const geo of Object.keys(GEOS)) {
     `  ${FAMILY}/${geo}1..${geo}${CLONES}`.padEnd(26),
     `lang=${GEOS[geo].lang}`.padEnd(9),
     `door=${DOOR_SLUG}-${geo.toLowerCase()}`.padEnd(20),
-    GEOS[geo].cashApp ? 'cap2=Cash App' : 'cap2=wallet'
+    `cap2=${GEOS[geo].rail2}`
   );
 }
 
