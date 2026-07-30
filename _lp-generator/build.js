@@ -53,6 +53,31 @@ const STRINGS = {
     cta: 'Claim My {amount} &rarr;',  ctaNoAmount: 'Get Started &rarr;',
     trustStrong: 'Limited spots remaining.', trustRest: 'No credit card needed.',
     loading: 'Loading...',
+
+    // ── Structure B · Three Steps ──────────────────────────────────────────────────────────
+    // Same funnel, different order of argument: the process leads and the figure is the payoff.
+    bHeadline: 'Three steps between you and {amount}.',
+    bHeadlineNoAmount: 'Three steps and you are in.',
+    bStage1: 'Reserve it',      bStage1sub: 'One tap holds your {amount} credit while you finish.',
+    bStage1subNoAmount: 'One tap takes you straight to the sign-up page.',
+    bStage2: 'Add your email',  bStage2sub: 'A valid address is all that is asked for. No credit card.',
+    bStage3: 'Complete 3-5 deals',
+    bStage3sub: 'Quick free trials and offers. Finishing them unlocks the full amount.',
+    bPayoffSub: 'into your Apple Pay wallet',
+    bCta: 'Start step one &rarr;',
+
+    // ── Structure C · Questions First ──────────────────────────────────────────────────────
+    // For sceptical cold traffic. Every answer restates something the offer or the funnel already
+    // does — no timings, no counts, nothing invented.
+    cIntro: 'Before you start',
+    cQ1: 'What do I actually get?',   cA1: '{amount}, sent to your Apple Pay wallet.',
+    cA1NoAmount: 'Your reward, once the steps below are done.',
+    cQ2: 'What do I have to do?',
+    cA2: 'Enter a valid email, then complete 3-5 recommended deals &mdash; quick free trials and offers. Finishing them is what unlocks the full {amount}.',
+    cA2NoAmount: 'Enter a valid email, then complete 3-5 recommended deals &mdash; quick free trials and offers.',
+    cQ3: 'Do I need a credit card?',  cA3: 'No. A valid email address is all that is needed to start.',
+    cQ4: 'So what is the catch?',
+    cA4: 'You complete the deals to unlock the reward. That is the whole exchange &mdash; the offers are how it is funded.',
   },
   ja: {
     badge: '2026年 サマーキャンペーン',
@@ -167,6 +192,7 @@ const BRANDS = [
   },
   {
     dir: 'APAY750', family: 'AP50', doorSlug: 'applepay750', kind: 'wallet',
+    variants: ['a', 'b', 'c'],   // AP/AK/AF/AC 50-51-52 — the affiliate picker offers all three
     wordmark: 'Apple Pay', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$750', 750] },
     theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
@@ -183,6 +209,7 @@ const BRANDS = [
     // Migi adds the offer. GB quotes pounds because the offer itself is priced in pounds; CA and
     // AU quote a plain '$' exactly as SH50/SP50 do for those geos (no C$/A$ — house convention).
     dir: 'APAY1K', family: 'AK50', doorSlug: 'applepay1000', kind: 'wallet',
+    variants: ['a', 'b', 'c'],   // AP/AK/AF/AC 50-51-52 — the affiliate picker offers all three
     wordmark: 'Apple Pay', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$1,000', 1000], GB: ['£1,000', 1000], CA: ['$1,000', 1000], AU: ['$1,000', 1000] },
     theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
@@ -196,6 +223,7 @@ const BRANDS = [
     // Two offers can never share one lander directory. The pre-lander copy stays generic on purpose:
     // the "Flash Poll" wording describes Monetise's funnel AFTER the door, not our page.
     dir: 'APAYFP', family: 'AF50', doorSlug: 'applepayflash', kind: 'wallet',
+    variants: ['a', 'b', 'c'],   // AP/AK/AF/AC 50-51-52 — the affiliate picker offers all three
     wordmark: 'Apple Pay', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$750', 750] },
     theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
@@ -208,6 +236,7 @@ const BRANDS = [
     // the money actually lands in; `kind: 'wallet'` keeps the "sent straight to your Apple Pay
     // wallet" line, which is where the Apple Cash card lives.
     dir: 'ACASH', family: 'AC50', doorSlug: 'applecash', kind: 'wallet',
+    variants: ['a', 'b', 'c'],   // AP/AK/AF/AC 50-51-52 — the affiliate picker offers all three
     wordmark: 'Apple Cash', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$750', 750] },
     theme: { bg: '#fff', ink: '#1d1d1f', muted: '#86868b', accent: '#1d1d1f', accentHover: '#0071e3',
@@ -248,9 +277,28 @@ const BRANDS = [
 ];
 
 // The geos a brand ships: explicit `geos`, else the keys of its amounts map.
+// ── VARIANTS ─────────────────────────────────────────────────────────────────────────────────
+// Three page STRUCTURES per offer, so an affiliate can pick one in the SPRK Offer Library and test
+// it. Migi 2026-07-30: every family keeps its 50 slice for the structure already live and takes
+// +1 / +2 for the two new ones (AP50/AP51/AP52, AK50/AK51/AK52, ...).
+//
+// The THEME is deliberately shared across all three — same brand palette, same buttons. Structure
+// is the only variable, which is the only reason comparing them means anything.
+//
+// 'a' is the structure this generator has always emitted. Its output must stay BYTE-IDENTICAL:
+// AP50 and friends are live and taking paid traffic. `node build.js --verify-a` proves it.
+const VARIANTS = {
+  a: { n: 0,  suffix: '',    label: 'Amount First'    },   // n:0 -> keeps the brand's own family
+  b: { n: 51, suffix: '-b',  label: 'Three Steps'     },
+  c: { n: 52, suffix: '-c',  label: 'Questions First' },
+};
+
+// A family is '<BASE>50'; variant b/c swap the 50 for 51/52.
+const familyFor = (b, v) => VARIANTS[v].n === 0 ? b.family : b.family.replace(/50$/, String(VARIANTS[v].n));
+
 const geosOf = (b) => b.geos || Object.keys(b.amounts || {});
 
-const page = (b, geo) => {
+const page = (b, geo, variant = 'a') => {
   const t = b.theme;
   const lang = LOCALES[geo];
   if (!lang) throw new Error(`no language mapped for geo ${geo} (add it to LOCALES)`);
@@ -265,7 +313,137 @@ const page = (b, geo) => {
   // ONE DOOR SLUG PER GEO. Each geo needs its own landing_pages row so that row can carry
   // landing_pages.geo — which is what the click door now routes on. A shared slug would collapse
   // every geo back onto one row with one geo, i.e. straight back to the bug this replaces.
-  const doorSlug = `${b.doorSlug}-${geo.toLowerCase()}`;
+  // Each STRUCTURE is its own landing_pages row and therefore its own door slug — that is what
+  // lets the picker's three choices resolve to three different pages. 'a' keeps the shipped slug
+  // exactly (applepay750-us); b/c append their suffix (applepay750-us-b).
+  const doorSlug = `${b.doorSlug}-${geo.toLowerCase()}${VARIANTS[variant].suffix}`;
+  if (variant !== 'a' && S.bHeadline == null) {
+    throw new Error(`${b.dir}/${geo}: STRINGS.${lang} has no copy for structure '${variant}' — add it before generating this geo`);
+  }
+
+  // ── THE THREE STRUCTURES ────────────────────────────────────────────────────────────────
+  // Same head, same tracking tail, same theme, same DOM hooks (#ctaBtn · #statsBar ·
+  // [data-geo-amount] — the shared script queries all three and a rename ships a dead CTA).
+  // Only the composition of the card changes.
+  const cardA = `    <div class="badge"><span class="dot"></span>${S.badge}</div>
+    <div class="logo-wrap">
+      <div class="logo-mark">${b.wordmark}</div>
+      <div class="logo-sub">${V.sub}</div>
+    </div>
+    <div class="title">${pick('headline','headlineNoAmount')}</div>
+    <div class="amount">
+      ${amt ? `<div class="amount-big" data-geo-amount>${amt}</div>` : ''}
+      <p class="amount-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
+    </div>
+
+    <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
+    <div class="stats" id="statsBar" hidden></div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">1</span>
+        <div>
+          <p class="step-txt">${S.step1}</p>
+          <p class="step-sub">${pick('step1sub','step1subNoAmount')}</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">2</span>
+        <div>
+          <p class="step-txt">${S.step2}</p>
+          <p class="step-sub">${S.step2sub}</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">3</span>
+        <div>
+          <p class="step-txt step-underline">${S.step3}</p>
+          <p class="step-sub">${pick('step3sub','step3subNoAmount')}</p>
+        </div>
+      </div>
+    </div>
+
+    <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
+    <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>`;
+
+  // B · THREE STEPS — the process leads, the figure is the payoff at the end.
+  const cardB = `    <div class="vhead">
+      <span class="logo-mark">${b.wordmark}</span>
+      <span class="badge"><span class="dot"></span>${S.badge}</span>
+    </div>
+    <h1 class="vlede">${pick('bHeadline','bHeadlineNoAmount')}</h1>
+    <div class="vstage">
+      <div class="vstage-n">01</div><div class="vstage-t">${S.bStage1}</div>
+      <p class="vstage-s">${pick('bStage1sub','bStage1subNoAmount')}</p>
+    </div>
+    <div class="vstage">
+      <div class="vstage-n">02</div><div class="vstage-t">${S.bStage2}</div>
+      <p class="vstage-s">${S.bStage2sub}</p>
+    </div>
+    <div class="vstage">
+      <div class="vstage-n">03</div><div class="vstage-t">${S.bStage3}</div>
+      <p class="vstage-s">${fill(S.bStage3sub, V)}</p>
+    </div>
+
+    <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
+    <div class="stats" id="statsBar" hidden></div>
+
+    ${amt ? `<div class="vpayoff"><div class="amount-big" data-geo-amount>${amt}</div><p>${S.bPayoffSub}</p></div>` : ''}
+    <button id="ctaBtn" class="cta">${S.bCta}</button>
+    <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>`;
+
+  // C · QUESTIONS FIRST — objections lead. Native <details>, no JS.
+  const cardC = `    <div class="badge"><span class="dot"></span>${S.badge}</div>
+    <div class="logo-wrap">
+      <div class="logo-mark">${b.wordmark}</div>
+      <div class="logo-sub">${V.sub}</div>
+    </div>
+    ${amt ? `<div class="amount-big vsmall" data-geo-amount>${amt}</div>` : ''}
+    <p class="amount-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
+
+    <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
+    <div class="stats" id="statsBar" hidden></div>
+
+    <h1 class="vintro">${S.cIntro}</h1>
+    <details open><summary>${S.cQ1}</summary><p class="vans">${pick('cA1','cA1NoAmount')}</p></details>
+    <details><summary>${S.cQ2}</summary><p class="vans">${pick('cA2','cA2NoAmount')}</p></details>
+    <details><summary>${S.cQ3}</summary><p class="vans">${S.cA3}</p></details>
+    <details><summary>${S.cQ4}</summary><p class="vans">${S.cA4}</p></details>
+    <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
+    <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>`;
+
+  const card = variant === 'b' ? cardB : variant === 'c' ? cardC : cardA;
+
+
+  // Variant-only CSS. Appended AFTER the shipped block and empty for 'a', so structure 'a' renders
+  // byte-for-byte what it does today. Every colour comes from the brand's own theme — the three
+  // structures must look like the same offer.
+  const vcss = variant === 'b' ? `
+.vhead{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1.5rem}
+.vhead .logo-mark{font-size:1.1rem}
+.vhead .badge{margin-bottom:0}
+.vlede{font-size:1.4rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin:0 0 2rem;text-align:left}
+.vstage{padding-top:1rem;border-top:3px solid ${t.ink};margin-bottom:1.5rem;text-align:left}
+.vstage + .vstage{border-top-color:${t.accentHover}}
+.vstage + .vstage + .vstage{border-top-color:${t.muted}}
+.vstage-n{font-size:.7rem;font-weight:800;letter-spacing:.1em;color:${t.muted}}
+.vstage-t{font-size:1.1rem;font-weight:800;line-height:1.25;letter-spacing:-.015em;margin-top:.25rem}
+.vstage-s{font-size:.8rem;color:${t.muted};line-height:1.55;margin-top:.25rem}
+.vpayoff{background:${t.tint};border-radius:2px;padding:1.5rem;text-align:center;margin-top:2rem}
+.vpayoff .amount-big{font-size:1.9rem}
+.vpayoff p{font-size:.8rem;color:${t.muted};margin-top:.25rem}` : variant === 'c' ? `
+.vsmall{font-size:1.9rem;margin-top:.25rem}
+.vintro{font-size:.92rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase;margin:2rem 0 .75rem;color:${t.muted};text-align:left}
+details{border-top:1px solid ${t.line};text-align:left}
+details:last-of-type{border-bottom:1px solid ${t.line}}
+summary{list-style:none;display:flex;gap:.75rem;align-items:flex-start;padding:1rem 0;font-size:.92rem;font-weight:700;line-height:1.35;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";margin-left:auto;flex:none;font-size:1.1rem;font-weight:600;color:${t.accentHover};line-height:1;transition:transform .22s cubic-bezier(.16,1,.3,1)}
+details[open] summary::after{transform:rotate(45deg)}
+summary:active{opacity:.7}
+.vans{font-size:.8rem;color:${t.muted};line-height:1.6;padding:0 0 1rem}
+@media (prefers-reduced-motion:reduce){summary::after{transition:none}}` : '';
+
   return `<!DOCTYPE html>
 <html lang="${lang}" data-geo="${geo}">
 <head>
@@ -352,7 +530,7 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 .cta:active{transform:scale(.98)}
 .cta:disabled{opacity:.7;cursor:not-allowed}
 .trust{font-size:.72rem;color:${t.muted};margin-top:.8rem;font-weight:400;line-height:1.4}
-.trust strong{color:${t.ink};font-weight:700}
+.trust strong{color:${t.ink};font-weight:700}${vcss}
 </style>
 
 <script>
@@ -366,46 +544,7 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 <body>
 <div class="page">
   <div class="card">
-    <div class="badge"><span class="dot"></span>${S.badge}</div>
-    <div class="logo-wrap">
-      <div class="logo-mark">${b.wordmark}</div>
-      <div class="logo-sub">${V.sub}</div>
-    </div>
-    <div class="title">${pick('headline','headlineNoAmount')}</div>
-    <div class="amount">
-      ${amt ? `<div class="amount-big" data-geo-amount>${amt}</div>` : ''}
-      <p class="amount-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
-    </div>
-
-    <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
-    <div class="stats" id="statsBar" hidden></div>
-
-    <div class="steps">
-      <div class="step">
-        <span class="step-num">1</span>
-        <div>
-          <p class="step-txt">${S.step1}</p>
-          <p class="step-sub">${pick('step1sub','step1subNoAmount')}</p>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">2</span>
-        <div>
-          <p class="step-txt">${S.step2}</p>
-          <p class="step-sub">${S.step2sub}</p>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-num">3</span>
-        <div>
-          <p class="step-txt step-underline">${S.step3}</p>
-          <p class="step-sub">${pick('step3sub','step3subNoAmount')}</p>
-        </div>
-      </div>
-    </div>
-
-    <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
-    <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>
+${card}
   </div>
 </div>
 
@@ -550,6 +689,7 @@ const cloneArg = argv.indexOf('--clones');
 const CLONES = cloneArg > -1 ? parseInt(argv[cloneArg + 1], 10) : 50;
 if (!Number.isFinite(CLONES) || CLONES < 0) { console.error('--clones must be a non-negative integer'); process.exit(1); }
 const only = (() => { const i = argv.indexOf('--only'); return i > -1 ? argv[i + 1] : null; })();
+const ONLY_VARIANT = (() => { const i = argv.indexOf('--only-variant'); return i > -1 ? argv[i + 1] : null; })();
 
 const repoRoot = path.join(__dirname, '..');
 let written = 0, pages = 0;
@@ -557,29 +697,43 @@ for (const b of BRANDS) {
   if (only && b.dir !== only && b.doorSlug !== only) continue;
   const geos = geosOf(b);
   const langs = [...new Set(geos.map(g => LOCALES[g]))];
-  for (const geo of geos) {
-    const html = page(b, geo);
-    pages++;
+  // Which structures this brand ships. Default is 'a' only — a brand opts into the extra two with
+  // `variants: ['a','b','c']`, because b/c need their own deployed slices AND their own
+  // landing_pages rows before they are worth generating.
+  const wanted = (b.variants || ['a']).filter(v => !ONLY_VARIANT || v === ONLY_VARIANT);
+  for (const variant of wanted) {
+    const fam = familyFor(b, variant);
+    for (const geo of geos) {
+      const html = page(b, geo, variant);
+      pages++;
 
-    const canon = path.join(repoRoot, b.dir, geo);
-    fs.mkdirSync(canon, { recursive: true });
-    fs.writeFileSync(path.join(canon, 'index.html'), html);
-    written++;
-
-    for (let n = 1; n <= CLONES; n++) {
-      const d = path.join(repoRoot, b.family, geo + n);
-      fs.mkdirSync(d, { recursive: true });
-      fs.writeFileSync(path.join(d, 'index.html'), html);   // same buffer -> one md5 per (brand, geo)
+      // Canonical lives under the brand dir for 'a' (unchanged); variants hang off the family so
+      // they never collide with the shipped canonical page.
+      const canon = variant === 'a'
+        ? path.join(repoRoot, b.dir, geo)
+        : path.join(repoRoot, b.dir, geo + VARIANTS[variant].suffix);
+      fs.mkdirSync(canon, { recursive: true });
+      fs.writeFileSync(path.join(canon, 'index.html'), html);
       written++;
+
+      for (let n = 1; n <= CLONES; n++) {
+        const d = path.join(repoRoot, fam, geo + n);
+        fs.mkdirSync(d, { recursive: true });
+        fs.writeFileSync(path.join(d, 'index.html'), html);   // same buffer -> one md5 per (brand, geo, variant)
+        written++;
+      }
     }
   }
-  console.log(
-    (b.dir + '/').padEnd(9),
-    ('door=' + b.doorSlug).padEnd(20),
-    ('geos=' + geos.join(',')).padEnd(30),
-    ('langs=' + langs.join(',')).padEnd(18),
-    'slugs=' + geos.map(g => b.doorSlug + '-' + g.toLowerCase()).join(' ')
-  );
+  for (const variant of wanted) {
+    console.log(
+      (familyFor(b, variant) + '/').padEnd(9),
+      (VARIANTS[variant].label).padEnd(16),
+      ('geos=' + geos.join(',')).padEnd(24),
+      ('langs=' + langs.join(',')).padEnd(12),
+      // the REAL door slugs, variant suffix included — these must match landing_pages.slug exactly
+      'slugs=' + geos.map(g => b.doorSlug + '-' + g.toLowerCase() + VARIANTS[variant].suffix).join(' ')
+    );
+  }
 }
 console.log('\n' + written + ' files written under ' + repoRoot +
             ' (' + pages + ' distinct pages x 1 canonical + ' + CLONES + ' clones)');
