@@ -57,7 +57,7 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Apple Pay $1000 | door `applepay1000-us` (Path A)         | `APAY1K/US/index.html`    | `AK50/US1-30`                                     |
 | Uber Eats £50 | door `ubereats-gb` (Path A)               | `UBER/GB/index.html`      | `UE50/GB1-30`                                     |
 | Freecash (per-geo) | door `freecash-<geo>` (Path A)         | `FCASH/<GEO>/index.html`  | `50FC/<GEO>1-30` — US GB CA JP DE AT NL           |
-| Playful Rewards | `sprktrax.org/api/link/playful` (Path A)  | `PLAY/index.html`         | `PR50/PR1-50` — generated, `lp=play`              |
+| Playful Rewards | door `playful-<geo>` (Path A)             | `PLAY/<GEO>/index.html`   | `PR50/<GEO>1-30` — US GB CA AU FR DE, generated   |
 | Reco Social  | `/api/reco` → montrk (Path B)              | `RS/index.html`           | `RS50/RS1-50` are interstitials that forward to `/RS/` (2 distinct variants: RS1 unique, RS2–50 identical) |
 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
@@ -475,11 +475,58 @@ stamping a guessed geo on every clicks row.
 **`/trt` itself is left alone** — it is registered in `OVERRIDE_LANDERS` (Trae / TenX) and pinned by
 `_links-config.test.mjs` to fire `testerup-mon` through that `/c/` hop. Only `50TU/` is generated.
 
-## Playful Rewards is the /trt design in purple — `_lp-generator/playful.js`
+## Playful Rewards is the /trt design in purple, PER GEO — `_lp-generator/playful.js`
 
 ```bash
-node _lp-generator/playful.js --clones 50      # PLAY/index.html + PR50/PR1..PR50 = 51 files, one md5
+node _lp-generator/playful.js --clones 30      # 6 geos x (1 canonical + 30 clones) + bare /PLAY = 187 files
 ```
+
+**Geo is the unit, exactly as with Freecash.** `PLAY/<GEO>/index.html` + `PR50/<GEO>1..30` for
+**US GB CA AU FR DE**; `LOCALES`-style mapping lives in the generator's `GEOS` (en for US/GB/CA/AU,
+fr, de). One geo picks the language AND the door slug `playful-<geo>`, so a page cannot render in
+German and hand the visitor the US offer. `?lg=<GEO>` is the affiliate's geo selector and keeps the
+clone index (`/PR50/US7?lg=DE` → `/PR50/DE7`); `lg` is stripped before the door because it routes the
+lander, not the network. No runtime geo detection anywhere — not cloaking, it keys off an explicit
+query param and renders identically for crawlers.
+
+**No money on this page**, so unlike Freecash there is no currency question at all — the only numeric
+strings are "2 offers" and "2 minutes". Don't add a figure to "localise" it.
+
+⚠️ **`PR50/PR1..PR50` (the old single-geo pool) was DELETED when the geo pools landed.** Keeping both
+would put two same-geo pools on one offer, which is the `50FC/FC1-50` vs `50FC/US1-30` trap — the
+per-geo affiliate guard refuses the same affiliate on two same-geo landers. The bare `/PLAY` survives
+as a byte copy of `PLAY/US` so the `lp=play` / `lp=playful` aliases, the admin preview and any link
+already handed out keep working. `?lg=` cannot re-route from `/PLAY` (no geo segment in the path for
+the regex to swap) — fail-safe, and real traffic lands on `PR50/<GEO>n` where the geo IS in the path.
+`OFFERS.playful.match` therefore names `playful-us`, not a bare `playful` slug — there is no bare one.
+
+⚠️ **Cash App operates in the US and GB ONLY.** The claim screen's second video caption said "paid via
+Cash App"; on CA/AU/FR/DE that promises a rail the visitor cannot use. It is now per-geo (`cashApp` in
+`GEOS`) — the other four get a wallet-worded caption restating the page's own step-3 claim. The FR and
+DE string tables do not even contain the Cash App variant, and the generator asserts `Cash App` appears
+nowhere on a `cashApp:false` page. **Still unconfirmed: what Playful actually pays through in those
+four markets.** Ask Migi before scaling spend there.
+
+### Translation rule learned here — purpose vs promise
+
+Both a native-speaker review and a compliance review independently caught the same drift in the first
+FR and DE drafts, and it is the thing to watch on every future translation:
+
+> English says "Pick a game **to start** earning" — a PURPOSE infinitive. Picking is the means toward
+> a possibility. Both drafts rendered it as coordinated imperatives — "Pick a game **and** earn" —
+> which German ad review in particular reads as a conditional promise: *do this and you get that.*
+
+Every instance is now `um … zu` / `pour + infinitif`. **A translation must never claim more than the
+English it was approved from.** Two more of the same family, both fixed and worth not undoing:
+- DE `importantBody` once ended `…Subway Surfers und vielen mehr Geld zu verdienen`, putting **"mehr
+  Geld" adjacent** — a German reader parses that comparative first ("earn MORE money"), but the
+  English "and more" modifies the GAME LIST. Word order alone manufactured an earnings claim.
+- Both `<title>`s are the bare brand, matching the English. A localised tagline would put a claim in
+  the title the English title does not make.
+
+The generator asserts translated endorsement strings too (`Vérifié par TikTok`, `Von TikTok
+verifiziert`, `TikTok-geprüft`, `500.000`) — the English needles alone would not catch a translated
+false claim, and the tracking audit greps English only.
 
 `playful-template.html` is a FORK of `testerup-template.html`, not a translation of it — Migi asked
 for "the Testerup landing page made into Playful Rewards, purple, keep the Block Blast logo". Four

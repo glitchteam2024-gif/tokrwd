@@ -412,7 +412,13 @@ export const OFFERS = {
   // shows up beside the lander in the admin pickers, where "(Edwin)" would read as
   // "this page belongs to Edwin" to whoever assigns it next.
   'gravypass-esgp': { label: 'Gravy Pass (partner links)', match: '/c/esgp-off' },
-  playful:        { label: 'Playful Rewards',      match: 'sprktrax.org/api/link/playful' },
+  // Playful Rewards is fanned out PER GEO, so there is no bare `playful` door — the slugs are
+  // playful-us / -gb / -ca / -au / -fr / -de, one `landing_pages` row each. This `match` names the
+  // US door because the registered lander (`/PLAY`, what lp=play and the admin preview resolve to)
+  // serves the US page. The other five geos are reached through the PR50/<GEO>n pools that SPRK
+  // assigns, exactly like Freecash's FCASH/* pages — they are deliberately not `lp=`-routable, so
+  // no public offer key can aim traffic at the wrong language.
+  playful:        { label: 'Playful Rewards',      match: 'sprktrax.org/api/link/playful-us' },
 };
 
 /**
