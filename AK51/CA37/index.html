@@ -51,6 +51,8 @@ window.__STATS__    = window.__STATS__ || null;
 </script>
 
 <style>
+/* Hallmark · macrostructure: Marquee Hero · genre: modern-minimal · theme: APAY1K brand tokens
+ * pre-emit critique: P4 H5 E4 S4 R5 V4 · tracking contract: unchanged from slice 50 */
 *{margin:0;padding:0;box-sizing:border-box}
 body,html{background:#fff;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;overflow-x:hidden;min-height:100vh;color:#1d1d1f;-webkit-font-smoothing:antialiased}
 a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.08);cursor:pointer}
@@ -85,19 +87,19 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 .cta:disabled{opacity:.7;cursor:not-allowed}
 .trust{font-size:.72rem;color:#86868b;margin-top:.8rem;font-weight:400;line-height:1.4}
 .trust strong{color:#1d1d1f;font-weight:700}
-.vhead{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1.5rem}
-.vhead .logo-mark{font-size:1.1rem}
-.vhead .badge{margin-bottom:0}
-.vlede{font-size:1.4rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin:0 0 2rem;text-align:left}
-.vstage{padding-top:1rem;border-top:3px solid #1d1d1f;margin-bottom:1.5rem;text-align:left}
-.vstage + .vstage{border-top-color:#0071e3}
-.vstage + .vstage + .vstage{border-top-color:#86868b}
-.vstage-n{font-size:.7rem;font-weight:800;letter-spacing:.1em;color:#86868b}
-.vstage-t{font-size:1.1rem;font-weight:800;line-height:1.25;letter-spacing:-.015em;margin-top:.25rem}
-.vstage-s{font-size:.8rem;color:#86868b;line-height:1.55;margin-top:.25rem}
-.vpayoff{background:#f5f5f7;border-radius:2px;padding:1.5rem;text-align:center;margin-top:2rem}
-.vpayoff .amount-big{font-size:1.9rem}
-.vpayoff p{font-size:.8rem;color:#86868b;margin-top:.25rem}
+/* Ink bleed. Side margins exactly cancel .page's 1rem padding, so it reaches the viewport edge
+   without ever exceeding it — no horizontal scroll at 320px. */
+.mq{background:#1d1d1f;color:#fff;margin:-1.1rem -1rem 1.4rem;padding:3rem 1.4rem 2.3rem;text-align:left}
+.mq-tag{font-size:.63rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.55;margin-bottom:1.4rem}
+.mq-amt{font-size:5rem;font-weight:900;line-height:.88;letter-spacing:-.05em;overflow-wrap:anywhere}
+.mq-sub{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.45;margin-top:.9rem;opacity:.62;max-width:17rem}
+.mq-mech{margin-top:2rem;text-align:left}
+.mq-row{display:flex;gap:1rem;align-items:flex-start;padding:.95rem 0;border-top:1px solid #d2d2d7}
+.mq-row:last-child{border-bottom:1px solid #d2d2d7}
+.mq-n{flex:none;width:1.1rem;font-size:.68rem;font-weight:800;letter-spacing:.08em;color:#86868b;padding-top:.22rem}
+.mq-t{font-size:.9rem;font-weight:700;line-height:1.3}
+.mq-s{font-size:.78rem;color:#86868b;line-height:1.45;margin-top:.18rem}
+@media (min-width:26rem){.mq-amt{font-size:5.6rem}}
 </style>
 
 <script>
@@ -111,30 +113,22 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 <body>
 <div class="page">
   <div class="card">
-    <div class="vhead">
-      <span class="logo-mark">Apple Pay</span>
-      <span class="badge"><span class="dot"></span>2026 Summer Drop</span>
+    <div class="mq">
+      <div class="mq-tag">Apple Pay &middot; Reward</div>
+      <div class="mq-amt" data-geo-amount>$1,000</div>
+      <p class="mq-sub">SENT STRAIGHT TO YOUR APPLE PAY WALLET</p>
     </div>
-    <h1 class="vlede">Three steps between you and $1,000.</h1>
-    <div class="vstage">
-      <div class="vstage-n">01</div><div class="vstage-t">Reserve it</div>
-      <p class="vstage-s">One tap holds your $1,000 credit while you finish.</p>
-    </div>
-    <div class="vstage">
-      <div class="vstage-n">02</div><div class="vstage-t">Add your email</div>
-      <p class="vstage-s">A valid address is all that is asked for. No credit card.</p>
-    </div>
-    <div class="vstage">
-      <div class="vstage-n">03</div><div class="vstage-t">Complete 3-5 deals</div>
-      <p class="vstage-s">Quick free trials and offers. Finishing them unlocks the full amount.</p>
-    </div>
+    <button id="ctaBtn" class="cta">Claim My $1,000 &rarr;</button>
+    <div class="trust"><strong>Limited spots remaining.</strong> No credit card needed.</div>
 
     <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
     <div class="stats" id="statsBar" hidden></div>
 
-    <div class="vpayoff"><div class="amount-big" data-geo-amount>$1,000</div><p>into your Apple Pay wallet</p></div>
-    <button id="ctaBtn" class="cta">Start step one &rarr;</button>
-    <div class="trust"><strong>Limited spots remaining.</strong> No credit card needed.</div>
+    <div class="mq-mech">
+      <div class="mq-row"><span class="mq-n">1</span><div><p class="mq-t">Tap the button below</p><p class="mq-s">Reserves your $1,000 credit instantly</p></div></div>
+      <div class="mq-row"><span class="mq-n">2</span><div><p class="mq-t">Enter your email</p><p class="mq-s">Just a valid address &mdash; no credit card needed</p></div></div>
+      <div class="mq-row"><span class="mq-n">3</span><div><p class="mq-t">Complete 3-5 recommended deals</p><p class="mq-s">Quick free trials &amp; offers to unlock the full $1,000</p></div></div>
+    </div>
   </div>
 </div>
 

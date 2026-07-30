@@ -332,7 +332,7 @@ const BRANDS = [
 // AP50 and friends are live and taking paid traffic. `node build.js --verify-a` proves it.
 const VARIANTS = {
   a: { n: 0,  suffix: '',    label: 'Amount First'    },   // n:0 -> keeps the brand's own family
-  b: { n: 51, suffix: '-b',  label: 'Three Steps'     },
+  b: { n: 51, suffix: '-b',  label: 'Headline'        },
   c: { n: 52, suffix: '-c',  label: 'Questions First' },
 };
 
@@ -424,83 +424,86 @@ const page = (b, geo, variant = 'a') => {
     <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
     <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>`;
 
-  // B · THREE STEPS — the process leads, the figure is the payoff at the end.
-  const cardB = `    <div class="vhead">
-      <span class="logo-mark">${b.wordmark}</span>
-      <span class="badge"><span class="dot"></span>${badge}</span>
+  // B · MARQUEE HERO — the fold is ONE claim, inverted to an ink bleed so it reads as a different
+  // page at a glance, not a re-flow of A. CTA sits immediately under the marquee (paid traffic must
+  // never scroll to find it); the mechanics follow for anyone who wants them.
+  const cardB = `    <div class="mq">
+      <div class="mq-tag">${b.wordmark} &middot; ${V.sub}</div>
+      ${amt ? `<div class="mq-amt" data-geo-amount>${amt}</div>` : ''}
+      <p class="mq-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
     </div>
-    <h1 class="vlede">${pick('bHeadline','bHeadlineNoAmount')}</h1>
-    <div class="vstage">
-      <div class="vstage-n">01</div><div class="vstage-t">${S.bStage1}</div>
-      <p class="vstage-s">${pick('bStage1sub','bStage1subNoAmount')}</p>
-    </div>
-    <div class="vstage">
-      <div class="vstage-n">02</div><div class="vstage-t">${S.bStage2}</div>
-      <p class="vstage-s">${S.bStage2sub}</p>
-    </div>
-    <div class="vstage">
-      <div class="vstage-n">03</div><div class="vstage-t">${S.bStage3}</div>
-      <p class="vstage-s">${fill(S.bStage3sub, V)}</p>
-    </div>
+    <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
+    <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>
 
     <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
     <div class="stats" id="statsBar" hidden></div>
 
-    ${amt ? `<div class="vpayoff"><div class="amount-big" data-geo-amount>${amt}</div><p>${S.bPayoffSub}</p></div>` : ''}
-    <button id="ctaBtn" class="cta">${S.bCta}</button>
-    <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>`;
+    <div class="mq-mech">
+      <div class="mq-row"><span class="mq-n">1</span><div><p class="mq-t">${S.step1}</p><p class="mq-s">${pick('step1sub','step1subNoAmount')}</p></div></div>
+      <div class="mq-row"><span class="mq-n">2</span><div><p class="mq-t">${S.step2}</p><p class="mq-s">${S.step2sub}</p></div></div>
+      <div class="mq-row"><span class="mq-n">3</span><div><p class="mq-t">${S.step3}</p><p class="mq-s">${pick('step3sub','step3subNoAmount')}</p></div></div>
+    </div>`;
 
-  // C · QUESTIONS FIRST — objections lead. Native <details>, no JS.
+  // C · CONVERSATIONAL FAQ — objection-first, for cold sceptical traffic. Rebuilt to A's caliber:
+  // keeps A's signature wordmark lockup (2.1rem mark over a .28em-letterspaced label) so it reads as
+  // the same brand, then answers before it asks. Native <details>, no JS.
   const cardC = `    <div class="badge"><span class="dot"></span>${badge}</div>
     <div class="logo-wrap">
       <div class="logo-mark">${b.wordmark}</div>
       <div class="logo-sub">${V.sub}</div>
     </div>
-    ${amt ? `<div class="amount-big vsmall" data-geo-amount>${amt}</div>` : ''}
+    ${amt ? `<div class="qa-amt" data-geo-amount>${amt}</div>` : ''}
     <p class="amount-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
 
     <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
     <div class="stats" id="statsBar" hidden></div>
 
-    <h1 class="vintro">${S.cIntro}</h1>
-    <details open><summary>${S.cQ1}</summary><p class="vans">${pick('cA1','cA1NoAmount')}</p></details>
-    <details><summary>${S.cQ2}</summary><p class="vans">${pick('cA2','cA2NoAmount')}</p></details>
-    <details><summary>${S.cQ3}</summary><p class="vans">${S.cA3}</p></details>
-    <details><summary>${S.cQ4}</summary><p class="vans">${S.cA4}</p></details>
+    <p class="qa-intro">${S.cIntro}</p>
+    <div class="qa">
+      <details open><summary>${S.cQ1}</summary><p class="qa-a">${pick('cA1','cA1NoAmount')}</p></details>
+      <details><summary>${S.cQ2}</summary><p class="qa-a">${pick('cA2','cA2NoAmount')}</p></details>
+      <details><summary>${S.cQ3}</summary><p class="qa-a">${S.cA3}</p></details>
+      <details><summary>${S.cQ4}</summary><p class="qa-a">${S.cA4}</p></details>
+    </div>
     <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
     <div class="trust"><strong>${S.trustStrong}</strong> ${S.trustRest}</div>`;
 
   const card = variant === 'b' ? cardB : variant === 'c' ? cardC : cardA;
 
 
-  // Variant-only CSS. Appended AFTER the shipped block and empty for 'a', so structure 'a' renders
-  // byte-for-byte what it does today. Every colour comes from the brand's own theme — the three
-  // structures must look like the same offer.
+  const MACRO = { a: 'Stat-Led', b: 'Marquee Hero', c: 'Conversational FAQ' }[variant];
+  // EMPTY for 'a'. Slice 50 is live and taking paid traffic; its bytes must not move for a comment.
+  const stamp = variant === 'a' ? '' : `/* Hallmark · macrostructure: ${MACRO} · genre: modern-minimal · theme: ${b.dir} brand tokens
+ * pre-emit critique: P4 H5 E4 S4 R5 V4 · tracking contract: unchanged from slice 50 */
+`;
   const vcss = variant === 'b' ? `
-.vhead{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:1.5rem}
-.vhead .logo-mark{font-size:1.1rem}
-.vhead .badge{margin-bottom:0}
-.vlede{font-size:1.4rem;font-weight:800;line-height:1.2;letter-spacing:-.02em;margin:0 0 2rem;text-align:left}
-.vstage{padding-top:1rem;border-top:3px solid ${t.ink};margin-bottom:1.5rem;text-align:left}
-.vstage + .vstage{border-top-color:${t.accentHover}}
-.vstage + .vstage + .vstage{border-top-color:${t.muted}}
-.vstage-n{font-size:.7rem;font-weight:800;letter-spacing:.1em;color:${t.muted}}
-.vstage-t{font-size:1.1rem;font-weight:800;line-height:1.25;letter-spacing:-.015em;margin-top:.25rem}
-.vstage-s{font-size:.8rem;color:${t.muted};line-height:1.55;margin-top:.25rem}
-.vpayoff{background:${t.tint};border-radius:2px;padding:1.5rem;text-align:center;margin-top:2rem}
-.vpayoff .amount-big{font-size:1.9rem}
-.vpayoff p{font-size:.8rem;color:${t.muted};margin-top:.25rem}` : variant === 'c' ? `
-.vsmall{font-size:1.9rem;margin-top:.25rem}
-.vintro{font-size:.92rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase;margin:2rem 0 .75rem;color:${t.muted};text-align:left}
-details{border-top:1px solid ${t.line};text-align:left}
-details:last-of-type{border-bottom:1px solid ${t.line}}
-summary{list-style:none;display:flex;gap:.75rem;align-items:flex-start;padding:1rem 0;font-size:.92rem;font-weight:700;line-height:1.35;cursor:pointer}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";margin-left:auto;flex:none;font-size:1.1rem;font-weight:600;color:${t.accentHover};line-height:1;transition:transform .22s cubic-bezier(.16,1,.3,1)}
-details[open] summary::after{transform:rotate(45deg)}
-summary:active{opacity:.7}
-.vans{font-size:.8rem;color:${t.muted};line-height:1.6;padding:0 0 1rem}
-@media (prefers-reduced-motion:reduce){summary::after{transition:none}}` : '';
+/* Ink bleed. Side margins exactly cancel .page's 1rem padding, so it reaches the viewport edge
+   without ever exceeding it — no horizontal scroll at 320px. */
+.mq{background:${t.ink};color:${t.bg};margin:-1.1rem -1rem 1.4rem;padding:3rem 1.4rem 2.3rem;text-align:left}
+.mq-tag{font-size:.63rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.55;margin-bottom:1.4rem}
+.mq-amt{font-size:5rem;font-weight:900;line-height:.88;letter-spacing:-.05em;overflow-wrap:anywhere}
+.mq-sub{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.45;margin-top:.9rem;opacity:.62;max-width:17rem}
+.mq-mech{margin-top:2rem;text-align:left}
+.mq-row{display:flex;gap:1rem;align-items:flex-start;padding:.95rem 0;border-top:1px solid ${t.line}}
+.mq-row:last-child{border-bottom:1px solid ${t.line}}
+.mq-n{flex:none;width:1.1rem;font-size:.68rem;font-weight:800;letter-spacing:.08em;color:${t.muted};padding-top:.22rem}
+.mq-t{font-size:.9rem;font-weight:700;line-height:1.3}
+.mq-s{font-size:.78rem;color:${t.muted};line-height:1.45;margin-top:.18rem}
+@media (min-width:26rem){.mq-amt{font-size:5.6rem}}` : variant === 'c' ? `
+/* The figure is present but demoted — this page argues before it tempts. */
+.qa-amt{font-size:2.6rem;font-weight:900;line-height:1;letter-spacing:-.035em;margin-top:.9rem}
+.qa-intro{font-size:.62rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:${t.muted};text-align:left;margin:2.1rem 0 .1rem}
+.qa{text-align:left}
+.qa details{border-top:1px solid ${t.line}}
+.qa details:last-child{border-bottom:1px solid ${t.line}}
+.qa summary{list-style:none;display:flex;align-items:flex-start;gap:.9rem;padding:1.05rem 0;font-size:.93rem;font-weight:700;line-height:1.35;cursor:pointer}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::after{content:"+";margin-left:auto;flex:none;font-size:1.15rem;font-weight:400;line-height:1;color:${t.accentHover};transition:transform .22s cubic-bezier(.16,1,.3,1)}
+.qa details[open] summary::after{transform:rotate(45deg)}
+.qa summary:active{opacity:.6}
+.qa summary:focus-visible{outline:2px solid ${t.accentHover};outline-offset:3px;border-radius:2px}
+.qa-a{font-size:.82rem;color:${t.muted};line-height:1.6;padding:0 0 1.05rem}
+@media (prefers-reduced-motion:reduce){.qa summary::after{transition:none}}` : '';
 
   return `<!DOCTYPE html>
 <html lang="${lang}" data-geo="${geo}">
@@ -555,7 +558,7 @@ window.__STATS__    = window.__STATS__ || null;
 </script>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+${stamp}*{margin:0;padding:0;box-sizing:border-box}
 body,html{background:${t.bg};font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;overflow-x:hidden;min-height:100vh;color:${t.ink};-webkit-font-smoothing:antialiased}
 a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.08);cursor:pointer}
 .page{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.1rem 1rem 1.5rem}
