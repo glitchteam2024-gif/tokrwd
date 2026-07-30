@@ -1098,7 +1098,7 @@ function tlAffRender() {
       ).join('') + '</optgroup>';
     };
     landerSel.innerHTML = '<option value="">— none —</option>' +
-      grp('override', 'Scaler landers (override-only)') + grp('standing', 'Standing landers');
+      grp('override', 'Override-only landers (lp= / scalers)') + grp('standing', 'Standing landers');
     if (prev) landerSel.value = prev;
   }
 
@@ -1300,7 +1300,7 @@ function asgRender() {
       }</option>`).join('') + '</optgroup>';
   };
   sel.innerHTML = group('standing', 'Standing landers (affiliate offers)') +
-                  group('override', 'Scaler landers (override-only)');
+                  group('override', 'Override-only landers (lp= / scalers)');
   if (previous) sel.value = previous;
 
   // Same vocabulary in the handover section below.
@@ -1458,7 +1458,7 @@ function hndRenderLanderSelect() {
       `<option value="${esc(l.key)}">${esc(l.name)} → ${esc(asgOfferLabel(l.offer) || 'unbound')}${
         l.owner ? ' · ' + esc(l.owner) : ''}</option>`).join('') + '</optgroup>';
   };
-  sel.innerHTML = group('override', 'Scaler landers (override-only)') +
+  sel.innerHTML = group('override', 'Override-only landers (lp= / scalers)') +
                   group('standing', 'Standing landers (affiliate offers)');
   if (previous) sel.value = previous;
 }
@@ -1755,7 +1755,7 @@ function plRender() {
     // page" check can never fire, and an operator who fills the other fields saves a
     // row bound to a page they never chose — which validates clean.
     sel.innerHTML = '<option value="">— pick a landing page —</option>' +
-                    group('override', 'Scaler landers (override-only)') +
+                    group('override', 'Override-only landers (lp= / scalers)') +
                     group('standing', 'Standing landers (affiliate offers)');
     if (previous) sel.value = previous;
   }

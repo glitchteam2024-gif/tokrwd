@@ -412,6 +412,7 @@ export const OFFERS = {
   // shows up beside the lander in the admin pickers, where "(Edwin)" would read as
   // "this page belongs to Edwin" to whoever assigns it next.
   'gravypass-esgp': { label: 'Gravy Pass (partner links)', match: '/c/esgp-off' },
+  playful:        { label: 'Playful Rewards',      match: 'sprktrax.org/api/link/playful' },
 };
 
 /**
@@ -444,6 +445,37 @@ export const OVERRIDE_LANDERS = {
     path: '/ESGP',
     offer: 'gravypass-esgp',
     owner: 'Edwin — scaler (own affiliate link, settles by invoice)',
+  },
+  // House lander, not a scaler's. /PLAY is the canonical page; the per-affiliate pool is
+  // PR50/PR1..PR50 (same buffer, one md5 — see _lp-generator/playful.js). Registered here so the
+  // admin Test Lander tab can preview and hand it over, and so the build test pins the page's real
+  // door against this declared offer. The path is UPPERCASE — Vercel serves paths case-sensitively,
+  // while the `lp=` alias is lowercased before lookup, same as esgp -> /ESGP.
+  play: {
+    path: '/PLAY',
+    offer: 'playful',
+    owner: 'SPRK house — Playful Rewards (Fluent, revshare)',
+  },
+  // SECOND ALIAS FOR THE SAME PAGE, and it is a guard rail, not a convenience.
+  //
+  // The offer key is `playful` but the lander alias is `play`, so `lp=playful` is the likeliest
+  // thing an operator types — it is the name the admin picker shows them. Without this row it
+  // falls through to free-form path resolution, and there is a same-named page sitting there:
+  //
+  //   lp=playful  ->  /playful   404 (Vercel is case-sensitive), offer unbound, paid click dies
+  //   lp=Playful  ->  /Playful   the ORPHAN redirector, which exits via /api/affrkr to
+  //                              affrkr.com — no door, no click_id, no clicks row. A paid click
+  //                              leaves through a non-SPRK network link, against "our tracking
+  //                              only", and every dashboard still looks normal.
+  //
+  // `lp=` is lowercased before the alias lookup, so this one row captures `playful`, `Playful`
+  // and `PLAYFUL` in one go. The cost is a duplicate row in the admin lander picker; the
+  // alternative was un-deploying Playful/ (a live page, unknown external inbound links), which
+  // is the operator's call, not a side effect of adding a lander.
+  playful: {
+    path: '/PLAY',
+    offer: 'playful',
+    owner: 'SPRK house — Playful Rewards (alias of `play`, same page)',
   },
 };
 
@@ -860,8 +892,8 @@ export const PRELANDER_ENABLED = true;
 export const PRELANDER_ALLOWED_ROOTS = [
   '50fc', '50fcii', '50tu', 'ak50', 'ap50', 'apay1k', 'apay750', 'cash', 'cb',
   'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk', 'cltu', 'cr50', 'cs50', 'esgp',
-  'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd', 'rs', 'rs50', 'rewards',
-  'seph', 'sh50', 'shein', 'sp50', 'tsup', 'tu', 'uber', 'ue50', 'trt',
+  'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd', 'play', 'pr50', 'rs', 'rs50',
+  'rewards', 'seph', 'sh50', 'shein', 'sp50', 'tsup', 'tu', 'uber', 'ue50', 'trt',
 ];
 
 const PRELANDER_ROOT_SET = new Set(PRELANDER_ALLOWED_ROOTS);

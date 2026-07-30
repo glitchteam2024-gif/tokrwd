@@ -55,8 +55,8 @@
   var ALLOWED_ROOTS = [
     '50fc', '50fcii', '50tu', 'ak50', 'ap50', 'apay1k', 'apay750', 'cash', 'cb',
     'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk', 'cltu', 'cr50', 'cs50', 'esgp',
-    'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd', 'rs', 'rs50', 'rewards',
-    'seph', 'sh50', 'shein', 'sp50', 'tsup', 'tu', 'uber', 'ue50', 'trt'
+    'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd', 'play', 'pr50', 'rs', 'rs50',
+    'rewards', 'seph', 'sh50', 'shein', 'sp50', 'tsup', 'tu', 'uber', 'ue50', 'trt'
   ];
 
   /** Never forwardable, whatever the allowlist says. Belt to the allowlist's braces. */

@@ -58,7 +58,13 @@ const OUR_TRACKING_HOSTS = new Set([
 const NETWORK_HOST_RE = /^(?:.*\.)?(?:monetisetrk\d*|montrk\d*|phef6trk|affrkr|trendhavenn|buenohoodies)\.(?:co\.uk|com)$/i;
 
 // Files that legitimately contain network hosts or archived cloaking, and never deploy.
-const SKIP_DIRS = new Set(['.git', 'node_modules', 'justincase', 'SIGNAT~1', 'images', '.claude', '.vercel']);
+//
+// `_lp-generator` is build tooling — it is in .vercelignore, so nothing in it is ever served, and a
+// generator has to NAME the cloaking patterns it refuses in order to refuse them (playful.js asserts
+// on 'intent://', '__SUBID_OK', 'musical_ly'…). Skipping the directory costs no coverage: every file
+// a generator WRITES lands in the tree (PLAY/, PR50/, 50FC/, 50TU/…) and is scanned below, which is
+// the artifact that actually deploys. A stale template that was never re-run cannot reach a visitor.
+const SKIP_DIRS = new Set(['.git', 'node_modules', 'justincase', 'SIGNAT~1', 'images', '.claude', '.vercel', '_lp-generator']);
 // The audit's own fixtures, the config table, and the cloaking-detector QA tooling.
 const SKIP_FILES = new Set([
   'api/_lib/links-config.js',      // the one place a network host belongs

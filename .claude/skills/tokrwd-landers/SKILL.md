@@ -57,6 +57,7 @@ canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` 
 | Apple Pay $1000 | door `applepay1000-us` (Path A)         | `APAY1K/US/index.html`    | `AK50/US1-30`                                     |
 | Uber Eats £50 | door `ubereats-gb` (Path A)               | `UBER/GB/index.html`      | `UE50/GB1-30`                                     |
 | Freecash (per-geo) | door `freecash-<geo>` (Path A)         | `FCASH/<GEO>/index.html`  | `50FC/<GEO>1-30` — US GB CA JP DE AT NL           |
+| Playful Rewards | `sprktrax.org/api/link/playful` (Path A)  | `PLAY/index.html`         | `PR50/PR1-50` — generated, `lp=play`              |
 | Reco Social  | `/api/reco` → montrk (Path B)              | `RS/index.html`           | `RS50/RS1-50` are interstitials that forward to `/RS/` (2 distinct variants: RS1 unique, RS2–50 identical) |
 
 Naming gotcha: **CR50 folders serve the Copper (`CB`/`copper`) lander** — "CR" is a legacy folder
@@ -474,6 +475,70 @@ stamping a guessed geo on every clicks row.
 **`/trt` itself is left alone** — it is registered in `OVERRIDE_LANDERS` (Trae / TenX) and pinned by
 `_links-config.test.mjs` to fire `testerup-mon` through that `/c/` hop. Only `50TU/` is generated.
 
+## Playful Rewards is the /trt design in purple — `_lp-generator/playful.js`
+
+```bash
+node _lp-generator/playful.js --clones 50      # PLAY/index.html + PR50/PR1..PR50 = 51 files, one md5
+```
+
+`playful-template.html` is a FORK of `testerup-template.html`, not a translation of it — Migi asked
+for "the Testerup landing page made into Playful Rewards, purple, keep the Block Blast logo". Four
+things changed: the palette (orange → the brand's own `#7c3aed`/`#9333ea`/`#a855f7`, `#c084fc` accent
+text, `#0a0014` page), the brand mark, the door slug (`testerup` → `playful`), and — asked for in a
+follow-up, "keep the background structure of Playful/index because it looks cool" — **that page's
+background treatment ported on top**: the 40-dot twinkling particle field (`.bg-canvas` / `.particle`
+/ the loop at the foot of the template), the gradient hero text clipped to the title on both screens,
+and the glowing app-icon ring on the brand mark. The game grid is untouched — Block Blast, Candy
+Crush, Subway Surfers, Roblox, same icons, same 2-offers unlock.
+
+The `.bg-canvas` div sits OUTSIDE both `.screen` sections so the field survives the picker → claim
+toggle instead of being rebuilt per screen, and the loop appends one DocumentFragment rather than 40
+separate nodes. None of it is a cloaking surface — it reads nothing about the client and renders
+identically for a buyer and an ad-review crawler — but the generator asserts all of it, because
+losing a decorative block to a stray edit is invisible in a diff of 51 generated files.
+
+**The logo is real, not invented.** `images/playful-rewards-logo.png` was extracted from the base64
+PNG that the orphaned `Playful/index.html` had inlined — it is the actual app icon, and the same mark
+the offer tile uses. Don't regenerate it; and if a tile is ever needed, `sprk-offer-tiles` can use it.
+
+**Two copy strings deliberately diverge from the Testerup page, and both are compliance:**
+- `Verified by TikTok` → `Free to download`. A platform endorsement TikTok never gave is a false
+  third-party claim, and reproducing it onto a new page is authoring it. The pill itself is kept.
+  (First cut said "Free on iOS & Android" — walked back, because nothing we hold substantiates that
+  Playful Rewards ships on Google Play. Don't name a store we haven't checked.)
+- `Trusted by over 500,000 users …` → a line with **no number**. That figure is Testerup's; aiming it
+  at Playful Rewards invents a statistic (No False Earning Claims). Swap in a real one if we get it.
+
+Both are single strings in the template. The generator ASSERTS both are absent, so a future edit that
+re-adds them fails the build instead of shipping.
+
+**The generator stats every local asset it references** (`assertAssetsExist`), because a `must()` on
+the path STRING passes happily while the file is missing or renamed case-only — and macOS is
+case-insensitive, so that bug is invisible locally and 404s on Vercel. Verified to bite: renaming the
+template's ref to `/images/Roblox.jpg` fails the build naming the real on-disk casing. It also asserts
+every element id the wiring script touches (`backBtn` included) — `getElementById('backBtn')` runs
+BEFORE the CTA href is set, so a typo there would ship 51 landers with a dead `href="#"` CTA while the
+generator printed success.
+
+⚠️ **`lp=Playful` used to leak a paid click off-network, and the fix is why there are TWO aliases.**
+The offer key is `playful` while the lander alias is `play`, so `lp=playful` is the likeliest thing an
+operator types — it is the name the admin picker shows. Unregistered it fell through to free-form path
+resolution, where `lp=playful` → `/playful` 404s and **`lp=Playful` → `/Playful`, the still-deployed
+orphan redirector that exits via `/api/affrkr` to affrkr.com** — no door, no click_id, and every
+dashboard looks normal. `OVERRIDE_LANDERS.playful` now points at the same `/PLAY`; because `lp=` is
+lowercased before the alias lookup, that one row captures `playful`/`Playful`/`PLAYFUL`. Cost is a
+duplicate row in the admin picker. The other fix — adding `Playful/` to `.vercelignore` — would
+un-deploy a live page with unknown external inbound links, so it stays **Migi's call**.
+
+**Still Testerup-specific and needs replacing when Playful creative exists:** the two claim-screen
+videos are the Testerup clips (the second one's on-screen caption literally says "the tester…").
+
+**One page, no geo fan-out** — same call as Testerup. The offer sells US/GB/CA/AU/FR/DE, but until we
+know there is a per-geo network link, six slugs resolving to one destination would just stamp a
+guessed geo on every clicks row. FR/DE also need translated copy before they get a page.
+
+⚠️ **`PG50` is Prograd, not Playful** — a live naming trap, which is why this family is `PR50`.
+
 ## Freecash has its OWN generator — `_lp-generator/freecash.js`
 
 `/50FC/FC1` is a specific, proven-converting page (ticker · live counter · rating pill · offer card
@@ -757,6 +822,32 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
   `ESGP/index.html`'s `localStorage` sub-ID replay got a 30-minute TTL (per-origin storage on a shared
   lander would otherwise route a returning device to the previous partner's link). `overrideLanderProblems`
   and `offerKeyProblems` now reach the panel; they were exported and called by nothing.
+- **2026-07-30** — **Playful Rewards lander** (Migi: "the Testerup landing page, made into Playful
+  Rewards, purple, keep the Block Blast logo"). New `_lp-generator/playful.js` +
+  `playful-template.html` → `PLAY/index.html` + `PR50/PR1..PR50` (51 files, one md5), door slug
+  `playful`, plus the old `Playful/index.html` background treatment (particle field + gradient hero +
+  glowing brand mark) ported on top at Migi's request. Registered `OFFERS.playful` +
+  `OVERRIDE_LANDERS.play` (house, not a scaler) so it is
+  previewable/handoverable from the admin panel and pinned by the build test; `play`/`pr50` added to
+  `PRELANDER_ALLOWED_ROOTS` **and** `js/breakout.js`. Logo extracted from the base64 inlined in the
+  orphaned `Playful/index.html` — the real app icon, nothing invented. `_lp-generator` added to the
+  tracking audit's `SKIP_DIRS`: it is already in `.vercelignore`, and a generator must NAME the
+  cloaking patterns it refuses in order to refuse them; the files it WRITES are still scanned, which
+  is what actually deploys. Hardened after an adversarial pre-deploy review: the second `playful`
+  alias closing the `lp=Playful` → affrkr leak (see the ⚠️ above), `assertAssetsExist` in the
+  generator, element-id assertions, the brand mark wired as favicon + apple-touch-icon, and the admin
+  lander pickers relabelled `Scaler landers (override-only)` → `Override-only landers (lp= / scalers)`
+  because `play` is the first override entry that is a HOUSE page, and the `tlAffLander` picker
+  renders only name → offer, so it read as somebody's private scaler page.
+  **Blocked on Migi's side before traffic:** the offer is still Draft with no payout, and
+  `landing_pages.slug = 'playful'` does not exist yet — until it does the door 404s every click.
+  **Known, inherited, NOT introduced here** (all byte-identical to live `50TU/TU1`, so fixing them is
+  a family-wide decision): the CTA click handler recomputes the door URL and so discards the `ttclid`
+  that `js/ttclid.js` backfilled into the href; the claim screen says "paid via PayPal / Cash App"
+  above the CTA and "No cashout apps" below it, which contradict; the `TikTok × brand` header lockup
+  still implies a partnership even with the "Verified by TikTok" string removed; and
+  `*{animation:none!important}` misses `::before`/`::after`, so `drift` and `sweep` keep animating
+  under prefers-reduced-motion.
 - **2026-07-27** — Admin section **Hand a Landing Page to a Scaler**: iframe preview of the lander with
   `s1` applied, the ad link to send, the full hop chain, and the sub-ID param their network receives.
   New `traceOfferChain()` + `carrdHostsForLander()`; new admin action `trace_chain`. **`buildDirectUrl`
