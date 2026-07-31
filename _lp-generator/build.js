@@ -816,6 +816,30 @@ const BRANDS = [
              logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
   },
 
+  {
+    // FL221880 — Rewards US - Walmart $750 Back to School
+    // NOTE: this offer has NO destination_by_geo — only a flat destination_url. The door falls back
+    // to it (coalesce(by_geo->>GEO, destination_url)), so the lander resolves exactly the same.
+    dir: 'WA3_US', family: 'WA350', doorSlug: 'walmart-back-to-school', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Walmart', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#0071CE', accentHover: '#FFC220',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#0071CE', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220548 — Rewards US - Zelle $750 Testimonial
+    // NOTE: this offer has NO destination_by_geo — only a flat destination_url. The door falls back
+    // to it (coalesce(by_geo->>GEO, destination_url)), so the lander resolves exactly the same.
+    dir: 'ZE2_US', family: 'ZE250', doorSlug: 'zelle-testimonial', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Zelle', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#6D1ED4', accentHover: '#4B0FA0',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#6D1ED4', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
 ];
 
 // The geos a brand ships: explicit `geos`, else the keys of its amounts map.
