@@ -87,10 +87,19 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 .cta:disabled{opacity:.7;cursor:not-allowed}
 .trust{font-size:.72rem;color:#86868b;margin-top:.8rem;font-weight:400;line-height:1.4}
 .trust strong{color:#1d1d1f;font-weight:700}
-/* The figure is present but demoted — this page argues before it tempts. */
-.qa-amt{font-size:2.6rem;font-weight:900;line-height:1;letter-spacing:-.035em;margin-top:.9rem}
-.qa-intro{font-size:.62rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:#86868b;text-align:left;margin:2.1rem 0 .1rem}
-.qa{text-align:left}
+/* Left-ranged on white. A is centred, B is a full-bleed ink marquee — C's whole differentiator is
+   that nothing is centred and the figure never becomes a display number. */
+.card{text-align:left}
+.qa-top{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin-bottom:1.7rem}
+.qa-mark{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;color:#1d1d1f;line-height:1}
+.qa-chip{font-size:.55rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  background:#f5f5f7;color:#86868b;padding:.32rem .5rem;border-radius:3px;line-height:1}
+/* The objection IS the headline. overflow-wrap so a long localisation can never push the page wide. */
+.qa-lede{font-size:2.05rem;font-weight:800;line-height:1.08;letter-spacing:-.038em;overflow-wrap:anywhere;min-width:0}
+.qa-ans{font-size:.9rem;line-height:1.62;color:#86868b;margin-top:.95rem}
+/* the figure, inline — emphasis by weight and ink, never by scale */
+.qa-ans b{color:#1d1d1f;font-weight:800}
+.qa{margin-top:2.1rem}
 .qa details{border-top:1px solid #d2d2d7}
 .qa details:last-child{border-bottom:1px solid #d2d2d7}
 .qa summary{list-style:none;display:flex;align-items:flex-start;gap:.9rem;padding:1.05rem 0;font-size:.93rem;font-weight:700;line-height:1.35;cursor:pointer}
@@ -114,18 +123,16 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 <body>
 <div class="page">
   <div class="card">
-    <div class="badge"><span class="dot"></span>2026 Summer Drop</div>
-    <div class="logo-wrap">
-      <div class="logo-mark">Apple Pay</div>
-      <div class="logo-sub">Reward</div>
+    <div class="qa-top">
+      <span class="qa-mark">Apple Pay</span>
+      <span class="qa-chip">2026 Summer Drop</span>
     </div>
-    <div class="qa-amt" data-geo-amount>£1,000</div>
-    <p class="amount-sub">SENT STRAIGHT TO YOUR APPLE PAY WALLET</p>
+    <h1 class="qa-lede">Is this actually real?</h1>
+    <p class="qa-ans">Yes. Complete 3-5 recommended deals &mdash; quick free trials and offers &mdash; and unlock the full <b data-geo-amount>£1,000</b>, sent straight to your Apple Pay wallet.</p>
 
     <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
     <div class="stats" id="statsBar" hidden></div>
 
-    <p class="qa-intro">Before you start</p>
     <div class="qa">
       <details open><summary>What do I actually get?</summary><p class="qa-a">£1,000, sent to your Apple Pay wallet.</p></details>
       <details><summary>What do I have to do?</summary><p class="qa-a">Enter a valid email, then complete 3-5 recommended deals &mdash; quick free trials and offers. Finishing them is what unlocks the full £1,000.</p></details>

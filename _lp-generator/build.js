@@ -70,6 +70,12 @@ const STRINGS = {
     // For sceptical cold traffic. Every answer restates something the offer or the funnel already
     // does — no timings, no counts, nothing invented.
     cIntro: 'Before you start',
+    // C now OPENS on the doubt instead of the brand — the objection is the headline, and the
+    // figure is demoted into running text. That is what stops it reading as A with an accordion
+    // bolted on. Honest: it states the exchange, it does not promise an outcome.
+    cLede: 'Is this actually real?',
+    cAnswer: 'Yes. Complete 3-5 recommended deals &mdash; quick free trials and offers &mdash; and unlock the full <b data-geo-amount>{amount}</b>, sent straight to your {brand} wallet.',
+    cAnswerNoAmount: 'Yes. Complete 3-5 recommended deals &mdash; quick free trials and offers &mdash; and the reward is yours.',
     cQ1: 'What do I actually get?',   cA1: '{amount}, sent to your Apple Pay wallet.',
     cA1NoAmount: 'Your reward, once the steps below are done.',
     cQ2: 'What do I have to do?',
@@ -444,21 +450,21 @@ const page = (b, geo, variant = 'a') => {
       <div class="mq-row"><span class="mq-n">3</span><div><p class="mq-t">${S.step3}</p><p class="mq-s">${pick('step3sub','step3subNoAmount')}</p></div></div>
     </div>`;
 
-  // C · CONVERSATIONAL FAQ — objection-first, for cold sceptical traffic. Rebuilt to A's caliber:
-  // keeps A's signature wordmark lockup (2.1rem mark over a .28em-letterspaced label) so it reads as
-  // the same brand, then answers before it asks. Native <details>, no JS.
-  const cardC = `    <div class="badge"><span class="dot"></span>${badge}</div>
-    <div class="logo-wrap">
-      <div class="logo-mark">${b.wordmark}</div>
-      <div class="logo-sub">${V.sub}</div>
+  // C · CONVERSATIONAL FAQ — objection-first. Rebuilt 2026-07-30: it previously reused A's centred
+  // badge/wordmark/REWARD/figure lockup, which made it read as A with dropdowns rather than its own
+  // page. Now it LEADS ON THE QUESTION, left-aligned, with the figure inline in the answer instead
+  // of set as a display number. A is centred and figure-first; B is a full-bleed ink marquee; C is
+  // left-ranged editorial on white. The dropdowns themselves are unchanged.
+  const cardC = `    <div class="qa-top">
+      <span class="qa-mark">${b.wordmark}</span>
+      <span class="qa-chip">${badge}</span>
     </div>
-    ${amt ? `<div class="qa-amt" data-geo-amount>${amt}</div>` : ''}
-    <p class="amount-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
+    <h1 class="qa-lede">${S.cLede}</h1>
+    <p class="qa-ans">${pick('cAnswer','cAnswerNoAmount')}</p>
 
     <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
     <div class="stats" id="statsBar" hidden></div>
 
-    <p class="qa-intro">${S.cIntro}</p>
     <div class="qa">
       <details open><summary>${S.cQ1}</summary><p class="qa-a">${pick('cA1','cA1NoAmount')}</p></details>
       <details><summary>${S.cQ2}</summary><p class="qa-a">${pick('cA2','cA2NoAmount')}</p></details>
@@ -490,10 +496,19 @@ const page = (b, geo, variant = 'a') => {
 .mq-t{font-size:.9rem;font-weight:700;line-height:1.3}
 .mq-s{font-size:.78rem;color:${t.muted};line-height:1.45;margin-top:.18rem}
 @media (min-width:26rem){.mq-amt{font-size:5.6rem}}` : variant === 'c' ? `
-/* The figure is present but demoted — this page argues before it tempts. */
-.qa-amt{font-size:2.6rem;font-weight:900;line-height:1;letter-spacing:-.035em;margin-top:.9rem}
-.qa-intro{font-size:.62rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:${t.muted};text-align:left;margin:2.1rem 0 .1rem}
-.qa{text-align:left}
+/* Left-ranged on white. A is centred, B is a full-bleed ink marquee — C's whole differentiator is
+   that nothing is centred and the figure never becomes a display number. */
+.card{text-align:left}
+.qa-top{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin-bottom:1.7rem}
+.qa-mark{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;color:${t.ink};line-height:1}
+.qa-chip{font-size:.55rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  background:${t.tint};color:${t.muted};padding:.32rem .5rem;border-radius:3px;line-height:1}
+/* The objection IS the headline. overflow-wrap so a long localisation can never push the page wide. */
+.qa-lede{font-size:2.05rem;font-weight:800;line-height:1.08;letter-spacing:-.038em;overflow-wrap:anywhere;min-width:0}
+.qa-ans{font-size:.9rem;line-height:1.62;color:${t.muted};margin-top:.95rem}
+/* the figure, inline — emphasis by weight and ink, never by scale */
+.qa-ans b{color:${t.ink};font-weight:800}
+.qa{margin-top:2.1rem}
 .qa details{border-top:1px solid ${t.line}}
 .qa details:last-child{border-bottom:1px solid ${t.line}}
 .qa summary{list-style:none;display:flex;align-items:flex-start;gap:.9rem;padding:1.05rem 0;font-size:.93rem;font-weight:700;line-height:1.35;cursor:pointer}
