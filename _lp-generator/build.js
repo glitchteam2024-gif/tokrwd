@@ -216,6 +216,7 @@ const BRANDS = [
     // destination_by_geo entry and a landing_pages row for each — a geo with neither resolves to
     // the US destination and stamps a guessed geo on every clicks row.
     dir: 'SHB2S', family: 'SB50', doorSlug: 'shein-b2s', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],   // 50-51-52, same as the Apple family
     wordmark: 'SHEIN', badge: 'Back to School 2026', pixelName: 'SHEIN B2S',
     pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$1,000', 1000] },
@@ -296,6 +297,7 @@ const BRANDS = [
     // CASHBACK £10 WELCOME BONUS [GB] — Monetise c=42882, single geo, single link.
     // "£10" is the offer's own name, i.e. a stated bonus, not an earnings projection.
     dir: 'CBAK', family: 'CB50', doorSlug: 'cashback', kind: 'cash',
+    variants: ['a', 'b', 'c'],   // 50-51-52, same as the Apple family
     wordmark: 'CASHBACK', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { GB: ['£10', 10] },
     theme: { bg: '#fff', ink: '#101010', muted: '#6e6e6e', accent: '#1c6ef2', accentHover: '#0f56c9',
@@ -308,6 +310,7 @@ const BRANDS = [
     // not invent a figure for a money app — an unverified number is exactly the "No False Earning
     // Claims" restriction. The page ships with no amount until Migi supplies the real hook.
     dir: 'PGRD', family: 'PG50', doorSlug: 'prograd', kind: 'app',
+    variants: ['a', 'b', 'c'],   // 50-51-52, same as the Apple family
     geos: ['GB', 'US'],
     wordmark: 'Prograd', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: null,
@@ -435,7 +438,9 @@ const page = (b, geo, variant = 'a') => {
   // never scroll to find it); the mechanics follow for anyone who wants them.
   const cardB = `    <div class="mq">
       <div class="mq-tag">${b.wordmark} &middot; ${V.sub}</div>
-      ${amt ? `<div class="mq-amt" data-geo-amount>${amt}</div>` : ''}
+      ${amt
+        ? `<div class="mq-amt" data-geo-amount>${amt}</div>`
+        : `<div class="mq-lede">${pick('headline','headlineNoAmount')}</div>`}
       <p class="mq-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
     </div>
     <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
@@ -488,6 +493,10 @@ const page = (b, geo, variant = 'a') => {
 .mq{background:${t.ink};color:${t.bg};margin:-1.1rem -1rem 1.4rem;padding:3rem 1.4rem 2.3rem;text-align:left}
 .mq-tag{font-size:.63rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.55;margin-bottom:1.4rem}
 .mq-amt{font-size:5rem;font-weight:900;line-height:.88;letter-spacing:-.05em;overflow-wrap:anywhere}
+/* THE NO-FIGURE HERO. B is amount-led; a brand that quotes no sum (Prograd — Monetise's "No False
+   Earning Claims" restriction) would otherwise render an empty ink block. Words need a smaller size,
+   looser tracking and a measure that a 5rem numeral does not. */
+.mq-lede{font-size:2.6rem;font-weight:900;line-height:1.02;letter-spacing:-.035em;max-width:11ch;overflow-wrap:anywhere}
 .mq-sub{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.45;margin-top:.9rem;opacity:.62;max-width:17rem}
 .mq-mech{margin-top:2rem;text-align:left}
 .mq-row{display:flex;gap:1rem;align-items:flex-start;padding:.95rem 0;border-top:1px solid ${t.line}}
