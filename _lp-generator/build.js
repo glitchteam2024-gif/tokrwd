@@ -319,6 +319,35 @@ const BRANDS = [
              logoWeight: 700, logoSpacing: '-.02em', logoSize: '2.2rem', ctaRadius: '12px' },
   },
   {
+    // RECO SOCIAL [US] — Monetise c=56065, US only (offers.countries = ['US']), $2 affiliate payout,
+    // category 'Mobile Apps'. The LAST active SPRK offer with no landing page of its own.
+    //
+    // WHY THIS EXISTS WHEN /RS/ ALREADY DOES. tokrwd already ships a hand-built Reco page at /RS/
+    // (fed by the RS50/RS1-50 interstitials), but its CTA goes to /api/reco — a tokrwd route that
+    // redirects STRAIGHT to the network tracker. That bypasses the sprktrax door entirely: no
+    // clicks row, no click_id, no owner resolution from s1, and none of the cap / revoke / payout
+    // -lock gates in api/link/[slug].js. An affiliate running it earns nothing SPRK can attribute.
+    // These generated pages carry the same door every other offer uses, so Reco finally behaves
+    // like the rest of the network. /RS/ and RS50 are left untouched — they are not ours to break.
+    //
+    // amounts: null DELIBERATELY, the same call as Prograd above. Reco Social is a get-paid-to app:
+    // what a user earns varies and SPRK has no verified figure for it. Printing one would be an
+    // income claim, which the root CLAUDE.md forbids outright. The 'app' kind already reads
+    // "FREE TO JOIN — TAKES A MINUTE" and swaps step 1 to step1subNoAmount, so the page is honest
+    // with no number at all.
+    dir: 'RECO', family: 'RC50', doorSlug: 'reco-social', kind: 'app',
+    variants: ['a', 'b', 'c'],   // 50-51-52, same as the Apple family
+    geos: ['US'],
+    wordmark: 'Reco Social', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: null,
+    // Reco's own mark is fuchsia (/images/reco-logo.svg, #d946ef on the dark /RS/ page). That exact
+    // hue fails contrast as a button fill under white text (~2.9:1), so the accent is the darker
+    // fuchsia-700 (~6.5:1) and the light tint keeps the brand read.
+    theme: { bg: '#fff', ink: '#0d0d12', muted: '#6b6f7a', accent: '#a21caf', accentHover: '#86198f',
+             tint: '#fdf4ff', line: '#eee9f2', badgeBg: '#a21caf', badgeInk: '#fff',
+             logoWeight: 700, logoSpacing: '-.02em', logoSize: '2.2rem', ctaRadius: '12px' },
+  },
+  {
     dir: 'UBER', family: 'UE50', doorSlug: 'ubereats', kind: 'credit',
     wordmark: 'Uber Eats', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { GB: ['£50', 50] },
