@@ -50,6 +50,7 @@ const SOURCE = fs.readFileSync(path.join(__dirname, 'sammy-acash-source.html'), 
 const CANON_DIR = 'ACSM';          // ACSM/US/index.html
 const FAMILY    = 'AS50';          // AS50/US1..US100 — one clone per affiliate slot
 const GEO       = 'US';
+const VANITY    = 'sasurl';        // /sasurl — Sammy's memorable link, same bytes
 
 /**
  * WHICH DOOR THIS PAGE FIRES.
@@ -195,6 +196,22 @@ const html = page();
 fs.mkdirSync(path.join(repoRoot, CANON_DIR, GEO), { recursive: true });
 fs.writeFileSync(path.join(repoRoot, CANON_DIR, GEO, 'index.html'), html);
 
+/**
+ * VANITY PATH — /sasurl. Migi's call: a memorable URL so it is obvious at a glance whose link it
+ * is, without reading a clone number.
+ *
+ * Written from the SAME buffer as everything else, so it can never drift from the slice. It is a
+ * PLAIN COPY, not a redirect: a redirect would add a hop before the lander and, more importantly,
+ * bounce the query string through an extra rewrite where s1 can be lost.
+ *
+ * ⚠️ It carries no slot number, so it is ONE shared URL rather than a per-affiliate clone. That is
+ * exactly what was asked for, but it means the anti-flag property of the numbered fan-out does not
+ * apply here: a flag on /sasurl is a flag on the only copy of it. Fine for a single affiliate on
+ * his own link; do not hand this same path to a second person.
+ */
+fs.mkdirSync(path.join(repoRoot, VANITY), { recursive: true });
+fs.writeFileSync(path.join(repoRoot, VANITY, 'index.html'), html);
+
 for (let n = 1; n <= CLONES; n++) {
   const d = path.join(repoRoot, FAMILY, GEO + n);
   fs.mkdirSync(d, { recursive: true });
@@ -210,7 +227,7 @@ for (const name of fs.readdirSync(famRoot)) {
   }
 }
 
-console.log(`${CANON_DIR}/${GEO} + ${FAMILY}/${GEO}1..${GEO}${CLONES}   door=${DOOR_SLUG}   (${CLONES + 1} files, Sammy's supplied design)`);
+console.log(`${CANON_DIR}/${GEO} + /${VANITY} + ${FAMILY}/${GEO}1..${GEO}${CLONES}   door=${DOOR_SLUG}   (${CLONES + 2} files, Sammy's supplied design)`);
 console.log(`\n  ⚠️  UNVERIFIED CLAIMS LEFT IN SAMMY'S COPY — his design, Migi's call, not edited here.`);
 console.log(`      Hosted on www.tokrwd.co, so an ad-network penalty earned here attaches to the`);
 console.log(`      DOMAIN and every other lander on it. Edit sammy-acash-source.html to change.\n`);

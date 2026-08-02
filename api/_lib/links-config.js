@@ -896,7 +896,7 @@ export const PRELANDER_ENABLED = true;
  * the fail-open behaviour just means no prelander.
  */
 export const PRELANDER_ALLOWED_ROOTS = [
-  '50fc', '50fcii', '50tu', 'ac50', 'acash', 'acsm', 'as50', 'af50', 'ak50', 'ap50', 'apay1k',
+  '50fc', '50fcii', '50tu', 'ac50', 'acash', 'acsm', 'as50', 'sasurl', 'af50', 'ak50', 'ap50', 'apay1k',
   // The picker's extra structures (2026-07-30). Without these /pre refuses to forward and the
   // new slices silently lose the prelander — which would make an A/B of structure secretly an
   // A/B of 'has the in-app-browser escape', i.e. unreadable.
