@@ -70,6 +70,12 @@ const STRINGS = {
     // For sceptical cold traffic. Every answer restates something the offer or the funnel already
     // does — no timings, no counts, nothing invented.
     cIntro: 'Before you start',
+    // C now OPENS on the doubt instead of the brand — the objection is the headline, and the
+    // figure is demoted into running text. That is what stops it reading as A with an accordion
+    // bolted on. Honest: it states the exchange, it does not promise an outcome.
+    cLede: 'Is this actually real?',
+    cAnswer: 'Yes. Complete 3-5 recommended deals &mdash; quick free trials and offers &mdash; and unlock the full <b data-geo-amount>{amount}</b>, sent straight to your {brand} wallet.',
+    cAnswerNoAmount: 'Yes. Complete 3-5 recommended deals &mdash; quick free trials and offers &mdash; and the reward is yours.',
     cQ1: 'What do I actually get?',   cA1: '{amount}, sent to your Apple Pay wallet.',
     cA1NoAmount: 'Your reward, once the steps below are done.',
     cQ2: 'What do I have to do?',
@@ -210,6 +216,7 @@ const BRANDS = [
     // destination_by_geo entry and a landing_pages row for each — a geo with neither resolves to
     // the US destination and stamps a guessed geo on every clicks row.
     dir: 'SHB2S', family: 'SB50', doorSlug: 'shein-b2s', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],   // 50-51-52, same as the Apple family
     wordmark: 'SHEIN', badge: 'Back to School 2026', pixelName: 'SHEIN B2S',
     pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { US: ['$1,000', 1000] },
@@ -290,6 +297,7 @@ const BRANDS = [
     // CASHBACK £10 WELCOME BONUS [GB] — Monetise c=42882, single geo, single link.
     // "£10" is the offer's own name, i.e. a stated bonus, not an earnings projection.
     dir: 'CBAK', family: 'CB50', doorSlug: 'cashback', kind: 'cash',
+    variants: ['a', 'b', 'c'],   // 50-51-52, same as the Apple family
     wordmark: 'CASHBACK', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: { GB: ['£10', 10] },
     theme: { bg: '#fff', ink: '#101010', muted: '#6e6e6e', accent: '#1c6ef2', accentHover: '#0f56c9',
@@ -302,11 +310,41 @@ const BRANDS = [
     // not invent a figure for a money app — an unverified number is exactly the "No False Earning
     // Claims" restriction. The page ships with no amount until Migi supplies the real hook.
     dir: 'PGRD', family: 'PG50', doorSlug: 'prograd', kind: 'app',
+    variants: ['a', 'b', 'c'],   // 50-51-52, same as the Apple family
     geos: ['GB', 'US'],
     wordmark: 'Prograd', pixel: 'D6CF3ABC77U56TVAPJPG',
     amounts: null,
     theme: { bg: '#fff', ink: '#0d0d12', muted: '#6b6f7a', accent: '#5b3df5', accentHover: '#4527d6',
              tint: '#f4f2ff', line: '#e7e7ee', badgeBg: '#5b3df5', badgeInk: '#fff',
+             logoWeight: 700, logoSpacing: '-.02em', logoSize: '2.2rem', ctaRadius: '12px' },
+  },
+  {
+    // RECO SOCIAL [US] — Monetise c=56065, US only (offers.countries = ['US']), $2 affiliate payout,
+    // category 'Mobile Apps'. The LAST active SPRK offer with no landing page of its own.
+    //
+    // WHY THIS EXISTS WHEN /RS/ ALREADY DOES. tokrwd already ships a hand-built Reco page at /RS/
+    // (fed by the RS50/RS1-50 interstitials), but its CTA goes to /api/reco — a tokrwd route that
+    // redirects STRAIGHT to the network tracker. That bypasses the sprktrax door entirely: no
+    // clicks row, no click_id, no owner resolution from s1, and none of the cap / revoke / payout
+    // -lock gates in api/link/[slug].js. An affiliate running it earns nothing SPRK can attribute.
+    // These generated pages carry the same door every other offer uses, so Reco finally behaves
+    // like the rest of the network. /RS/ and RS50 are left untouched — they are not ours to break.
+    //
+    // amounts: null DELIBERATELY, the same call as Prograd above. Reco Social is a get-paid-to app:
+    // what a user earns varies and SPRK has no verified figure for it. Printing one would be an
+    // income claim, which the root CLAUDE.md forbids outright. The 'app' kind already reads
+    // "FREE TO JOIN — TAKES A MINUTE" and swaps step 1 to step1subNoAmount, so the page is honest
+    // with no number at all.
+    dir: 'RECO', family: 'RC50', doorSlug: 'reco-social', kind: 'app',
+    variants: ['a', 'b', 'c'],   // 50-51-52, same as the Apple family
+    geos: ['US'],
+    wordmark: 'Reco Social', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: null,
+    // Reco's own mark is fuchsia (/images/reco-logo.svg, #d946ef on the dark /RS/ page). That exact
+    // hue fails contrast as a button fill under white text (~2.9:1), so the accent is the darker
+    // fuchsia-700 (~6.5:1) and the light tint keeps the brand read.
+    theme: { bg: '#fff', ink: '#0d0d12', muted: '#6b6f7a', accent: '#a21caf', accentHover: '#86198f',
+             tint: '#fdf4ff', line: '#eee9f2', badgeBg: '#a21caf', badgeInk: '#fff',
              logoWeight: 700, logoSpacing: '-.02em', logoSize: '2.2rem', ctaRadius: '12px' },
   },
   {
@@ -316,6 +354,520 @@ const BRANDS = [
     theme: { bg: '#fff', ink: '#000', muted: '#6b6b6b', accent: '#06c167', accentHover: '#048a48',
              tint: '#f3faf5', line: '#e8e8e8', badgeBg: '#06c167', badgeInk: '#000',
              logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.2rem', ctaRadius: '999px' },
+  },
+
+  // ── SWEEPSTAKE OFFERS (2026-07-31) ────────────────────────────────────────────────────────────
+  // Every offer with category='Sweepstakes' that had no lander. One entry per OFFER, not per brand:
+  // each is a distinct network offer with its own door slug, and the slug is baked into the page at
+  // build time, so two offers can never share a family. Themes carry each brand's own primary
+  // colour — the same reasoning as Apple's #1d1d1f — with the rest of the tokens derived.
+  // Clone count is 30 (Migi 2026-07-31): these have no conversions yet, and the fan-out only earns
+  // its footprint value once ads actually run. Regenerate a single family at 100 when one takes off,
+  // and raise its landing_pages.capacity in the same change.
+  {
+    // FL219927 — Rewards US - Fortnite V-Bucks $100
+    dir: 'VB1_US', family: 'VB150', doorSlug: 'fortnite-v-bucks', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'V-Bucks', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$100', 100] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#2A6EF5', accentHover: '#9B4DFF',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#2A6EF5', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220021 — Rewards US - Venmo $750
+    dir: 'VE1_US', family: 'VE150', doorSlug: 'venmo', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Venmo', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#3D95CE', accentHover: '#008CFF',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#3D95CE', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220029 — Rewards US - Zelle $750
+    dir: 'ZE1_US', family: 'ZE150', doorSlug: 'zelle', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Zelle', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#6D1ED4', accentHover: '#4B0FA0',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#6D1ED4', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220034 — Rewards US - Only Fans $500
+    dir: 'ON1_US', family: 'ON150', doorSlug: 'only-fans', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'OnlyFans', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$500', 500] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#00AFF0', accentHover: '#0089BE',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#00AFF0', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220035 — Rewards UK - Only Fans Â£500
+    dir: 'ON2_GB', family: 'ON250', doorSlug: 'only-fans-2', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'OnlyFans', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£500', 500] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#00AFF0', accentHover: '#0089BE',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#00AFF0', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220199 — Rewards UK - Doordash Â£500
+    dir: 'DO1_GB', family: 'DO150', doorSlug: 'doordash', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'DoorDash', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£500', 500] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#EB1700', accentHover: '#FF3008',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#EB1700', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220200 — Rewards CA - Doordash $500
+    dir: 'DO2_CA', family: 'DO250', doorSlug: 'doordash-2', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'DoorDash', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { CA: ['$500', 500] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#EB1700', accentHover: '#FF3008',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#EB1700', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220216 — Rewards CA - Only Fans $500
+    dir: 'ON3_CA', family: 'ON350', doorSlug: 'only-fans-3', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'OnlyFans', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { CA: ['$500', 500] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#00AFF0', accentHover: '#0089BE',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#00AFF0', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220304 — Rewards UK - JD Sports Â£750
+    dir: 'JD1_GB', family: 'JD150', doorSlug: 'jd-sports', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'JD Sports', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#000000', accentHover: '#D4A017',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#000000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220454 — Rewards UK - Tesco Gift Card Â£100
+    dir: 'TE1_GB', family: 'TE150', doorSlug: 'tesco-gift-card', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Tesco', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£100', 100] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#00539F', accentHover: '#EE1C2E',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#00539F', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220457 — Rewards UK - Fortnite V-Bucks Â£500
+    dir: 'VB2_GB', family: 'VB250', doorSlug: 'fortnite-v-bucks-2', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'V-Bucks', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£500', 500] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#2A6EF5', accentHover: '#9B4DFF',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#2A6EF5', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220463 — Rewards CA - Fortnite V-Bucks $500
+    dir: 'VB3_CA', family: 'VB350', doorSlug: 'fortnite-v-bucks-3', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'V-Bucks', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { CA: ['$500', 500] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#2A6EF5', accentHover: '#9B4DFF',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#2A6EF5', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220678 — Rewards US - Edikted $750
+    dir: 'ED1_US', family: 'ED150', doorSlug: 'edikted', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Edikted', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#1a1a1a', accentHover: '#8a6a4a',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#1a1a1a', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220681 — Rewards UK - Tesco Â£750
+    dir: 'TE2_GB', family: 'TE250', doorSlug: 'tesco', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Tesco', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#00539F', accentHover: '#EE1C2E',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#00539F', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220695 — Rewards US - Rewarded Discovery - Cash $750
+    dir: 'CA1_US', family: 'CA150', doorSlug: 'rewarded-discovery-cash', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Cash Reward', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#1B8A4B', accentHover: '#146B39',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#1B8A4B', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220700 — Rewards AU - Product Reviewer Shein Bonus $750
+    dir: 'SH1_AU', family: 'SH150', doorSlug: 'product-reviewer-shein-bonus', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'SHEIN', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { AU: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#000000', accentHover: '#444444',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#000000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220734 — Rewards US - Product Reviewer Walmart Bonus $750
+    dir: 'WA1_US', family: 'WA150', doorSlug: 'product-reviewer-walmart-bonus', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Walmart', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#0071CE', accentHover: '#FFC220',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#0071CE', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220865 — Rewards US - Fast Food Reviewer - Starbucks $100
+    dir: 'ST1_US', family: 'ST150', doorSlug: 'fast-food-reviewer-starbucks', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Starbucks', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$100', 100] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#00704A', accentHover: '#1E3932',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#00704A', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220881 — Rewards UK - Fast Food Reviewer - McDonalds Â£100
+    dir: 'MC1_GB', family: 'MC150', doorSlug: 'fast-food-reviewer-mcdonalds', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'McDonalds', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£100', 100] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#DA291C', accentHover: '#FFC72C',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#DA291C', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220884 — Rewards CA - Fast Food Reviewer - Tim Hortons $100
+    dir: 'TI1_CA', family: 'TI150', doorSlug: 'fast-food-reviewer-tim-hortons', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Tim Hortons', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { CA: ['$100', 100] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#C8102E', accentHover: '#8B5A2B',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#C8102E', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220886 — Rewards AU - Fast Food Reviewer - McDonalds $100
+    dir: 'MC2_AU', family: 'MC250', doorSlug: 'fast-food-reviewer-mcdonalds-2', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'McDonalds', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { AU: ['$100', 100] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#DA291C', accentHover: '#FFC72C',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#DA291C', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220905 — Rewards UK - Just Eat Â£500
+    dir: 'JU1_GB', family: 'JU150', doorSlug: 'just-eat', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Just Eat', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£500', 500] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#FF8000', accentHover: '#D96A00',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#FF8000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220925 — Rewards US - Flash Poll - Amazon $750
+    dir: 'AM1_US', family: 'AM150', doorSlug: 'flash-poll-amazon', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Amazon', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#FF9900', accentHover: '#232F3E',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#FF9900', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220931 — Rewards UK - Flash Poll - Shein Â£750
+    dir: 'SH2_GB', family: 'SH250', doorSlug: 'flash-poll-shein', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'SHEIN', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#000000', accentHover: '#444444',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#000000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221138 — Rewards US - Flash Poll - Target $750
+    dir: 'TA1_US', family: 'TA150', doorSlug: 'flash-poll-target', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Target', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#CC0000', accentHover: '#A00000',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#CC0000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221285 — Rewards UK - Edikted Â£750
+    dir: 'ED2_GB', family: 'ED250', doorSlug: 'edikted-2', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Edikted', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#1a1a1a', accentHover: '#8a6a4a',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#1a1a1a', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221306 — Rewards US - Rewarded Discovery - Cash Deposit $1000
+    dir: 'CA2_US', family: 'CA250', doorSlug: 'rewarded-discovery-cash-deposit', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Cash Reward', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$1,000', 1000] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#1B8A4B', accentHover: '#146B39',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#1B8A4B', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221358 — Rewards US - Flash Poll - TikTok Shop $750
+    dir: 'TI2_US', family: 'TI250', doorSlug: 'flash-poll-tiktok-shop', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'TikTok Shop', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#FE2C55', accentHover: '#25F4EE',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#FE2C55', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221363 — Rewards US - Product Reviewer Amazon Bonus $750
+    dir: 'AM2_US', family: 'AM250', doorSlug: 'product-reviewer-amazon-bonus', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Amazon', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#FF9900', accentHover: '#232F3E',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#FF9900', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221467 — Rewards US - Flash Poll - Shein $750
+    dir: 'SH3_US', family: 'SH350', doorSlug: 'flash-poll-shein-2', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'SHEIN', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#000000', accentHover: '#444444',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#000000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221525 — Rewards UK - Deliveroo Â£500
+    dir: 'DE1_GB', family: 'DE150', doorSlug: 'deliveroo', kind: 'credit',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Deliveroo', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£500', 500] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#00CCBC', accentHover: '#00A896',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#00CCBC', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221696 — Rewards US - Playful Rewards - Cash $1000
+    dir: 'PL1_US', family: 'PL150', doorSlug: 'playful-rewards-cash', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Playful Rewards', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$1,000', 1000] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#7A3DF5', accentHover: '#5A25C0',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#7A3DF5', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221707 — Rewards US - 2x Rewards - Shein $750 Bonus
+    dir: 'SH4_US', family: 'SH450', doorSlug: '2x-rewards-shein-bonus', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'SHEIN', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#000000', accentHover: '#444444',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#000000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL221974 — Rewards UK - Shein Â£1000 Back to School
+    dir: 'SH5_GB', family: 'SH550', doorSlug: 'shein-back-to-school', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'SHEIN', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£1,000', 1000] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#000000', accentHover: '#444444',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#000000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222137 — Rewards US - Amazon Prime Big Deal Days $750
+    dir: 'AM3_US', family: 'AM350', doorSlug: 'amazon-prime-big-deal-days', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Amazon Prime', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#00A8E1', accentHover: '#232F3E',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#00A8E1', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222234 — Rewards US - EOS $750
+    dir: 'EO1_US', family: 'EO150', doorSlug: 'eos', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'EOS', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#3B7A57', accentHover: '#2A5A3F',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#3B7A57', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222272 — Rewards US - Tariff Relief $1000
+    dir: 'TA2_US', family: 'TA250', doorSlug: 'tariff-relief', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Tariff Relief', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$1,000', 1000] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#1B4F8A', accentHover: '#123A66',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#1B4F8A', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222449 — Rewards US - Cash Deposit $750 Multi Reward
+    dir: 'CA3_US', family: 'CA350', doorSlug: 'cash-deposit-multi-reward', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Cash Reward', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#1B8A4B', accentHover: '#146B39',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#1B8A4B', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222622 — Rewards US - Kalshi $750
+    dir: 'KA1_US', family: 'KA150', doorSlug: 'kalshi', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Kalshi', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#00D3A7', accentHover: '#00A583',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#00D3A7', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222625 — Rewards US - Polymarket $750
+    dir: 'PO1_US', family: 'PO150', doorSlug: 'polymarket', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Polymarket', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#1652F0', accentHover: '#0B3BC7',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#1652F0', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222686 — Rewards US - Retail Style - Amazon $750
+    dir: 'AM4_US', family: 'AM450', doorSlug: 'retail-style-amazon', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Amazon', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#FF9900', accentHover: '#232F3E',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#FF9900', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222687 — Rewards US - Retail Style - Walmart $750
+    dir: 'WA2_US', family: 'WA250', doorSlug: 'retail-style-walmart', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Walmart', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#0071CE', accentHover: '#FFC220',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#0071CE', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222688 — Rewards US - Retail Style - Target $750
+    dir: 'TA3_US', family: 'TA350', doorSlug: 'retail-style-target', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Target', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#CC0000', accentHover: '#A00000',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#CC0000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222745 — Rewards US - Retail Style - Shein $750
+    dir: 'SH6_US', family: 'SH650', doorSlug: 'retail-style-shein', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'SHEIN', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#000000', accentHover: '#444444',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#000000', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222760 — Rewards US - GTA VI $100
+    dir: 'GT1_US', family: 'GT150', doorSlug: 'gta-vi', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'GTA VI', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$100', 100] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#FF3D7F', accentHover: '#FFB000',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#FF3D7F', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222761 — Rewards CA - GTA VI $100
+    dir: 'GT2_CA', family: 'GT250', doorSlug: 'gta-vi-2', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'GTA VI', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { CA: ['$100', 100] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#FF3D7F', accentHover: '#FFB000',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#FF3D7F', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222762 — Rewards AU - GTA VI $100
+    dir: 'GT3_AU', family: 'GT350', doorSlug: 'gta-vi-3', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'GTA VI', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { AU: ['$100', 100] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#FF3D7F', accentHover: '#FFB000',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#FF3D7F', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL222763 — Rewards UK - GTA VI Â£100
+    dir: 'GT4_GB', family: 'GT450', doorSlug: 'gta-vi-4', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'GTA VI', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { GB: ['£100', 100] },
+    theme: { bg: '#0d0f12', ink: '#f5f5f7', muted: 'rgba(255,255,255,.55)', accent: '#FF3D7F', accentHover: '#FFB000',
+             tint: 'rgba(255,255,255,.06)', line: 'rgba(255,255,255,.14)', badgeBg: '#FF3D7F', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+
+  {
+    // FL221880 — Rewards US - Walmart $750 Back to School
+    // NOTE: this offer has NO destination_by_geo — only a flat destination_url. The door falls back
+    // to it (coalesce(by_geo->>GEO, destination_url)), so the lander resolves exactly the same.
+    dir: 'WA3_US', family: 'WA350', doorSlug: 'walmart-back-to-school', kind: 'giftcard',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Walmart', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#0071CE', accentHover: '#FFC220',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#0071CE', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
+  },
+  {
+    // FL220548 — Rewards US - Zelle $750 Testimonial
+    // NOTE: this offer has NO destination_by_geo — only a flat destination_url. The door falls back
+    // to it (coalesce(by_geo->>GEO, destination_url)), so the lander resolves exactly the same.
+    dir: 'ZE2_US', family: 'ZE250', doorSlug: 'zelle-testimonial', kind: 'cash',
+    variants: ['a', 'b', 'c'],
+    wordmark: 'Zelle', pixel: 'D6CF3ABC77U56TVAPJPG',
+    amounts: { US: ['$750', 750] },
+    theme: { bg: '#fff', ink: '#14161a', muted: '#6b7280', accent: '#6D1ED4', accentHover: '#4B0FA0',
+             tint: '#f4f5f7', line: '#e3e5e9', badgeBg: '#6D1ED4', badgeInk: '#fff',
+             logoWeight: 800, logoSpacing: '-.03em', logoSize: '2.1rem', ctaRadius: '10px' },
   },
 ];
 
@@ -429,7 +981,9 @@ const page = (b, geo, variant = 'a') => {
   // never scroll to find it); the mechanics follow for anyone who wants them.
   const cardB = `    <div class="mq">
       <div class="mq-tag">${b.wordmark} &middot; ${V.sub}</div>
-      ${amt ? `<div class="mq-amt" data-geo-amount>${amt}</div>` : ''}
+      ${amt
+        ? `<div class="mq-amt" data-geo-amount>${amt}</div>`
+        : `<div class="mq-lede">${pick('headline','headlineNoAmount')}</div>`}
       <p class="mq-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
     </div>
     <button id="ctaBtn" class="cta">${pick('cta','ctaNoAmount')}</button>
@@ -444,21 +998,21 @@ const page = (b, geo, variant = 'a') => {
       <div class="mq-row"><span class="mq-n">3</span><div><p class="mq-t">${S.step3}</p><p class="mq-s">${pick('step3sub','step3subNoAmount')}</p></div></div>
     </div>`;
 
-  // C · CONVERSATIONAL FAQ — objection-first, for cold sceptical traffic. Rebuilt to A's caliber:
-  // keeps A's signature wordmark lockup (2.1rem mark over a .28em-letterspaced label) so it reads as
-  // the same brand, then answers before it asks. Native <details>, no JS.
-  const cardC = `    <div class="badge"><span class="dot"></span>${badge}</div>
-    <div class="logo-wrap">
-      <div class="logo-mark">${b.wordmark}</div>
-      <div class="logo-sub">${V.sub}</div>
+  // C · CONVERSATIONAL FAQ — objection-first. Rebuilt 2026-07-30: it previously reused A's centred
+  // badge/wordmark/REWARD/figure lockup, which made it read as A with dropdowns rather than its own
+  // page. Now it LEADS ON THE QUESTION, left-aligned, with the figure inline in the answer instead
+  // of set as a display number. A is centred and figure-first; B is a full-bleed ink marquee; C is
+  // left-ranged editorial on white. The dropdowns themselves are unchanged.
+  const cardC = `    <div class="qa-top">
+      <span class="qa-mark">${b.wordmark}</span>
+      <span class="qa-chip">${badge}</span>
     </div>
-    ${amt ? `<div class="qa-amt" data-geo-amount>${amt}</div>` : ''}
-    <p class="amount-sub">${fill(S.amountSubByKind[b.kind], V)}</p>
+    <h1 class="qa-lede">${S.cLede}</h1>
+    <p class="qa-ans">${pick('cAnswer','cAnswerNoAmount')}</p>
 
     <!-- Rendered only when __STATS__ is supplied. Empty by default - see NOTES.md -->
     <div class="stats" id="statsBar" hidden></div>
 
-    <p class="qa-intro">${S.cIntro}</p>
     <div class="qa">
       <details open><summary>${S.cQ1}</summary><p class="qa-a">${pick('cA1','cA1NoAmount')}</p></details>
       <details><summary>${S.cQ2}</summary><p class="qa-a">${pick('cA2','cA2NoAmount')}</p></details>
@@ -482,6 +1036,10 @@ const page = (b, geo, variant = 'a') => {
 .mq{background:${t.ink};color:${t.bg};margin:-1.1rem -1rem 1.4rem;padding:3rem 1.4rem 2.3rem;text-align:left}
 .mq-tag{font-size:.63rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.55;margin-bottom:1.4rem}
 .mq-amt{font-size:5rem;font-weight:900;line-height:.88;letter-spacing:-.05em;overflow-wrap:anywhere}
+/* THE NO-FIGURE HERO. B is amount-led; a brand that quotes no sum (Prograd — Monetise's "No False
+   Earning Claims" restriction) would otherwise render an empty ink block. Words need a smaller size,
+   looser tracking and a measure that a 5rem numeral does not. */
+.mq-lede{font-size:2.6rem;font-weight:900;line-height:1.02;letter-spacing:-.035em;max-width:11ch;overflow-wrap:anywhere}
 .mq-sub{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.45;margin-top:.9rem;opacity:.62;max-width:17rem}
 .mq-mech{margin-top:2rem;text-align:left}
 .mq-row{display:flex;gap:1rem;align-items:flex-start;padding:.95rem 0;border-top:1px solid ${t.line}}
@@ -490,10 +1048,19 @@ const page = (b, geo, variant = 'a') => {
 .mq-t{font-size:.9rem;font-weight:700;line-height:1.3}
 .mq-s{font-size:.78rem;color:${t.muted};line-height:1.45;margin-top:.18rem}
 @media (min-width:26rem){.mq-amt{font-size:5.6rem}}` : variant === 'c' ? `
-/* The figure is present but demoted — this page argues before it tempts. */
-.qa-amt{font-size:2.6rem;font-weight:900;line-height:1;letter-spacing:-.035em;margin-top:.9rem}
-.qa-intro{font-size:.62rem;font-weight:800;letter-spacing:.24em;text-transform:uppercase;color:${t.muted};text-align:left;margin:2.1rem 0 .1rem}
-.qa{text-align:left}
+/* Left-ranged on white. A is centred, B is a full-bleed ink marquee — C's whole differentiator is
+   that nothing is centred and the figure never becomes a display number. */
+.card{text-align:left}
+.qa-top{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin-bottom:1.7rem}
+.qa-mark{font-size:1.3rem;font-weight:600;letter-spacing:-.02em;color:${t.ink};line-height:1}
+.qa-chip{font-size:.55rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  background:${t.tint};color:${t.muted};padding:.32rem .5rem;border-radius:3px;line-height:1}
+/* The objection IS the headline. overflow-wrap so a long localisation can never push the page wide. */
+.qa-lede{font-size:2.05rem;font-weight:800;line-height:1.08;letter-spacing:-.038em;overflow-wrap:anywhere;min-width:0}
+.qa-ans{font-size:.9rem;line-height:1.62;color:${t.muted};margin-top:.95rem}
+/* the figure, inline — emphasis by weight and ink, never by scale */
+.qa-ans b{color:${t.ink};font-weight:800}
+.qa{margin-top:2.1rem}
 .qa details{border-top:1px solid ${t.line}}
 .qa details:last-child{border-bottom:1px solid ${t.line}}
 .qa summary{list-style:none;display:flex;align-items:flex-start;gap:.9rem;padding:1.05rem 0;font-size:.93rem;font-weight:700;line-height:1.35;cursor:pointer}
