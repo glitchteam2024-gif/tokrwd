@@ -2,7 +2,7 @@
 /**
  * SAMMY'S Apple Cash $750 lander — an OPERATOR-SUPPLIED design, wired onto our tracking.
  *
- *   node _lp-generator/sammy-acash.js --clones 30
+ *   node _lp-generator/sammy-acash.js --clones 100
  *
  * WHAT THIS IS
  * Sammy sent Migi a finished HTML page and wants to run his own ads to it instead of our standard
@@ -48,7 +48,7 @@ const path = require('path');
 const SOURCE = fs.readFileSync(path.join(__dirname, 'sammy-acash-source.html'), 'utf8');
 
 const CANON_DIR = 'ACSM';          // ACSM/US/index.html
-const FAMILY    = 'AS50';          // AS50/US1..US30
+const FAMILY    = 'AS50';          // AS50/US1..US100 — one clone per affiliate slot
 const GEO       = 'US';
 
 /**
@@ -57,12 +57,20 @@ const GEO       = 'US';
  * It must equal the `slug` on the landing_pages row Migi assigns to Sammy, or the click 404s. His
  * page is Apple Cash $750 US, so it defaults to the standing Apple Cash US door.
  *
- * ⚠️ The repo currently emits THREE Apple Cash slugs — `applecash-us`, `-us-b`, `-us-c` — one per
- * page structure. If the row Sammy is on carries `-b` or `-c`, change this ONE line and re-run.
- * Getting it wrong is silent from the page's side: the CTA looks perfect and the click dies at the
- * door with nothing on the page to indicate it.
+ * Apple Cash already has THREE house designs, each its own landing_pages row with its own slug and
+ * its own 100-clone slice: `applecash-us` (AC50), `-us-b` (AC51), `-us-c` (AC52). Sammy's page is a
+ * FOURTH design in that same picker, so it gets its OWN slug rather than borrowing design A's.
+ *
+ * Reusing `applecash-us` would have worked on day one — that door is already live — but every one
+ * of Sammy's clicks would have reported under design A, blended with everyone else running AC50,
+ * and there would be no way to tell his page's performance from theirs. Since a landing_pages row
+ * has to be created either way for the page to appear in his picker at all, the dedicated slug
+ * costs nothing and keeps the numbers separable.
+ *
+ * ⚠️ This slug must MATCH the slug on the row Migi creates, or the click dies at the door. That
+ * failure is silent from the page's side: the CTA looks perfect and nothing on the page shows it.
  */
-const DOOR_SLUG = 'applecash-us';
+const DOOR_SLUG = 'applecash-us-sammy';
 const DOOR = `https://sprktrax.org/api/link/${DOOR_SLUG}`;
 
 /** Claims on the page that nothing in our possession substantiates. Printed on every run. */
@@ -178,7 +186,7 @@ function page() {
 
 const argv = process.argv.slice(2);
 const ci = argv.indexOf('--clones');
-const CLONES = ci > -1 ? parseInt(argv[ci + 1], 10) : 30;
+const CLONES = ci > -1 ? parseInt(argv[ci + 1], 10) : 100;   // matches AC50/AC51/AC52
 if (!Number.isFinite(CLONES) || CLONES < 1) { console.error('--clones must be a positive integer'); process.exit(1); }
 
 const repoRoot = path.join(__dirname, '..');
