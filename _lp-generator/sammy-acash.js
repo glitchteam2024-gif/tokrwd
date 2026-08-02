@@ -144,7 +144,10 @@ function page() {
   // ── 3. Footer legal links: his were href="#" ───────────────────────────────────────────────
   h = sub(h,
     '<span class="links"><a href="#">Terms &amp; Conditions</a><a href="#">Privacy Policy</a></span>',
-    '<span class="links"><a href="/Rewards/terms.html">Terms &amp; Conditions</a><a href="/Rewards/privacy.html">Privacy Policy</a></span>');
+    // Extension-less on purpose: vercel.json sets cleanUrls:true, so /Rewards/terms.html 308s to
+    // /Rewards/terms. Linking the .html form works but spends a redirect on a legal link that ad
+    // reviewers fetch — link the destination directly.
+    '<span class="links"><a href="/Rewards/terms">Terms &amp; Conditions</a><a href="/Rewards/privacy">Privacy Policy</a></span>');
 
   // ── Shared ttclid backfill, canonical on every lander in this repo ─────────────────────────
   h = sub(h, '</body>',
