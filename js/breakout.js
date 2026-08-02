@@ -53,7 +53,7 @@
    * ad spend), to hit /api/*, or to point at /pre itself and loop forever.
    */
   var ALLOWED_ROOTS = [
-    '50fc', '50fcii', '50tu', 'ac50', 'acash', 'af50', 'ak50', 'ap50', 'apay1k',
+    '50fc', '50fcii', '50tu', 'ac50', 'acash', 'acsm', 'as50', 'af50', 'ak50', 'ap50', 'apay1k',
     'ac51', 'ac52', 'af51', 'af52', 'ak51', 'ak52', 'ap51', 'ap52',
     'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
     'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
