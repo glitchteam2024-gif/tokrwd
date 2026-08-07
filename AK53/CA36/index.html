@@ -203,12 +203,14 @@ h1,h2,.fig{overflow-wrap:anywhere;min-width:0}
 /* No .art element on this structure. The other three carry the tile's halftone arc as a page
    background; behind a real card face it just read as stray dots. The arc CSS still ships (it is
    shared) but nothing matches it here. */
-.cardwrap{border-radius:var(--radius-lg);overflow:hidden;
+.cardwrap{border-radius:var(--radius-lg);overflow:hidden}
+/* The placeholder paints ONLY when there is no art. Putting it on .cardwrap unconditionally meant
+   a green halftone box flashed on every cold load and was then covered by the card — the worst
+   possible first frame on paid traffic. It also holds a card-shaped box so page height is stable. */
+.cardwrap--empty{aspect-ratio:1.59;
   background-image:radial-gradient(circle at center,var(--strip-dots) 1.1px,transparent 1.2px),
     var(--strip-fallback);
   background-size:13px 13px,auto}
-/* Only when no art is supplied: hold a card-shaped box so the page height is stable either way. */
-.cardwrap--empty{aspect-ratio:1.59}
 .cardimg{display:block;width:100%;height:auto}
 .cardimg[hidden]{display:none}
 
