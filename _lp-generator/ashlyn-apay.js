@@ -51,6 +51,9 @@ const path = require('path');
 
 const SOURCE = fs.readFileSync(path.join(__dirname, 'ashlyn-apay-source.html'), 'utf8');
 
+/** OUR project's anon key. Public by design — RLS is the control, see the patch below. */
+const OUR_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeWF3aGhpbW11enJ5eGpuam5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDU4NjcsImV4cCI6MjA5NDcyMTg2N30.GVKRI32R72B6fXpDyhSZwuXhs5ucHBHpw14_0LVbUXs';
+
 const CANON_DIR = 'ASHL';                 // ASHL/US/index.html
 const FAMILY    = 'AH50';                 // AH50/US1..US100 — one clone per affiliate slot
 const GEO       = 'US';
@@ -141,7 +144,9 @@ function page() {
         return url;
       }
 
-${stateAnchor}`;
+      // pendingInsert added: the lead insert is fired without being awaited, and the submit handler
+      // has to be able to wait on it. See createRecord / handleSubmitEmail below.
+      const state = { step: 'q1', answers: {}, recordId: null, submitting: false, pendingInsert: null };`;
   h = sub(h, stateAnchor, wiring);
 
   // ── The email step hands off to the door instead of dead-ending ────────────────────────────
@@ -158,6 +163,10 @@ ${stateAnchor}`;
         // eaten paid clicks. Record the lead if we can, then hand off either way: a lead we failed
         // to store is a bad day, a paid click that never reached the offer is money already spent.
         try {
+          // The insert is fired from goToStep() without being awaited, so on a fast click-through it
+          // can still be in flight here. Await it first or this update races ahead of the row it is
+          // meant to find, matches nothing, and returns 204 as if it worked.
+          if (state.pendingInsert) { try { await state.pendingInsert; } catch (e) { /* logged there */ } }
           const { error } = await supabase.from('survey_responses').update({ email, completed: true }).eq('id', state.recordId);
           if (error) console.error('lead capture failed, continuing to the offer:', error);
         } catch (e) {
@@ -168,6 +177,78 @@ ${stateAnchor}`;
         $('continueLabel').textContent = 'Continue';
         window.location.href = offerUrl();`;
   h = sub(h, oldSubmit, newSubmit);
+
+  // ── Lead capture moved to OUR Supabase project ─────────────────────────────────────────────
+  // Her page posted every visitor's email and survey answers to jjdpumaccvbsktotcwgc.supabase.co —
+  // an outside project we cannot read, delete from, or answer a data request about. Migi's call
+  // 2026-08-04: bring it in-house. Now writes to ecyawhhimmuzryxjnjng, our own project.
+  //
+  // The anon key below is PUBLIC by design (it ships in page source); the RLS policies on
+  // survey_responses are what actually protect the data:
+  //   INSERT  allowed
+  //   UPDATE  allowed only while completed = false, so a finished lead cannot be rewritten
+  //   SELECT  NO POLICY AT ALL — the anon key cannot read a single row back, so it can never be
+  //           used to harvest the email list.
+  h = sub(h, "const SUPABASE_URL = 'https://jjdpumaccvbsktotcwgc.supabase.co';",
+             "const SUPABASE_URL = 'https://ecyawhhimmuzryxjnjng.supabase.co';");
+  h = h.replace(/const SUPABASE_ANON_KEY = '[^']+';/,
+                "const SUPABASE_ANON_KEY = '" + OUR_ANON_KEY + "';");
+  never(h, 'jjdpumaccvbsktotcwgc', 'the third-party project must be gone');
+  must(h, 'ecyawhhimmuzryxjnjng.supabase.co', 1);
+
+  // The row id is minted CLIENT-SIDE so the insert never needs `.select()`. That is what lets the
+  // anon role have no SELECT policy at all — with insert().select() PostgREST would need read
+  // permission on the returned row, and any read policy broad enough to allow that is broad enough
+  // to dump every email in the table.
+  const oldCreate = `        const { data, error } = await supabase
+          .from('survey_responses')
+          .insert({
+            q1_shop_online: state.answers.q1 ?? null,
+            q2_use_reward: state.answers.q2 ?? null,
+            q3_shop_frequency: state.answers.q3 ?? null,
+            reward: \`applepay\${REWARD_VALUE}us\`,
+            flow_id: getQueryParam('Flow'),
+            affsecid: getQueryParam('affsecid'),
+            completed: false,
+          })
+          .select('id')
+          .maybeSingle();
+        if (error) { console.error(error); return; }
+        if (data) state.recordId = data.id;`;
+  const newCreate = `        // Mint the id here, so the insert needs no .select() and the anon role needs no read.
+        const newId = (crypto.randomUUID ? crypto.randomUUID()
+          : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+              const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            }));
+        // Claim the id BEFORE awaiting the insert. The id is minted here, so it is known
+        // immediately — and a visitor who clicks straight through (answer, answer, answer, Quick
+        // Start, submit) can reach the email step before this insert resolves. Setting recordId
+        // afterwards left it null at submit time, the update matched no row, and the email was
+        // silently dropped while the page still redirected happily. Measured, not theoretical.
+        state.recordId = newId;
+        state.pendingInsert = supabase
+          .from('survey_responses')
+          .insert({
+            id: newId,
+            q1_shop_online: state.answers.q1 ?? null,
+            q2_use_reward: state.answers.q2 ?? null,
+            q3_shop_frequency: state.answers.q3 ?? null,
+            reward: \`applepay\${REWARD_VALUE}us\`,
+            flow_id: getQueryParam('Flow'),
+            affsecid: getQueryParam('affsecid'),
+            // The attribution wire, so a lead can be tied back to the affiliate and creative that
+            // produced it. Her original stored only Flow/affsecid, which identify neither.
+            s1: doorQ.get('s1') || null,
+            s2: doorQ.get('s2') || null,
+            s3: doorQ.get('s3') || null,
+            ttclid: doorQ.get('ttclid') || null,
+            completed: false,
+          });
+        const { error } = await state.pendingInsert;
+        if (error) console.error('lead insert failed, continuing:', error);`;
+  h = sub(h, oldCreate, newCreate);
+  must(h, 'const newId =', 1);
+  never(h, ".select('id')", 'the insert must not read back — anon has no SELECT policy');
 
   // ── The cloaking canary: `display:none !important` ─────────────────────────────────────────
   // Her step-toggling utility shipped as `.hidden { display: none !important; }`. That exact string
@@ -181,6 +262,25 @@ ${stateAnchor}`;
   h = sub(h, '.hidden { display: none !important; }', '.hidden.hidden { display: none; }');
   never(h, 'display: none !important', 'trips the blank-page cloak canary in _tracking-audit check 6');
   must(h, '.hidden.hidden { display: none; }', 1);
+
+  // ── tokrwd.co branding: drop the Bolt scaffold leftovers ───────────────────────────────────
+  // The og:image was still bolt.new's default, so every share preview of her page showed Bolt's
+  // logo. Point it at our own domain instead (og:image must be ABSOLUTE — scrapers do not resolve
+  // relative URLs).
+  h = sub(h, '<meta property="og:image" content="https://bolt.new/static/og_default.png" />',
+             '<meta property="og:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png" />');
+  h = sub(h, '<meta name="twitter:image" content="https://bolt.new/static/og_default.png" />',
+             '<meta name="twitter:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png" />');
+  never(h, 'bolt.new', 'the Bolt scaffold defaults must not ship');
+
+  // The consent line named only UpLevel's policies. Those still govern the OFFER and stay exactly
+  // as she wrote them — but the email now lands in OUR database, so OUR privacy policy has to be
+  // named too. Adding it, rather than swapping theirs out: replacing UpLevel's terms would
+  // misrepresent what the visitor is agreeing to for the offer itself.
+  h = sub(h, 'and site visit recordation by TrustedForm and Jornaya.',
+             'the tokrwd <a href="/Rewards/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, '
+             + 'and site visit recordation by TrustedForm and Jornaya.');
+  must(h, '/Rewards/privacy', 1);
 
   // ── Shared ttclid backfill, canonical on every lander in this repo ─────────────────────────
   h = sub(h, '</body>',

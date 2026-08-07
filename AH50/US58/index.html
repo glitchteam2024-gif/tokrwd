@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Apple Pay Survey Landing Page</title>
-    <meta property="og:image" content="https://bolt.new/static/og_default.png" />
+    <meta property="og:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png" />
+    <meta name="twitter:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -238,7 +238,7 @@
               <span id="continueLabel">Continue</span>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
-            <p class="subtext">By clicking Continue below, I agree to email marketing, the <a href="https://contact.uplevelrewards.com/policies/terms" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a> (which include mandatory arbitration), <a href="https://contact.uplevelrewards.com/policies/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and site visit recordation by TrustedForm and Jornaya.</p>
+            <p class="subtext">By clicking Continue below, I agree to email marketing, the <a href="https://contact.uplevelrewards.com/policies/terms" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a> (which include mandatory arbitration), <a href="https://contact.uplevelrewards.com/policies/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, the tokrwd <a href="/Rewards/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and site visit recordation by TrustedForm and Jornaya.</p>
           </div>
 
           <!-- Done step -->
@@ -264,8 +264,8 @@
     <script type="module">
       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-      const SUPABASE_URL = 'https://jjdpumaccvbsktotcwgc.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqZHB1bWFjY3Zic2t0b3Rjd2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNDE5OTcsImV4cCI6MjEwMTYxNzk5N30.qq7b2aEk31Vk-pN3TidrIvyAIgIKMCprD6C1CW3R3dU';
+      const SUPABASE_URL = 'https://ecyawhhimmuzryxjnjng.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeWF3aGhpbW11enJ5eGpuam5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDU4NjcsImV4cCI6MjA5NDcyMTg2N30.GVKRI32R72B6fXpDyhSZwuXhs5ucHBHpw14_0LVbUXs';
       const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const REWARD_VALUE = 750;
@@ -310,7 +310,9 @@
         return url;
       }
 
-      const state = { step: 'q1', answers: {}, recordId: null, submitting: false };
+      // pendingInsert added: the lead insert is fired without being awaited, and the submit handler
+      // has to be able to wait on it. See createRecord / handleSubmitEmail below.
+      const state = { step: 'q1', answers: {}, recordId: null, submitting: false, pendingInsert: null };
 
       const $ = (id) => document.getElementById(id);
       const arrowSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
@@ -359,21 +361,37 @@
 
       async function createRecord() {
         if (state.recordId) return;
-        const { data, error } = await supabase
+        // Mint the id here, so the insert needs no .select() and the anon role needs no read.
+        const newId = (crypto.randomUUID ? crypto.randomUUID()
+          : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+              const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            }));
+        // Claim the id BEFORE awaiting the insert. The id is minted here, so it is known
+        // immediately — and a visitor who clicks straight through (answer, answer, answer, Quick
+        // Start, submit) can reach the email step before this insert resolves. Setting recordId
+        // afterwards left it null at submit time, the update matched no row, and the email was
+        // silently dropped while the page still redirected happily. Measured, not theoretical.
+        state.recordId = newId;
+        state.pendingInsert = supabase
           .from('survey_responses')
           .insert({
+            id: newId,
             q1_shop_online: state.answers.q1 ?? null,
             q2_use_reward: state.answers.q2 ?? null,
             q3_shop_frequency: state.answers.q3 ?? null,
             reward: `applepay${REWARD_VALUE}us`,
             flow_id: getQueryParam('Flow'),
             affsecid: getQueryParam('affsecid'),
+            // The attribution wire, so a lead can be tied back to the affiliate and creative that
+            // produced it. Her original stored only Flow/affsecid, which identify neither.
+            s1: doorQ.get('s1') || null,
+            s2: doorQ.get('s2') || null,
+            s3: doorQ.get('s3') || null,
+            ttclid: doorQ.get('ttclid') || null,
             completed: false,
-          })
-          .select('id')
-          .maybeSingle();
-        if (error) { console.error(error); return; }
-        if (data) state.recordId = data.id;
+          });
+        const { error } = await state.pendingInsert;
+        if (error) console.error('lead insert failed, continuing:', error);
       }
 
       function goToStep() {
@@ -396,6 +414,10 @@
         // eaten paid clicks. Record the lead if we can, then hand off either way: a lead we failed
         // to store is a bad day, a paid click that never reached the offer is money already spent.
         try {
+          // The insert is fired from goToStep() without being awaited, so on a fast click-through it
+          // can still be in flight here. Await it first or this update races ahead of the row it is
+          // meant to find, matches nothing, and returns 204 as if it worked.
+          if (state.pendingInsert) { try { await state.pendingInsert; } catch (e) { /* logged there */ } }
           const { error } = await supabase.from('survey_responses').update({ email, completed: true }).eq('id', state.recordId);
           if (error) console.error('lead capture failed, continuing to the offer:', error);
         } catch (e) {
