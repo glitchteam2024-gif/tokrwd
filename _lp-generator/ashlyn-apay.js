@@ -187,12 +187,25 @@ function page() {
   // survey_responses are what actually protect the data:
   //   INSERT  allowed
   //   UPDATE  allowed only while completed = false, so a finished lead cannot be rewritten
-  //   SELECT  NO POLICY AT ALL — the anon key cannot read a single row back, so it can never be
-  //           used to harvest the email list.
+  //   SELECT  policy is permissive, but anon's COLUMN grant is `id` alone — so it can find a row
+  //           by id and nothing else. `?select=email` returns 42501.
+  //   anon holds INSERT + UPDATE only. DELETE and TRUNCATE were revoked: TRUNCATE is not
+  //           row-level-security bound, so no policy could ever have stopped it.
+  //
+  // ⚠️ DO NOT "simplify" this to having NO SELECT policy. That was the first design and it silently
+  // ate every lead: an UPDATE ... WHERE id = X still has to SCAN for the row, an invisible row
+  // matches zero, and PostgREST answers 204 as though it worked. See sprk-lander-lead-capture.
   h = sub(h, "const SUPABASE_URL = 'https://jjdpumaccvbsktotcwgc.supabase.co';",
              "const SUPABASE_URL = 'https://ecyawhhimmuzryxjnjng.supabase.co';");
-  h = h.replace(/const SUPABASE_ANON_KEY = '[^']+';/,
-                "const SUPABASE_ANON_KEY = '" + OUR_ANON_KEY + "';");
+  // Asserted, not a bare replace. never('jjdpumaccvbsktotcwgc') does NOT cover this: the project ref
+  // lives base64-encoded inside the JWT payload, so a reflow of her source that broke this regex
+  // would ship OUR url with HER key — every write 401s, 100% lead loss, visible only in a console
+  // nobody is watching. Count the swap explicitly.
+  const KEY_RE = /const SUPABASE_ANON_KEY = '[^']+';/g;
+  const keyHits = (h.match(KEY_RE) || []).length;
+  if (keyHits !== 1) throw new Error(`expected exactly 1 SUPABASE_ANON_KEY assignment, found ${keyHits}`);
+  h = h.replace(KEY_RE, "const SUPABASE_ANON_KEY = '" + OUR_ANON_KEY + "';");
+  must(h, OUR_ANON_KEY, 1);
   never(h, 'jjdpumaccvbsktotcwgc', 'the third-party project must be gone');
   must(h, 'ecyawhhimmuzryxjnjng.supabase.co', 1);
 
@@ -285,18 +298,38 @@ function page() {
       };
       const SB_REST = SUPABASE_URL + '/rest/v1/survey_responses';
 
+      // Every capture call is on a HARD budget. "Best effort then go" only holds for a capture that
+      // FAILS — a capture that HANGS is worse, because the submit handler awaits it before setting
+      // location.href, so a stalled request parks the visitor on the email screen indefinitely and
+      // the paid click is lost. Same reasoning and roughly the same budget as api/_lib/kv.js, which
+      // puts a 250ms abort on anything sitting on the click path.
+      const SB_TIMEOUT_MS = 2500;
+      function sbFetch(url, init) {
+        const ac = new AbortController();
+        const t = setTimeout(() => ac.abort(), SB_TIMEOUT_MS);
+        return fetch(url, Object.assign({}, init, { signal: ac.signal }))
+          .finally(() => clearTimeout(t));
+      }
+
       async function sbInsert(row) {
         try {
-          const r = await fetch(SB_REST, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(row) });
+          const r = await sbFetch(SB_REST, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(row) });
           return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
         } catch (e) { return { error: e }; }
       }
       async function sbUpdateById(id, patch) {
         if (!id) return { error: { message: 'no record id' } };
         try {
-          const r = await fetch(SB_REST + '?id=eq.' + encodeURIComponent(id),
+          const r = await sbFetch(SB_REST + '?id=eq.' + encodeURIComponent(id),
             { method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify(patch) });
-          return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
+          if (!r.ok) return { error: { status: r.status, body: await r.text().catch(() => '') } };
+          // A PATCH that matched NOTHING is a 204 too — PostgREST reports the count in content-range
+          // ('*/0' means zero rows). Without this check a lost lead is indistinguishable from a
+          // saved one: that is exactly how the missing-SELECT-policy bug hid, and the same shape
+          // recurs whenever the insert failed and this update targets a row that never existed.
+          const range = r.headers.get('content-range') || '';
+          if (range.slice(-2) === '/0') return { error: { message: 'update matched no row', range: range } };
+          return { error: null };
         } catch (e) { return { error: e }; }
       }`);
   never(h, 'cdn.jsdelivr.net', 'the CDN import must not ship — it sits on the money path');
@@ -363,6 +396,19 @@ function page() {
     ['display:none!important', 'the blank-page cloak signature'],
     ['musical_ly', 'in-app UA sniffing'],
   ]) never(h, pat, why);
+
+  // ── The emitted <script type="module"> must actually PARSE ─────────────────────────────────
+  // Every assertion above tests STRINGS, and a string test cannot tell that the JavaScript is
+  // broken. A mangled regex escape once shipped `//0$/` — a SyntaxError that kills the whole
+  // module, so the survey never renders, nothing is captured and the door hand-off never runs. The
+  // page still looks perfect until someone clicks it. Parse it here instead of finding out live.
+  const mod = /<script type="module">([\s\S]*?)<\/script>/.exec(h);
+  if (!mod) throw new Error('emitted page has no <script type="module"> block');
+  try {
+    new Function(mod[1]);
+  } catch (e) {
+    throw new Error(`emitted module does not parse: ${e.message}`);
+  }
 
   return h;
 }

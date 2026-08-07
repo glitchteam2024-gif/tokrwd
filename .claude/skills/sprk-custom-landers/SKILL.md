@@ -758,15 +758,20 @@ taught that Sammy's did not:
    not her source: `.hidden.hidden { display: none; }` — specificity instead of the flag, zero
    behavioural difference. Verify the computed style is still `none` afterwards.
 
-3. **A LEAD-CAPTURE PAGE MAY BE WRITING TO SOMEBODY ELSE'S DATABASE.** Hers posts every visitor's
+3. **A LEAD-CAPTURE PAGE MAY BE WRITING TO SOMEBODY ELSE'S DATABASE.** Hers posted every visitor's
    email and survey answers to `jjdpumaccvbsktotcwgc.supabase.co` — **not our project** (ours is
    `ecyawhhimmuzryxjnjng`) — with an anon key embedded in the page, from a page on `www.tokrwd.co`.
-   We cannot read it, delete from it, or answer a data request about it. Left in place as the
-   operator's call, printed on every generator run. **Check the Supabase/API host in any supplied
-   page that collects PII**, against our own project ref.
+   We could not read it, delete from it, or answer a data request about it. **Check the Supabase/API
+   host in any supplied page that collects PII**, against our own project ref.
+
+   ➜ **Migi's call 2026-08-04: moved in-house.** Everything about a supplied page that COLLECTS DATA
+   now lives in the sibling skill **`sprk-lander-lead-capture`** — the `survey_responses` table, the
+   write-only RLS + column-grant shape (and the missing-SELECT-policy version that silently eats
+   every lead), the client-minted-id race, dropping the jsdelivr import off the money path, and what
+   a lead row must carry to be attributable. **Do not re-derive any of it here.**
 
    Related: her submit handler `return`ed on a database error. With a door wired in that means a
-   THIRD-PARTY outage silently eating paid clicks. Any hand-off must be **best-effort-then-go** —
+   database outage silently eating paid clicks. Any hand-off must be **best-effort-then-go** —
    attempt the write, log it, send the visitor either way.
 
 ## 6. THE TRAPS

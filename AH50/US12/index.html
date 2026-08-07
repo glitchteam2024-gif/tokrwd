@@ -276,18 +276,38 @@
       };
       const SB_REST = SUPABASE_URL + '/rest/v1/survey_responses';
 
+      // Every capture call is on a HARD budget. "Best effort then go" only holds for a capture that
+      // FAILS — a capture that HANGS is worse, because the submit handler awaits it before setting
+      // location.href, so a stalled request parks the visitor on the email screen indefinitely and
+      // the paid click is lost. Same reasoning and roughly the same budget as api/_lib/kv.js, which
+      // puts a 250ms abort on anything sitting on the click path.
+      const SB_TIMEOUT_MS = 2500;
+      function sbFetch(url, init) {
+        const ac = new AbortController();
+        const t = setTimeout(() => ac.abort(), SB_TIMEOUT_MS);
+        return fetch(url, Object.assign({}, init, { signal: ac.signal }))
+          .finally(() => clearTimeout(t));
+      }
+
       async function sbInsert(row) {
         try {
-          const r = await fetch(SB_REST, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(row) });
+          const r = await sbFetch(SB_REST, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(row) });
           return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
         } catch (e) { return { error: e }; }
       }
       async function sbUpdateById(id, patch) {
         if (!id) return { error: { message: 'no record id' } };
         try {
-          const r = await fetch(SB_REST + '?id=eq.' + encodeURIComponent(id),
+          const r = await sbFetch(SB_REST + '?id=eq.' + encodeURIComponent(id),
             { method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify(patch) });
-          return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
+          if (!r.ok) return { error: { status: r.status, body: await r.text().catch(() => '') } };
+          // A PATCH that matched NOTHING is a 204 too — PostgREST reports the count in content-range
+          // ('*/0' means zero rows). Without this check a lost lead is indistinguishable from a
+          // saved one: that is exactly how the missing-SELECT-policy bug hid, and the same shape
+          // recurs whenever the insert failed and this update targets a row that never existed.
+          const range = r.headers.get('content-range') || '';
+          if (range.slice(-2) === '/0') return { error: { message: 'update matched no row', range: range } };
+          return { error: null };
         } catch (e) { return { error: e }; }
       }
 
