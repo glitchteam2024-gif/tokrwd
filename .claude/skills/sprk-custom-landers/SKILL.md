@@ -211,6 +211,55 @@ the affiliate would only learn it was full after watching the 5s build animation
 Turning it off to hide a design from one affiliate pulls it from everyone AND stops auto-assign
 offering it — which is exactly why the hide lives on the junction instead.
 
+### ⚠️ RELEASE BEFORE YOU CLAIM — the trap that bit on Ashlyn (2026-08-04)
+
+**The picker switches designs release-then-claim. Raw SQL does not.** Inserting a bespoke assignment
+without archiving the affiliate's existing one leaves them with **two `status='active'` rows on the
+same offer**, and `resolveAffiliateOfferLinks` keys `by_offer[lp.offer_id]` inside a `forEach` with
+**no `.order()`** — so the last row iterated wins and which link they are served is undefined. They
+get the house design on one page load and their own page on the next, and nothing errors anywhere.
+
+Happened live: Ashlyn ended up on `applepay750-us` (slot 49) **and** `applepay750-us-ashlyn`.
+
+Always release in the same statement:
+
+```sql
+UPDATE landing_page_affiliates lpa SET status='archived'
+  FROM landing_pages lp
+ WHERE lpa.landing_page_id=lp.id AND lpa.user_id='<AUTH_USER_ID>'
+   AND lp.slug='<old-slug>' AND lpa.status='active';
+```
+
+`'archived'` rather than `DELETE`: it keeps the audit trail, and every filter in the codebase tests
+`status = 'active'`, so an archived row holds no slot and resolves nothing. Set `slot` on the new row
+too — `lpSlotLink(link, null)` returns the link unchanged so it *works*, but a NULL slot is
+inconsistent with rotation and with every other assignment.
+
+**Network-wide check, worth running after any hand-assignment:**
+
+```sql
+SELECT u.email, o.name, count(*), string_agg(lp.slug, ', ')
+  FROM landing_page_affiliates lpa
+  JOIN landing_pages lp ON lp.id=lpa.landing_page_id
+  JOIN offers o ON o.id=lp.offer_id
+  LEFT JOIN auth.users u ON u.id=lpa.user_id
+ WHERE lpa.status='active' GROUP BY u.email, o.name HAVING count(*)>1;
+```
+
+Clean as of 2026-08-04.
+
+### A single-tenant page is PRIVATE to its holder (shipped `935a17e`)
+
+`capacity = 1` now does double duty: the lock (`claimSlot` → `free=[]` → `full:true`) **and** the
+visibility rule. `get_offer_landing_pages` hides any `capacity === 1` row from everyone except the
+affiliate holding it, and hides an **unheld** one from everyone — a bespoke page is admin-assigned,
+never self-served.
+
+Before this, every other affiliate on the offer saw a card for somebody else's page parked at "At
+capacity" forever: clutter they could never act on, leaking whose page it is. The viewer's CURRENT
+design is always shown regardless of either rule (`id === golMineId` is checked first), because
+hiding it renders a picker with no "Your page" card and a gold "start a build" CTA.
+
 ### `status='hidden'` — hide one design from one affiliate (shipped `f97b2d5`)
 
 A `landing_page_affiliates` row whose `status` is `'hidden'` means *"do not offer THIS design to THIS
@@ -686,6 +735,39 @@ generator's assertions, `_tracking-audit.test.mjs` and the compliance read in §
 That last point is the reason it has not been done. It is Migi's call, not a default.
 
 ---
+
+## 5b. SECOND CASE STUDY — ASHLYN (2026-08-04), AND WHAT A SURVEY FUNNEL ADDS
+
+`_lp-generator/ashlyn-apay.js` · `ASHL/US` + `/ashurl` + `AH50/US1..US100` · door
+`applepay750-us-ashlyn` · Apple Pay $750 US · `ashlynn.brunelle@gmail.com`
+(auth `0ea40fbc-452a-420d-9f0c-d0ad5410312a`, aff 18).
+
+Her page is a 3-question survey → activating → email capture → "You're all set!". Three things it
+taught that Sammy's did not:
+
+1. **A SUPPLIED PAGE MAY HAVE NO OUTBOUND LINK AT ALL.** Not a broken CTA — *no* CTA. Grepping for
+   `location.href|location.replace|window.open|sprktrax|api/link` returned **zero matches**. The
+   funnel ended on a thank-you screen. She would have paid for every click and earned nothing, and
+   every dashboard would have read normally: clicks in, zero conversions, no error. **Run that grep
+   on every supplied file before anything else** — a dead end is harder to spot than a wrong link,
+   because nothing looks broken.
+
+2. **`display: none !important` FAILS THE BUILD.** Her step-toggling utility shipped as
+   `.hidden { display: none !important; }` — the exact signature of the blank-page cloak gate, so
+   `_tracking-audit` check 6 flagged all 102 files. The class is legitimate. Fix in the GENERATOR,
+   not her source: `.hidden.hidden { display: none; }` — specificity instead of the flag, zero
+   behavioural difference. Verify the computed style is still `none` afterwards.
+
+3. **A LEAD-CAPTURE PAGE MAY BE WRITING TO SOMEBODY ELSE'S DATABASE.** Hers posts every visitor's
+   email and survey answers to `jjdpumaccvbsktotcwgc.supabase.co` — **not our project** (ours is
+   `ecyawhhimmuzryxjnjng`) — with an anon key embedded in the page, from a page on `www.tokrwd.co`.
+   We cannot read it, delete from it, or answer a data request about it. Left in place as the
+   operator's call, printed on every generator run. **Check the Supabase/API host in any supplied
+   page that collects PII**, against our own project ref.
+
+   Related: her submit handler `return`ed on a database error. With a door wired in that means a
+   THIRD-PARTY outage silently eating paid clicks. Any hand-off must be **best-effort-then-go** —
+   attempt the write, log it, send the visitor either way.
 
 ## 6. THE TRAPS
 
