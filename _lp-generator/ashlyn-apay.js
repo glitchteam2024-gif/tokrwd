@@ -1,0 +1,257 @@
+#!/usr/bin/env node
+/**
+ * ASHLYN'S Apple Pay $750 survey lander — an OPERATOR-SUPPLIED design, wired onto our door.
+ *
+ *   node _lp-generator/ashlyn-apay.js --clones 100
+ *
+ * Same pattern as _lp-generator/sammy-acash.js: her file is saved BYTE-FOR-BYTE as
+ * `ashlyn-apay-source.html`, and this generator applies only ASSERTED patches on top, so her design
+ * survives intact and re-running is deterministic. See .claude/skills/sprk-custom-landers.
+ *
+ * ── THE ONE THING THAT MADE THIS PAGE UNRUNNABLE ─────────────────────────────────────────────
+ *
+ * IT NEVER REACHED THE OFFER. Not a broken link — there was no link. Her funnel is
+ *
+ *     q1 -> q2 -> q3 -> activating -> email -> "You're all set!"
+ *
+ * and "You're all set!" is the end. Grepping the source for location.href / location.replace /
+ * window.open / sprktrax / api/link returns NOTHING. A visitor answered three questions, handed over
+ * their email, read "Check your email for the next steps", and closed the tab. Ashlyn would have
+ * paid for every one of those clicks and earned nothing on any of them, and every dashboard would
+ * have looked normal — clicks in, zero conversions, no error anywhere.
+ *
+ * So the email step now hands off to the SPRK door. That is the only structural change.
+ *
+ * ── AND THE THING THAT WOULD HAVE EATEN CLICKS QUIETLY ───────────────────────────────────────
+ *
+ * Her submit handler `return`s on a Supabase error, leaving the visitor on the email screen. With
+ * the door wired in that would mean an outage in a THIRD-PARTY database silently costing us paid
+ * clicks. The hand-off is therefore best-effort-then-go: the write is attempted, its outcome is
+ * logged, and the visitor is sent to the door either way. A lead we failed to record is a bad day;
+ * a paid click that never reached the offer is money already spent.
+ *
+ * ── WHAT IS NOT CHANGED, AND WHAT YOU ARE BEING TOLD ABOUT EVERY RUN ─────────────────────────
+ *
+ * `jjdpumaccvbsktotcwgc.supabase.co` IS NOT OUR SUPABASE PROJECT (ours is ecyawhhimmuzryxjnjng).
+ * Every visitor's EMAIL ADDRESS and survey answers are inserted into that outside project, from a
+ * page served on www.tokrwd.co, using an anon key embedded in the page. This generator does not
+ * remove it — it is her funnel and the operator's call — but it prints it on every run, the same
+ * way _tracking-audit.test.mjs prints its EXCEPTIONS, so it cannot quietly become permanent.
+ *
+ * Worth knowing before deciding: we cannot see that project, cannot delete from it, and cannot
+ * answer a data request about it. The privacy policy the page links to is uplevelrewards', not ours.
+ *
+ * The claim copy is hers and unedited. Several lines are specific and checkable — "customers who
+ * received a $500 Reward only spent around $15", "within 6-10 days of registration" — which is
+ * BETTER than an invented round number, provided the network stands behind them. They read as
+ * lifted from UpLevel's own disclosures; confirm that before spend.
+ */
+const fs = require('fs');
+const path = require('path');
+
+const SOURCE = fs.readFileSync(path.join(__dirname, 'ashlyn-apay-source.html'), 'utf8');
+
+const CANON_DIR = 'ASHL';                 // ASHL/US/index.html
+const FAMILY    = 'AH50';                 // AH50/US1..US100 — one clone per affiliate slot
+const GEO       = 'US';
+const VANITY    = 'ashurl';               // /ashurl — Migi's naming, matching Sammy's /sasurl
+
+/**
+ * WHICH DOOR THIS PAGE FIRES.
+ *
+ * Must equal the `slug` on the landing_pages row created for her, or the click dies at the door —
+ * silent from the page's side. Apple Pay $750 US already has three house designs
+ * (applepay750-us / -b / -c); hers is a FOURTH, so it gets its own slug and its own reporting.
+ */
+const DOOR_SLUG = 'applepay750-us-ashlyn';
+const DOOR = `https://sprktrax.org/api/link/${DOOR_SLUG}`;
+
+/** Things in her page nothing in our possession substantiates or controls. Printed every run. */
+const CONCERNS = [
+  ['jjdpumaccvbsktotcwgc.supabase.co',
+   'NOT our Supabase project. Visitor EMAIL + survey answers are written into an outside database '
+   + 'from a page on www.tokrwd.co. We cannot read it, delete from it, or answer a data request '
+   + 'about it. DECIDE: keep, point at our own project, or drop the capture.'],
+  ['cdn.jsdelivr.net',
+   'the Supabase JS client is loaded from a third-party CDN at runtime. If jsdelivr is blocked or '
+   + 'down the module import throws, and with it every listener registered after it — including the '
+   + 'door hand-off. Self-host it under /js/ to remove that dependency from the money path.'],
+  ['fonts.googleapis.com',
+   'Google Fonts, loaded per visitor. Cosmetic, but it is a third-party request on a paid-traffic '
+   + 'page and an EU-visitor question. Self-host the woff2 if that matters.'],
+  ['bolt.new/static/og_default.png',
+   'the og:image is still the Bolt scaffold default — link previews of her page show Bolt branding.'],
+  ['spent around $15',
+   'a specific spend figure. Better than an invented round number IF UpLevel publishes it — '
+   + 'confirm it is theirs before running traffic.'],
+  ['within 6-10 days of registration',
+   'a specific delivery window, same caveat as above.'],
+];
+
+function sub(html, from, to, count = 1) {
+  const parts = html.split(from);
+  if (parts.length - 1 !== count) {
+    throw new Error(`ashlyn-apay-source.html: expected ${count} occurrence(s) of ${JSON.stringify(from.slice(0, 90))}, found ${parts.length - 1}`);
+  }
+  return parts.join(to);
+}
+function must(html, needle, count = 1) {
+  const n = html.split(needle).length - 1;
+  if (n !== count) throw new Error(`ashlyn-apay-source.html: expected ${count} x ${JSON.stringify(needle.slice(0, 60))}, found ${n}`);
+}
+function never(html, needle, why) {
+  if (html.includes(needle)) throw new Error(`emitted page must not contain ${JSON.stringify(needle)} — ${why}`);
+}
+
+function page() {
+  let h = SOURCE;
+
+  // ── The door builder, injected just above her state object ─────────────────────────────────
+  const stateAnchor = `      const state = { step: 'q1', answers: {}, recordId: null, submitting: false };`;
+  const wiring = `      // ---- Outbound: the SPRK tracking DOOR ----
+      // Her page had NO outbound link of any kind — the funnel ended on "You're all set!" and the
+      // visitor never reached the offer. The door mints the click_id, freezes the owner at click
+      // time, stamps the outbound subid wire and 302s to the real Apple Pay URL, which lives in the
+      // offer row and never appears in this page's source.
+      const DOOR = "${DOOR}";
+
+      // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account,
+      // ttclid). Her getQueryParam() read only Flow and affsecid, and only to store them.
+      const doorQ = new URLSearchParams(location.search);
+
+      // campid is the Carrd/Spartis name for the same value — promote it when s1 is absent.
+      if (!doorQ.get('s1') && doorQ.get('campid')) doorQ.set('s1', doorQ.get('campid'));
+
+      // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never
+      // fabricated; the door 404s an untagged click by design, and that is the real gate.
+      if (!doorQ.get('s1')) {
+        const mc = doorQ.get('mc_attr') || '', f = {};
+        mc.split('..').forEach((kv) => { const i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+        const d = f.e || f.c; if (d) doorQ.set('s1', d);
+      }
+
+      function offerUrl() {
+        // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network
+        // param, and lg routes the lander only.
+        const out = new URLSearchParams(doorQ.toString());
+        out.delete('s1'); out.delete('campid'); out.delete('lg');
+        const qs = out.toString(), s1 = doorQ.get('s1') || '';
+        let url = DOOR + (qs ? '?' + qs : '');
+        if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+        return url;
+      }
+
+${stateAnchor}`;
+  h = sub(h, stateAnchor, wiring);
+
+  // ── The email step hands off to the door instead of dead-ending ────────────────────────────
+  const oldSubmit = `        const { error } = await supabase.from('survey_responses').update({ email, completed: true }).eq('id', state.recordId);
+        state.submitting = false;
+        $('continueBtn').disabled = false;
+        $('continueLabel').textContent = 'Continue';
+        if (error) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.classList.remove('hidden'); return; }
+        state.step = 'done';
+        goToStep();`;
+
+  const newSubmit = `        // BEST EFFORT, THEN GO. Her original \`return\`ed on a Supabase error and left the visitor
+        // parked on this screen. That database is not ours, so an outage there would have silently
+        // eaten paid clicks. Record the lead if we can, then hand off either way: a lead we failed
+        // to store is a bad day, a paid click that never reached the offer is money already spent.
+        try {
+          const { error } = await supabase.from('survey_responses').update({ email, completed: true }).eq('id', state.recordId);
+          if (error) console.error('lead capture failed, continuing to the offer:', error);
+        } catch (e) {
+          console.error('lead capture threw, continuing to the offer:', e);
+        }
+        state.submitting = false;
+        $('continueBtn').disabled = false;
+        $('continueLabel').textContent = 'Continue';
+        window.location.href = offerUrl();`;
+  h = sub(h, oldSubmit, newSubmit);
+
+  // ── The cloaking canary: `display:none !important` ─────────────────────────────────────────
+  // Her step-toggling utility shipped as `.hidden { display: none !important; }`. That exact string
+  // is the signature of the blank-page cloak gate stripped from this repo on 2026-07-23, so
+  // _tracking-audit.test.mjs check 6 FAILS THE BUILD on it — verified: it flagged all 102 files.
+  //
+  // Her class is entirely legitimate (it hides the survey steps that are not current), so the fix
+  // is the one the skill documents: keep plain `display:none` and raise SPECIFICITY instead of
+  // reaching for the flag. `.hidden.hidden` doubles the selector weight, which beats anything a
+  // single class could set, with no behavioural difference at all.
+  h = sub(h, '.hidden { display: none !important; }', '.hidden.hidden { display: none; }');
+  never(h, 'display: none !important', 'trips the blank-page cloak canary in _tracking-audit check 6');
+  must(h, '.hidden.hidden { display: none; }', 1);
+
+  // ── Shared ttclid backfill, canonical on every lander in this repo ─────────────────────────
+  h = sub(h, '</body>',
+    '<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker\n'
+    + '     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->\n'
+    + '<script src="/js/ttclid.js" async></script>\n</body>');
+
+  // ── Invariants ─────────────────────────────────────────────────────────────────────────────
+  must(h, DOOR, 1);
+  must(h, 'offerUrl()', 2);                      // defined + called on the hand-off
+  must(h, 'window.location.href = offerUrl();', 1);
+  must(h, "id=\"continueBtn\"", 1);
+  must(h, "id=\"emailInput\"", 1);
+  never(h, "state.step = 'done';\n        goToStep();", 'the dead-end must be gone from the submit path');
+
+  // Her survey steps must survive intact — this is the design Migi asked to keep.
+  for (const id of ['giftCard', 'questionStep', 'activatingStep', 'emailStep', 'doneStep',
+                    'rewardAmount', 'progressBar', 'quickStartBtn']) {
+    must(h, `id="${id}"`, 1);
+  }
+
+  // No cloaking, same bar as every other page here (see the skill's NO-CLOAKING rule).
+  for (const [pat, why] of [
+    ['x-safari', 'scheme-jump breakout belongs only in pre/index.html + js/breakout.js'],
+    ['intent://', 'Android breakout belongs only in the prelander'],
+    ['__SUBID_OK', 'the blank-page SubID gate'],
+    ['document.write', 'the blank-page cloak gate'],
+    ['display:none!important', 'the blank-page cloak signature'],
+    ['musical_ly', 'in-app UA sniffing'],
+  ]) never(h, pat, why);
+
+  return h;
+}
+
+const argv = process.argv.slice(2);
+const ci = argv.indexOf('--clones');
+const CLONES = ci > -1 ? parseInt(argv[ci + 1], 10) : 100;   // matches the house slices
+if (!Number.isFinite(CLONES) || CLONES < 1) { console.error('--clones must be a positive integer'); process.exit(1); }
+
+const repoRoot = path.join(__dirname, '..');
+const html = page();
+
+fs.mkdirSync(path.join(repoRoot, CANON_DIR, GEO), { recursive: true });
+fs.writeFileSync(path.join(repoRoot, CANON_DIR, GEO, 'index.html'), html);
+
+// Vanity path, same reasoning as Sammy's /sasurl: a plain COPY, never a redirect — a redirect adds
+// a hop and bounces the query string through a rewrite where s1 can be lost. It carries no slot
+// number, so it is ONE shared URL and the numbered fan-out's anti-flag property does not apply to
+// it. Fine for one affiliate on her own link; do not hand this path to a second person.
+fs.mkdirSync(path.join(repoRoot, VANITY), { recursive: true });
+fs.writeFileSync(path.join(repoRoot, VANITY, 'index.html'), html);
+
+for (let n = 1; n <= CLONES; n++) {
+  const d = path.join(repoRoot, FAMILY, GEO + n);
+  fs.mkdirSync(d, { recursive: true });
+  fs.writeFileSync(path.join(d, 'index.html'), html);       // one buffer -> one md5 across the family
+}
+
+// Prune clones this config no longer emits, so the tree is a pure function of --clones.
+const famRoot = path.join(repoRoot, FAMILY);
+for (const name of fs.readdirSync(famRoot)) {
+  const m = /^([A-Z]{2})([0-9]+)$/.exec(name);
+  if (m && (m[1] !== GEO || Number(m[2]) > CLONES || Number(m[2]) < 1)) {
+    fs.rmSync(path.join(famRoot, name), { recursive: true, force: true });
+  }
+}
+
+console.log(`${CANON_DIR}/${GEO} + /${VANITY} + ${FAMILY}/${GEO}1..${GEO}${CLONES}   door=${DOOR_SLUG}   (${CLONES + 2} files, Ashlyn's supplied survey design)`);
+console.log(`\n  ⚠️  LEFT AS SUPPLIED — her design, Migi's call, not edited here. Printed every run so`);
+console.log(`      a deliberate carve-out cannot quietly become one nobody remembers agreeing to.\n`);
+for (const [needle, why] of CONCERNS) {
+  if (html.includes(needle)) console.log(`      • ${needle}\n          ${why}`);
+}
+console.log('');

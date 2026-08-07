@@ -4,13 +4,14 @@ description: >-
   How to give ONE affiliate their own landing page — host the HTML file they sent us, wire it onto
   our door, and lock it so nobody else can take it. Use whenever Migi says anything like "give
   <name> their own landing page", "he sent me his own HTML", "he wants to run his own ads to his
-  own page", "make it only his", "hide this design from everyone else", "reserve this page for
-  him", "he wants a custom domain", "can affiliates use their own domain", or names a bespoke
-  lander folder (ACSM, AS50, /sasurl). Covers the operator-supplied-lander generator pattern, the
-  three things a supplied HTML file can never ship with, the `landing_pages` +
-  `landing_page_affiliates` SQL, `self_serve` + `capacity=1` as the single-tenant lock,
-  per-affiliate design hiding, the whole picker / auto-assign / slot-rotation machinery it plugs into, and —
-  honestly — what does and does not exist today for CUSTOM DOMAINS (`lp_domains`).
+  own page", "make it only his", "hide this design from everyone else", "hide this design from
+  him", "reserve this page for him", "he wants a custom domain", "can affiliates use their own
+  domain", or names a bespoke lander folder (ACSM, AS50, /sasurl). Covers the
+  operator-supplied-lander generator pattern, the three things a supplied HTML file can never ship
+  with, the `landing_pages` + `landing_page_affiliates` SQL, `self_serve` + `capacity=1` as the
+  single-tenant lock, the per-affiliate `status='hidden'` row, the whole picker / auto-assign /
+  slot-rotation machinery it plugs into, and — honestly — what does and does not exist today for
+  CUSTOM DOMAINS (`lp_domains`).
   LIVING DOCUMENT: when a new affiliate gets a bespoke page, or the picker/assignment machinery
   changes, write it in here so the next session doesn't re-derive it.
 ---
@@ -28,15 +29,20 @@ Sibling skills: `tokrwd-landers` (lander architecture, the NO-CLOAKING rule, the
 `sprk-new-offer` (offer rows, door slugs, revshare), `sprk-affiliate-conv-debug` (their conversions
 look wrong afterwards).
 
-⚠️ **Verify every SPRK claim against `origin/main`, never the local working tree** — that checkout
-routinely sits on a stale branch. Everything below was checked against `origin/main` at **`b47731b`**
-and against **prod SQL**, on 2026-08-02.
+⚠️ **Verify every claim against `origin/main`, never a local working tree — in BOTH repos.** Measured
+2026-08-02: `~/Documents/GitHub/tokrwd` sat on `main`, **52 commits behind `origin/main`**, with no
+`_lp-generator/`, no `ACSM/`, no `AS50/` and no `sasurl/` in the tree at all — every command in §1
+fails there until it is fetched. The SPRK checkout drifts the same way, and this area moved twice on
+2026-08-02 alone. Every line number below was read at SPRKNetworkAds `origin/main` **`f97b2d5`** and
+tokrwd `origin/main` **`3587aa8`**; every DB fact was measured against **prod**, on 2026-08-02.
+**`f97b2d5` deleted `reservedView`** (shipped 18 minutes earlier in `b47731b`) and replaced it
+with the per-affiliate hide in §2 — if you find a session note citing `reservedView`, it is stale.
 
 ### The worked case this generalises from
 
 Sammy — `ssammyofficial18@gmail.com`, AffID 12, auth id `a42c2031-2aea-4ca8-8f2f-11d6f32a00d4` —
-sent Migi a finished HTML page and wanted to run his own ads to it instead of one of our three
-house designs, on **Rewards US - Cash Style - Apple Cash $750** (`510a0fa1-482a-40a4-b464-049e1653671e`).
+sent Migi a finished HTML page and wanted to run his own ads to it instead of one of our three house
+designs, on **Rewards US - Cash Style - Apple Cash $750** (`510a0fa1-482a-40a4-b464-049e1653671e`).
 
 Live result: `ACSM/US/index.html` + `AS50/US1..US100` + `/sasurl` in tokrwd (all 102 files one md5,
 `e33e85b7…`), `landing_pages` slug `applecash-us-sammy`, capacity **1**, `self_serve = true`,
@@ -53,18 +59,18 @@ Every step is load-bearing. Do them in this order.
 
 `_lp-generator/<person>-<offer>-source.html` is their file, untouched.
 `_lp-generator/<person>-<offer>.js` applies only **asserted** substitutions on top. Copy
-`_lp-generator/sammy-acash.js` and change the five constants at the top
-(`CANON_DIR`, `FAMILY`, `GEO`, `VANITY`, `DOOR_SLUG` — `sammy-acash.js:50-75`).
+`_lp-generator/sammy-acash.js` and change the constants at the top — `CANON_DIR`, `FAMILY`, `GEO`,
+`VANITY`, `DOOR_SLUG` (`sammy-acash.js:50-75`).
 
 ```bash
-cd ~/Documents/GitHub/tokrwd
+cd ~/Documents/GitHub/tokrwd && git fetch origin && git status   # ⚠️ above — this checkout is routinely dozens of commits stale
 node _lp-generator/sammy-acash.js --clones 100
 ```
 
 Why a generator and never a hand-edit: their design survives intact, re-running is deterministic
-(one buffer → one md5 across the family — the `RS50/RS1` drift lesson in `tokrwd-landers`), the
-tree is a pure function of `--clones` because it also **prunes** (`sammy-acash.js:221-228`), and
-every patch is an assertion, so an edit to the source that breaks a substitution **fails the build**
+(one buffer → one md5 across the family — the `RS50/RS1` drift lesson in `tokrwd-landers`), the tree
+is a pure function of `--clones` because it also **prunes** (`sammy-acash.js:221-228`), and every
+patch is an assertion, so an edit to the source that breaks a substitution **fails the build**
 instead of silently shipping the placeholder. The three primitives are `sub()` / `must()` /
 `never()` at `sammy-acash.js:91-104`.
 
@@ -80,8 +86,8 @@ redirect adds a hop before the lander and bounces the query string through an ex
 `s1` can be lost.
 
 ⚠️ **It carries no slot number, so it is ONE shared URL.** The anti-flag property of the numbered
-fan-out does not apply to it — a flag on `/sasurl` is a flag on the only copy. Fine for one
-affiliate on his own link; **never hand the same vanity path to a second person.**
+fan-out does not apply to it — a flag on `/sasurl` is a flag on the only copy. Fine for one affiliate
+on his own link; **never hand the same vanity path to a second person.**
 
 ⚠️ **It is not what the app serves.** `resolveAffiliateOfferLinks` returns the row's `link` numbered
 by slot (`https://www.tokrwd.co/AS50/US1`). The vanity path only works if he types it. Two URLs for
@@ -107,23 +113,23 @@ where not exists (select 1 from landing_pages where lower(slug) = 'applecash-us-
 
 Field by field, and why:
 
-- **`slug`** — its own, never a house design's. Reusing `applecash-us` works on day one (that door
-  is already live) but blends his clicks with everyone on design A with no way to separate them. A
+- **`slug`** — its own, never a house design's. Reusing `applecash-us` works on day one (that door is
+  already live) but blends his clicks with everyone on design A with no way to separate them. A
   `landing_pages` row has to exist either way for the page to appear in his picker, so the dedicated
   slug costs nothing (`sammy-acash.js:55-73`).
 - **`link`** — must name a **numbered** clone. `landerProblem` probes with two different slots and
-  refuses a link where `lpSlotLink(link,1) === lpSlotLink(link,2)` (`lander-picker.js:168-174`).
-  A `/sasurl`-style link has no digit run, so `lpSlotLink` returns it unchanged and the row is
-  refused everywhere.
+  refuses a link where `lpSlotLink(link,1) === lpSlotLink(link,2)` (`lander-picker.js:168-174`). A
+  `/sasurl`-style link has no digit run, so `lpSlotLink` returns it unchanged and the row is refused
+  everywhere.
 - **`capacity`** — **THE CONTRACT WITH THE CLONE SLICE.** `lpSlotLink` swaps the trailing digit run
   blindly with no existence check (`affiliate-links.js:193-199`), so a capacity larger than the
   clones actually deployed hands out live, paid 404s. Here it is also the lock — see §2.
 - **`geo`** — lowercase, matching the house rows. It is the key the same-geo clash guard
   (`admin.js:1533-1554`) and the picker's release sweep both use.
 - **`template_key`** — `'z'` sorts it after the house `a`/`b`/`c` (`pickableLanders` sorts on
-  `template_key` then `name`, `lander-picker.js:232-233`).
+  `template_key` then `name`, `lander-picker.js:198-199`).
 - **`preview_image`** — the picker card. NULL renders "Preview coming soon"
-  (`offers/index.html:1746-1748`). Step 6.
+  (`offers/index.html:1751-1753`). Step 6.
 
 ### Step 5 — assign the affiliate
 
@@ -140,24 +146,24 @@ on conflict (landing_page_id, user_id) do nothing;
 ```
 
 `ON CONFLICT` is correct **here** — `landing_page_affiliates_landing_page_id_user_id_key` is a plain
-UNIQUE `(landing_page_id, user_id)` (verified in prod). It is NOT correct on `landing_pages`
-(Trap 2).
+UNIQUE `(landing_page_id, user_id)` (verified in prod). It is NOT correct on `landing_pages` (Trap 2).
 
 **Alternative, once the row exists:** the admin action `assign_landing_page_affiliate`
 (`admin.js:1525-1577`) does the same thing through the API and adds three things raw SQL does not —
-the same-geo clash 409, the capacity check, and lowest-free-slot allocation. It writes
-`chosen_by` NULL rather than `'admin'`. Either is fine; SQL is what was used for Sammy because the
-row was being created by SQL anyway.
+the same-geo clash 409 (`:1533-1554`), the capacity check (`:1556-1558`), and lowest-free-slot
+allocation (`:1563-1568`). It leaves `chosen_by` NULL rather than `'admin'`. Either is fine; SQL was
+used for Sammy because the row was being created by SQL anyway.
 
 ### Step 6 — the picker preview screenshot
 
 See §8. The PNG lives in **SPRKNetworkAds** (`images/landers/<slug>.png`) — that repo serves
-`/offers` — and the `preview_image` column must be set to match, or the card reads
-"Preview coming soon" forever.
+`/offers` — and the `preview_image` column must be set to match, or the card reads "Preview coming
+soon" forever.
 
 ### Step 7 — make it theirs only
 
-`self_serve = true` **and** `capacity = 1`. See §2 — they do different jobs and neither alone is the
+`self_serve = true` **and** `capacity = 1`, plus (optionally) a `status='hidden'` row per affiliate
+you want the design kept away from. See §2 — they do different jobs and none of them alone is the
 lock.
 
 ### Step 8 — verify
@@ -185,92 +191,105 @@ fails if they drift. `acsm`, `as50`, `sasurl` are already in both.
 
 ## 2. MAKING IT THEIRS ONLY
 
-Two flags, and they do different jobs. Neither alone is the lock.
+Three separate mechanisms. They do different jobs; none is a substitute for another.
 
-| | What it does | What it fails to do alone |
+| | What it does | What it does NOT do |
 |---|---|---|
-| `self_serve = true` | makes the row **visible at all** — `pickableLanders` filters `self_serve === true`, strictly (`lander-picker.js:230`) | it also exposes the row to **every** affiliate on that offer and lets `lander-autoassign` hand it out (`lander-autoassign.js:177`) |
-| `capacity = 1` | makes it **single-tenant** — with the seat held, `claimSlot` returns `{slot:null, full:true}` for everyone else (`lander-picker.js:101, :109`) | on a `self_serve = false` row it locks nothing useful, because the row is invisible to the picker and its holder falls into Trap 4 |
+| `landing_pages.self_serve = true` | makes the row **visible at all** — `pickableLanders` filters `self_serve === true`, strictly (`lander-picker.js:196`) | it is **global**: it exposes the row to every affiliate on that offer and lets `lander-autoassign` hand it out (`lander-autoassign.js:177`) |
+| `landing_pages.capacity = 1` | makes it **single-tenant** — with the seat held, `claimSlot` returns `{slot:null, full:true}` for everyone else (`lander-picker.js:101, :109`) | it does not stop the holder LOSING it: a released seat is immediately claimable again, by anyone |
+| `landing_page_affiliates` row with **`status = 'hidden'`** | hides ONE design from ONE affiliate in the picker (`admin.js:4893-4914`) | it is **display-only** (see the gap below) and it is **per-PAIR** — "hide this design from everyone else" is one row per affiliate, hand-written, and covers nobody who joins the offer afterwards |
 
 `capacity=1` is a **hard** lock, refused identically by both halves of the feature:
-`choose_landing_page` answers 409 off `claimAssignment`'s thrown `.full`
-(`admin.js:5009`, `lander-assign.js:106-114`), and `autoAssignLanders` skips to the offer's next
-design (`lander-autoassign.js:284-291`). The picker disables the card client-side too
-(`offers/index.html:1743`, `:1749-1750`, `:1774-1777`), and the preview modal mirrors that guard on
-purpose (`:1833-1844`) — otherwise it would offer "Use this design" on a design the grid disabled
-and the affiliate would only learn it was full after watching the 5s build animation and getting a
-409.
+`choose_landing_page` answers 409 off `claimAssignment`'s thrown `.full` (`admin.js:5031`,
+`lander-assign.js:106-114`), and `autoAssignLanders` skips to the offer's next design
+(`lander-autoassign.js:284-291`). The picker disables the card client-side too
+(`offers/index.html:1748`, `:1754-1755`, `:1779-1782`), and the preview modal mirrors that guard on
+purpose (`:1838-1849`) — otherwise it would offer "Use this design" on a design the grid disabled and
+the affiliate would only learn it was full after watching the 5s build animation and getting a 409.
 
-**`self_serve` is a GLOBAL boolean. There is no per-affiliate visibility column.** `capacity=1` +
-a held seat is the only thing keeping the page his. **If his assignment is ever released, the page
-is instantly claimable by the next affiliate who attaches a creative to that offer.**
+**`self_serve` is a GLOBAL boolean. There is no per-affiliate visibility column on `landing_pages`.**
+Turning it off to hide a design from one affiliate pulls it from everyone AND stops auto-assign
+offering it — which is exactly why the hide lives on the junction instead.
 
-### The picker grid stretches with few cards (fixed `f97b2d5`)
+### `status='hidden'` — hide one design from one affiliate (shipped `f97b2d5`)
 
-`offers/index.html` `.lpk-grid` used `repeat(auto-fit, minmax(min(260px,100%), 1fr))`. With **one**
-card `auto-fit` gives that card the whole 1040px panel, blowing its 16:9 screenshot up to ~990x557 —
-it reads as a broken zoom, and it is what you get the moment anything narrows the list. The column is
-now capped at `340px` with `justify-content:center`, so a card is the same size whether an offer
-carries one design or four. Do not put `1fr` back.
-
-### Hiding a design from ONE affiliate (shipped `f97b2d5`)
-
-`admin.js` `get_offer_landing_pages`, in the same read that counts seats.
-
-**A `landing_page_affiliates` row with `status = 'hidden'` means "do not offer THIS design to THIS
-affiliate."** Same junction table as the assignment, so it needs no new schema and no extra round
-trip — that read now fetches every status and partitions in JS instead of filtering `'active'` in
-SQL, so one query answers seats + mine + hidden.
+A `landing_page_affiliates` row whose `status` is `'hidden'` means *"do not offer THIS design to THIS
+affiliate."* Same junction table the assignment already uses, so it needs no new schema and no new
+join, and it rides a read that was already happening.
 
 ```sql
-INSERT INTO landing_page_affiliates (landing_page_id, user_id, offer_id, status)
-SELECT lp.id, '<AUTH_USER_ID>'::uuid, lp.offer_id, 'hidden'
-  FROM landing_pages lp WHERE lp.slug = '<slug-to-hide>'
-ON CONFLICT (landing_page_id, user_id) DO UPDATE SET status = 'hidden';
+-- Hide design B from Sammy. NOTE: (landing_page_id, user_id) is UNIQUE, so this is one row per
+-- pair — an affiliate can be 'active' on a design or 'hidden' from it, never both.
+insert into landing_page_affiliates (landing_page_id, user_id, offer_id, status)
+select lp.id, u.id, lp.offer_id, 'hidden'
+from landing_pages lp cross join auth.users u
+where lp.slug = 'applecash-us-b' and lower(u.email) = 'ssammyofficial18@gmail.com'
+on conflict (landing_page_id, user_id) do update set status = 'hidden';
 ```
 
-Chosen over a flag on `landing_pages` because visibility is per-PAIR, not per-page: `self_serve` is
-global, so switching it off to hide a design from one affiliate pulls it from **everyone** and stops
-`lander-autoassign` offering it.
+⚠️ **NEVER run that upsert against a design the affiliate is CURRENTLY ACTIVE on.** The `do update`
+would flip their live `'active'` row to `'hidden'` in place, and every consequence is silent:
+`resolveAffiliateOfferLinks` reads active rows only (`affiliate-links.js:210`) so their served link
+vanishes; `takenSlots` (`lander-assign.js:41`) and `lpa_lp_slot_unique` are both scoped to
+`status='active'`, so **their clone number is freed for someone else while the row still holds it**;
+and `releaseAssignment` never runs, so nothing is written to `landing_page_slot_history` and the
+cooldown never sees the number. Check first — `select status from landing_page_affiliates a join
+landing_pages lp on lp.id=a.landing_page_id where a.user_id='<auth-id>' and lp.slug='<slug>'` — and
+if they are on it, move them off with `choose_landing_page` / the admin unassign (both of which
+release properly) BEFORE hiding it.
 
-Two properties that make it safe:
-- Only `'active'` rows ever count as an assignment (here and in `resolveAffiliateOfferLinks`), so a
-  `'hidden'` row can never be mistaken for one — it cannot hand anybody a lander or a clone number.
-- **A design the affiliate is currently RUNNING is never hidden**, whatever the hide rows say. That
-  would render a picker with no "Your page" card and a gold "start a build" CTA — the same display
-  bug this handler already 503s to avoid.
+How it reads (`admin.js:4864-4914`):
 
-### ⚠️ `reservedView` was REMOVED — do not reintroduce it
+- **One query answers three questions.** The assignment read dropped its `.eq('status','active')` and
+  now partitions in JS (`:4871-4877`): active rows give the seat counts and "which is mine", hidden
+  rows give the per-viewer hide set. Filtering in SQL would need a second round trip on a modal that
+  opens on every offer view.
+- **Only `'active'` rows ever count as an assignment** — here (`:4877`) and in
+  `resolveAffiliateOfferLinks` (`affiliate-links.js:210`), `heldLandersFor` (`admin.js:207`),
+  `takenSlots` (`lander-assign.js:41`) and the rotation cron (`rotate-lander-slots.js:73`). So a
+  hidden row can never be mistaken for an assignment: it hands out no lander, consumes no clone
+  number, and is never rotated.
+- **A design they are CURRENTLY RUNNING is never hidden**, whatever the hide rows say
+  (`admin.js:4910-4914`). A hidden current design would render a picker with no "Your page" card and
+  a "start a build" CTA — the same display bug the handler already 503s to avoid. ⚠️ Read it as
+  defence in depth, not as protection: `golMine` comes from `'active'` rows and `golHidden` from
+  `'hidden'` ones, and `(landing_page_id, user_id)` is UNIQUE — so the two sets are disjoint and that
+  second disjunct **can never fire**. Nothing catches the upsert warned about above.
+- Chosen over a flag on `landing_pages` because visibility here is per-PAIR, not per-page
+  (`admin.js:4898-4900`).
 
-`b47731b` briefly narrowed a bespoke-page holder's picker to *only* their own page. `f97b2d5`
-reverted it. **Its stated rationale was wrong**, and the wrong version is still in `b47731b`'s
-message, so check here before trusting it: it claimed a released `capacity=1` row *"reads as Full
-even to its own former holder."* It does not — verified against the real function:
+⚠️ **The hide is honoured in exactly one place, and that is a real gap.** `grep -n hidden api/` at
+`f97b2d5` finds it only in `get_offer_landing_pages`. `choose_landing_page` (`admin.js:4951+`) does
+not check it, and neither does `autoAssignLanders` — and `claimAssignment` upserts on
+`(landing_page_id, user_id)` with `status:'active'` (`lander-assign.js:121-132`), so **an
+auto-assignment (or a direct API call) can silently convert a `'hidden'` row into an active one.**
+For a bespoke capacity-1 page this is moot — the seat is held, so every other claim throws `.full` —
+but do not treat `'hidden'` as an access control. It is a picker-display rule.
+
+### Why `reservedView` was removed — do not re-add it
+
+`b47731b` narrowed a bespoke-page holder's picker to only their own page, reasoning that switching
+away would strand them because a released capacity-1 row *"reads as Full even to its own former
+holder."* **It does not.** `full: cap > 0 ? used >= cap : true` (`admin.js:4935`) counts only active
+assignments, so a release drops `used` to 0 and the card renders pickable again; `claimSlot` merely
+breaks the cooldown preference to re-issue slot 1, which is logged, not refused
+(`lander-assign.js:115-119`):
 
 ```
-claimSlot({capacity:1, taken:[]})                          -> {slot:1, full:false}
-claimSlot({capacity:1, taken:[], cooling:[1], exclude:1})  -> {slot:1, full:false, respectedCooldown:false}
+claimSlot({capacity:1, taken:[]})                         -> { slot:1, full:false }
+claimSlot({capacity:1, taken:[], cooling:[1], exclude:1})  -> { slot:1, full:false, respectedCooldown:false }
 ```
 
-A released capacity-1 slot comes straight back; the only cost is skipping the cooldown preference.
+`f97b2d5` deleted it (and its 7 tests) because it was solving a problem that did not exist while
+costing the affiliate the ability to test other designs — the picker's whole purpose. The real
+exposure it half-addressed is still true and is worth saying out loud to Migi: **a vacated capacity-1
+seat is claimable by anyone on that offer**, picker or auto-assigner, and whoever loses that race
+needs an admin after their ads have already moved.
 
-**The real exposure is different, and it is still live:** a vacated capacity-1 seat is claimable by
-**anyone** on that offer — picker or auto-assigner — because the page has to be `self_serve = true`
-for its holder to see it at all. If a bespoke holder switches away and someone else takes the seat
-first, recovery is an admin reassign, after their ads have moved. There is no guard for this today.
-Migi's call, 2026-08-02: affiliates keep the ability to test other designs, so the race is accepted.
-Watch for it if a bespoke holder ever reports "my page changed".
-
-Design notes worth not re-deriving:Design notes worth not re-deriving:
-
-- Keyed off `capacity === 1`, not a new column, on purpose — it is the same fact `claimSlot` already
-  enforces, so the lock and the visibility rule cannot drift apart. House slices are 100.
-- **Viewer-scoped** (`mineId` is the caller's own assignment row), so one affiliate being reserved
-  never shrinks the picker for anyone else.
-- An unknown `mineId` returns the list unchanged (`lander-picker.js:224`) — never an empty picker.
-- Seat counts are computed from the **un-narrowed** list (`golIds`, `admin.js:4866`), so the numbers
-  stay right.
-- Test: `node api/_lib/_lander-picker.test.mjs`.
+Same commit also capped `.lpk-grid`'s column at 340px and centred it (`offers/index.html:118`) — with
+`1fr`, a one-card picker stretched that card across the whole 1040px panel and blew its 16:9
+screenshot up to ~990×557, reading as a broken zoom. A bespoke page is the case that produces a
+one-card picker, so this matters here.
 
 ---
 
@@ -293,10 +312,10 @@ Every patch is a `sub()` with an exact expected occurrence count, so a source ed
 throws. Assert the **negatives** too (`sammy-acash.js:167-183`):
 
 ```
-must(h, DOOR, 1); must(h, 'id="cta-hero"', 1); must(h, 'offerUrl()', 2)
-never: 'example.com' · 'href="#"' · 'CTA_REDIRECT_URL'
-never (cloaking): 'x-safari' · 'intent://' · '__SUBID_OK' · 'document.write'
-                  · 'display:none!important' · 'musical_ly'
+must(h, DOOR, 1)   must(h, 'id="cta-hero"', 1)   must(h, 'offerUrl()', 2)
+never:  'example.com' · 'href="#"' · 'CTA_REDIRECT_URL'
+never (cloaking):  'x-safari' · 'intent://' · '__SUBID_OK' · 'document.write'
+                   · 'display:none!important' · 'musical_ly'
 ```
 
 The NO-CLOAKING rule in `tokrwd-landers` applies to a supplied page exactly as it does to ours. The
@@ -315,35 +334,36 @@ textbook deceptive urgency and both TikTok and Meta action it), "4.8/5 average r
 finish in under 5 minutes", "Daily availability is limited", three unsourced "Verified" badges,
 "256-bit encrypted", "24/7 Support", and a mock card number beside the Apple glyph.
 
-They were **NOT edited** — it is the operator's copy and Migi's call. But the generator prints all
-ten on every run (`sammy-acash.js:231-236`), mirroring how `_tracking-audit.test.mjs` prints its
-EXCEPTIONS, **so a deliberate carve-out cannot quietly become a permanent one nobody remembers
-agreeing to.** Keep that pattern. To change a claim, edit the source HTML and re-run; never patch it
-in the generator.
+They were **NOT edited** — it is the operator's copy and Migi's call. But the generator prints them on
+every run (`sammy-acash.js:231-236`), mirroring how `_tracking-audit.test.mjs` prints its EXCEPTIONS,
+**so a deliberate carve-out cannot quietly become a permanent one nobody remembers agreeing to.** Keep
+that pattern. The print is guarded by `if (html.includes(claim))` (`:235`), so it is also the receipt:
+edit a claim out of the source HTML, re-run, and it drops off the list. To change a claim, edit the
+source HTML and re-run; never patch it in the generator.
 
 ---
 
 ## 4. THE PICKER MODEL
 
-Everything a bespoke page plugs into. Line numbers are SPRKNetworkAds `origin/main` @ `b47731b`.
+Everything a bespoke page plugs into. Line numbers are SPRKNetworkAds `origin/main` @ `f97b2d5`.
 
 ### Which rows appear in the picker — the full filter chain
 
-`get_offer_landing_pages` (`admin.js:4837-4925`):
+`get_offer_landing_pages` (`admin.js:4837-4947`):
 
 1. **Auth** — Bearer token → `anon.auth.getUser` (`:4838-4842`).
-2. **`landerSelfServeGate`** (`admin.js:138-185`) — **fails CLOSED**, unlike the click door:
-   role first, profile resolved **by email** (`:155-157`) then `isSpkLockedAffiliate` (`:165-167`) —
+2. **`landerSelfServeGate`** (`admin.js:138-185`) — **fails CLOSED**, unlike the click door: role
+   first, profile resolved **by email** (`:155-157`) then `isSpkLockedAffiliate` (`:165-167`) —
    scalers and admins 403, an unreadable profile 503, never a pass; offer must exist and be
-   `status='active'` else 404 (`:172`); `offer_assignments` `'revoked'` → 403, an admin kill
-   outranks everything (`:180`); any other non-active → 403 (`:182`); `cap_mode='allocated'` with no
-   active assignment → **404, not 403** — a private offer must not be confirmed to someone who
-   cannot see it (`:183`).
+   `status='active'` else 404 (`:172`); `offer_assignments` `'revoked'` → 403, an admin kill outranks
+   everything (`:180`); any other non-active → 403 (`:182`); `cap_mode='allocated'` with no active
+   assignment → **404, not 403** — a private offer must not be confirmed to someone who cannot see it
+   (`:183`).
 3. **Rows** — `landing_pages` where `offer_id = <offer>` and `status <> 'archived'`, with
    `select('*')` so a pre-migration DB returns rows rather than erroring (`:4850-4854`).
-4. **`pickableLanders(rows, offersById)`** (`lander-picker.js:228-234`) — `self_serve === true`
-   strict (so `undefined` on a pre-migration DB fails closed) and `status !== 'archived'` (`:230`),
-   then `!landerProblem(...)` (`:231`), then sorted by `template_key` then `name` (`:232-233`).
+4. **`pickableLanders(rows, offersById)`** (`lander-picker.js:194-200`) — `self_serve === true`
+   strict (so `undefined` on a pre-migration DB fails closed) and `status !== 'archived'` (`:196`),
+   then `!landerProblem(...)` (`:197`), then sorted by `template_key` then `name` (`:198-199`).
 5. **`landerProblem(lp, offer)`** (`lander-picker.js:133-184`) — mirrors the door's own refusals so
    the picker can never assign a lander that 404s on the first click:
 
@@ -358,18 +378,17 @@ Everything a bespoke page plugs into. Line numbers are SPRKNetworkAds `origin/ma
    | `link` not numbered — probed with slots 1 and 2 | `:168-174` |
    | `launchLinkProblem(lpSlotLink(link,1))` — the shared oracle (`subid.js:86-93`): http(s), no `#fragment`, no embedded `s1=` | `:176-181` |
 
-6. **Per-affiliate hide** (`admin.js`, `get_offer_landing_pages`) — drops any row with a
-   `status='hidden'` junction row for this viewer, except the one they are currently running.
+6. **The per-affiliate hide** (`admin.js:4893-4914`) — §2.
 
-**`landing_pages.link` is deliberately NOT returned** (`admin.js:4894-4897`) — an affiliate who has
+**`landing_pages.link` is deliberately NOT returned** (`admin.js:4916-4919`) — an affiliate who has
 not chosen a design has no reason to hold the raw tokrwd clone URL. The card renders `preview_image`.
 
 ### How each label is decided
 
-Server (`admin.js:4898-4924`):
+Server (`admin.js:4920-4946`):
 
 ```
-seats_left = max(0, capacity - active_assignments_on_this_lander)
+seats_left = max(0, capacity - ACTIVE assignments on this lander)
 full       = capacity > 0 ? used >= capacity : true
 chosen     = golMine && golMine.landing_page_id === l.id
 chosen_id  = golMine ? golMine.landing_page_id : null
@@ -377,28 +396,28 @@ slot       = golMine.slot ?? null
 cycle      = cycleKey(new Date())
 ```
 
-Client (`offers/index.html:1729-1781`) — note it branches on `chosen_id`, not the per-row `chosen`:
+Client (`offers/index.html:1734-1786`) — note it branches on `chosen_id`, not the per-row `chosen`:
 
 | Surface | Rule | Line |
 |---|---|---|
-| card gets `is-chosen` | `String(l.id) === String(chosenId)` | `:1742` |
-| `full` for display | `!!l.full && !isChosen` — your own page is never "full" to you | `:1743` |
-| **"At capacity"** chip | `full` | `:1750` |
-| **"N spots left"** chip | `!full && seats_left <= 10` | `:1751-1752` |
-| **"Your page"** chip | `isChosen` | `:1766` |
-| button **"Currently running"** (disabled) | `isChosen` | `:1774-1777` |
-| button **"Full"** (disabled) | `full` | `:1777` |
-| button **"Use this design"** | otherwise | `:1777` |
+| card gets `is-chosen` | `String(l.id) === String(chosenId)` | `:1747` |
+| `full` for display | `!!l.full && !isChosen` — your own page is never "full" to you | `:1748` |
+| **"At capacity"** chip | `full` | `:1755` |
+| **"N spots left"** chip | `!full && seats_left <= 10` | `:1756-1757` |
+| **"Your page"** chip | `isChosen` | `:1771` |
+| button **"Currently running"** (disabled) | `isChosen` | `:1779-1782` |
+| button **"Full"** (disabled) | `full` | `:1782` |
+| button **"Use this design"** | otherwise | `:1782` |
 
 The picker CTA on the offer page is **never gold any more** (`renderLanderCta`,
-`offers/index.html:1440-1461`): gold means "the one thing that unblocks this offer", and since
-auto-assign shipped, picking unblocks nothing. Its labels are "See landing page designs" /
-"Change landing page". The **modal title** is still "Start your landing page build"
-(`:1735`) — do not confuse the two.
+`offers/index.html:1445-1466`): gold means "the one thing that unblocks this offer", and since
+auto-assign shipped, picking unblocks nothing. Its labels are "See landing page designs" / "Change
+landing page" (`:1464-1465`). The **modal title** is still "Start your landing page build" (`:1740`) —
+do not confuse the two.
 
-Non-affiliates never see any of it: `lpGatesViewer()` (`:1256`) is
+Non-affiliates never see any of it: `lpGatesViewer()` (`:1261`) is
 `roleResolved ? (userType === 'affiliate' && !isScalerUser()) : true`, and `loadOfferLanders`
-(`:1410`) returns early for them. **That is a courtesy, not enforcement** — `landerSelfServeGate` is
+(`:1415`) returns early for them. **That is a courtesy, not enforcement** — `landerSelfServeGate` is
 what actually refuses a direct API call.
 
 ### The slot allocator
@@ -419,7 +438,7 @@ what actually refuses a direct API call.
 - **`isCooling` fails CLOSED** — an unparseable released cycle counts as still cooling. The safe
   reading of a bad history row is "do not hand this number to someone else".
 - **`claimSlot` preference order**: not-cooling and not-excluded > not-cooling > not-excluded >
-  anything free (`:114-120`). `exclude` outranks nothing — a cooling number is a real footprint
+  anything free (`:111-120`). `exclude` outranks nothing — a cooling number is a real footprint
   problem, being handed your own previous number is a wasted rotation.
 - **`full:true` means the caller must 409, never overbook** (`:101`, `:109`).
   `respectedCooldown:false` is NOT an error (a blocked affiliate is worse than a reused clone) but it
@@ -428,43 +447,48 @@ what actually refuses a direct API call.
   disagreed with the picker's own read; the comment at `lander-assign.js:93-98` is the postmortem.
 - **Race safety**: `lpa_lp_slot_unique (landing_page_id, slot) WHERE status='active' AND slot IS NOT
   NULL` (verified in prod) turns two affiliates picking the same number into a `23505`, retried
-  against a fresh read — 4 attempts, then a `.contended` error → 503
-  (`lander-assign.js:100-155`).
-- **Rotation** (`rotate-lander-slots.js`): scoped to `self_serve` landers only (`:56-57`); a row with
-  a NULL `slot_cycle` is **adopted** (stamped), never rotated, so flipping `self_serve` on does not
-  re-number every hand-placed affiliate as a side effect (`:97-108`); `chosen_by` is preserved
-  (`:121`); a `.full` failure leaves the affiliate on the number they have (`:134-141`). **Live ads
-  are never touched** — the door resolves the owner from `?s1=<SPK>`, never from the path.
-  ➜ **A capacity-1 page never rotates**: taken=[1], capacity 1 → `full` → `skipped_full`, holder
-  keeps slot 1 forever. That is correct, and it is why `/AS50/US1` is stable.
+  against a fresh read — 4 attempts, then a `.contended` error → 503 (`lander-assign.js:100-155`).
+- **Rotation** (`rotate-lander-slots.js`): scoped to `self_serve` landers (`:56-57`) and to
+  `status='active'` assignments (`:73`); a row with a NULL `slot_cycle` is **adopted** (stamped),
+  never rotated, so flipping `self_serve` on does not re-number every hand-placed affiliate as a side
+  effect (`:97-108`); `chosen_by` is preserved (`:121`); a `.full` failure leaves the affiliate on the
+  number they have (`:134-141`). **Live ads are never touched** — the door resolves the owner from
+  `?s1=<SPK>`, never from the path.
+  ➜ **A capacity-1 page never rotates**: taken=[1], capacity 1 → `full` → `skipped_full`, holder keeps
+  slot 1 forever. That is correct, and it is why `/AS50/US1` is stable.
 
 ### Switching designs — what actually happens, and what can be stranded
 
-`choose_landing_page` (`admin.js:4929-5058`):
+`choose_landing_page` (`admin.js:4951-5080`):
 
-1. gate (`:4939`), load the row (`:4942`), **the row must belong to the offer named** (`:4953` —
+1. gate (`:4961`), load the row (`:4964`), **the row must belong to the offer named** (`:4975` —
    without this a self_serve row on a cheap open offer could be claimed while passing the offer_id of
-   one the affiliate can access), `self_serve === true` (`:4958`), `landerProblem` → 409 (`:4966`).
+   one the affiliate can access), `self_serve === true` (`:4980`), `landerProblem` → 409 (`:4988`).
 2. `heldLandersFor(user, offer, geo)` (`admin.js:204-229`) — everything they hold for this
    **(offer, geo)**. A different-geo lander for the same offer is legitimate and left alone.
    **Throws → 503, fail closed**: not knowing what they hold and releasing nothing leaves two active
-   landers and an ambiguous served link (`:4976-4984`).
-3. already on it → idempotent `unchanged:true`, no release/re-claim (`:4986-4997`). A double-click
+   landers and an ambiguous served link (`:4998-5006`).
+3. already on it → idempotent `unchanged:true`, no release/re-claim (`:5011-5019`). A double-click
    must not burn a clone number and change a live URL for nothing.
-4. **CLAIM BEFORE RELEASE** (`:4999-5013`) — a full slice leaves them on the design they already had
-   rather than on nothing.
+4. **CLAIM BEFORE RELEASE** (`:5021-5035`; `.full` → 409 at `:5031`) — a full slice leaves them on the
+   design they already had rather than on nothing.
 5. **Reconciliation sweep**: re-read (not the pre-claim list) and release every other row for this
-   (offer, geo) (`:5015-5046`). Re-reading is what makes two concurrent tab-switches converge, and it
+   (offer, geo) (`:5037-5068`). Re-reading is what makes two concurrent tab-switches converge, and it
    makes the endpoint self-healing for the stale-junction rows. A release failure after a successful
    claim is logged loudly but does **not** fail the request — the affiliate IS on the new design and
-   saying otherwise would be a lie. Residual race stated honestly at `:5026-5028`.
-6. the returned link comes from `resolveAffiliateOfferLinks`, never rebuilt locally (`:5050`).
+   saying otherwise would be a lie.
+6. the returned link comes from `resolveAffiliateOfferLinks`, never rebuilt locally (`:5072`).
 
 **What an affiliate can strand: switching off a `capacity=1` page.** `releaseAssignment` DELETEs the
-row (`lander-assign.js:70-77` — DELETE not a status flip, because `'active'` is the only status value
-in use), and the vacated seat is then claimable by anyone on that offer, picker or auto-assigner.
-**There is no guard for this today** — `reservedView` was tried and reverted (see above). A bespoke
-holder who switches away can lose their page to whoever claims the seat first.
+row (`lander-assign.js:70-77` — DELETE not a status flip, because `'active'` was the only status value
+in use when it was written; `'hidden'` rows are created directly and never released). ⚠️ That comment
+is now stale as a description of the DATA: prod 2026-08-02 holds **116 `active`, 1 `hidden`, 1
+`archived`**. Nothing in the code emits `'archived'` on this table — that row is hand-run SQL. It is
+inert everywhere (every reader filters `status='active'`) but it still occupies the UNIQUE
+`(landing_page_id, user_id)` pair, so an `on conflict … do update` will resurrect it. The vacated
+seat is then claimable by anyone on that offer, picker or auto-assigner. Since `f97b2d5` removed
+`reservedView`, **nothing prevents this** — it is a known, accepted exposure, not a bug to be
+surprised by.
 
 ### Every `pickableLanders` call site
 
@@ -475,8 +499,8 @@ Only two, and they are the two halves of one feature:
 | `admin.js:4862` — `get_offer_landing_pages` | what an affiliate can SEE and choose |
 | `lander-autoassign.js:194` — `autoAssignLanders` | what gets claimed for them AUTOMATICALLY, at page-load speed, with no click |
 
-`landerProblem` additionally runs alone at `admin.js:4966` (`choose_landing_page`) and
-`admin.js:5096` (`get_lander_preview`).
+`landerProblem` additionally runs alone at `admin.js:4988` (`choose_landing_page`) and
+`admin.js:5118` (`get_lander_preview`).
 
 **Widening `pickableLanders` widens the auto-assigner too.** That is the whole reason `self_serve` is
 opt-in and never derived: deriving "offerable" from "a row exists" would have opened every live row on
@@ -487,9 +511,8 @@ deploy, including the ones with a dead door.
 `lander-autoassign.js`. Runs inside `get_my_landing_pages` (`admin.js:4683`), which `/offers`,
 `/sparkbank` **and** the launcher all load.
 
-- **Demand signal** = an offer with a live (non-deleted) creative attached (`demandOfferIds`,
-  `:327`). Not "has access" (an unsafe sweep) and not "opened the page" (burns a finite number on
-  browsing).
+- **Demand signal** = an offer with a live (non-deleted) creative attached (`demandOfferIds`, `:327`).
+  Not "has access" (an unsafe sweep) and not "opened the page" (burns a finite number on browsing).
 - **NOT a sweep**, and the arithmetic is the reason (`:11-17`): rotation frees every holder's number
   monthly and `COOLDOWN_CYCLES = 3`, so one design sustains ~`floor(capacity/4)` holders — 7 on a
   30-clone slice. Past that `claimSlot` starts reissuing numbers a former holder's live ads still
@@ -501,23 +524,25 @@ deploy, including the ones with a dead door.
 - **Spreads across designs, most free seats first** (`:257-264`), which keeps a 30-clone slice inside
   its cooldown-safe headroom. **A capacity-1 page with its seat taken ranks last and throws `.full`
   anyway** (`:287`).
-- `chosen_by='auto'` (`:278`), preserved by rotation. `sweepDuplicateAutoLanders` converges a race,
-  and **only `chosen_by='auto'` rows are releasable** (`:124-129`) — a sweep that could delete a
-  picked design would make the picker unreliable.
+- `chosen_by='auto'` (`:278`), preserved by rotation. `sweepDuplicateAutoLanders` (`:98-145`)
+  converges a race, and **only `chosen_by='auto'` rows are releasable** (`:124-129`) — a sweep that
+  could delete a picked design would make the picker unreliable.
 - **Fail-soft**: it never throws (a throw would blank the Creative Hub) and fails **closed** on any
   read error — claiming nothing (`:308-312`).
+- ⚠️ **It does not read `status='hidden'`.** See §2.
 
 ### `resolveAffiliateOfferLinks` — the ONE resolver, and its two modes
 
-`affiliate-links.js:206-254`. Used by `get_my_landing_pages`, `choose_landing_page` (`:4991`,
-`:5050`) and both launch APIs as the **server-side source of truth**, so the link the launcher shows
-is the link a launch tags.
+`affiliate-links.js:206-254`. Used by `get_my_landing_pages`, `choose_landing_page` (`:5013`, `:5072`)
+and both launch APIs as the **server-side source of truth**, so the link the launcher shows is the
+link a launch tags.
 
 ```js
-// affiliate-links.js:247-249
+// affiliate-links.js:247-249 — verbatim
 const link = (lp.slug && dom && offerHasDest.has(lp.offer_id))
   ? ('https://' + dom + '/api/link/' + lp.slug)   // MODE A — the DOOR, one shared URL for everyone
-  : lpSlotLink(lp.link, r.slot);                  // MODE B — the per-affiliate numbered clone
+  // MODE B — the per-affiliate numbered clone, re-screened at READ time (see below)
+  : (() => { const m = lpSlotLink(lp.link, r.slot); return (m && !launchLinkProblem(m)) ? m : null; })();
 ```
 
 Mode A needs **all three**: a non-empty `lp.slug`; `dom`, an **active** `lp_domains` row (offer-scoped
@@ -533,9 +558,9 @@ Other properties that bite:
 - `by_offer[lp.offer_id] = link` in a loop with **no ordering** (`:250`). Two active landers on one
   offer = the served link is a coin flip that can change after any write to either row (the monthly
   rotation cron writes to every one). Trap 7.
-- It keys off the **lander's own `offer_id`** (`:221`, `:240`), never the junction's denormalised
-  copy. Trap 9.
-- Archived landers are dropped (`:216`).
+- It keys off the **lander's own `offer_id`** (`:221`, `:240`), never the junction's denormalised copy.
+  Trap 8.
+- Archived landers are dropped (`:216`); only `status='active'` junction rows are read (`:210`).
 - **Fail-open**: any missing table or error yields `{}` so a launch is never blocked by this lookup
   (`:252`).
 
@@ -581,18 +606,18 @@ active wins, deterministically, every request. Rotating means flagging one and a
 
 ### ⚠️ THE CONSEQUENCE NOBODY WOULD SEE COMING
 
-**One `insert into lp_domains (domain) values ('x.com')` flips EVERY assigned affiliate on EVERY
-offer from their numbered lander to the door.**
+**One `insert into lp_domains (domain) values ('x.com')` flips EVERY assigned affiliate on EVERY offer
+from their numbered lander to the door.**
 
-The domain is the only one of Mode A's three conditions that is currently false. Add one global
-active row and every slugged self-serve lander collapses onto `https://x.com/api/link/<slug>` —
-**one shared URL per lander, identical for all 100 affiliates on it.** The per-affiliate `slot`
-becomes decorative, **the tokrwd lander is bypassed entirely** (ad → door → network; the page is
-never loaded), and the anti-flag fan-out the whole numbered-clone model exists for stops existing.
-Nothing warns about it. Independently flagged at `docs/lander-auto-assign-plan.md:76-90`.
+The domain is the only one of Mode A's three conditions that is currently false. Add one global active
+row and every slugged self-serve lander collapses onto `https://x.com/api/link/<slug>` — **one shared
+URL per lander, identical for all 100 affiliates on it.** The per-affiliate `slot` becomes decorative,
+**the tokrwd lander is bypassed entirely** (ad → door → network; the page is never loaded), and the
+anti-flag fan-out the whole numbered-clone model exists for stops existing. Nothing warns about it.
+Independently flagged at `docs/lander-auto-assign-plan.md:76-90`.
 
-**Per-affiliate uniqueness works today BECAUSE the table is empty.** That is the single most
-important fact in this section.
+**Per-affiliate uniqueness works today BECAUSE the table is empty.** That is the single most important
+fact in this section.
 
 Scoping the row to one `offer_id` narrows the blast radius to that offer — it does not remove it.
 
@@ -605,7 +630,7 @@ copies and they are not shared code** — `affiliate-links.js:227-236` (the auth
 
 | Piece | State |
 |---|---|
-| Admin API `get_lp_domains` / `save_lp_domain` / `set_lp_domain_status` | **exists** — `admin.js:1591 / 1611 / 1653`. `save_lp_domain` strips scheme/path/port, validates the hostname shape, and revives an archived duplicate (`:1635-1640`) rather than dead-ending |
+| Admin API `get_lp_domains` / `save_lp_domain` / `set_lp_domain_status` | **exists** — `admin.js:1591 / 1611 / 1653`. `save_lp_domain` strips scheme/path/port, validates the hostname shape, and revives an archived duplicate (`:1632-1640`) rather than dead-ending |
 | Admin **UI** panel | **does not exist** — removed; `docs/subid-attribution-map.md:201` says so. Rows arrive only by direct API call or SQL |
 | DNS / Vercel attachment | **manual, and validated nowhere.** A row in `lp_domains` does not attach the domain to any Vercel project |
 | `middleware.js` `TRACKING_HOSTS` | **must be updated by hand** (`middleware.js:38-44`): *"any new domain attached to this Vercel project MUST also be added here, or it serves the whole brand site uncloaked"* |
@@ -624,9 +649,10 @@ State this as a gap, not a plan:
 2. **A resolver change on a money path.** `resolveAffiliateOfferLinks` picks `dom` from offer/global
    only and takes no per-affiliate input beyond `userId`. It is the shared source of truth for both
    launch APIs, so a change there changes what live launches tag. Collapse the three rule copies first.
-3. **Mode A serves the DOOR, not the lander.** `api/link/[slug].js:54-63` resolves purely by slug and
-   never reads the `Host` header, so a per-affiliate domain in `lp_domains` buys cosmetics and
-   reputation spread — **not** per-affiliate routing. An affiliate who wants their own domain serving
+3. **Mode A serves the DOOR, not the lander.** `api/link/[slug].js:54-63` resolves the lander purely
+   by slug; the `Host` header **routes nothing** — it is read only to stamp the click log's `domain`
+   column (`:217`, `:298`). So a per-affiliate domain in `lp_domains` buys cosmetics, reputation
+   spread and a per-domain click log — **not** per-affiliate routing. An affiliate who wants their own domain serving
    their own *page* is a different shape: the domain has to be attached to the **tokrwd** Vercel
    project, not the SPRK one.
 4. **Three host lists and one header block, in two repos, all by hand.** `TRACKING_HOSTS`
@@ -635,11 +661,12 @@ State this as a gap, not a plan:
    `X-Frame-Options: SAMEORIGIN` (`:219`) **and**
    `Content-Security-Policy: frame-ancestors 'self' https://www.sprknetwork.ad https://sprknetwork.ad`
    (`:236`). `frame-ancestors` overrides XFO in modern browsers and is the **only** reason the
-   picker's preview iframe (`openLanderPreview`, `offers/index.html:1798`, framing tokrwd from
+   picker's preview iframe (`openLanderPreview`, `offers/index.html:1803`, framing tokrwd from
    `sprknetwork.ad`) renders at all. A new lander domain without that exact CSP shows an empty black
    box in the picker with no error — the same failure mode the admin panel's own preview hits on
-   `appflowconnect.com` (see `tokrwd-landers`). DNS side, for a domain on the tokrwd project: apex
-   `A 76.76.21.21`, subdomain `CNAME cname.vercel-dns.com`.
+   `appflowconnect.com` (see `tokrwd-landers`). DNS side, for a domain on the tokrwd Vercel project:
+   apex `A 76.76.21.21`, subdomain `CNAME cname.vercel-dns.com` — Vercel's published values, pinned
+   nowhere in either repo, so re-check them in their dashboard before handing them to anyone.
 5. **`user_profiles.allowed_link_domains` exists in the DB (ARRAY) and is referenced by NO code** —
    `grep -rn allowed_link_domains` over SPRKNetworkAds returns nothing. It is not a hook; do not build
    on it assuming it does something.
@@ -653,10 +680,10 @@ requirement is that the link be **numbered** (`lander-picker.js:168-174`).
 
 So "his own page on his own domain" is reachable today by pointing `link` at
 `https://hisdomain.com/US1` — **provided** (a) the domain serves a copy of the page that fires the
-same `sprktrax.org/api/link/<slug>` door, (b) it carries the frame headers above if the picker
-preview is expected to render, and (c) somebody accepts that the page is then outside this repo, so
-the generator's assertions, `_tracking-audit.test.mjs` and the compliance read in §3 no longer cover
-it. That last point is the reason it has not been done. It is Migi's call, not a default.
+same `sprktrax.org/api/link/<slug>` door, (b) it carries the frame headers above if the picker preview
+is expected to render, and (c) somebody accepts that the page is then outside this repo, so the
+generator's assertions, `_tracking-audit.test.mjs` and the compliance read in §3 no longer cover it.
+That last point is the reason it has not been done. It is Migi's call, not a default.
 
 ---
 
@@ -692,9 +719,9 @@ landing_pages_slug_uniq UNIQUE ON landing_pages (lower(slug))
 
 (`migrations/2026-06-19_lp_redirector.sql:28-29`, verified in prod.) Plain `ON CONFLICT (slug)` finds
 no matching arbiter → `42P10 there is no unique or exclusion constraint matching the ON CONFLICT
-specification`. Use **`WHERE NOT EXISTS`**. `landing_page_affiliates` is the opposite — a plain
-UNIQUE `(landing_page_id, user_id)` — so `ON CONFLICT` is correct there, and `claimAssignment` upserts
-on exactly that target (`lander-assign.js:131-132`).
+specification`. Use **`WHERE NOT EXISTS`**. `landing_page_affiliates` is the opposite — a plain UNIQUE
+`(landing_page_id, user_id)` — so `ON CONFLICT` is correct there, and `claimAssignment` upserts on
+exactly that target (`lander-assign.js:131-132`).
 
 ### 3. `save_landing_page` cannot create a bespoke row — for a different reason than you'd expect
 
@@ -711,14 +738,14 @@ sets `self_serve`. (A create also defaults `capacity` to 50, `:1452` — wrong f
 ### 4. `get_offer_landing_pages` computes "is this mine" ONLY among `self_serve` rows
 
 `golIds = golPickable.map(l => l.id)` (`admin.js:4866`), and `golMine` is only ever set from an
-assignment in that id list (`:4882-4885`).
+assignment in that id list (`:4888-4891`).
 
 So an affiliate holding a **non-`self_serve`** lander gets `chosen_id: null` — no "Your page" chip,
 nothing marked as theirs, and every house design offered as an enabled "Use this design". **Clicking
 one is a real switch** that releases their page.
 
-Not hypothetical — prod, 2026-08-02: **50 active assignments sit on `self_serve = false` landers**
-(66 on self-serve ones). Every one of those affiliates is looking at this screen.
+Not hypothetical — prod, 2026-08-02: **50 active assignments sit on `self_serve = false` landers** (66
+on self-serve ones). Every one of those affiliates is looking at this screen.
 
 If you make a page bespoke, `self_serve` must be **true**, or you have built the trap instead of the
 lock.
@@ -745,24 +772,24 @@ hosted, and why the generator prints them on every run. See §3.
 
 `by_offer[lp.offer_id] = link` with no ordering (`affiliate-links.js:250`). Three separate mechanisms
 exist to prevent it — the admin same-geo clash 409 (`admin.js:1533-1554`), the picker's
-claim-then-release sweep (`admin.js:5015-5046`), and `sweepDuplicateAutoLanders`
+claim-then-release sweep (`admin.js:5037-5068`), and `sweepDuplicateAutoLanders`
 (`lander-autoassign.js:98-145`). Do not add a fourth path that bypasses all three.
 
 ### 8. `landing_page_affiliates.offer_id` is denormalised and STALE
 
 182 of 261 active rows disagreed with their lander (measured 2026-08-01,
 `lander-autoassign.js:40-46`); 26 carried a deleted offer UUID after an Apple Pay re-import
-(`admin.js:189-197`). **Always resolve through the lander's own `offer_id`.** Filtering on the
-junction column returns zero rows for an affiliate who demonstrably holds one — which is how a switch
-releases nothing and leaves two active landers.
+(`admin.js:189-197`). **Always resolve through the lander's own `offer_id`.** Filtering on the junction
+column returns zero rows for an affiliate who demonstrably holds one — which is how a switch releases
+nothing and leaves two active landers.
 
 ### 9. `/sasurl` has no slot, and the bespoke page is not offer-bound in tokrwd
 
 The vanity path is one shared URL (§1 step 3). Separately: `acsm`, `as50` and `sasurl` appear in
 `links-config.js` **only** in `PRELANDER_ALLOWED_ROOTS` (`:899`) — no `LANDER_URLS`, no
-`OVERRIDE_LANDERS`, no `CARRD_ROUTES` entry. So `/r`'s OFFER MISMATCH warning cannot apply to the
-page, the admin Test Lander picker will not list it, and `_links-config.test.mjs` does not pin its
-door. **The only thing tying the page to the offer is `DOOR_SLUG` in the generator matching
+`OVERRIDE_LANDERS`, no `CARRD_ROUTES` entry. So `/r`'s OFFER MISMATCH warning cannot apply to the page,
+the admin Test Lander picker will not list it, and `_links-config.test.mjs` does not pin its door.
+**The only thing tying the page to the offer is `DOOR_SLUG` in the generator matching
 `landing_pages.slug`** — check it by hand
 (`grep -o 'sprktrax.org/api/link/[a-z-]*' ACSM/US/index.html`).
 
@@ -794,9 +821,10 @@ curl -s -X POST "https://api.supabase.com/v1/projects/ecyawhhimmuzryxjnjng/datab
 Useful one-liners (same wrapper):
 
 ```sql
--- every design on an offer, with its holder count
+-- every design on an offer, with its holder count and who it is hidden from
 select lp.slug, lp.capacity, lp.self_serve, lp.template_key,
-       count(a.id) filter (where a.status='active') as held
+       count(a.id) filter (where a.status='active') as held,
+       count(a.id) filter (where a.status='hidden') as hidden_from
 from landing_pages lp left join landing_page_affiliates a on a.landing_page_id = lp.id
 where lp.offer_id = '<offer-id>' group by 1,2,3,4 order by 4;
 
@@ -807,6 +835,11 @@ select count(*) total, count(*) filter (where status='active') active from lp_do
 select lp.self_serve, count(*) from landing_page_affiliates a
 join landing_pages lp on lp.id = a.landing_page_id
 where a.status='active' group by 1;
+
+-- an affiliate's ids, the right way (Trap 1)
+select u.id as auth_id, p.id as profile_id, p.user_id as profile_user_id
+from auth.users u left join user_profiles p on lower(p.email) = lower(u.email)
+where lower(u.email) = '<email>';
 ```
 
 **Writes are Migi's.** Standing rule, root `CLAUDE.md`: *"No production actions without explicit
@@ -816,7 +849,7 @@ approval. Ask first, every time."* Hand over the SQL; do not run it.
 
 ```bash
 # SPRKNetworkAds
-node api/_lib/_lander-picker.test.mjs        # claimSlot / landerProblem / pickableLanders
+node api/_lib/_lander-picker.test.mjs        # claimSlot / landerProblem / pickableLanders (49 at f97b2d5)
 node api/_lib/_lander-autoassign.test.mjs    # the double-claim + dead-link screens
 # tokrwd
 node api/_lib/_tracking-audit.test.mjs       # no cloaking, no naked network links
@@ -857,16 +890,24 @@ update landing_pages
   are never served.
 - ✅ `landing_pages`: capacity 1, `self_serve` true, `template_key 'z'`, geo `us`, link
   `https://www.tokrwd.co/AS50/US1`.
-- ✅ `landing_page_affiliates`: slot 1, `chosen_by='admin'`, `slot_cycle='2026-08'`, junction
-  `offer_id` matching the lander's.
+- ✅ `landing_page_affiliates`: slot 1, `status='active'`, `chosen_by='admin'`, `slot_cycle='2026-08'`,
+  junction `offer_id` matching the lander's.
 - ✅ `preview_image = '/images/landers/applecash-us-sammy.png'` — **set in prod, and the PNG is
-  committed to SPRKNetworkAds** (`b47731b`). An earlier note in this file said the column was still
-  NULL; re-checked 2026-08-02, it is not.
-- ✅ Both tokrwd guard tests pass; all four Apple Cash US designs present (`applecash-us` /`-b`/`-c`
-  at capacity 100, template `a`/`b`/`c`).
+  committed to SPRKNetworkAds**. An earlier session note said this column was still NULL; re-checked
+  2026-08-02, it is not.
+- ✅ Both tokrwd guard tests pass; all four Apple Cash US designs present (`applecash-us` /`-b`/`-c` at
+  capacity 100, template `a`/`b`/`c`; Sammy's at capacity 1, template `z`).
+- ℹ️ **He IS already hidden from one house design.** Measured in prod, not assumed: he holds a
+  `status='hidden'` row on **`applecash-us-c`** (written 2026-08-03 00:37 UTC, ten seconds after
+  `f97b2d5`), so his picker shows **three** cards — `applecash-us` (a), `applecash-us-b` (b) and his
+  own, which is the one marked "Your page". Add hide rows for `applecash-us` / `-b` too if Migi wants
+  the rest out of his view. He also carries a `status='archived'` row on `applecash-us-b` (slot 1,
+  `chosen_by='affiliate'`, 2026-08-02 02:36 — he had picked design B himself before the bespoke page
+  existed). Nothing in the code writes that status; it is inert, but it holds the
+  `(landing_page_id, user_id)` pair, so the §2 hide upsert on `-b` would resurrect it as `'hidden'`.
 - ℹ️ `AS50/US2..US100` are deployed but unreachable through the app while capacity is 1. Deliberate
-  headroom if the page is ever widened; harmless as-is — capacity ≤ real clones is the safe
-  direction, never the reverse.
+  headroom if the page is ever widened; harmless as-is — capacity ≤ real clones is the safe direction,
+  never the reverse.
 
 ---
 
