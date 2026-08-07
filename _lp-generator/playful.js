@@ -85,10 +85,9 @@ const path = require('path');
 
 const TEMPLATE = fs.readFileSync(path.join(__dirname, 'playful-template.html'), 'utf8');
 
-const DOOR_SLUG = 'playful';     // real slug is <this>-<geo>
-const CANON_DIR = 'PLAY';        // canonical page per geo: PLAY/<GEO>/index.html
-const FAMILY = 'PR50';           // numbered pool per geo: PR50/<GEO>1..<GEO>n
-const HOME_GEO = 'US';           // what the bare /PLAY serves (see the write step)
+// The four routing constants and the geo table are per-OFFER — see the OFFERS preset block below
+// the geo definitions, which is where they are actually bound. They live there rather than here
+// because a preset has to reference the geo table, and `const` does not hoist.
 
 /**
  * ENGLISH-SPEAKING GEOS ONLY — and that is a creative constraint, not an oversight.
@@ -127,7 +126,7 @@ const RAIL_MARKETS = {
   wallet: null,
 };
 
-const GEOS = {
+const GEOS_PLAYFUL = {
   US: { lang: 'en', rail2: 'cashapp' },
   GB: { lang: 'en', rail2: 'cashapp' },
   // Cash App does not operate in CA or AU. Migi's call (2026-07-30) is to name PayPal rather than
@@ -139,6 +138,53 @@ const GEOS = {
   // FR: { lang: 'fr', rail2: 'paypal' },  // OFF — English videos, see above
   // DE: { lang: 'de', rail2: 'paypal' },  // OFF — English videos, see above
 };
+
+/**
+ * ── OFFER PRESETS ────────────────────────────────────────────────────────────────────────────
+ *
+ * This page is sold as TWO SEPARATE NETWORK OFFERS, and they are not interchangeable:
+ *
+ *   playful       FL218539  "Playful Rewards"       Mobile Apps · revshare · US/GB/CA/AU
+ *   playful-cash  FL221696  "Playful Rewards - US"  Sweepstakes · revshare · US only
+ *
+ * Different Monetise destinations (.../GS3NQC1D/ vs .../H1N8TBG5/), so a page built for one must
+ * NEVER open the other's door — the click would settle on an offer it is not being paid for. That
+ * is the entire reason this is a preset table and not a second copy of the file: one template, one
+ * set of compliance assertions, one md5-per-slice rule, with only the routing swapped.
+ *
+ * `playful-cash` exists because FL221696 shipped on the GENERIC sweepstake template (PL150/151/152,
+ * "Playful Rewards Reward - 2026 Summer Drop", a "$1,000 PAID DIRECT TO YOUR ACCOUNT" headline).
+ * Migi asked for it rebuilt on this design. It is US-only because offers.countries is ['US'].
+ *
+ * ADDING AN OFFER IS ONE ROW HERE. It needs its own canonDir + family (never share a slice — prune()
+ * is scoped by them, and a shared root would let one offer delete another's folders) and its own
+ * door slug per geo, with a matching `landing_pages` row for every geo before it can carry traffic.
+ */
+const OFFERS = {
+  playful: {
+    doorSlug: 'playful', canonDir: 'PLAY', family: 'PR50', homeGeo: 'US', geos: GEOS_PLAYFUL,
+  },
+  'playful-cash': {
+    // Slug resolves to `playful-rewards-cash-us`, which is the slug the EXISTING landing_pages row
+    // already carries — so repointing that row is a link change, not a door change, and the one
+    // affiliate already assigned to it keeps their slot.
+    doorSlug: 'playful-rewards-cash', canonDir: 'PLAYC', family: 'PC50', homeGeo: 'US',
+    geos: { US: { lang: 'en', rail2: 'cashapp' } },
+  },
+};
+
+const offerArg = (() => { const i = process.argv.indexOf('--offer'); return i > -1 ? process.argv[i + 1] : 'playful'; })();
+const OFFER = OFFERS[offerArg];
+if (!OFFER) {
+  console.error(`--offer must be one of: ${Object.keys(OFFERS).join(', ')} (got ${JSON.stringify(offerArg)})`);
+  process.exit(1);
+}
+
+const DOOR_SLUG = OFFER.doorSlug;   // real slug is <this>-<geo>
+const CANON_DIR = OFFER.canonDir;   // canonical page per geo: <CANON_DIR>/<GEO>/index.html
+const FAMILY    = OFFER.family;     // numbered pool per geo: <FAMILY>/<GEO>1..<GEO>n
+const HOME_GEO  = OFFER.homeGeo;    // what the bare /<CANON_DIR> serves (see the write step)
+const GEOS      = OFFER.geos;
 
 // Every visible string, per language. Generated from the reviewed translation sets — see the
 // header for why the FR/DE wording is what it is. Adding a language is one block here plus a
