@@ -167,7 +167,7 @@ function page() {
           // can still be in flight here. Await it first or this update races ahead of the row it is
           // meant to find, matches nothing, and returns 204 as if it worked.
           if (state.pendingInsert) { try { await state.pendingInsert; } catch (e) { /* logged there */ } }
-          const { error } = await supabase.from('survey_responses').update({ email, completed: true }).eq('id', state.recordId);
+          const { error } = await sbUpdateById(state.recordId, { email, completed: true });
           if (error) console.error('lead capture failed, continuing to the offer:', error);
         } catch (e) {
           console.error('lead capture threw, continuing to the offer:', e);
@@ -226,9 +226,7 @@ function page() {
         // afterwards left it null at submit time, the update matched no row, and the email was
         // silently dropped while the page still redirected happily. Measured, not theoretical.
         state.recordId = newId;
-        state.pendingInsert = supabase
-          .from('survey_responses')
-          .insert({
+        state.pendingInsert = sbInsert({
             id: newId,
             q1_shop_online: state.answers.q1 ?? null,
             q2_use_reward: state.answers.q2 ?? null,
@@ -243,7 +241,7 @@ function page() {
             s3: doorQ.get('s3') || null,
             ttclid: doorQ.get('ttclid') || null,
             completed: false,
-          });
+        });
         const { error } = await state.pendingInsert;
         if (error) console.error('lead insert failed, continuing:', error);`;
   h = sub(h, oldCreate, newCreate);
@@ -262,6 +260,60 @@ function page() {
   h = sub(h, '.hidden { display: none !important; }', '.hidden.hidden { display: none; }');
   never(h, 'display: none !important', 'trips the blank-page cloak canary in _tracking-audit check 6');
   must(h, '.hidden.hidden { display: none; }', 1);
+
+  // ── Drop the jsdelivr CDN entirely: two REST calls, plain fetch ────────────────────────────
+  // Her page imported the whole @supabase/supabase-js client from cdn.jsdelivr.net at runtime.
+  // `import` is a HARD dependency: if jsdelivr is blocked, throttled or down, the module never
+  // evaluates and NOTHING after it runs — including the door hand-off. A third party we do not
+  // control sat directly on the money path, and its failure mode is a completely dead page.
+  //
+  // The page makes exactly two calls (one insert, one update). PostgREST speaks plain HTTP, so
+  // they are two fetches. Same precedent as api/_lib/kv.js, which talks to Upstash over fetch
+  // rather than pulling an npm client. Net: one less third party, ~100KB less JS, and the money
+  // path depends on nothing but our own origin.
+  h = sub(h, "      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';\n\n", '');
+  h = sub(h, "      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);",
+`      // Minimal PostgREST client — insert + update, nothing else. Returns { error } so the call
+      // sites below read exactly as they did with supabase-js.
+      const SB_HEADERS = {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        // return=minimal: never ask PostgREST to echo the row back. anon has no read on the data
+        // columns (RLS + column grants), so a returning request would 401 the whole write.
+        'Prefer': 'return=minimal',
+      };
+      const SB_REST = SUPABASE_URL + '/rest/v1/survey_responses';
+
+      async function sbInsert(row) {
+        try {
+          const r = await fetch(SB_REST, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(row) });
+          return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
+        } catch (e) { return { error: e }; }
+      }
+      async function sbUpdateById(id, patch) {
+        if (!id) return { error: { message: 'no record id' } };
+        try {
+          const r = await fetch(SB_REST + '?id=eq.' + encodeURIComponent(id),
+            { method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify(patch) });
+          return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
+        } catch (e) { return { error: e }; }
+      }`);
+  never(h, 'cdn.jsdelivr.net', 'the CDN import must not ship — it sits on the money path');
+  never(h, 'createClient', 'the supabase-js client is gone');
+
+  // Her three per-question updates used the RAW question ids (q1/q2/q3) as column names, which do
+  // not exist on the table. They never fired (recordId is null until the activating step) so it was
+  // latent, but reordering the funnel would have turned it into a 400 on every answer. Map them.
+  h = sub(h, `        if (state.recordId) {
+          await supabase.from('survey_responses').update({ [questionId]: value }).eq('id', state.recordId);
+        }`,
+`        if (state.recordId) {
+          // Real column names. Hers passed the bare question id, which is not a column.
+          const COL = { q1: 'q1_shop_online', q2: 'q2_use_reward', q3: 'q3_shop_frequency' };
+          const col = COL[questionId];
+          if (col) await sbUpdateById(state.recordId, { [col]: value });
+        }`);
 
   // ── tokrwd.co branding: drop the Bolt scaffold leftovers ───────────────────────────────────
   // The og:image was still bolt.new's default, so every share preview of her page showed Bolt's

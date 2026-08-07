@@ -262,11 +262,34 @@
     </div>
 
     <script type="module">
-      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
       const SUPABASE_URL = 'https://ecyawhhimmuzryxjnjng.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeWF3aGhpbW11enJ5eGpuam5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDU4NjcsImV4cCI6MjA5NDcyMTg2N30.GVKRI32R72B6fXpDyhSZwuXhs5ucHBHpw14_0LVbUXs';
-      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // Minimal PostgREST client — insert + update, nothing else. Returns { error } so the call
+      // sites below read exactly as they did with supabase-js.
+      const SB_HEADERS = {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        // return=minimal: never ask PostgREST to echo the row back. anon has no read on the data
+        // columns (RLS + column grants), so a returning request would 401 the whole write.
+        'Prefer': 'return=minimal',
+      };
+      const SB_REST = SUPABASE_URL + '/rest/v1/survey_responses';
+
+      async function sbInsert(row) {
+        try {
+          const r = await fetch(SB_REST, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(row) });
+          return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
+        } catch (e) { return { error: e }; }
+      }
+      async function sbUpdateById(id, patch) {
+        if (!id) return { error: { message: 'no record id' } };
+        try {
+          const r = await fetch(SB_REST + '?id=eq.' + encodeURIComponent(id),
+            { method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify(patch) });
+          return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
+        } catch (e) { return { error: e }; }
+      }
 
       const REWARD_VALUE = 750;
 
@@ -355,7 +378,10 @@
         const next = STEP_ORDER[STEP_ORDER.indexOf(questionId) + 1];
         if (next) { state.step = next; goToStep(); }
         if (state.recordId) {
-          await supabase.from('survey_responses').update({ [questionId]: value }).eq('id', state.recordId);
+          // Real column names. Hers passed the bare question id, which is not a column.
+          const COL = { q1: 'q1_shop_online', q2: 'q2_use_reward', q3: 'q3_shop_frequency' };
+          const col = COL[questionId];
+          if (col) await sbUpdateById(state.recordId, { [col]: value });
         }
       }
 
@@ -372,9 +398,7 @@
         // afterwards left it null at submit time, the update matched no row, and the email was
         // silently dropped while the page still redirected happily. Measured, not theoretical.
         state.recordId = newId;
-        state.pendingInsert = supabase
-          .from('survey_responses')
-          .insert({
+        state.pendingInsert = sbInsert({
             id: newId,
             q1_shop_online: state.answers.q1 ?? null,
             q2_use_reward: state.answers.q2 ?? null,
@@ -389,7 +413,7 @@
             s3: doorQ.get('s3') || null,
             ttclid: doorQ.get('ttclid') || null,
             completed: false,
-          });
+        });
         const { error } = await state.pendingInsert;
         if (error) console.error('lead insert failed, continuing:', error);
       }
@@ -418,7 +442,7 @@
           // can still be in flight here. Await it first or this update races ahead of the row it is
           // meant to find, matches nothing, and returns 204 as if it worked.
           if (state.pendingInsert) { try { await state.pendingInsert; } catch (e) { /* logged there */ } }
-          const { error } = await supabase.from('survey_responses').update({ email, completed: true }).eq('id', state.recordId);
+          const { error } = await sbUpdateById(state.recordId, { email, completed: true });
           if (error) console.error('lead capture failed, continuing to the offer:', error);
         } catch (e) {
           console.error('lead capture threw, continuing to the offer:', e);
