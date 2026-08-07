@@ -201,6 +201,9 @@ h1,h2,.fig{overflow-wrap:anywhere;min-width:0}
 
    border-radius clips the source's own white corner margin. --radius-lg is deliberately a little
    rounder than the card's own corner, so the white cannot peek out at any width. */
+/* No .art element on this structure. The other three carry the tile's halftone arc as a page
+   background; behind a real card face it just read as stray dots. The arc CSS still ships (it is
+   shared) but nothing matches it here. */
 .cardwrap{border-radius:var(--radius-lg);overflow:hidden;
   background-image:radial-gradient(circle at center,var(--strip-dots) 1.1px,transparent 1.2px),
     var(--strip-fallback);
@@ -232,8 +235,6 @@ h1{font-size:var(--text-xl);font-weight:800;line-height:1.2;letter-spacing:-.02e
 <body>
 <div class="page">
   <div class="card">
-<div class="art" aria-hidden="true"></div>
-
 <div class="cardwrap"><img id="passArt" class="cardimg" alt="" aria-hidden="true" decoding="async" fetchpriority="high" width="1280" height="720" src="/images/landers/pass/applepayflash-us.webp"></div>
 
 <div class="stats" id="statsBar" hidden></div>
