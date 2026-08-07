@@ -229,7 +229,7 @@ create policy sr_anon_select_min on public.survey_responses for select to anon u
 
 -- The read protection is a COLUMN GRANT, not the policy.
 revoke select on public.survey_responses from anon;
-grant  select (id, completed) on public.survey_responses to anon;
+grant  select (id)            on public.survey_responses to anon;
 ```
 
 `sr_anon_update`'s `using (completed = false)` is the **finished-lead lock**: once a lead completes,
@@ -364,14 +364,14 @@ The same harness proves the rest of the model, all rolled back: `RETURNING email
 `RETURNING id` → OK (column granularity, and the mechanism behind `return=representation`);
 `where email is not null` → `42501` and `order by email` → `42501` (a WHERE/ORDER BY column needs
 SELECT too); an insert with no `id` → `23502`; a second update of a row already `completed = true` →
-**0 rows** (the finished-lead lock); `DELETE` → 0 rows but **`TRUNCATE` SUCCEEDS** (Trap 6, D6).
+**0 rows** (the finished-lead lock). `DELETE` and `TRUNCATE` were REVOKED on 2026-08-07 (D6 closed) — anon now holds INSERT + UPDATE only.
 
 ### The fix — a column-level grant, plus a permissive SELECT policy
 
 ```sql
 create policy sr_anon_select_min on public.survey_responses for select to anon using (true);
 revoke select on public.survey_responses from anon;
-grant  select (id, completed) on public.survey_responses to anon;
+grant  select (id)            on public.survey_responses to anon;
 ```
 
 `anon` can now **find and qualify** the row — all the `WHERE id = X` needs — but `?select=email` is
@@ -411,7 +411,7 @@ insert loses an email today** — see §7 D1.
 
 | role | table-level | column-level SELECT |
 |---|---|---|
-| `anon` | DELETE, INSERT, REFERENCES, TRIGGER, TRUNCATE, UPDATE — **no SELECT** | **`id`, `completed` only** |
+| `anon` | INSERT, UPDATE only — **no SELECT, no DELETE, no TRUNCATE** | **`id` only** |
 | `authenticated` | + SELECT | all 14 |
 | `postgres`, `service_role` | + SELECT | all 14 |
 
@@ -767,7 +767,26 @@ view-source. Honest framing: the design goal (*write but never read the list*) i
 enumeration and pre-completion tampering are the **accepted residue**, and `completed = false` is
 the only thing bounding it.
 
-### D6 · `DELETE` and `TRUNCATE` are still granted to anon
+### D6 · ~~`DELETE` and `TRUNCATE` granted to anon~~ — CLOSED 2026-08-07
+
+**Fixed, verified live.** `revoke delete, truncate, references, trigger on survey_responses from anon;`
+anon now holds **INSERT + UPDATE only**. TRUNCATE mattered most: it is not row-level-security bound,
+so no policy could ever have stopped it — one request from anyone holding the public key would have
+emptied the table.
+
+**And a second hole closed with it.** `completed` was dropped from anon's readable columns. It was
+only granted so the UPDATE policy's own filter could be satisfied — but a readable column is also a
+FILTERABLE one, so `PATCH ?completed=eq.false` rewrote **every in-flight lead in one request, with no
+ids needed**. Now only `id` is readable.
+
+⚠️ The obvious worry — "if `completed` is unreadable, can the UPDATE policy still test it?" — was the
+untested part of this. It works: RLS policy expressions are evaluated by the system, not under the
+caller's column privileges. Proven with a `set local role anon` harness inside a rolled-back
+transaction: the update still matches 1 row. Do not take that on trust if you change the policy;
+re-run it.
+
+Re-probed after the change: insert `201`, update-by-id `204`, `?select=email` `42501`,
+`PATCH ?completed=eq.false` `401` (0 rows poisoned), `DELETE` `401`.
 
 Supabase's default `grant all` was never narrowed beyond the targeted `revoke select`. `DELETE` is
 blocked **only by the absence of a DELETE policy** — proven twice: `DELETE ?id=eq.X` → 204, `*/0`,
