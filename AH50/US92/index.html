@@ -3,348 +3,276 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apple Pay Survey Landing Page</title>
-    <meta property="og:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Apple Cash Survey — Share your opinion, get paid in Apple Cash</title>
+    <meta
+      name="description"
+      content="Complete a quick 3-question survey and unlock up to $750 in Apple Cash. It takes less than a minute."
+    />
+    <!-- Tailwind, compiled ahead of time and inlined. This page previously pulled the Tailwind
+         Play CDN, which is the JIT COMPILER rather than a stylesheet: the CSS was generated in the
+         visitor's browser on every load, so a blocked or slow CDN meant unstyled HTML on paid
+         traffic. Regenerate _lp-generator/ashlyn-tailwind.css if the markup changes — see its
+         header for how, and why a plain page load is not enough. -->
     <style>
-      :root {
-        --reward: 750;
-      }
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      html, body { height: 100%; }
-      body {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        color: #fff;
-        background: linear-gradient(160deg, #1d4ed8 0%, #4338ca 45%, #7c3aed 100%);
-        min-height: 100vh;
-        position: relative;
-        overflow-x: hidden;
-      }
-      .orb { position: absolute; border-radius: 9999px; filter: blur(64px); pointer-events: none; }
-      .orb-1 { left: -128px; top: -128px; width: 384px; height: 384px; background: rgba(59,130,246,0.30); }
-      .orb-2 { right: 0; top: 33%; width: 320px; height: 320px; background: rgba(168,85,247,0.30); }
-      .orb-3 { bottom: 0; left: 33%; width: 288px; height: 288px; background: rgba(129,140,248,0.20); }
-
-      .wrap { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; padding: 32px 16px 48px; min-height: 100vh; }
-      header { margin-bottom: 32px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-      .logo { display: flex; align-items: center; gap: 8px; }
-      .logo-badge { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.15); backdrop-filter: blur(12px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.20); }
-      .logo-badge svg { width: 20px; height: 20px; color: #fff; }
-      .logo-text { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
-
-      main { width: 100%; max-width: 512px; }
-      .card-panel {
-        border-radius: 24px; border: 1px solid rgba(255,255,255,0.15);
-        background: rgba(255,255,255,0.10); padding: 24px;
-        box-shadow: 0 25px 50px -12px rgba(88,28,135,0.40);
-        backdrop-filter: blur(24px);
-      }
-      @media (min-width: 640px) { .card-panel { padding: 32px; } }
-
-      .gift-card-outer { position: relative; margin: 0 auto; width: 100%; max-width: 460px; margin-bottom: 24px; animation: fadeUp 0.5s ease-out both; }
-      .gift-card {
-        position: relative; aspect-ratio: 1.586 / 1; width: 100%; border-radius: 16px; padding: 24px;
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); box-shadow: 0 25px 50px -12px rgba(76,29,149,0.40);
-        background: linear-gradient(135deg, #1e293b 0%, #312e81 45%, #5b21b6 100%);
-        box-shadow: 0 0 0 1px rgba(255,255,255,0.20), 0 25px 50px -12px rgba(76,29,149,0.40);
-      }
-      .shine { position: absolute; inset: 0; overflow: hidden; border-radius: 16px; pointer-events: none; }
-      .shine::before { content: ''; position: absolute; left: -50%; top: -50%; width: 60%; height: 200%; transform: rotate(12deg); background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); }
-      .gc-inner { position: relative; height: 100%; }
-      .gc-icon { position: absolute; left: 0; top: 0; width: 32px; height: 32px; color: rgba(255,255,255,0.80); }
-      .gc-reward { position: absolute; right: 0; top: 0; text-align: right; }
-      .gc-reward .label { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.60); }
-      .gc-reward .amount { font-weight: 700; line-height: 1; color: #fff; white-space: nowrap; font-size: clamp(4rem, 12vw, 8rem); }
-      .gc-chip { position: absolute; bottom: 0; left: 0; display: flex; align-items: center; gap: 12px; }
-      .chip-gold { width: 36px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, #fef9c3, #facc15); box-shadow: inset 0 0 0 1px rgba(202,138,4,0.30); }
-      .chip-line { width: 40px; height: 8px; border-radius: 9999px; background: rgba(255,255,255,0.30); }
-
-      .reward-waiting { margin-bottom: 4px; text-align: center; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.60); }
-
-      .step { animation: fadeUp 0.4s ease-out both; }
-      .q-label { margin-bottom: 16px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #bfdbfe; }
-      .q-text { margin-bottom: 24px; text-align: center; font-size: 24px; font-weight: 700; color: #fff; }
-      @media (min-width: 640px) { .q-text { font-size: 30px; } }
-      .options { display: flex; flex-direction: column; gap: 12px; }
-      .option-btn {
-        width: 100%; border-radius: 16px; border: 1px solid rgba(255,255,255,0.20);
-        background: rgba(255,255,255,0.10); padding: 20px 24px; text-align: left;
-        font-size: 18px; font-weight: 500; color: #fff; cursor: pointer;
-        backdrop-filter: blur(12px); transition: transform .2s, border-color .2s, background .2s;
-        animation: fadeUp 0.4s ease-out both; display: flex; align-items: center; justify-content: space-between;
-      }
-      .option-btn:hover { transform: scale(1.02); border-color: rgba(255,255,255,0.40); background: rgba(255,255,255,0.20); }
-      .option-btn:active { transform: scale(0.99); }
-      .option-btn svg { width: 20px; height: 20px; color: rgba(255,255,255,0.50); transition: transform .2s, color .2s; }
-      .option-btn:hover svg { transform: translateX(4px); color: #fff; }
-
-      .progress { margin: 24px auto 0; height: 6px; width: 100%; max-width: 448px; border-radius: 9999px; background: rgba(255,255,255,0.15); overflow: hidden; }
-      .progress > div { height: 100%; border-radius: 9999px; background: linear-gradient(90deg, #60a5fa, #c084fc); transition: width .5s ease-out; }
-
-      .center { text-align: center; }
-      .badge { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 9999px; background: linear-gradient(135deg, #60a5fa, #a855f7); box-shadow: 0 10px 15px -3px rgba(168,85,247,0.40); margin: 0 auto; }
-      .badge svg { width: 32px; height: 32px; color: #fff; }
-      .badge.big { width: 80px; height: 80px; background: linear-gradient(135deg, #4ade80, #059669); box-shadow: 0 10px 15px -3px rgba(16,185,129,0.40); }
-      .badge.big svg { width: 40px; height: 40px; }
-      .badge-row { margin-bottom: 20px; display: flex; justify-content: center; }
-      .h1 { font-size: 24px; font-weight: 700; color: #fff; }
-      @media (min-width: 640px) { .h1 { font-size: 30px; } }
-
-      .info-list { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; text-align: left; }
-      .info-card { border-radius: 16px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); padding: 20px; }
-      .info-card h2 { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 600; color: #fff; }
-      .info-card h2 svg { width: 20px; height: 20px; }
-      .info-card p { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.70); }
-
-      .btn {
-        margin-top: 24px; width: 100%; border: none; border-radius: 16px;
-        background: linear-gradient(90deg, #3b82f6, #9333ea); padding: 16px 24px;
-        font-size: 16px; font-weight: 600; color: #fff; cursor: pointer;
-        box-shadow: 0 10px 15px -3px rgba(147,51,234,0.30); transition: transform .2s, box-shadow .2s;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-      }
-      .btn:hover { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(147,51,234,0.50); }
-      .btn:active { transform: scale(0.99); }
-      .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-      .btn svg { width: 20px; height: 20px; }
-
-      .email-input-wrap { position: relative; }
-      .email-input-wrap svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: rgba(255,255,255,0.40); }
-      .email-input {
-        width: 100%; border-radius: 16px; border: 1px solid rgba(255,255,255,0.20);
-        background: rgba(255,255,255,0.10); padding: 16px 16px 16px 48px; font-size: 16px; color: #fff;
-        backdrop-filter: blur(12px); transition: border-color .2s, background .2s;
-      }
-      .email-input::placeholder { color: rgba(255,255,255,0.40); }
-      .email-input:focus { outline: none; border-color: rgba(255,255,255,0.50); background: rgba(255,255,255,0.15); }
-
-      .subtext { margin-top: 20px; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.50); }
-      .subtext a { color: inherit; text-decoration: underline; }
-      .subtext a:hover { color: rgba(255,255,255,0.80); }
-      .error { margin-top: 12px; font-size: 14px; color: #fca5a5; }
-      .secure-box { margin: 24px auto 0; max-width: 320px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); padding: 16px 20px; font-size: 14px; color: rgba(255,255,255,0.60); }
-      .secure-box svg { width: 16px; height: 16px; }
-      .done-text { margin-bottom: 24px; color: rgba(255,255,255,0.70); }
-
-      .footer { margin: 24px auto 0; max-width: 512px; text-align: center; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.40); }
-
-      .spin { animation: spin 1s linear infinite; }
-      .hidden.hidden { display: none; }
-
-      @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes spin { to { transform: rotate(360deg); } }
+/* GENERATED — do not hand-edit.
+ * Tailwind output for ashlyn-apay-source.html, compiled ahead of time so the Tailwind Play
+ * CDN (the JIT COMPILER, not a stylesheet) never sits on the render path of a paid-traffic page.
+ *
+ * TO REGENERATE after her markup changes:
+ *   1. serve ashlyn-apay-source.html locally, with a hidden element whose class list contains EVERY
+ *      class token in the file — including those that only exist inside JS template literals, e.g.
+ *      the selected option state `bg-purple-500/30`. A plain page load never generates those.
+ *   2. Chrome --headless --dump-dom, then extract the <style> block Tailwind injected.
+ * Skipping step 1 silently ships a page whose modal states render unstyled.
+ */
+*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.inset-0{inset:0px}.inset-x-0{left:0px;right:0px}.-right-20{right:-5rem}.-top-20{top:-5rem}.-top-40{top:-10rem}.bottom-0{bottom:0px}.left-1\/2{left:50%}.right-0{right:0px}.right-4{right:1rem}.top-0{top:0px}.top-4{top:1rem}.-z-10{z-index:-10}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-2{margin-bottom:0.5rem}.mb-3{margin-bottom:0.75rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.mt-1{margin-top:0.25rem}.mt-10{margin-top:2.5rem}.mt-12{margin-top:3rem}.mt-2{margin-top:0.5rem}.mt-20{margin-top:5rem}.mt-3{margin-top:0.75rem}.mt-4{margin-top:1rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-56{height:14rem}.h-6{height:1.5rem}.h-64{height:16rem}.h-9{height:2.25rem}.h-\[30rem\]{height:30rem}.h-\[40rem\]{height:40rem}.h-1\.5{height:0.375rem}.h-16{height:4rem}.h-8{height:2rem}.min-h-screen{min-height:100vh}.w-12{width:3rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-64{width:16rem}.w-80{width:20rem}.w-9{width:2.25rem}.w-\[30rem\]{width:30rem}.w-\[40rem\]{width:40rem}.w-full{width:100%}.w-16{width:4rem}.w-8{width:2rem}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-6xl{max-width:72rem}.max-w-lg{max-width:32rem}.max-w-md{max-width:28rem}.max-w-xl{max-width:36rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-10{gap:2.5rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-hidden{overflow-x:hidden}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-t{border-top-width:1px}.border-b{border-bottom-width:1px}.border-white\/10{border-color:rgb(255 255 255 / 0.1)}.border-white\/15{border-color:rgb(255 255 255 / 0.15)}.border-purple-400{--tw-border-opacity:1;border-color:rgb(192 132 252 / var(--tw-border-opacity, 1))}.bg-\[\#0a0118\]{--tw-bg-opacity:1;background-color:rgb(10 1 24 / var(--tw-bg-opacity, 1))}.bg-black\/30{background-color:rgb(0 0 0 / 0.3)}.bg-black\/70{background-color:rgb(0 0 0 / 0.7)}.bg-fuchsia-500\/30{background-color:rgb(217 70 239 / 0.3)}.bg-fuchsia-600\/20{background-color:rgb(192 38 211 / 0.2)}.bg-purple-600\/30{background-color:rgb(147 51 234 / 0.3)}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/10{background-color:rgb(255 255 255 / 0.1)}.bg-white\/5{background-color:rgb(255 255 255 / 0.05)}.bg-black\/40{background-color:rgb(0 0 0 / 0.4)}.bg-purple-400{--tw-bg-opacity:1;background-color:rgb(192 132 252 / var(--tw-bg-opacity, 1))}.bg-purple-500\/30{background-color:rgb(168 85 247 / 0.3)}.bg-\[radial-gradient\(ellipse_at_top\2c rgba\(168\2c 85\2c 247\2c 0\.35\)\2c transparent_55\%\)\]{background-image:radial-gradient(ellipse at top,rgba(168,85,247,0.35),transparent 55%)}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-purple-200{--tw-gradient-from:#e9d5ff var(--tw-gradient-from-position);--tw-gradient-to:rgb(233 213 255 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-purple-400{--tw-gradient-from:#c084fc var(--tw-gradient-from-position);--tw-gradient-to:rgb(192 132 252 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-purple-500{--tw-gradient-from:#a855f7 var(--tw-gradient-from-position);--tw-gradient-to:rgb(168 85 247 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-purple-600\/30{--tw-gradient-from:rgb(147 51 234 / 0.3) var(--tw-gradient-from-position);--tw-gradient-to:rgb(147 51 234 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-purple-700{--tw-gradient-from:#7e22ce var(--tw-gradient-from-position);--tw-gradient-to:rgb(126 34 206 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-purple-900{--tw-gradient-from:#581c87 var(--tw-gradient-from-position);--tw-gradient-to:rgb(88 28 135 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-white{--tw-gradient-from:#fff var(--tw-gradient-from-position);--tw-gradient-to:rgb(255 255 255 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-fuchsia-200{--tw-gradient-to:rgb(245 208 254 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #f5d0fe var(--tw-gradient-via-position), var(--tw-gradient-to)}.via-purple-950{--tw-gradient-to:rgb(59 7 100 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #3b0764 var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-\[\#0a0118\]{--tw-gradient-to:#0a0118 var(--tw-gradient-to-position)}.to-black{--tw-gradient-to:#000 var(--tw-gradient-to-position)}.to-fuchsia-400{--tw-gradient-to:#e879f9 var(--tw-gradient-to-position)}.to-fuchsia-500{--tw-gradient-to:#d946ef var(--tw-gradient-to-position)}.to-fuchsia-600\/10{--tw-gradient-to:rgb(192 38 211 / 0.1) var(--tw-gradient-to-position)}.to-purple-100{--tw-gradient-to:#f3e8ff var(--tw-gradient-to-position)}.to-purple-300{--tw-gradient-to:#d8b4fe var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.p-1\.5{padding:0.375rem}.p-10{padding:2.5rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-24{padding-bottom:6rem}.pb-28{padding-bottom:7rem}.pt-4{padding-top:1rem}.pt-44{padding-top:11rem}.text-left{text-align:left}.text-center{text-align:center}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-5xl{font-size:3rem;line-height:1}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-semibold{font-weight:600}.font-medium{font-weight:500}.uppercase{text-transform:uppercase}.leading-\[1\.05\]{line-height:1.05}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.text-purple-100{--tw-text-opacity:1;color:rgb(243 232 255 / var(--tw-text-opacity, 1))}.text-purple-100\/50{color:rgb(243 232 255 / 0.5)}.text-purple-100\/60{color:rgb(243 232 255 / 0.6)}.text-purple-100\/70{color:rgb(243 232 255 / 0.7)}.text-purple-100\/80{color:rgb(243 232 255 / 0.8)}.text-purple-300{--tw-text-opacity:1;color:rgb(216 180 254 / var(--tw-text-opacity, 1))}.text-purple-900\/60{color:rgb(88 28 135 / 0.6)}.text-purple-900\/70{color:rgb(88 28 135 / 0.7)}.text-purple-950{--tw-text-opacity:1;color:rgb(59 7 100 / var(--tw-text-opacity, 1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-purple-200{--tw-text-opacity:1;color:rgb(233 213 255 / var(--tw-text-opacity, 1))}.text-purple-200\/60{color:rgb(233 213 255 / 0.6)}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgb(0 0 0 / 0.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-purple-500\/30{--tw-shadow-color:rgb(168 85 247 / 0.3);--tw-shadow:var(--tw-shadow-colored)}.shadow-purple-900\/50{--tw-shadow-color:rgb(88 28 135 / 0.5);--tw-shadow:var(--tw-shadow-colored)}.shadow-purple-500\/40{--tw-shadow-color:rgb(168 85 247 / 0.4);--tw-shadow:var(--tw-shadow-colored)}.ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.ring-white\/20{--tw-ring-color:rgb(255 255 255 / 0.2)}.blur-3xl{--tw-blur:blur(64px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.blur-\[120px\]{--tw-blur:blur(120px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-xl{--tw-backdrop-blur:blur(24px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color, background-color, border-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-text-decoration-color, -webkit-backdrop-filter;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-transform{transition-property:transform;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.hover\:scale-\[1\.03\]:hover{--tw-scale-x:1.03;--tw-scale-y:1.03;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:border-purple-400\/40:hover{border-color:rgb(192 132 252 / 0.4)}.hover\:border-purple-400\/50:hover{border-color:rgb(192 132 252 / 0.5)}.hover\:bg-purple-100:hover{--tw-bg-opacity:1;background-color:rgb(243 232 255 / var(--tw-bg-opacity, 1))}.hover\:bg-white\/10:hover{background-color:rgb(255 255 255 / 0.1)}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:shadow-purple-500\/50:hover{--tw-shadow-color:rgb(168 85 247 / 0.5);--tw-shadow:var(--tw-shadow-colored)}.group:hover .group-hover\:translate-x-0\.5{--tw-translate-x:0.125rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:translate-x-1{--tw-translate-x:0.25rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width: 640px){.sm\:flex-row{flex-direction:row}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-5xl{font-size:3rem;line-height:1}.sm\:text-6xl{font-size:3.75rem;line-height:1}}@media (min-width: 768px){.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.md\:grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.md\:p-16{padding:4rem}.md\:text-7xl{font-size:4.5rem;line-height:1}}
     </style>
-  </head>
-  <body>
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-
-    <div class="wrap">
-      <header>
-        <div class="logo">
-          <div class="logo-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg>
-          </div>
-          <span class="logo-text">UP LVL Rewards</span>
-        </div>
-      </header>
-
-      <main>
-        <div class="card-panel">
-          <!-- Gift card -->
-          <div id="giftCard" class="gift-card-outer">
-            <div class="gift-card">
-              <div class="shine"></div>
-              <div class="gc-inner">
-                <svg class="gc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M12 8v13M19 11h-3a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4h-3"/></svg>
-                <div class="gc-reward">
-                  <p class="label">Reward Value</p>
-                  <p class="amount" id="rewardAmount">$750</p>
-                </div>
-                <div class="gc-chip">
-                  <div class="chip-gold"></div>
-                  <div class="chip-line"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <p id="rewardWaiting" class="reward-waiting">Your reward is waiting!</p>
-
-          <!-- Question step -->
-          <div id="questionStep" class="step">
-            <p class="q-label" id="qLabel">Question 1 of 3</p>
-            <h1 class="q-text" id="qText">Do you like to shop online?</h1>
-            <div class="options" id="options"></div>
-            <div class="progress"><div id="progressBar" style="width:33%"></div></div>
-          </div>
-
-          <!-- Activating step -->
-          <div id="activatingStep" class="step center hidden">
-            <div class="badge-row">
-              <div class="badge">
-                <svg class="spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-              </div>
-            </div>
-            <h1 class="h1">Activating Your Reward...</h1>
-            <div class="info-list">
-              <div class="info-card">
-                <h2>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-                  How fast can I get my Reward?
-                </h2>
-                <p>You can typically complete all of the required sponsored Deals within 5-7 days (some may take up to 60 days to complete). Once you complete the required number of Deals, you must complete the Reward claims process, which requires ID verification. It typically takes our customer service team 1-3 days to verify and deliver your Reward. On average, customers who received a Reward did so within 6-10 days of registration.</p>
-              </div>
-              <div class="info-card">
-                <h2>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#d8b4fe" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M12 8v13M19 11h-3a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4h-3"/></svg>
-                  Claim other Rewards
-                </h2>
-                <p>Complete 25 Deals to claim a $1000 Reward or complete fewer to claim a lesser value Reward. Customers who received a $500 Reward only spent around $15, while those who received $1,000 spent about $49.</p>
-              </div>
-              <div class="info-card">
-                <h2>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fde047" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg>
-                  Deals you will love
-                </h2>
-                <p>Discover our partner Deals such as mobile games and apps, subscription products and services, free trials and many more! Complete the required number of Deals to earn your Reward.</p>
-              </div>
-            </div>
-            <button class="btn" id="quickStartBtn">Get a Quick Start</button>
-          </div>
-
-          <!-- Email step -->
-          <div id="emailStep" class="step center hidden">
-            <div class="badge-row">
-              <div class="badge">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-              </div>
-            </div>
-            <h1 class="h1">Sign up or resume by confirming your email:</h1>
-            <p class="subtext" style="margin-top:8px;margin-bottom:24px;">We use email to send your reward status updates. Opt out anytime.</p>
-            <div class="email-input-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-              <input type="email" id="emailInput" class="email-input" placeholder="Enter your email address" />
-            </div>
-            <p class="error hidden" id="emailError"></p>
-            <button class="btn" id="continueBtn">
-              <span id="continueLabel">Continue</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-            <p class="subtext">By clicking Continue below, I agree to email marketing, the <a href="https://contact.uplevelrewards.com/policies/terms" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a> (which include mandatory arbitration), <a href="https://contact.uplevelrewards.com/policies/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, the tokrwd <a href="/Rewards/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and site visit recordation by TrustedForm and Jornaya.</p>
-          </div>
-
-          <!-- Done step -->
-          <div id="doneStep" class="step center hidden" style="padding:32px 0;">
-            <div class="badge-row">
-              <div class="badge big">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-              </div>
-            </div>
-            <h1 class="h1" style="font-size:30px;">You're all set!</h1>
-            <p class="done-text">Your $750 reward is being prepared. Check your email for the next steps to claim your reward.</p>
-            <div class="secure-box">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Your information is secure
-            </div>
-          </div>
-        </div>
-
-        <p class="footer">You must complete the Purchase &amp; Program Requirements in order to earn your $750 reward. Trade names or rights associated with all brands on this site are the property of their respective owners and are not affiliated with this promotion.</p>
-      </main>
+    <style>
+      html { scroll-behavior: smooth; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+      .modal-enter { animation: modalIn 0.25s ease-out; }
+      @keyframes modalIn {
+        from { opacity: 0; transform: translateY(12px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .fade-in { animation: fadeIn 0.3s ease-out; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+    <meta property="og:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png">
+</head>
+  <body class="relative min-h-screen overflow-x-hidden bg-[#0a0118] text-white">
+    <!-- Ombre background -->
+    <div class="pointer-events-none fixed inset-0 -z-10">
+      <div class="absolute inset-0 bg-gradient-to-b from-purple-700 via-purple-950 to-black"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(168,85,247,0.35),transparent_55%)]"></div>
+      <div class="absolute -top-40 left-1/2 h-[40rem] w-[40rem] -translate-x-1/2 rounded-full bg-purple-600/30 blur-[120px]"></div>
+      <div class="absolute bottom-0 right-0 h-[30rem] w-[30rem] rounded-full bg-fuchsia-600/20 blur-[120px]"></div>
     </div>
 
-    <script type="module">
-      const SUPABASE_URL = 'https://ecyawhhimmuzryxjnjng.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeWF3aGhpbW11enJ5eGpuam5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDU4NjcsImV4cCI6MjA5NDcyMTg2N30.GVKRI32R72B6fXpDyhSZwuXhs5ucHBHpw14_0LVbUXs';
-      // Minimal PostgREST client — insert + update, nothing else. Returns { error } so the call
-      // sites below read exactly as they did with supabase-js.
-      const SB_HEADERS = {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json',
-        // return=minimal: never ask PostgREST to echo the row back. anon has no read on the data
-        // columns (RLS + column grants), so a returning request would 401 the whole write.
-        'Prefer': 'return=minimal',
-      };
-      const SB_REST = SUPABASE_URL + '/rest/v1/survey_responses';
+    <!-- Nav -->
+    <header id="nav" class="fixed inset-x-0 top-0 z-40 transition-all duration-300 bg-transparent">
+      <nav class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div class="flex items-center gap-2">
+          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20 backdrop-blur">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          </div>
+          <span class="text-lg font-semibold tracking-tight">Apple Cash Survey</span>
+        </div>
+        <button onclick="openSurvey()" class="group flex items-center gap-1.5 rounded-full bg-white px-5 py-2 text-sm font-semibold text-purple-950 transition hover:bg-purple-100">
+          Start Survey
+          <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </nav>
+    </header>
 
-      // Every capture call is on a HARD budget. "Best effort then go" only holds for a capture that
-      // FAILS — a capture that HANGS is worse, because the submit handler awaits it before setting
-      // location.href, so a stalled request parks the visitor on the email screen indefinitely and
-      // the paid click is lost. Same reasoning and roughly the same budget as api/_lib/kv.js, which
-      // puts a 250ms abort on anything sitting on the click path.
-      const SB_TIMEOUT_MS = 2500;
-      function sbFetch(url, init) {
-        const ac = new AbortController();
-        const t = setTimeout(() => ac.abort(), SB_TIMEOUT_MS);
-        return fetch(url, Object.assign({}, init, { signal: ac.signal }))
-          .finally(() => clearTimeout(t));
-      }
+    <!-- Hero -->
+    <section class="relative mx-auto max-w-6xl px-6 pt-44 pb-24 text-center">
+      <div class="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm text-purple-100 backdrop-blur">
+        <svg class="h-4 w-4 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+        Earn up to $750 in Apple Cash
+      </div>
+      <h1 class="mx-auto max-w-3xl text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
+        Share your opinion.
+        <br />
+        <span class="bg-gradient-to-r from-purple-200 via-fuchsia-200 to-purple-300 bg-clip-text text-transparent">
+          Get paid in Apple Cash.
+        </span>
+      </h1>
+      <p class="mx-auto mt-6 max-w-xl text-lg text-purple-100/80">
+        Complete a quick 3-question survey and unlock your Apple Cash reward.
+        It takes less than a minute — no strings attached.
+      </p>
+      <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <button onclick="openSurvey()" class="group flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-400 to-fuchsia-400 px-8 py-4 text-base font-semibold text-purple-950 shadow-lg shadow-purple-500/30 transition hover:scale-[1.03] hover:shadow-purple-500/50">
+          Claim Your Apple Cash
+          <svg class="h-5 w-5 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="flex items-center gap-2 text-sm text-purple-100/70">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Takes under 60 seconds
+        </div>
+      </div>
 
-      async function sbInsert(row) {
-        try {
-          const r = await sbFetch(SB_REST, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(row) });
-          return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
-        } catch (e) { return { error: e }; }
-      }
-      async function sbUpdateById(id, patch) {
-        if (!id) return { error: { message: 'no record id' } };
-        try {
-          const r = await sbFetch(SB_REST + '?id=eq.' + encodeURIComponent(id),
-            { method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify(patch) });
-          if (!r.ok) return { error: { status: r.status, body: await r.text().catch(() => '') } };
-          // A PATCH that matched NOTHING is a 204 too — PostgREST reports the count in content-range
-          // ('*/0' means zero rows). Without this check a lost lead is indistinguishable from a
-          // saved one: that is exactly how the missing-SELECT-policy bug hid, and the same shape
-          // recurs whenever the insert failed and this update targets a row that never existed.
-          const range = r.headers.get('content-range') || '';
-          if (range.slice(-2) === '/0') return { error: { message: 'update matched no row', range: range } };
-          return { error: null };
-        } catch (e) { return { error: e }; }
-      }
+      <!-- Trust stats -->
+      <div class="mx-auto mt-20 grid max-w-3xl grid-cols-3 gap-4">
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+          <svg class="mx-auto mb-2 h-6 w-6 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <div class="text-2xl font-bold">2.4M+</div>
+          <div class="text-xs text-purple-100/60">Surveys completed</div>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+          <svg class="mx-auto mb-2 h-6 w-6 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+          <div class="text-2xl font-bold">$8.1M</div>
+          <div class="text-xs text-purple-100/60">Apple Cash paid out</div>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur">
+          <svg class="mx-auto mb-2 h-6 w-6 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <div class="text-2xl font-bold">4.9/5</div>
+          <div class="text-xs text-purple-100/60">User rating</div>
+        </div>
+      </div>
+    </section>
 
-      const REWARD_VALUE = 750;
+    <!-- How it works -->
+    <section class="mx-auto max-w-6xl px-6 py-20">
+      <h2 class="text-center text-3xl font-bold tracking-tight sm:text-4xl">How it works</h2>
+      <p class="mx-auto mt-3 max-w-md text-center text-purple-100/70">
+        Three simple steps stand between you and your Apple Cash reward.
+      </p>
+      <div class="mt-12 grid gap-6 md:grid-cols-3">
+        <div class="group relative rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur transition hover:border-purple-400/40 hover:bg-white/10">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-fuchsia-500 text-purple-950 shadow-lg shadow-purple-500/30">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-purple-300">Step 1</div>
+          <h3 class="text-xl font-semibold">Answer 3 questions</h3>
+          <p class="mt-2 text-sm text-purple-100/70">Tell us how you use Apple Pay and what rewards matter to you.</p>
+        </div>
+        <div class="group relative rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur transition hover:border-purple-400/40 hover:bg-white/10">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-fuchsia-500 text-purple-950 shadow-lg shadow-purple-500/30">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-purple-300">Step 2</div>
+          <h3 class="text-xl font-semibold">Verify your account</h3>
+          <p class="mt-2 text-sm text-purple-100/70">Confirm the Apple ID where your Apple Cash should land.</p>
+        </div>
+        <div class="group relative rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur transition hover:border-purple-400/40 hover:bg-white/10">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-fuchsia-500 text-purple-950 shadow-lg shadow-purple-500/30">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          </div>
+          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-purple-300">Step 3</div>
+          <h3 class="text-xl font-semibold">Get your reward</h3>
+          <p class="mt-2 text-sm text-purple-100/70">Apple Cash is sent straight to your Wallet — instantly.</p>
+        </div>
+      </div>
+    </section>
 
-      const QUESTIONS = [
-        { id: 'q1', label: 'Question 1 of 3', text: 'Do you like to shop online?', options: [{ value: 'Yes', label: 'Yes' }, { value: 'No', label: 'No' }] },
-        { id: 'q2', label: 'Question 2 of 3', text: `What would you do with $${REWARD_VALUE}?`, options: [{ value: 'Use it myself', label: 'Use it myself' }, { value: 'Share with family', label: 'Share with family' }] },
-        { id: 'q3', label: 'Question 3 of 3', text: 'How often do you shop online?', options: [{ value: 'Weekly', label: 'Weekly' }, { value: 'Monthly', label: 'Monthly' }] },
-      ];
-      const STEP_ORDER = ['q1', 'q2', 'q3', 'activating', 'email', 'done'];
+    <!-- Reward highlight -->
+    <section class="mx-auto max-w-6xl px-6 py-20">
+      <div class="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-purple-600/30 to-fuchsia-600/10 p-10 backdrop-blur md:p-16">
+        <div class="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-fuchsia-500/30 blur-3xl"></div>
+        <div class="relative grid items-center gap-10 md:grid-cols-2">
+          <div>
+            <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Your Apple Cash, your way</h2>
+            <p class="mt-4 text-purple-100/80">
+              Rewards land directly in your Apple Wallet. Spend it in stores,
+              online, in apps, or send it to friends with Messages — no
+              conversion, no waiting.
+            </p>
+            <ul class="mt-6 space-y-3">
+              <li class="flex items-center gap-3 text-sm">
+                <svg class="h-5 w-5 shrink-0 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Instant transfer to your bank
+              </li>
+              <li class="flex items-center gap-3 text-sm">
+                <svg class="h-5 w-5 shrink-0 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                No fees on standard transfers
+              </li>
+              <li class="flex items-center gap-3 text-sm">
+                <svg class="h-5 w-5 shrink-0 text-purple-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Works everywhere Apple Pay is accepted
+              </li>
+            </ul>
+          </div>
+          <div class="flex justify-center">
+            <div class="relative h-56 w-80 rounded-3xl bg-gradient-to-br from-white to-purple-100 p-6 text-purple-950 shadow-2xl shadow-purple-900/50">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold">Apple Cash</span>
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+              </div>
+              <div class="mt-10 text-4xl font-bold tracking-tight">$750.00</div>
+              <div class="mt-1 text-xs text-purple-900/60">Available balance</div>
+              <div class="mt-8 flex items-center justify-between text-xs text-purple-900/70">
+                <span>•••• 4291</span>
+                <span>Instant</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- FAQ -->
+    <section class="mx-auto max-w-3xl px-6 py-20">
+      <h2 class="text-center text-3xl font-bold tracking-tight sm:text-4xl">Frequently asked questions</h2>
+      <div class="mt-10 space-y-4">
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+          <h3 class="text-base font-semibold">Is this really free?</h3>
+          <p class="mt-2 text-sm text-purple-100/70">Yes. The survey is completely free. You'll never be asked to pay to claim your Apple Cash reward.</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+          <h3 class="text-base font-semibold">How fast do I get my Apple Cash?</h3>
+          <p class="mt-2 text-sm text-purple-100/70">Most rewards are delivered instantly to your Apple Wallet once the survey is complete and your account is verified.</p>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+          <h3 class="text-base font-semibold">Do I need an Apple device?</h3>
+          <p class="mt-2 text-sm text-purple-100/70">Yes — Apple Cash requires an Apple ID and a compatible iPhone or iPad with Apple Wallet set up.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="mx-auto max-w-6xl px-6 pb-28 pt-4 text-center">
+      <h2 class="mx-auto max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">Ready to claim your Apple Cash?</h2>
+      <p class="mx-auto mt-4 max-w-md text-purple-100/70">Join millions who've turned a quick survey into real rewards.</p>
+      <button onclick="openSurvey()" class="group mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-400 to-fuchsia-400 px-8 py-4 text-base font-semibold text-purple-950 shadow-lg shadow-purple-500/30 transition hover:scale-[1.03]">
+        Start the Survey
+        <svg class="h-5 w-5 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black/30 backdrop-blur">
+      <div class="mx-auto max-w-6xl px-6 py-10 text-center text-sm text-purple-100/50">
+        <div class="mb-3 flex items-center justify-center gap-2">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          <span class="font-semibold text-purple-100/80">Apple Cash Survey</span>
+        </div>
+        <p>
+          Apple, Apple Pay, and Apple Cash are trademarks of Apple Inc. This promotion is not
+          affiliated with, sponsored by, or endorsed by Apple. Reward requires completing the
+          advertiser's offer requirements.
+          <br><a href="/Rewards/terms" class="underline">Terms</a> &middot;
+          <a href="/Rewards/privacy" class="underline">Privacy</a>
+        </p>
+      </div>
+    </footer>
+
+    <!-- Survey Modal -->
+    <div id="surveyModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeSurvey()"></div>
+      <div class="modal-enter relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-purple-900 to-[#0a0118] p-8 shadow-2xl">
+        <button onclick="closeSurvey()" class="absolute right-4 top-4 rounded-full p-1.5 text-purple-100/60 transition hover:bg-white/10 hover:text-white" aria-label="Close survey">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+
+        <div id="surveyContent"></div>
+      </div>
+    </div>
+
+    <script>
       // ---- Outbound: the SPRK tracking DOOR ----
-      // Her page had NO outbound link of any kind — the funnel ended on "You're all set!" and the
-      // visitor never reached the offer. The door mints the click_id, freezes the owner at click
-      // time, stamps the outbound subid wire and 302s to the real Apple Pay URL, which lives in the
-      // offer row and never appears in this page's source.
+      // Her page had NO outbound link of any kind. The survey ended on "Survey complete!" and a
+      // Done button that closed the modal, so the visitor never reached the offer and the click was
+      // paid for and wasted. The door mints the click_id, freezes the owner at click time, stamps
+      // the outbound subid wire and 302s to the real URL, which never appears in this page.
       const DOOR = "https://sprktrax.org/api/link/applepay750-us-ashlyn";
 
-      // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account,
-      // ttclid). Her getQueryParam() read only Flow and affsecid, and only to store them.
+      // Carry EVERY incoming param through (s1=<SPK>, s2 publisher, s3 ad account, ttclid).
       const doorQ = new URLSearchParams(location.search);
-
-      // campid is the Carrd/Spartis name for the same value — promote it when s1 is absent.
       if (!doorQ.get('s1') && doorQ.get('campid')) doorQ.set('s1', doorQ.get('campid'));
-
-      // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never
-      // fabricated; the door 404s an untagged click by design, and that is the real gate.
       if (!doorQ.get('s1')) {
         const mc = doorQ.get('mc_attr') || '', f = {};
         mc.split('..').forEach((kv) => { const i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
         const d = f.e || f.c; if (d) doorQ.set('s1', d);
       }
-
       function offerUrl() {
-        // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network
-        // param, and lg routes the lander only.
+        // s1 LAST — ad automations append to the tail. campid/lg route the lander, not the network.
         const out = new URLSearchParams(doorQ.toString());
         out.delete('s1'); out.delete('campid'); out.delete('lg');
         const qs = out.toString(), s1 = doorQ.get('s1') || '';
@@ -353,132 +281,194 @@
         return url;
       }
 
-      // pendingInsert added: the lead insert is fired without being awaited, and the submit handler
-      // has to be able to wait on it. See createRecord / handleSubmitEmail below.
-      const state = { step: 'q1', answers: {}, recordId: null, submitting: false, pendingInsert: null };
-
-      const $ = (id) => document.getElementById(id);
-      const arrowSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-
-      function getQueryParam(name) {
-        return new URLSearchParams(window.location.search).get(name) ?? '';
-      }
-
-      function showStep(step) {
-        const isQuestion = QUESTIONS.some(q => q.id === step);
-        $('questionStep').classList.toggle('hidden', !isQuestion);
-        $('activatingStep').classList.toggle('hidden', step !== 'activating');
-        $('emailStep').classList.toggle('hidden', step !== 'email');
-        $('doneStep').classList.toggle('hidden', step !== 'done');
-        $('giftCard').classList.toggle('hidden', step === 'done');
-        $('rewardWaiting').classList.toggle('hidden', step === 'done');
-      }
-
-      function renderQuestion() {
-        const q = QUESTIONS.find(qx => qx.id === state.step);
-        if (!q) return;
-        $('qLabel').textContent = q.label;
-        $('qText').textContent = q.text;
-        const opts = $('options');
-        opts.innerHTML = '';
-        q.options.forEach((opt, i) => {
-          const btn = document.createElement('button');
-          btn.className = 'option-btn';
-          btn.style.animationDelay = `${i * 80}ms`;
-          btn.innerHTML = `<span>${opt.label}</span>${arrowSvg}`;
-          btn.addEventListener('click', () => handleAnswer(q.id, opt.value));
-          opts.appendChild(btn);
-        });
-        const idx = QUESTIONS.findIndex(qx => qx.id === state.step);
-        $('progressBar').style.width = `${((idx + 1) / QUESTIONS.length) * 100}%`;
-      }
-
-      async function handleAnswer(questionId, value) {
-        state.answers[questionId] = value;
-        const next = STEP_ORDER[STEP_ORDER.indexOf(questionId) + 1];
-        if (next) { state.step = next; goToStep(); }
-        if (state.recordId) {
-          // Real column names. Hers passed the bare question id, which is not a column.
-          const COL = { q1: 'q1_shop_online', q2: 'q2_use_reward', q3: 'q3_shop_frequency' };
-          const col = COL[questionId];
-          if (col) await sbUpdateById(state.recordId, { [col]: value });
-        }
-      }
-
-      async function createRecord() {
-        if (state.recordId) return;
-        // Mint the id here, so the insert needs no .select() and the anon role needs no read.
-        const newId = (crypto.randomUUID ? crypto.randomUUID()
-          : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-              const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            }));
-        // Claim the id BEFORE awaiting the insert. The id is minted here, so it is known
-        // immediately — and a visitor who clicks straight through (answer, answer, answer, Quick
-        // Start, submit) can reach the email step before this insert resolves. Setting recordId
-        // afterwards left it null at submit time, the update matched no row, and the email was
-        // silently dropped while the page still redirected happily. Measured, not theoretical.
-        state.recordId = newId;
-        state.pendingInsert = sbInsert({
-            id: newId,
-            q1_shop_online: state.answers.q1 ?? null,
-            q2_use_reward: state.answers.q2 ?? null,
-            q3_shop_frequency: state.answers.q3 ?? null,
-            reward: `applepay${REWARD_VALUE}us`,
-            flow_id: getQueryParam('Flow'),
-            affsecid: getQueryParam('affsecid'),
-            // The attribution wire, so a lead can be tied back to the affiliate and creative that
-            // produced it. Her original stored only Flow/affsecid, which identify neither.
+      // ---- Lead capture, into OUR project ----
+      // Write-only by construction: anon holds INSERT + UPDATE and can read only `id`, so the key
+      // embedded here cannot be used to read a single answer back. See sprk-lander-lead-capture.
+      const SB_REST = "https://ecyawhhimmuzryxjnjng.supabase.co/rest/v1/survey_responses";
+      const SB_HEADERS = {
+        'apikey': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeWF3aGhpbW11enJ5eGpuam5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDU4NjcsImV4cCI6MjA5NDcyMTg2N30.GVKRI32R72B6fXpDyhSZwuXhs5ucHBHpw14_0LVbUXs",
+        'Authorization': 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeWF3aGhpbW11enJ5eGpuam5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDU4NjcsImV4cCI6MjA5NDcyMTg2N30.GVKRI32R72B6fXpDyhSZwuXhs5ucHBHpw14_0LVbUXs",
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      };
+      // A HARD budget. The hand-off must never wait on the network: a capture that HANGS costs a
+      // paid click, which is worse than a capture that fails. Same reasoning as api/_lib/kv.js.
+      const SB_TIMEOUT_MS = 2000;
+      let leadSent = false;
+      function captureLead(finalAnswers) {
+        if (leadSent) return Promise.resolve();
+        leadSent = true;
+        const ac = new AbortController();
+        const t = setTimeout(() => ac.abort(), SB_TIMEOUT_MS);
+        return fetch(SB_REST, {
+          method: 'POST', headers: SB_HEADERS, signal: ac.signal,
+          body: JSON.stringify({
+            id: (crypto.randomUUID ? crypto.randomUUID()
+              : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                  const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                })),
+            page: "ashlyn-apay-survey-v2",
+            reward: 'applepay750us',
+            answers: finalAnswers,
+            // The attribution wire, so a lead ties back to the affiliate and creative behind it.
             s1: doorQ.get('s1') || null,
             s2: doorQ.get('s2') || null,
             s3: doorQ.get('s3') || null,
             ttclid: doorQ.get('ttclid') || null,
-            completed: false,
-        });
-        const { error } = await state.pendingInsert;
-        if (error) console.error('lead insert failed, continuing:', error);
+            completed: true,
+          }),
+        }).then((r) => { if (!r.ok) return r.text().catch(() => '').then((b) => console.error('lead capture failed:', r.status, b)); })
+          .catch((e) => console.error('lead capture failed:', e))
+          .finally(() => clearTimeout(t));
       }
 
-      function goToStep() {
-        showStep(state.step);
-        if (QUESTIONS.some(q => q.id === state.step)) renderQuestion();
-        if (state.step === 'activating') createRecord();
-      }
-
-      async function handleSubmitEmail() {
-        const email = $('emailInput').value.trim();
-        const errEl = $('emailError');
-        if (!email) { errEl.textContent = 'Please enter your email address.'; errEl.classList.remove('hidden'); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email address.'; errEl.classList.remove('hidden'); return; }
-        errEl.classList.add('hidden');
-        state.submitting = true;
-        $('continueBtn').disabled = true;
-        $('continueLabel').textContent = 'Submitting...';
-        // BEST EFFORT, THEN GO. Her original `return`ed on a Supabase error and left the visitor
-        // parked on this screen. That database is not ours, so an outage there would have silently
-        // eaten paid clicks. Record the lead if we can, then hand off either way: a lead we failed
-        // to store is a bad day, a paid click that never reached the offer is money already spent.
-        try {
-          // The insert is fired from goToStep() without being awaited, so on a fast click-through it
-          // can still be in flight here. Await it first or this update races ahead of the row it is
-          // meant to find, matches nothing, and returns 204 as if it worked.
-          if (state.pendingInsert) { try { await state.pendingInsert; } catch (e) { /* logged there */ } }
-          const { error } = await sbUpdateById(state.recordId, { email, completed: true });
-          if (error) console.error('lead capture failed, continuing to the offer:', error);
-        } catch (e) {
-          console.error('lead capture threw, continuing to the offer:', e);
-        }
-        state.submitting = false;
-        $('continueBtn').disabled = false;
-        $('continueLabel').textContent = 'Continue';
+      // The single hand-off. Fires the capture, then goes — never the other way round, and never
+      // waiting on it. `once` guards the double-fire when the auto-redirect and a tap race.
+      let handedOff = false;
+      function goToOffer() {
+        if (handedOff) return;
+        handedOff = true;
+        try { captureLead(answers); } catch (e) { console.error(e); }
         window.location.href = offerUrl();
       }
 
-      $('quickStartBtn').addEventListener('click', () => { state.step = 'email'; goToStep(); });
-      $('continueBtn').addEventListener('click', handleSubmitEmail);
-      $('emailInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSubmitEmail(); });
-      $('emailInput').addEventListener('input', () => { $('emailError').classList.add('hidden'); });
+      const SURVEY_STEPS = [
+        {
+          id: "device",
+          question: "Which Apple device do you use most?",
+          options: [
+            { label: "iPhone", value: "iphone" },
+            { label: "iPad", value: "ipad" },
+            { label: "Mac", value: "mac" },
+            { label: "Apple Watch", value: "watch" },
+          ],
+        },
+        {
+          id: "frequency",
+          question: "How often do you use Apple Pay?",
+          options: [
+            { label: "Daily", value: "daily" },
+            { label: "A few times a week", value: "weekly" },
+            { label: "Rarely", value: "rarely" },
+            { label: "Never", value: "never" },
+          ],
+        },
+        {
+          id: "reward",
+          question: "What would you spend Apple Cash on?",
+          options: [
+            { label: "Apps & subscriptions", value: "apps" },
+            { label: "Shopping", value: "shopping" },
+            { label: "Sending to friends", value: "send" },
+            { label: "Saving it", value: "save" },
+          ],
+        },
+      ];
 
-      goToStep();
+      let stepIndex = 0;
+      let answers = {};
+
+      function openSurvey() {
+        stepIndex = 0;
+        answers = {};
+        const modal = document.getElementById("surveyModal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        renderStep();
+      }
+
+      function closeSurvey() {
+        const modal = document.getElementById("surveyModal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+
+      function renderStep() {
+        const content = document.getElementById("surveyContent");
+        if (stepIndex >= SURVEY_STEPS.length) {
+          content.innerHTML = `
+            <div class="py-6 text-center fade-in">
+              <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-fuchsia-400 text-purple-950 shadow-lg shadow-purple-500/40">
+                <svg class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <h3 class="text-2xl font-bold tracking-tight">Survey complete!</h3>
+              <p class="mt-2 text-purple-100/70">
+                Your $750 Apple Cash reward is being prepared and will be sent
+                to your Apple Wallet shortly.
+              </p>
+              <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
+                <div class="text-sm text-purple-100/60">Reward summary</div>
+                <div class="mt-1 text-3xl font-bold text-purple-200">$750.00 Apple Cash</div>
+              </div>
+              <button onclick="goToOffer()" class="mt-6 w-full rounded-full bg-white px-6 py-3 font-semibold text-purple-950 transition hover:bg-purple-100">
+                Continue
+              </button>
+            </div>
+          `;
+          // The click is never lost: whether they tap Continue or simply sit here, the hand-off
+          // runs. Her original ended on this screen with a button that closed the modal.
+          setTimeout(goToOffer, 1800);
+          return;
+        }
+
+        const step = SURVEY_STEPS[stepIndex];
+        const progressBars = SURVEY_STEPS.map((s, i) =>
+          `<div class="h-1.5 flex-1 rounded-full transition-colors ${i <= stepIndex ? "bg-purple-400" : "bg-white/10"}"></div>`
+        ).join("");
+
+        const optionButtons = step.options.map((opt) => {
+          const selected = answers[step.id] === opt.value;
+          return `
+            <button
+              onclick="pickOption('${step.id}', '${opt.value}')"
+              class="flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition ${
+                selected
+                  ? "border-purple-400 bg-purple-500/30"
+                  : "border-white/10 bg-white/5 hover:border-purple-400/50 hover:bg-white/10"
+              }"
+            >
+              <span class="font-medium">${opt.label}</span>
+              <svg class="h-4 w-4 text-purple-200/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          `;
+        }).join("");
+
+        content.innerHTML = `
+          <div class="fade-in">
+            <div class="mb-6 flex items-center gap-2 text-sm text-purple-200">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+              Apple Cash Survey
+            </div>
+            <div class="mb-6 flex gap-2">${progressBars}</div>
+            <h3 class="text-2xl font-bold tracking-tight">${step.question}</h3>
+            <p class="mt-1 text-sm text-purple-100/60">Question ${stepIndex + 1} of ${SURVEY_STEPS.length}</p>
+            <div class="mt-6 grid gap-3">${optionButtons}</div>
+          </div>
+        `;
+      }
+
+      function pickOption(stepId, value) {
+        answers[stepId] = value;
+        setTimeout(() => {
+          stepIndex++;
+          renderStep();
+        }, 180);
+      }
+
+      // Nav scroll effect
+      window.addEventListener("scroll", () => {
+        const nav = document.getElementById("nav");
+        if (window.scrollY > 20) {
+          nav.classList.add("border-b", "border-white/10", "bg-black/40", "backdrop-blur-xl");
+        } else {
+          nav.classList.remove("border-b", "border-white/10", "bg-black/40", "backdrop-blur-xl");
+        }
+      });
+
+      // Close modal on Escape
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSurvey();
+      });
     </script>
   <!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
      anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->

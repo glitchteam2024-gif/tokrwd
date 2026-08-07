@@ -1,94 +1,75 @@
 #!/usr/bin/env node
 /**
- * ASHLYN'S Apple Pay $750 survey lander — an OPERATOR-SUPPLIED design, wired onto our door.
+ * ASHLYN'S Apple Pay $750 lander — an OPERATOR-SUPPLIED design, wired onto our door.
  *
  *   node _lp-generator/ashlyn-apay.js --clones 100
  *
- * Same pattern as _lp-generator/sammy-acash.js: her file is saved BYTE-FOR-BYTE as
- * `ashlyn-apay-source.html`, and this generator applies only ASSERTED patches on top, so her design
- * survives intact and re-running is deterministic. See .claude/skills/sprk-custom-landers.
+ * Her file is saved BYTE-FOR-BYTE as `ashlyn-apay-source.html`; this generator applies only
+ * ASSERTED patches on top, so her design survives intact and re-running is deterministic.
+ * See .claude/skills/sprk-custom-landers and .claude/skills/sprk-lander-lead-capture.
  *
- * ── THE ONE THING THAT MADE THIS PAGE UNRUNNABLE ─────────────────────────────────────────────
+ * ── 2026-08-07: SHE REPLACED THE PAGE ────────────────────────────────────────────────────────
+ * The first version was a plain 3-question survey with an email box. This is a full marketing page
+ * — hero, how-it-works, reward card, FAQ, and the survey in a modal. Same folders, same door slug,
+ * so nothing in the database moves: ASHL/US + /ashurl + AH50/US1..US100 -> applepay750-us-ashlyn.
  *
- * IT NEVER REACHED THE OFFER. Not a broken link — there was no link. Her funnel is
+ * ── AGAIN: IT NEVER REACHED THE OFFER ────────────────────────────────────────────────────────
+ * Grepping the supplied file for location.href / location.replace / window.open / sprktrax /
+ * api/link returns ZERO. The survey ends on "Survey complete! Your $750 Apple Cash reward is being
+ * prepared" and a Done button that calls closeSurvey(). The visitor answers three questions, reads
+ * that their reward is on its way, and closes the tab. Nothing was ever sent anywhere.
  *
- *     q1 -> q2 -> q3 -> activating -> email -> "You're all set!"
+ * That is the second supplied page in a row with this exact shape. It is the FIRST thing to grep.
  *
- * and "You're all set!" is the end. Grepping the source for location.href / location.replace /
- * window.open / sprktrax / api/link returns NOTHING. A visitor answered three questions, handed over
- * their email, read "Check your email for the next steps", and closed the tab. Ashlyn would have
- * paid for every one of those clicks and earned nothing on any of them, and every dashboard would
- * have looked normal — clicks in, zero conversions, no error anywhere.
+ * ── AND THE WHOLE PAGE HUNG ON A CDN ─────────────────────────────────────────────────────────
+ * It loaded Tailwind from cdn.tailwindcss.com — not a stylesheet but the JIT COMPILER, which
+ * generates the CSS in the browser at runtime. If that host is blocked, throttled or slow, the page
+ * renders as unstyled HTML on paid traffic. Worse than the jsdelivr import it replaces, because
+ * that one only broke the capture; this one breaks the entire visual page.
  *
- * So the email step now hands off to the SPRK door. That is the only structural change.
- *
- * ── AND THE THING THAT WOULD HAVE EATEN CLICKS QUIETLY ───────────────────────────────────────
- *
- * Her submit handler `return`s on a Supabase error, leaving the visitor on the email screen. With
- * the door wired in that would mean an outage in a THIRD-PARTY database silently costing us paid
- * clicks. The hand-off is therefore best-effort-then-go: the write is attempted, its outcome is
- * logged, and the visitor is sent to the door either way. A lead we failed to record is a bad day;
- * a paid click that never reached the offer is money already spent.
- *
- * ── WHAT IS NOT CHANGED, AND WHAT YOU ARE BEING TOLD ABOUT EVERY RUN ─────────────────────────
- *
- * `jjdpumaccvbsktotcwgc.supabase.co` IS NOT OUR SUPABASE PROJECT (ours is ecyawhhimmuzryxjnjng).
- * Every visitor's EMAIL ADDRESS and survey answers are inserted into that outside project, from a
- * page served on www.tokrwd.co, using an anon key embedded in the page. This generator does not
- * remove it — it is her funnel and the operator's call — but it prints it on every run, the same
- * way _tracking-audit.test.mjs prints its EXCEPTIONS, so it cannot quietly become permanent.
- *
- * Worth knowing before deciding: we cannot see that project, cannot delete from it, and cannot
- * answer a data request about it. The privacy policy the page links to is uplevelrewards', not ours.
- *
- * The claim copy is hers and unedited. Several lines are specific and checkable — "customers who
- * received a $500 Reward only spent around $15", "within 6-10 days of registration" — which is
- * BETTER than an invented round number, provided the network stands behind them. They read as
- * lifted from UpLevel's own disclosures; confirm that before spend.
+ * So the CSS is generated ONCE, here, and inlined. `ashlyn-tailwind.css` was harvested by loading
+ * her page in headless Chrome with every class token in the file injected into a hidden element, so
+ * the JIT emitted the complete sheet — including the states that only exist inside JS template
+ * literals (the selected option's `bg-purple-500/30`), which a plain page load never generates.
+ * REGENERATE IT (see the header of that file) if her markup ever changes, or new classes will
+ * silently render unstyled.
  */
 const fs = require('fs');
 const path = require('path');
 
 const SOURCE = fs.readFileSync(path.join(__dirname, 'ashlyn-apay-source.html'), 'utf8');
+const TAILWIND = fs.readFileSync(path.join(__dirname, 'ashlyn-tailwind.css'), 'utf8');
 
-/** OUR project's anon key. Public by design — RLS is the control, see the patch below. */
+/** OUR project's anon key. Public by design — RLS is the control. See sprk-lander-lead-capture. */
+const SUPABASE_URL = 'https://ecyawhhimmuzryxjnjng.supabase.co';
 const OUR_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeWF3aGhpbW11enJ5eGpuam5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDU4NjcsImV4cCI6MjA5NDcyMTg2N30.GVKRI32R72B6fXpDyhSZwuXhs5ucHBHpw14_0LVbUXs';
 
-const CANON_DIR = 'ASHL';                 // ASHL/US/index.html
-const FAMILY    = 'AH50';                 // AH50/US1..US100 — one clone per affiliate slot
+const CANON_DIR = 'ASHL';
+const FAMILY    = 'AH50';
 const GEO       = 'US';
-const VANITY    = 'ashurl';               // /ashurl — Migi's naming, matching Sammy's /sasurl
+const VANITY    = 'ashurl';
+const PAGE_TAG  = 'ashlyn-apay-survey-v2';   // survey_responses.page, so rows are attributable
 
-/**
- * WHICH DOOR THIS PAGE FIRES.
- *
- * Must equal the `slug` on the landing_pages row created for her, or the click dies at the door —
- * silent from the page's side. Apple Pay $750 US already has three house designs
- * (applepay750-us / -b / -c); hers is a FOURTH, so it gets its own slug and its own reporting.
- */
+/** Must equal the slug on her landing_pages row, or the click dies at the door — silently. */
 const DOOR_SLUG = 'applepay750-us-ashlyn';
 const DOOR = `https://sprktrax.org/api/link/${DOOR_SLUG}`;
 
-/** Things in her page nothing in our possession substantiates or controls. Printed every run. */
+/** Claims in her copy that nothing in our possession substantiates. Printed on every run. */
 const CONCERNS = [
-  ['jjdpumaccvbsktotcwgc.supabase.co',
-   'NOT our Supabase project. Visitor EMAIL + survey answers are written into an outside database '
-   + 'from a page on www.tokrwd.co. We cannot read it, delete from it, or answer a data request '
-   + 'about it. DECIDE: keep, point at our own project, or drop the capture.'],
-  ['cdn.jsdelivr.net',
-   'the Supabase JS client is loaded from a third-party CDN at runtime. If jsdelivr is blocked or '
-   + 'down the module import throws, and with it every listener registered after it — including the '
-   + 'door hand-off. Self-host it under /js/ to remove that dependency from the money path.'],
-  ['fonts.googleapis.com',
-   'Google Fonts, loaded per visitor. Cosmetic, but it is a third-party request on a paid-traffic '
-   + 'page and an EU-visitor question. Self-host the woff2 if that matters.'],
-  ['bolt.new/static/og_default.png',
-   'the og:image is still the Bolt scaffold default — link previews of her page show Bolt branding.'],
-  ['spent around $15',
-   'a specific spend figure. Better than an invented round number IF UpLevel publishes it — '
-   + 'confirm it is theirs before running traffic.'],
-  ['within 6-10 days of registration',
-   'a specific delivery window, same caveat as above.'],
+  ['2.4M+', 'invented statistic — "Surveys completed". No source, and not a figure we hold.'],
+  ['$8.1M', 'invented statistic — "Apple Cash paid out".'],
+  ['4.9/5', 'invented statistic — "User rating". No platform, no review count.'],
+  ["Join millions who've turned a quick survey into real rewards",
+   'the same invented scale restated as a closing line.'],
+  ['Apple Cash is sent straight to your Wallet — instantly',
+   'a delivery-time guarantee. The offer\'s own flow requires completing sponsor deals first; '
+   + '"instantly" is not something we can stand behind.'],
+  ['Most rewards are delivered instantly to your Apple Wallet',
+   'same guarantee in the FAQ.'],
+  ['Confirm the Apple ID where your Apple Cash should land',
+   'describes a step this funnel does not perform. Nothing on the page or at the offer asks for '
+   + 'an Apple ID.'],
+  ['•••• 4291', 'a mock card number, beside an Apple mark, on a page that also shows a $750 balance.'],
 ];
 
 function sub(html, from, to, count = 1) {
@@ -100,7 +81,7 @@ function sub(html, from, to, count = 1) {
 }
 function must(html, needle, count = 1) {
   const n = html.split(needle).length - 1;
-  if (n !== count) throw new Error(`ashlyn-apay-source.html: expected ${count} x ${JSON.stringify(needle.slice(0, 60))}, found ${n}`);
+  if (n !== count) throw new Error(`emitted page: expected ${count} x ${JSON.stringify(needle.slice(0, 60))}, found ${n}`);
 }
 function never(html, needle, why) {
   if (html.includes(needle)) throw new Error(`emitted page must not contain ${JSON.stringify(needle)} — ${why}`);
@@ -109,33 +90,69 @@ function never(html, needle, why) {
 function page() {
   let h = SOURCE;
 
-  // ── The door builder, injected just above her state object ─────────────────────────────────
-  const stateAnchor = `      const state = { step: 'q1', answers: {}, recordId: null, submitting: false };`;
+  // ── 1. Tailwind: generated once, inlined. No CDN on the page at all. ───────────────────────
+  h = sub(h, '    <script src="https://cdn.tailwindcss.com"></script>\n', '');
+  h = sub(h, `    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#0a0118",
+            },
+          },
+        },
+      };
+    </script>
+`, `    <!-- Tailwind, compiled ahead of time and inlined. This page previously pulled the Tailwind
+         Play CDN, which is the JIT COMPILER rather than a stylesheet: the CSS was generated in the
+         visitor's browser on every load, so a blocked or slow CDN meant unstyled HTML on paid
+         traffic. Regenerate _lp-generator/ashlyn-tailwind.css if the markup changes — see its
+         header for how, and why a plain page load is not enough. -->
+    <style>
+${TAILWIND}
+    </style>
+`);
+  never(h, 'cdn.tailwindcss.com', 'the JIT compiler must not sit on the render path');
+  never(h, 'tailwind.config', 'the runtime config goes with the CDN script');
+
+  // ── 2. Scaffold leftovers ──────────────────────────────────────────────────────────────────
+  h = sub(h, '<meta property="og:image" content="https://bolt.new/static/og_default.png">',
+             '<meta property="og:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png">');
+  h = sub(h, '<meta name="twitter:image" content="https://bolt.new/static/og_default.png">',
+             '<meta name="twitter:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png">');
+  never(h, 'bolt.new', 'the Bolt scaffold defaults must not ship');
+
+  // "This is a demo landing page." is scaffold text, not her message — the same class of leftover
+  // as the Bolt og:image. It would tell a live visitor, and any ad reviewer, that the page is fake.
+  // The Apple trademark disclaimer beside it is real and stays.
+  h = sub(h, `          This is a demo landing page. Apple, Apple Pay, and Apple Cash are
+          trademarks of Apple Inc. Not affiliated with or endorsed by Apple.`,
+             `          Apple, Apple Pay, and Apple Cash are trademarks of Apple Inc. This promotion is not
+          affiliated with, sponsored by, or endorsed by Apple. Reward requires completing the
+          advertiser's offer requirements.
+          <br><a href="/Rewards/terms" class="underline">Terms</a> &middot;
+          <a href="/Rewards/privacy" class="underline">Privacy</a>`);
+  never(h, 'demo landing page', 'scaffold text that tells the visitor the page is fake');
+
+  // ── 3. The door + capture, injected above her SURVEY_STEPS ─────────────────────────────────
+  const wiringAnchor = '      const SURVEY_STEPS = [';
   const wiring = `      // ---- Outbound: the SPRK tracking DOOR ----
-      // Her page had NO outbound link of any kind — the funnel ended on "You're all set!" and the
-      // visitor never reached the offer. The door mints the click_id, freezes the owner at click
-      // time, stamps the outbound subid wire and 302s to the real Apple Pay URL, which lives in the
-      // offer row and never appears in this page's source.
-      const DOOR = "${DOOR}";
+      // Her page had NO outbound link of any kind. The survey ended on "Survey complete!" and a
+      // Done button that closed the modal, so the visitor never reached the offer and the click was
+      // paid for and wasted. The door mints the click_id, freezes the owner at click time, stamps
+      // the outbound subid wire and 302s to the real URL, which never appears in this page.
+      const DOOR = ${JSON.stringify(DOOR)};
 
-      // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account,
-      // ttclid). Her getQueryParam() read only Flow and affsecid, and only to store them.
+      // Carry EVERY incoming param through (s1=<SPK>, s2 publisher, s3 ad account, ttclid).
       const doorQ = new URLSearchParams(location.search);
-
-      // campid is the Carrd/Spartis name for the same value — promote it when s1 is absent.
       if (!doorQ.get('s1') && doorQ.get('campid')) doorQ.set('s1', doorQ.get('campid'));
-
-      // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never
-      // fabricated; the door 404s an untagged click by design, and that is the real gate.
       if (!doorQ.get('s1')) {
         const mc = doorQ.get('mc_attr') || '', f = {};
         mc.split('..').forEach((kv) => { const i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
         const d = f.e || f.c; if (d) doorQ.set('s1', d);
       }
-
       function offerUrl() {
-        // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network
-        // param, and lg routes the lander only.
+        // s1 LAST — ad automations append to the tail. campid/lg route the lander, not the network.
         const out = new URLSearchParams(doorQ.toString());
         out.delete('s1'); out.delete('campid'); out.delete('lg');
         const qs = out.toString(), s1 = doorQ.get('s1') || '';
@@ -144,230 +161,83 @@ function page() {
         return url;
       }
 
-      // pendingInsert added: the lead insert is fired without being awaited, and the submit handler
-      // has to be able to wait on it. See createRecord / handleSubmitEmail below.
-      const state = { step: 'q1', answers: {}, recordId: null, submitting: false, pendingInsert: null };`;
-  h = sub(h, stateAnchor, wiring);
-
-  // ── The email step hands off to the door instead of dead-ending ────────────────────────────
-  const oldSubmit = `        const { error } = await supabase.from('survey_responses').update({ email, completed: true }).eq('id', state.recordId);
-        state.submitting = false;
-        $('continueBtn').disabled = false;
-        $('continueLabel').textContent = 'Continue';
-        if (error) { errEl.textContent = 'Something went wrong. Please try again.'; errEl.classList.remove('hidden'); return; }
-        state.step = 'done';
-        goToStep();`;
-
-  const newSubmit = `        // BEST EFFORT, THEN GO. Her original \`return\`ed on a Supabase error and left the visitor
-        // parked on this screen. That database is not ours, so an outage there would have silently
-        // eaten paid clicks. Record the lead if we can, then hand off either way: a lead we failed
-        // to store is a bad day, a paid click that never reached the offer is money already spent.
-        try {
-          // The insert is fired from goToStep() without being awaited, so on a fast click-through it
-          // can still be in flight here. Await it first or this update races ahead of the row it is
-          // meant to find, matches nothing, and returns 204 as if it worked.
-          if (state.pendingInsert) { try { await state.pendingInsert; } catch (e) { /* logged there */ } }
-          const { error } = await sbUpdateById(state.recordId, { email, completed: true });
-          if (error) console.error('lead capture failed, continuing to the offer:', error);
-        } catch (e) {
-          console.error('lead capture threw, continuing to the offer:', e);
-        }
-        state.submitting = false;
-        $('continueBtn').disabled = false;
-        $('continueLabel').textContent = 'Continue';
-        window.location.href = offerUrl();`;
-  h = sub(h, oldSubmit, newSubmit);
-
-  // ── Lead capture moved to OUR Supabase project ─────────────────────────────────────────────
-  // Her page posted every visitor's email and survey answers to jjdpumaccvbsktotcwgc.supabase.co —
-  // an outside project we cannot read, delete from, or answer a data request about. Migi's call
-  // 2026-08-04: bring it in-house. Now writes to ecyawhhimmuzryxjnjng, our own project.
-  //
-  // The anon key below is PUBLIC by design (it ships in page source); the RLS policies on
-  // survey_responses are what actually protect the data:
-  //   INSERT  allowed
-  //   UPDATE  allowed only while completed = false, so a finished lead cannot be rewritten
-  //   SELECT  policy is permissive, but anon's COLUMN grant is `id` alone — so it can find a row
-  //           by id and nothing else. `?select=email` returns 42501.
-  //   anon holds INSERT + UPDATE only. DELETE and TRUNCATE were revoked: TRUNCATE is not
-  //           row-level-security bound, so no policy could ever have stopped it.
-  //
-  // ⚠️ DO NOT "simplify" this to having NO SELECT policy. That was the first design and it silently
-  // ate every lead: an UPDATE ... WHERE id = X still has to SCAN for the row, an invisible row
-  // matches zero, and PostgREST answers 204 as though it worked. See sprk-lander-lead-capture.
-  h = sub(h, "const SUPABASE_URL = 'https://jjdpumaccvbsktotcwgc.supabase.co';",
-             "const SUPABASE_URL = 'https://ecyawhhimmuzryxjnjng.supabase.co';");
-  // Asserted, not a bare replace. never('jjdpumaccvbsktotcwgc') does NOT cover this: the project ref
-  // lives base64-encoded inside the JWT payload, so a reflow of her source that broke this regex
-  // would ship OUR url with HER key — every write 401s, 100% lead loss, visible only in a console
-  // nobody is watching. Count the swap explicitly.
-  const KEY_RE = /const SUPABASE_ANON_KEY = '[^']+';/g;
-  const keyHits = (h.match(KEY_RE) || []).length;
-  if (keyHits !== 1) throw new Error(`expected exactly 1 SUPABASE_ANON_KEY assignment, found ${keyHits}`);
-  h = h.replace(KEY_RE, "const SUPABASE_ANON_KEY = '" + OUR_ANON_KEY + "';");
-  must(h, OUR_ANON_KEY, 1);
-  never(h, 'jjdpumaccvbsktotcwgc', 'the third-party project must be gone');
-  must(h, 'ecyawhhimmuzryxjnjng.supabase.co', 1);
-
-  // The row id is minted CLIENT-SIDE so the insert never needs `.select()`. That is what lets the
-  // anon role have no SELECT policy at all — with insert().select() PostgREST would need read
-  // permission on the returned row, and any read policy broad enough to allow that is broad enough
-  // to dump every email in the table.
-  const oldCreate = `        const { data, error } = await supabase
-          .from('survey_responses')
-          .insert({
-            q1_shop_online: state.answers.q1 ?? null,
-            q2_use_reward: state.answers.q2 ?? null,
-            q3_shop_frequency: state.answers.q3 ?? null,
-            reward: \`applepay\${REWARD_VALUE}us\`,
-            flow_id: getQueryParam('Flow'),
-            affsecid: getQueryParam('affsecid'),
-            completed: false,
-          })
-          .select('id')
-          .maybeSingle();
-        if (error) { console.error(error); return; }
-        if (data) state.recordId = data.id;`;
-  const newCreate = `        // Mint the id here, so the insert needs no .select() and the anon role needs no read.
-        const newId = (crypto.randomUUID ? crypto.randomUUID()
-          : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-              const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            }));
-        // Claim the id BEFORE awaiting the insert. The id is minted here, so it is known
-        // immediately — and a visitor who clicks straight through (answer, answer, answer, Quick
-        // Start, submit) can reach the email step before this insert resolves. Setting recordId
-        // afterwards left it null at submit time, the update matched no row, and the email was
-        // silently dropped while the page still redirected happily. Measured, not theoretical.
-        state.recordId = newId;
-        state.pendingInsert = sbInsert({
-            id: newId,
-            q1_shop_online: state.answers.q1 ?? null,
-            q2_use_reward: state.answers.q2 ?? null,
-            q3_shop_frequency: state.answers.q3 ?? null,
-            reward: \`applepay\${REWARD_VALUE}us\`,
-            flow_id: getQueryParam('Flow'),
-            affsecid: getQueryParam('affsecid'),
-            // The attribution wire, so a lead can be tied back to the affiliate and creative that
-            // produced it. Her original stored only Flow/affsecid, which identify neither.
+      // ---- Lead capture, into OUR project ----
+      // Write-only by construction: anon holds INSERT + UPDATE and can read only \`id\`, so the key
+      // embedded here cannot be used to read a single answer back. See sprk-lander-lead-capture.
+      const SB_REST = ${JSON.stringify(SUPABASE_URL + '/rest/v1/survey_responses')};
+      const SB_HEADERS = {
+        'apikey': ${JSON.stringify(OUR_ANON_KEY)},
+        'Authorization': 'Bearer ' + ${JSON.stringify(OUR_ANON_KEY)},
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      };
+      // A HARD budget. The hand-off must never wait on the network: a capture that HANGS costs a
+      // paid click, which is worse than a capture that fails. Same reasoning as api/_lib/kv.js.
+      const SB_TIMEOUT_MS = 2000;
+      let leadSent = false;
+      function captureLead(finalAnswers) {
+        if (leadSent) return Promise.resolve();
+        leadSent = true;
+        const ac = new AbortController();
+        const t = setTimeout(() => ac.abort(), SB_TIMEOUT_MS);
+        return fetch(SB_REST, {
+          method: 'POST', headers: SB_HEADERS, signal: ac.signal,
+          body: JSON.stringify({
+            id: (crypto.randomUUID ? crypto.randomUUID()
+              : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                  const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                })),
+            page: ${JSON.stringify(PAGE_TAG)},
+            reward: 'applepay750us',
+            answers: finalAnswers,
+            // The attribution wire, so a lead ties back to the affiliate and creative behind it.
             s1: doorQ.get('s1') || null,
             s2: doorQ.get('s2') || null,
             s3: doorQ.get('s3') || null,
             ttclid: doorQ.get('ttclid') || null,
-            completed: false,
-        });
-        const { error } = await state.pendingInsert;
-        if (error) console.error('lead insert failed, continuing:', error);`;
-  h = sub(h, oldCreate, newCreate);
-  must(h, 'const newId =', 1);
-  never(h, ".select('id')", 'the insert must not read back — anon has no SELECT policy');
-
-  // ── The cloaking canary: `display:none !important` ─────────────────────────────────────────
-  // Her step-toggling utility shipped as `.hidden { display: none !important; }`. That exact string
-  // is the signature of the blank-page cloak gate stripped from this repo on 2026-07-23, so
-  // _tracking-audit.test.mjs check 6 FAILS THE BUILD on it — verified: it flagged all 102 files.
-  //
-  // Her class is entirely legitimate (it hides the survey steps that are not current), so the fix
-  // is the one the skill documents: keep plain `display:none` and raise SPECIFICITY instead of
-  // reaching for the flag. `.hidden.hidden` doubles the selector weight, which beats anything a
-  // single class could set, with no behavioural difference at all.
-  h = sub(h, '.hidden { display: none !important; }', '.hidden.hidden { display: none; }');
-  never(h, 'display: none !important', 'trips the blank-page cloak canary in _tracking-audit check 6');
-  must(h, '.hidden.hidden { display: none; }', 1);
-
-  // ── Drop the jsdelivr CDN entirely: two REST calls, plain fetch ────────────────────────────
-  // Her page imported the whole @supabase/supabase-js client from cdn.jsdelivr.net at runtime.
-  // `import` is a HARD dependency: if jsdelivr is blocked, throttled or down, the module never
-  // evaluates and NOTHING after it runs — including the door hand-off. A third party we do not
-  // control sat directly on the money path, and its failure mode is a completely dead page.
-  //
-  // The page makes exactly two calls (one insert, one update). PostgREST speaks plain HTTP, so
-  // they are two fetches. Same precedent as api/_lib/kv.js, which talks to Upstash over fetch
-  // rather than pulling an npm client. Net: one less third party, ~100KB less JS, and the money
-  // path depends on nothing but our own origin.
-  h = sub(h, "      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';\n\n", '');
-  h = sub(h, "      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);",
-`      // Minimal PostgREST client — insert + update, nothing else. Returns { error } so the call
-      // sites below read exactly as they did with supabase-js.
-      const SB_HEADERS = {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json',
-        // return=minimal: never ask PostgREST to echo the row back. anon has no read on the data
-        // columns (RLS + column grants), so a returning request would 401 the whole write.
-        'Prefer': 'return=minimal',
-      };
-      const SB_REST = SUPABASE_URL + '/rest/v1/survey_responses';
-
-      // Every capture call is on a HARD budget. "Best effort then go" only holds for a capture that
-      // FAILS — a capture that HANGS is worse, because the submit handler awaits it before setting
-      // location.href, so a stalled request parks the visitor on the email screen indefinitely and
-      // the paid click is lost. Same reasoning and roughly the same budget as api/_lib/kv.js, which
-      // puts a 250ms abort on anything sitting on the click path.
-      const SB_TIMEOUT_MS = 2500;
-      function sbFetch(url, init) {
-        const ac = new AbortController();
-        const t = setTimeout(() => ac.abort(), SB_TIMEOUT_MS);
-        return fetch(url, Object.assign({}, init, { signal: ac.signal }))
+            completed: true,
+          }),
+        }).then((r) => { if (!r.ok) return r.text().catch(() => '').then((b) => console.error('lead capture failed:', r.status, b)); })
+          .catch((e) => console.error('lead capture failed:', e))
           .finally(() => clearTimeout(t));
       }
 
-      async function sbInsert(row) {
-        try {
-          const r = await sbFetch(SB_REST, { method: 'POST', headers: SB_HEADERS, body: JSON.stringify(row) });
-          return r.ok ? { error: null } : { error: { status: r.status, body: await r.text().catch(() => '') } };
-        } catch (e) { return { error: e }; }
+      // The single hand-off. Fires the capture, then goes — never the other way round, and never
+      // waiting on it. \`once\` guards the double-fire when the auto-redirect and a tap race.
+      let handedOff = false;
+      function goToOffer() {
+        if (handedOff) return;
+        handedOff = true;
+        try { captureLead(answers); } catch (e) { console.error(e); }
+        window.location.href = offerUrl();
       }
-      async function sbUpdateById(id, patch) {
-        if (!id) return { error: { message: 'no record id' } };
-        try {
-          const r = await sbFetch(SB_REST + '?id=eq.' + encodeURIComponent(id),
-            { method: 'PATCH', headers: SB_HEADERS, body: JSON.stringify(patch) });
-          if (!r.ok) return { error: { status: r.status, body: await r.text().catch(() => '') } };
-          // A PATCH that matched NOTHING is a 204 too — PostgREST reports the count in content-range
-          // ('*/0' means zero rows). Without this check a lost lead is indistinguishable from a
-          // saved one: that is exactly how the missing-SELECT-policy bug hid, and the same shape
-          // recurs whenever the insert failed and this update targets a row that never existed.
-          const range = r.headers.get('content-range') || '';
-          if (range.slice(-2) === '/0') return { error: { message: 'update matched no row', range: range } };
-          return { error: null };
-        } catch (e) { return { error: e }; }
-      }`);
-  never(h, 'cdn.jsdelivr.net', 'the CDN import must not ship — it sits on the money path');
-  never(h, 'createClient', 'the supabase-js client is gone');
 
-  // Her three per-question updates used the RAW question ids (q1/q2/q3) as column names, which do
-  // not exist on the table. They never fired (recordId is null until the activating step) so it was
-  // latent, but reordering the funnel would have turned it into a 400 on every answer. Map them.
-  h = sub(h, `        if (state.recordId) {
-          await supabase.from('survey_responses').update({ [questionId]: value }).eq('id', state.recordId);
-        }`,
-`        if (state.recordId) {
-          // Real column names. Hers passed the bare question id, which is not a column.
-          const COL = { q1: 'q1_shop_online', q2: 'q2_use_reward', q3: 'q3_shop_frequency' };
-          const col = COL[questionId];
-          if (col) await sbUpdateById(state.recordId, { [col]: value });
-        }`);
+${wiringAnchor}`;
+  h = sub(h, wiringAnchor, wiring);
 
-  // ── tokrwd.co branding: drop the Bolt scaffold leftovers ───────────────────────────────────
-  // The og:image was still bolt.new's default, so every share preview of her page showed Bolt's
-  // logo. Point it at our own domain instead (og:image must be ABSOLUTE — scrapers do not resolve
-  // relative URLs).
-  h = sub(h, '<meta property="og:image" content="https://bolt.new/static/og_default.png" />',
-             '<meta property="og:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png" />');
-  h = sub(h, '<meta name="twitter:image" content="https://bolt.new/static/og_default.png" />',
-             '<meta name="twitter:image" content="https://www.tokrwd.co/images/playful-rewards-logo.png" />');
-  never(h, 'bolt.new', 'the Bolt scaffold defaults must not ship');
+  // ── 4. The completion screen hands off instead of dead-ending ──────────────────────────────
+  h = sub(h, `              <button onclick="closeSurvey()" class="mt-6 w-full rounded-full bg-white px-6 py-3 font-semibold text-purple-950 transition hover:bg-purple-100">
+                Done
+              </button>`,
+             `              <button onclick="goToOffer()" class="mt-6 w-full rounded-full bg-white px-6 py-3 font-semibold text-purple-950 transition hover:bg-purple-100">
+                Continue
+              </button>`);
 
-  // The consent line named only UpLevel's policies. Those still govern the OFFER and stay exactly
-  // as she wrote them — but the email now lands in OUR database, so OUR privacy policy has to be
-  // named too. Adding it, rather than swapping theirs out: replacing UpLevel's terms would
-  // misrepresent what the visitor is agreeing to for the offer itself.
-  h = sub(h, 'and site visit recordation by TrustedForm and Jornaya.',
-             'the tokrwd <a href="/Rewards/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, '
-             + 'and site visit recordation by TrustedForm and Jornaya.');
-  must(h, '/Rewards/privacy', 1);
+  // Auto-advance too, so a visitor who reads the screen and does nothing still reaches the offer.
+  // Both paths funnel through goToOffer(), which is idempotent.
+  h = sub(h, `          `.repeat(0) + `          return;
+        }
 
-  // ── Shared ttclid backfill, canonical on every lander in this repo ─────────────────────────
+        const step = SURVEY_STEPS[stepIndex];`,
+             `          // The click is never lost: whether they tap Continue or simply sit here, the hand-off
+          // runs. Her original ended on this screen with a button that closed the modal.
+          setTimeout(goToOffer, 1800);
+          return;
+        }
+
+        const step = SURVEY_STEPS[stepIndex];`);
+
+  // ── 5. Shared ttclid backfill ──────────────────────────────────────────────────────────────
   h = sub(h, '</body>',
     '<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker\n'
     + '     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->\n'
@@ -375,19 +245,17 @@ function page() {
 
   // ── Invariants ─────────────────────────────────────────────────────────────────────────────
   must(h, DOOR, 1);
-  must(h, 'offerUrl()', 2);                      // defined + called on the hand-off
+  must(h, 'function goToOffer()', 1);
   must(h, 'window.location.href = offerUrl();', 1);
-  must(h, "id=\"continueBtn\"", 1);
-  must(h, "id=\"emailInput\"", 1);
-  never(h, "state.step = 'done';\n        goToStep();", 'the dead-end must be gone from the submit path');
+  must(h, 'onclick="goToOffer()"', 1);
+  must(h, 'setTimeout(goToOffer, 1800)', 1);
+  must(h, SUPABASE_URL, 1);
+  must(h, OUR_ANON_KEY, 2);                       // apikey + Authorization
+  must(h, 'AbortController', 1);
+  must(h, 'id="surveyModal"', 1);
+  never(h, 'closeSurvey()" class="mt-6 w-full', 'the completion button must hand off, not close');
 
-  // Her survey steps must survive intact — this is the design Migi asked to keep.
-  for (const id of ['giftCard', 'questionStep', 'activatingStep', 'emailStep', 'doneStep',
-                    'rewardAmount', 'progressBar', 'quickStartBtn']) {
-    must(h, `id="${id}"`, 1);
-  }
-
-  // No cloaking, same bar as every other page here (see the skill's NO-CLOAKING rule).
+  // No cloaking, same bar as every other page here.
   for (const [pat, why] of [
     ['x-safari', 'scheme-jump breakout belongs only in pre/index.html + js/breakout.js'],
     ['intent://', 'Android breakout belongs only in the prelander'],
@@ -397,25 +265,23 @@ function page() {
     ['musical_ly', 'in-app UA sniffing'],
   ]) never(h, pat, why);
 
-  // ── The emitted <script type="module"> must actually PARSE ─────────────────────────────────
-  // Every assertion above tests STRINGS, and a string test cannot tell that the JavaScript is
-  // broken. A mangled regex escape once shipped `//0$/` — a SyntaxError that kills the whole
-  // module, so the survey never renders, nothing is captured and the door hand-off never runs. The
-  // page still looks perfect until someone clicks it. Parse it here instead of finding out live.
-  const mod = /<script type="module">([\s\S]*?)<\/script>/.exec(h);
-  if (!mod) throw new Error('emitted page has no <script type="module"> block');
-  try {
-    new Function(mod[1]);
-  } catch (e) {
-    throw new Error(`emitted module does not parse: ${e.message}`);
-  }
+  // ── The emitted script must actually PARSE ─────────────────────────────────────────────────
+  // Every assertion above is a STRING test, and no string test can tell that the JavaScript stopped
+  // parsing. A mangled escape once shipped `//0$/` — a SyntaxError that killed the whole module, on
+  // a page that looked perfect until clicked. Parse it here instead of finding out live.
+  const blocks = [...h.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)];
+  if (!blocks.length) throw new Error('emitted page has no inline <script> block');
+  blocks.forEach((b, i) => {
+    try { new Function(b[1]); }
+    catch (e) { throw new Error(`emitted inline script #${i + 1} does not parse: ${e.message}`); }
+  });
 
   return h;
 }
 
 const argv = process.argv.slice(2);
 const ci = argv.indexOf('--clones');
-const CLONES = ci > -1 ? parseInt(argv[ci + 1], 10) : 100;   // matches the house slices
+const CLONES = ci > -1 ? parseInt(argv[ci + 1], 10) : 100;
 if (!Number.isFinite(CLONES) || CLONES < 1) { console.error('--clones must be a positive integer'); process.exit(1); }
 
 const repoRoot = path.join(__dirname, '..');
@@ -424,20 +290,17 @@ const html = page();
 fs.mkdirSync(path.join(repoRoot, CANON_DIR, GEO), { recursive: true });
 fs.writeFileSync(path.join(repoRoot, CANON_DIR, GEO, 'index.html'), html);
 
-// Vanity path, same reasoning as Sammy's /sasurl: a plain COPY, never a redirect — a redirect adds
-// a hop and bounces the query string through a rewrite where s1 can be lost. It carries no slot
-// number, so it is ONE shared URL and the numbered fan-out's anti-flag property does not apply to
-// it. Fine for one affiliate on her own link; do not hand this path to a second person.
+// Vanity path — a plain COPY, never a redirect: a redirect adds a hop and bounces the query string
+// through a rewrite where s1 can be lost. It carries no slot number, so it is ONE shared URL and
+// the numbered fan-out's anti-flag property does not apply. Fine for one affiliate on her own link.
 fs.mkdirSync(path.join(repoRoot, VANITY), { recursive: true });
 fs.writeFileSync(path.join(repoRoot, VANITY, 'index.html'), html);
 
 for (let n = 1; n <= CLONES; n++) {
   const d = path.join(repoRoot, FAMILY, GEO + n);
   fs.mkdirSync(d, { recursive: true });
-  fs.writeFileSync(path.join(d, 'index.html'), html);       // one buffer -> one md5 across the family
+  fs.writeFileSync(path.join(d, 'index.html'), html);
 }
-
-// Prune clones this config no longer emits, so the tree is a pure function of --clones.
 const famRoot = path.join(repoRoot, FAMILY);
 for (const name of fs.readdirSync(famRoot)) {
   const m = /^([A-Z]{2})([0-9]+)$/.exec(name);
@@ -446,9 +309,8 @@ for (const name of fs.readdirSync(famRoot)) {
   }
 }
 
-console.log(`${CANON_DIR}/${GEO} + /${VANITY} + ${FAMILY}/${GEO}1..${GEO}${CLONES}   door=${DOOR_SLUG}   (${CLONES + 2} files, Ashlyn's supplied survey design)`);
-console.log(`\n  ⚠️  LEFT AS SUPPLIED — her design, Migi's call, not edited here. Printed every run so`);
-console.log(`      a deliberate carve-out cannot quietly become one nobody remembers agreeing to.\n`);
+console.log(`${CANON_DIR}/${GEO} + /${VANITY} + ${FAMILY}/${GEO}1..${GEO}${CLONES}   door=${DOOR_SLUG}   (${CLONES + 2} files)`);
+console.log(`\n  ⚠️  LEFT AS SUPPLIED — her copy, Migi's call, not edited here:\n`);
 for (const [needle, why] of CONCERNS) {
   if (html.includes(needle)) console.log(`      • ${needle}\n          ${why}`);
 }
