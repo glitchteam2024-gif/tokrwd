@@ -774,6 +774,46 @@ taught that Sammy's did not:
    database outage silently eating paid clicks. Any hand-off must be **best-effort-then-go** —
    attempt the write, log it, send the visitor either way.
 
+## 5c. THIRD CASE STUDY — NOTKERMAN (2026-08-08), AND THE "DEMO STUB" VARIANT
+
+`_lp-generator/kerman-apay.js` · `KERM/US` + `/kmurl` + `KM50/US1..US100` · door
+`applepay750-us-kerman` · Apple Pay $750 US (`2c345134-b7e2-4f55-aecf-5acf2984dce0`) ·
+`notkermanh@gmail.com` (auth `70fe943b-a245-4fa3-9ef4-cca6ddec906c`, aff 32). Static page, no forms,
+no external hosts, no CDN — the cleanest supplied file so far. Four things it added:
+
+1. **THE NO-OUTBOUND-PATH DEFECT HAS A THIRD DISGUISE, AND IT IS THE CONVINCING ONE.** Sammy's
+   pointed at `example.com`; Ashlyn's third design used `href='#'`; his shipped a **demo stub that
+   simulates a working button** — a real listener that `preventDefault()`s and rewrites the label to
+   *"Connect your claim flow here"*. It is the hardest variant to catch by clicking, because
+   something visibly happens. **Four supplied landers in a row, four times the same defect.** Run the
+   grep first, every time, and add a fourth item to the finding set: `example.com`, `href="#"`,
+   `javascript:void(0)`, **and any handler that cancels the click**.
+
+2. **LEGAL LINKS MAY BE ABSENT, NOT BROKEN.** §3 trap 3 says Terms/Privacy ship as `href="#"`. His
+   footer had the disclaimer prose and **no links at all**, which reads as fine to a human and fails
+   the same ad-network fetch. Grep for `Rewards/terms`, not for `href="#"`.
+
+3. **THE §8 PREVIEW RECIPE FAILS ON A BIG-CLAMP HERO.** `--window-size=460,259` puts a page with
+   `font-size: clamp(58px, 7.5vw, 104px)` into its own mobile breakpoint, and the card comes out as
+   three cropped words — the same broken-zoom read `b47731b` fixed on the grid side. **Shoot at
+   `--window-size=1280,720` and `sips -z 450 800`** when the design has a fluid hero. Check the
+   capture before committing it; the recipe is a starting point, not a guarantee.
+
+4. **THE `never()` GUARDS POLICE THE GENERATOR'S OWN COMMENTS — let them.** Adding
+   `never(h, 'preventDefault', …)` failed the first build on a comment in the injected wiring that
+   *described* the stub it replaced. That is the guard working (same lesson as Ashlyn's placeholder
+   comment, `ashlyn-apay.js:143-145`). **Reword the comment; never weaken the assertion.**
+
+Also worth copying: his hero and sticky CTAs are in-page anchors to `#claim`, and the `#claim`
+section exists only to hold the converting button. That two-step is the operator's funnel — wire the
+converting button and **leave the scroll anchors alone**, then assert `must(h, 'href="#claim"', 3)`
+so a future source edit that breaks the internal funnel fails the build instead of shipping.
+
+⚠️ He was **already active on a house design** (`applepay750-us-c`, slot 1, `chosen_by='affiliate'`),
+so this is the first bespoke build where the release-before-you-claim trap in §2 was live rather
+than theoretical. The SQL is committed at
+`_lp-generator/2026-08-08_kerman_apay_landing_page.sql` and archives it in the same transaction.
+
 ## 6. THE TRAPS
 
 ### 1. Three different id columns, and two of them are wrong
