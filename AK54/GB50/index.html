@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="GB" data-palette="blush">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Apple Pay Reward — £1,000</title>
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://sprktrax.org" crossorigin>
+<link rel="dns-prefetch" href="https://sprktrax.org">
+
+<!-- ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR. Runs FIRST, in the head: before the pixel fires,
+     before the body paints, and before the CTA is wired. Ordering is load-bearing — running this
+     late double-counted the TikTok PageView (one on the page being left, one on the page being
+     entered) and left a window where a fast tap fired the CTA on the WRONG geo's door.
+     Keeps the clone index (/AK50/GB7?lg=AU -> /AK50/AU7) so the URL footprint stays spread.
+     NOT CLOAKING: keyed on an explicit query param, never the user agent, identical for crawlers. -->
+<script>
+(function(){
+  var GEOS = ["GB","CA","AU"], THIS_GEO = "GB";
+  var q = new URLSearchParams(location.search);
+  var want = (q.get('lg') || '').trim().toUpperCase();
+  if (want === 'UK') want = 'GB';
+  if (!want || want === THIS_GEO || GEOS.indexOf(want) === -1) return;
+  var re = new RegExp('(^|/)' + THIS_GEO + '([0-9]*)(/index[.]html|/)?$');
+  var next = location.pathname.replace(re, function (_m, pre, idx, tail) { return pre + want + idx + (tail || ''); });
+  if (next === location.pathname) return;
+  q.set('lg', want);
+  location.replace(next + '?' + q.toString() + location.hash);
+})();
+</script>
+
+<script id="offer-config">
+/* This page IS one geo — GB, with its own figures baked into the markup. There is deliberately
+   NO runtime geo detection, no language switcher and no cookie: the geo is decided by WHICH PAGE the
+   ad points at, and the click door routes on landing_pages.geo for that same lander. One fact drives
+   both, so the page cannot promise one country's offer and hand the visitor another's.
+   ||-guarded so a server-side injection still wins. */
+window.__DOOR_URL__ = window.__DOOR_URL__ || "https://sprktrax.org/api/link/applepay1000-gb-e";
+window.__STATS__    = window.__STATS__ || null;
+</script>
+
+
+<style>
+/* Hallmark · macrostructure: Marquee Hero · tone: utilitarian · anchor hue: rose/peach
+ * pre-emit critique: P5 H5 E4 S5 R5 V5
+ * genre: modern-minimal · theme: custom (blush, from images/offers/FL222093.webp)
+ * offer: FL222093 applepay1000-gb-e · geo: GB · slice: AK54
+ * nav/footer archetypes: N/A — single-screen lander, one CTA, no nav and no footer.
+ * fonts: system stack, zero webfonts (paid-traffic performance; see tokens.css).
+ */
+:root{
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* ── 4pt spacing scale ────────────────────────────────────────────────── */
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2rem;
+  --space-2xl: 3rem;
+
+  /* ── Type scale ───────────────────────────────────────────────────────── */
+  --text-xs:      0.7rem;
+  --text-sm:      0.8rem;
+  --text-base:    0.92rem;
+  --text-lg:      1.1rem;
+  --text-xl:      1.4rem;
+  --text-2xl:     1.9rem;
+  /* 3xl is the wallet-pass primary field. Sized to a real PKPass primary value (~36–42pt), which
+     lands between 2xl and display — the display rung would swallow the pass it sits inside. */
+  --text-3xl:     2.6rem;
+  --text-display: 4rem;
+
+  /* ── Motion. Three named easings; never the bare `ease`. ──────────────── */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast:    140ms;
+  --dur-base:    220ms;
+
+  /* ── Shape ────────────────────────────────────────────────────────────── */
+  --radius-sm:  4px;
+  /* Wallet-pass corner. A real pass is far rounder than a UI card; 4px reads as a <div>. */
+  --radius-lg:  20px;
+  --radius-pill: 980px;
+  --rule-hair:  1px;
+
+  /* Alpha-only, used inside mask-image. Tokenised so no raw colour literal ships (gate 48). */
+  --mask-solid: rgb(0 0 0);
+  --color-paper:    oklch(94% 0.032 18);
+  --color-paper-2:  oklch(96% 0.028 62);
+  --color-ink:      oklch(18% 0 0);
+  --color-ink-2:    oklch(46% 0.014 20);
+  --color-rule:     oklch(86% 0.03 25);
+  --color-accent:   oklch(66% 0.17 15);    /* rose, saturated enough to carry a control */
+  --color-accent-2: oklch(80% 0.09 55);    /* peach */
+  /* INK, not white. Measured: white on this rose is 3.28:1 and the CTA label is 17.6px bold, which
+     sits just under the 18.66px large-text threshold — so it needs 4.5:1 and failed gate 40. Ink on
+     the same rose measures 5.6:1. It is also the more faithful choice: the tile itself is black type
+     on pink, not white. Do not "brighten" this back without re-measuring. */
+  --color-on-accent: oklch(18% 0 0);
+  --color-focus:    oklch(45% 0.18 15);
+  /* MEASURED, not eyeballed. The step numerals are 11px bold inside a hairline ring — small text,
+     so 4.5:1. The plain rose accent measures 2.78:1 on this near-white paper and fails both that
+     and the 3:1 the ring needs as a UI component; this darker rose measures 6.77:1. Same failure
+     mode as the CTA label (see --color-on-accent above). Do not "brighten" it back to the accent
+     without re-measuring — the accent is sized for a filled button, not for 11px on paper. */
+  --color-accent-on-paper: oklch(45% 0.18 15);
+
+  /* ── Wallet pass (structure D) ────────────────────────────────────────────
+     Same principle inverted for a light paper: the pass is lighter than the page and the stack
+     behind it is darker. Not pure white — it keeps the peach chroma, or it reads synthetic. */
+  --color-pass:     oklch(98% 0.014 45);
+  --color-pass-2:   oklch(90% 0.030 30);
+  /* A white wash is invisible on a light card, so blush's sheen is carried at full strength and
+     reads as gloss on the pink rather than as lift. */
+  --sheen:          oklch(100% 0 0 / 0.55);
+  --strip-fallback: linear-gradient(118deg, oklch(80% 0.09 55 / 0.85), oklch(66% 0.17 15 / 0.55));
+  --strip-dots:     oklch(100% 0 0 / 0.28);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+/* gate 34 — never `hidden` on the root. `clip` where supported, `hidden` as the iOS<16 fallback. */
+html,body{overflow-x:hidden}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+html{-webkit-text-size-adjust:100%;interpolate-size:allow-keywords}
+body{background:var(--color-paper);color:var(--color-ink);font-family:var(--font-body);
+  min-height:100svh;-webkit-font-smoothing:antialiased;font-synthesis-weight:none}
+a,button,summary,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer}
+/* gate 51 — display type must break inside a long word rather than push the page wide. */
+h1,h2,.fig{overflow-wrap:anywhere;min-width:0}
+/* Focus ring: visible, >=3:1, and NEVER animated in. */
+:where(a,button,summary):focus-visible{outline:2px solid var(--color-focus);outline-offset:3px;border-radius:var(--radius-sm)}
+.page{min-height:100svh;display:flex;align-items:flex-start;justify-content:center;
+  padding:var(--space-md) var(--space-md) var(--space-xl)}
+.card{width:100%;max-width:26rem}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* Status pill — the live drop marker. Real state, not an invented scarcity count. */
+.pill{display:inline-flex;align-items:center;gap:var(--space-2xs);font-size:var(--text-xs);
+  font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:var(--space-2xs) var(--space-xs);
+  border-radius:var(--radius-sm);background:var(--color-paper-2);color:var(--color-ink)}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--color-accent);
+  animation:pulse 1.8s var(--ease-in-out) infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Social proof — renders ONLY when the middleware supplies real values. Never baked in. */
+.stats{display:flex;background:var(--color-paper-2);border-radius:var(--radius-sm);
+  margin:var(--space-lg) 0;overflow:hidden}
+.stats[hidden]{display:none}
+.stat{flex:1;padding:var(--space-sm) var(--space-2xs);text-align:center;
+  border-right:var(--rule-hair) solid var(--color-rule)}
+.stat:last-child{border-right:none}
+.stat-val{font-size:var(--text-base);font-weight:800;line-height:1.1}
+.stat-lbl{font-size:var(--text-xs);font-weight:600;color:var(--color-ink-2);
+  text-transform:uppercase;letter-spacing:.08em;margin-top:.15rem}
+
+/* CTA. gate 49 — one line at 320px; the label is kept short for exactly that reason. */
+.cta{display:block;width:100%;border:none;font-family:inherit;font-size:var(--text-lg);
+  font-weight:800;letter-spacing:.02em;padding:var(--space-md);border-radius:var(--radius-pill);
+  background:var(--color-accent);color:var(--color-on-accent);text-align:center;
+  transition:transform var(--dur-fast) var(--ease-out),opacity var(--dur-fast) var(--ease-out)}
+.cta:active{transform:scale(.985)}
+.cta[disabled]{opacity:.65;cursor:not-allowed}
+.trust{font-size:var(--text-xs);color:var(--color-ink-2);margin-top:var(--space-sm);
+  line-height:1.5;text-align:center}
+.trust strong{color:var(--color-ink);font-weight:700}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important}
+}
+.art{position:absolute;inset:-10% -30% auto -30%;height:70svh;pointer-events:none;z-index:0;
+  background:radial-gradient(60% 55% at 18% 22%,var(--color-accent-2) 0%,transparent 68%),
+    radial-gradient(55% 50% at 82% 8%,var(--color-paper-2) 0%,transparent 70%);
+  opacity:.8}
+.card > *:not(.art){position:relative;z-index:1}
+/* Apple-themed: the accent becomes ink-on-paper, so the primary control is a white
+   pill with dark type rather than the family's lime. Scoped to the dark palette — on blush this
+   would be white-on-white. Tokens only, no new literals. */
+[data-palette="ember"] .card{--color-accent:var(--color-ink);--color-on-accent:var(--color-paper)}
+.card{position:relative;padding-top:var(--space-md);text-align:center}
+
+.screen{display:flex;flex-direction:column;align-items:center}
+.screen[hidden]{display:none}
+
+.cardwrap{border-radius:var(--radius-lg);overflow:hidden;width:100%}
+.cardimg{display:block;width:100%;height:auto}
+.cardimg[hidden]{display:none}
+.cardwrap--empty{aspect-ratio:1.59;
+  background-image:radial-gradient(circle at center,var(--strip-dots) 1.1px,transparent 1.2px),
+    var(--strip-fallback);
+  background-size:13px 13px,auto}
+
+h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03em;
+  margin:var(--space-lg) 0 var(--space-xs)}
+.lede{font-size:var(--text-sm);color:var(--color-ink-2);line-height:1.55;margin-bottom:var(--space-lg)}
+
+/* Two stacked choices. The primary carries the label + a qualifier line, per the source's shape. */
+.choice{display:block;width:100%;border:none;font-family:inherit;text-align:center;
+  padding:var(--space-md);border-radius:var(--radius-lg);margin-bottom:var(--space-sm);
+  background:var(--color-accent);color:var(--color-on-accent);
+  transition:transform var(--dur-fast) var(--ease-out),opacity var(--dur-fast) var(--ease-out)}
+.choice:active{transform:scale(.985)}
+.choice-2{background:transparent;color:var(--color-ink);
+  border:var(--rule-hair) solid var(--color-rule)}
+.choice .main{display:block;font-size:var(--text-lg);font-weight:800;letter-spacing:-.01em}
+.choice .sub{display:block;font-size:var(--text-xs);margin-top:.15rem;opacity:.65}
+
+/* Screen B */
+.tick{width:2rem;height:2rem;border-radius:50%;background:var(--color-accent);
+  display:grid;place-items:center;margin:0 auto var(--space-sm)}
+.tick svg{display:block}
+.panel{background:var(--color-paper-2);border-radius:var(--radius-lg);padding:var(--space-lg);
+  width:100%;text-align:left;margin-bottom:var(--space-sm)}
+.panel h2{font-size:var(--text-xs);font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--color-ink-2);text-align:center;margin-bottom:var(--space-lg)}
+.step{display:flex;gap:var(--space-sm);align-items:flex-start;margin-bottom:var(--space-md)}
+.step:last-child{margin-bottom:0}
+.step-n{flex:none;width:1.4rem;height:1.4rem;border-radius:50%;display:grid;place-items:center;
+  background:var(--color-accent);color:var(--color-on-accent);
+  font-size:var(--text-xs);font-weight:800}
+.step-t{font-size:var(--text-base);font-weight:700;line-height:1.35}
+.step-s{font-size:var(--text-sm);color:var(--color-ink-2);line-height:1.5;margin-top:var(--space-2xs)}
+.note{border:var(--rule-hair) solid var(--color-rule);border-radius:var(--radius-lg);
+  padding:var(--space-md);width:100%;text-align:left;margin-bottom:var(--space-md)}
+.note h3{font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-2xs)}
+.note p{font-size:var(--text-sm);color:var(--color-ink-2);line-height:1.5}
+.note strong{color:var(--color-ink);font-weight:700}
+.cta{margin-bottom:var(--space-sm)}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+<!-- Screen A — the age gate -->
+<div class="screen" id="screenA">
+  <div class="cardwrap"><img id="passArt" class="cardimg" alt="" aria-hidden="true" decoding="async" fetchpriority="high" width="1280" height="720" src="/images/landers/pass/applepay1000-gb.webp"></div>
+  <h1>£1,000 to your Apple Pay wallet</h1>
+  <p class="lede">Complete a few quick deals and the full amount is yours. No credit card needed.</p>
+  <button class="choice" id="gateA" type="button">
+    <span class="main">I&rsquo;m over 21</span>
+    <span class="sub">Instant payout to Apple Pay</span>
+  </button>
+  <button class="choice choice-2" id="gateB" type="button">
+    <span class="main">I&rsquo;m under 21</span>
+    <span class="sub">Limited payout options</span>
+  </button>
+</div>
+
+<!-- Screen B — the brief + the real CTA -->
+<div class="screen" id="screenB" hidden>
+  <div class="tick" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10l3.5 3.5L15 7"
+      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+      style="color:var(--color-on-accent)"/></svg>
+  </div>
+  <h1 style="margin-top:0">You&rsquo;re in</h1>
+  <p class="lede">Your <span class="tnum" data-geo-amount>£1,000</span> is reserved.
+     Finish the steps below to unlock it.</p>
+
+  <button id="ctaBtn" class="cta choice">
+    <span class="main">Claim my £1,000 &rarr;</span>
+  </button>
+
+  <div class="panel">
+    <h2>How it works</h2>
+    <div class="step"><span class="step-n tnum">1</span>
+      <div><p class="step-t">Enter your email</p>
+      <p class="step-s">A valid address is all that is asked for. No credit card.</p></div></div>
+    <div class="step"><span class="step-n tnum">2</span>
+      <div><p class="step-t">Complete 3&ndash;5 deals</p>
+      <p class="step-s">Quick free trials and offers. Finishing them is what unlocks the amount.</p></div></div>
+    <div class="step"><span class="step-n tnum">3</span>
+      <div><p class="step-t">Get paid to Apple Pay</p>
+      <p class="step-s">The reward is sent to your Apple Pay wallet.</p></div></div>
+  </div>
+
+  <div class="note">
+    <h3>Activation required</h3>
+    <p>New users complete <strong>3&ndash;5 quick deals</strong> to unlock the full
+       £1,000. That is the whole exchange &mdash; the deals are how it is funded.</p>
+  </div>
+
+  <p class="trust"><strong>Limited spots remaining.</strong> No credit card needed.</p>
+</div>
+
+<div class="stats" id="statsBar" hidden></div>
+
+<script>
+/* Screen swap. Both choices advance — see the AGE GATE note in build.py; this is a commitment
+   device, not an age check. Nothing here navigates: #ctaBtn on screen B is wired by the shared
+   tail and is the only thing that leaves the page, so the door still mints every click. */
+(function(){
+  var a = document.getElementById('screenA'), b = document.getElementById('screenB');
+  function advance(){ a.hidden = true; b.hidden = false; window.scrollTo(0, 0); }
+  document.getElementById('gateA').addEventListener('click', advance);
+  document.getElementById('gateB').addEventListener('click', advance);
+})();
+/* Card art — same contract as structure D. */
+(function(){
+  var el = document.getElementById('passArt');
+  if (!el) return;
+  el.addEventListener('error', function(){
+    el.hidden = true;
+    var w = el.parentNode; if (w) w.className += ' cardwrap--empty';
+  });
+  var override = window.__PASS_ART__;
+  if (override) { el.src = override; el.hidden = false; }
+})();
+</script>
+  </div>
+</div>
+<script>
+(function(){
+'use strict';
+
+/* bfcache bust */
+window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
+if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
+
+var DOOR      = window.__DOOR_URL__ || 'https://sprktrax.org/api/link/applepay1000-gb-e';
+/* Amount is baked into the markup at build time — nothing to substitute at runtime. */
+var GEO_VALUE = 1000;
+
+/* optional social proof — only if the middleware supplied real values */
+(function(){
+  var s = window.__STATS__;
+  if (!s || !s.length) return;
+  var bar = document.getElementById('statsBar');
+  if (!bar) return;
+  bar.innerHTML = s.map(function(){
+    return '<div class="stat"><div class="stat-val"></div><div class="stat-lbl"></div></div>';
+  }).join('');
+  [].forEach.call(bar.querySelectorAll('.stat'), function(el, i){
+    el.querySelector('.stat-val').textContent = String(s[i].value);
+    el.querySelector('.stat-lbl').textContent = String(s[i].label);
+  });
+  bar.hidden = false;
+})();
+
+/* ------------------------------------------------------------------
+   FORWARD EVERY INCOMING PARAM to the door — the tokrwd lander contract.
+   Inbound the launcher sets s1=<SPK> (the attribution key), s2=<publisher>,
+   s3=<ad account>, s4, ttclid. The door re-stamps outbound (s1 -> bare
+   affiliate id, s2 -> SPK, s3 forwarded, s4 -> offer name, click_id -> s5).
+   An earlier draft whitelisted only utm_campaign/ttclid/s1, which silently
+   dropped s3 — the ad-account leg — on every click.
+
+   s1 is the AFFILIATE'S SPARK CODE and nothing else. Never overwrite it with
+   a campaign name — that is what breaks attribution.
+   ------------------------------------------------------------------ */
+var q = new URLSearchParams(location.search);
+
+/* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not
+   pass it directly. If neither field exists s1 stays EMPTY — never fabricated. */
+if (!q.get('s1')) {
+  var mc = q.get('mc_attr') || '', f = {};
+  mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+  var d = f.e || f.c; if (d) q.set('s1', d);
+}
+
+/* Referrer rescue for a stripped query (in-app browsers drop params on some hops). */
+if ((!q.get('s1') || !q.get('utm_campaign')) && document.referrer) {
+  try {
+    var r = new URLSearchParams(new URL(document.referrer).search);
+    ['s1','s2','s3','s4','utm_campaign','campaign','ttclid','lg'].forEach(function(k){
+      if (!q.get(k) && r.get(k)) q.set(k, r.get(k));
+    });
+  } catch(e) {}
+}
+
+/* Drop unsubstituted TikTok macros rather than forwarding the literal placeholder. */
+var tt = q.get('ttclid') || '';
+if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
+
+var s1 = q.get('s1') || '';
+var campaign = q.get('utm_campaign') || q.get('campaign') || '';
+var ttclid = q.get('ttclid') || '';
+
+/* NO UA SNIFFING, deliberately. A lander that appears to behave differently for a crawler is what
+   gets the whole domain flagged and every campaign on it blocked. Attribution does not need a gate
+   here: the door 404s any click with no s1 (api/link/[slug].js). */
+
+/* Door URL: every param rides, with s1 placed LAST (ad automations append to the
+   tail). The door 404s a click with no s1 — by design, that is the real gate. */
+function buildDoorUrl() {
+  var out = new URLSearchParams(q.toString());
+  out.delete('s1');
+  out.delete('lg');   // routes the lander only — the door/network never sees it
+  var qs = out.toString();
+  var url = DOOR + (qs ? '?' + qs : '');
+  if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+  return url;
+}
+var target = buildDoorUrl();
+
+if (window.ttq) {
+  try { ttq.track('ViewContent', { content_name: 'Apple Pay GB Landing', value: GEO_VALUE }); } catch(e) {}
+}
+
+var ctaBtn = document.getElementById('ctaBtn');
+var clicking = false, hasTouched = false;
+
+function handleCta(e) {
+  e.preventDefault();
+  if (clicking) return;
+  clicking = true;
+  ctaBtn.textContent = 'Loading\u2026';
+  ctaBtn.setAttribute('disabled', 'disabled');
+  if (window.ttq) {
+    try { ttq.track('ClickButton', { content_name: 'Apple Pay GB CTA', value: GEO_VALUE }); } catch(e) {}
+  }
+  location.replace(target);
+}
+ctaBtn.addEventListener('touchend', function(e){ hasTouched = true; handleCta(e); }, {passive:false});
+ctaBtn.addEventListener('click', function(e){ if (!hasTouched) handleCta(e); });
+
+if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1) {
+  console.log('[applepay1000-gb-e/age-gate debug]', {
+    geo: document.documentElement.getAttribute('data-geo') || '(unknown)',
+    s1: s1 || '(none - door will 404)',
+    campaign: campaign || '(none)',
+    ttclid: ttclid || '(none)',
+    target: target
+  });
+}
+})();
+</script>
+<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
+     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+<script src="/js/ttclid.js" async></script>
+</body>
+</html>
