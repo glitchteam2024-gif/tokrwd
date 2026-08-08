@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-geo="GB" data-palette="blush">
+<html lang="en" data-geo="GB" data-palette="graphite" data-structure="age-gate">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
@@ -44,9 +44,9 @@ window.__STATS__    = window.__STATS__ || null;
 
 
 <style>
-/* Hallmark · macrostructure: Marquee Hero · tone: utilitarian · anchor hue: rose/peach
+/* Hallmark · macrostructure: Marquee Hero · tone: utilitarian · anchor hue: neutral grey
  * pre-emit critique: P5 H5 E4 S5 R5 V5
- * genre: modern-minimal · theme: custom (blush, from images/offers/FL222093.webp)
+ * genre: modern-minimal · theme: custom (graphite, from images/offers/FL222093.webp)
  * offer: FL222093 applepay1000-gb-e · geo: GB · slice: AK54
  * nav/footer archetypes: N/A — single-screen lander, one CTA, no nav and no footer.
  * fonts: system stack, zero webfonts (paid-traffic performance; see tokens.css).
@@ -83,6 +83,9 @@ window.__STATS__    = window.__STATS__ || null;
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-fast:    140ms;
   --dur-base:    220ms;
+  /* The staggered rise-in on the age-gate structure. Long enough to read as motion rather
+     than a flicker; short enough that the CTA is interactive well inside the first second. */
+  --dur-slow:    500ms;
 
   /* ── Shape ────────────────────────────────────────────────────────────── */
   --radius-sm:  4px;
@@ -93,39 +96,23 @@ window.__STATS__    = window.__STATS__ || null;
 
   /* Alpha-only, used inside mask-image. Tokenised so no raw colour literal ships (gate 48). */
   --mask-solid: rgb(0 0 0);
-  --color-paper:    oklch(94% 0.032 18);
-  --color-paper-2:  oklch(96% 0.028 62);
-  --color-ink:      oklch(18% 0 0);
-  --color-ink-2:    oklch(46% 0.014 20);
-  --color-rule:     oklch(86% 0.03 25);
-  --color-accent:   oklch(66% 0.17 15);    /* rose, saturated enough to carry a control */
-  --color-accent-2: oklch(80% 0.09 55);    /* peach */
-  /* INK, not white. Measured: white on this rose is 3.28:1 and the CTA label is 17.6px bold, which
-     sits just under the 18.66px large-text threshold — so it needs 4.5:1 and failed gate 40. Ink on
-     the same rose measures 5.6:1. It is also the more faithful choice: the tile itself is black type
-     on pink, not white. Do not "brighten" this back without re-measuring. */
-  --color-on-accent: oklch(18% 0 0);
-  --color-focus:    oklch(45% 0.18 15);
-  /* MEASURED, not eyeballed. The step numerals are 11px bold inside a hairline ring — small text,
-     so 4.5:1. The plain rose accent measures 2.78:1 on this near-white paper and fails both that
-     and the 3:1 the ring needs as a UI component; this darker rose measures 6.77:1. Same failure
-     mode as the CTA label (see --color-on-accent above). Do not "brighten" it back to the accent
-     without re-measuring — the accent is sized for a filled button, not for 11px on paper. */
-  --color-accent-on-paper: oklch(45% 0.18 15);
-  /* Same role on the light palette; darker so white type on it still clears 4.5:1. */
-  --color-warn:     oklch(52% 0.21 27);
+  --color-paper:    oklch(21% 0.004 250);
+  --color-paper-2:  oklch(26% 0.005 250);
+  --color-ink:      oklch(98% 0 0);
+  --color-ink-2:    oklch(73% 0.005 250);
+  --color-rule:     oklch(34% 0.006 250);
+  --color-accent:   oklch(98% 0 0);
+  --color-accent-2: oklch(73% 0.005 250);
+  --color-on-accent: oklch(18% 0.004 250);
+  --color-focus:    oklch(98% 0 0);
+  --color-accent-on-paper: oklch(98% 0 0);
+  --color-warn:     oklch(58% 0.21 27);
   --color-on-warn:  oklch(99% 0 0);
-
-  /* ── Wallet pass (structure D) ────────────────────────────────────────────
-     Same principle inverted for a light paper: the pass is lighter than the page and the stack
-     behind it is darker. Not pure white — it keeps the peach chroma, or it reads synthetic. */
-  --color-pass:     oklch(98% 0.014 45);
-  --color-pass-2:   oklch(90% 0.030 30);
-  /* A white wash is invisible on a light card, so blush's sheen is carried at full strength and
-     reads as gloss on the pink rather than as lift. */
-  --sheen:          oklch(100% 0 0 / 0.55);
-  --strip-fallback: linear-gradient(118deg, oklch(80% 0.09 55 / 0.85), oklch(66% 0.17 15 / 0.55));
-  --strip-dots:     oklch(100% 0 0 / 0.28);
+  --color-pass:     oklch(26% 0.005 250);
+  --color-pass-2:   oklch(24% 0.005 250);
+  --sheen:          oklch(100% 0 0 / 0.05);
+  --strip-fallback: linear-gradient(118deg, oklch(62% 0.01 250 / 0.45), oklch(42% 0.01 250 / 0.6));
+  --strip-dots:     oklch(100% 0 0 / 0.10);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 /* gate 34 — never `hidden` on the root. `clip` where supported, `hidden` as the iOS<16 fallback. */
@@ -183,11 +170,30 @@ h1,h2,.fig{overflow-wrap:anywhere;min-width:0}
     radial-gradient(55% 50% at 82% 8%,var(--color-paper-2) 0%,transparent 70%);
   opacity:.8}
 .card > *:not(.art){position:relative;z-index:1}
-/* Apple-themed: the accent becomes ink-on-paper, so the primary control is a white
-   pill with dark type rather than the family's lime. Scoped to the dark palette — on blush this
-   would be white-on-white. Tokens only, no new literals. */
-[data-palette="ember"] .card{--color-accent:var(--color-ink);--color-on-accent:var(--color-paper)}
 .card{position:relative;padding-top:var(--space-md);text-align:center}
+
+/* ── The reveal ──────────────────────────────────────────────────────────────
+   Elements rise in on a stagger, and the screens cross-fade — the motion Migi asked to keep from
+   the reference. Rebuilt rather than copied: transform+opacity only (never layout), the house
+   --ease-out instead of the browser default, and the delay comes off a --d custom property rather
+   than a hardcoded inline animation-delay.
+   The reduced-motion rule below is load-bearing, not politeness: .anim starts at opacity 0, so if
+   motion is suppressed without also forcing opacity back to 1 the page renders BLANK. */
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.anim{opacity:0;animation:riseIn var(--dur-slow) var(--ease-out) var(--d,0s) forwards}
+@media (prefers-reduced-motion:reduce){
+  .anim{opacity:1;animation:none}
+  .screen.leaving{opacity:1;transition:none}
+}
+.screen.leaving{opacity:0;transition:opacity var(--dur-base) var(--ease-in)}
+
+/* ── Source lockup ───────────────────────────────────────────────────────────
+   Both marks ship from this origin. The reference hotlinked freepik and a Google image cache,
+   either of which can rate-limit or vanish mid-campaign and leave a broken tile above the fold. */
+.lockup{display:flex;align-items:center;justify-content:center;gap:var(--space-sm);
+  margin-bottom:var(--space-lg)}
+.lockup img{display:block;width:3.5rem;height:3.5rem;border-radius:22%}
+.lockup span{font-size:var(--text-base);color:var(--color-ink-2);font-weight:500}
 
 .screen{display:flex;flex-direction:column;align-items:center;width:100%}
 .screen[hidden]{display:none}
@@ -220,12 +226,6 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
 .choice .sub{display:block;font-size:var(--text-xs);margin-top:.15rem;opacity:.65}
 
 /* Screen B */
-/* Small mark at the top, mirroring the reference's logo row. Same file as the hero card, so it is
-   already in cache and costs no second request. */
-/* height:auto is load-bearing — the img carries real width/height attributes for the hero
-   size, and without it the 566px height attribute wins and the thumb renders as a column. */
-.thumb{display:block;width:5.5rem;height:auto;border-radius:var(--radius-sm);
-  margin-bottom:var(--space-md)}
 /* Tick and heading sit on ONE line, as in the reference — not stacked. */
 .check-row{display:flex;align-items:center;justify-content:center;gap:var(--space-sm)}
 .tick{flex:none;width:2rem;height:2rem;border-radius:50%;background:var(--color-accent);
@@ -260,14 +260,15 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
   <div class="card">
 <!-- Screen A — the age gate -->
 <div class="screen" id="screenA">
-  <div class="cardwrap"><img id="passArt" class="cardimg" alt="" aria-hidden="true" decoding="async" fetchpriority="high" width="1280" height="720" src="/images/landers/pass/applepay1000-gb.webp"></div>
-  <h1>£1,000 to your Apple Pay wallet</h1>
-  <p class="lede">Complete a few quick deals and the full amount is yours. No credit card needed.</p>
-  <button class="choice" id="gateA" type="button">
+  <div class="lockup anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="168" height="168" decoding="async"><span>&times;</span><img src="/images/landers/logos/apple.png" alt="" width="168" height="168" decoding="async"></div>
+  <div class="cardwrap anim" style="--d:.06s"><img id="passArt" class="cardimg" alt="" aria-hidden="true" decoding="async" fetchpriority="high" width="1280" height="720" src="/images/landers/pass/applepay1000-gb.webp"></div>
+  <h1 class="anim" style="--d:.14s">£1,000 to your Apple Pay wallet</h1>
+  <p class="lede anim" style="--d:.2s">Complete a few quick deals and the full amount is yours. No credit card needed.</p>
+  <button class="choice anim" style="--d:.28s" id="gateA" type="button">
     <span class="main">I&rsquo;m over 21</span>
     <span class="sub">Instant payout to Apple Pay</span>
   </button>
-  <button class="choice choice-2" id="gateB" type="button">
+  <button class="choice choice-2 anim" style="--d:.34s" id="gateB" type="button">
     <span class="main">I&rsquo;m under 21</span>
     <span class="sub">Limited payout options</span>
   </button>
@@ -275,8 +276,8 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
 
 <!-- Screen B — the brief + the real CTA -->
 <div class="screen" id="screenB" hidden>
-  <img class="thumb" alt="" aria-hidden="true" decoding="async" width="1280" height="720" src="/images/landers/pass/applepay1000-gb.webp">
-  <div class="check-row">
+  <div class="lockup anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="168" height="168" decoding="async"><span>&times;</span><img src="/images/landers/logos/apple.png" alt="" width="168" height="168" decoding="async"></div>
+  <div class="check-row anim" style="--d:.06s">
     <span class="tick" aria-hidden="true">
       <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10l3.5 3.5L15 7"
         stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
@@ -284,14 +285,14 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
     </span>
     <h1 style="margin:0">You&rsquo;re in</h1>
   </div>
-  <p class="lede">Your <span class="tnum" data-geo-amount>£1,000</span> is reserved.
+  <p class="lede anim" style="--d:.12s">Your <span class="tnum" data-geo-amount>£1,000</span> is reserved.
      Finish the steps below to unlock it.</p>
 
-  <button id="ctaBtn" class="cta choice">
+  <button id="ctaBtn" class="cta choice anim" style="--d:.18s">
     <span class="main">Claim my £1,000 &rarr;</span>
   </button>
 
-  <div class="panel">
+  <div class="panel anim" style="--d:.26s">
     <h2>How it works</h2>
     <div class="step"><span class="step-n tnum">1</span>
       <div><p class="step-t">Enter your email</p>
@@ -304,14 +305,14 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
       <p class="step-s">The reward is sent to your Apple Pay wallet.</p></div></div>
   </div>
 
-  <div class="note">
+  <div class="note anim" style="--d:.34s">
     <span class="badge">IMPORTANT</span>
     <h3>Activation required</h3>
     <p>New users complete <strong>3&ndash;5 quick deals</strong> to unlock the full
        £1,000. That is the whole exchange &mdash; the deals are how it is funded.</p>
   </div>
 
-  <p class="trust"><strong>Limited spots remaining.</strong> No credit card needed.</p>
+  <p class="trust anim" style="--d:.42s"><strong>Limited spots remaining.</strong> No credit card needed.</p>
 </div>
 
 <div class="stats" id="statsBar" hidden></div>
@@ -322,7 +323,25 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
    tail and is the only thing that leaves the page, so the door still mints every click. */
 (function(){
   var a = document.getElementById('screenA'), b = document.getElementById('screenB');
-  function advance(){ a.hidden = true; b.hidden = false; window.scrollTo(0, 0); }
+  var going = false;
+  function advance(){
+    if (going) return; going = true;
+    a.classList.add('leaving');
+    setTimeout(function(){
+      a.hidden = true; a.classList.remove('leaving');
+      b.hidden = false;
+      /* Restart the stagger on screen B. The elements already finished their animation while
+         hidden, so without this they simply appear. Forcing a reflow between the two writes is
+         what makes the browser treat it as a new animation rather than coalescing the change. */
+      var els = b.querySelectorAll('.anim');
+      for (var i = 0; i < els.length; i++) {
+        els[i].style.animation = 'none';
+        void els[i].offsetHeight;
+        els[i].style.animation = '';
+      }
+      window.scrollTo(0, 0);
+    }, 220);
+  }
   document.getElementById('gateA').addEventListener('click', advance);
   document.getElementById('gateB').addEventListener('click', advance);
 })();
