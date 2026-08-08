@@ -901,6 +901,10 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // new slices silently lose the prelander — which would make an A/B of structure secretly an
   // A/B of 'has the in-app-browser escape', i.e. unreadable.
   'ac51', 'ac52', 'af51', 'af52', 'ak51', 'ak52', 'ap51', 'ap52',
+  // Bespoke, single-affiliate pages: acsm/as50/sasurl (Sammy), ashl/ah50/ashurl (Ashlyn),
+  // kerm/km50/kmurl (notkerman). Registered for the same reason as everything else here — an
+  // lp=/to=-routed hit does go through /r — not because the affiliate's assigned link uses /pre.
+  'kerm', 'km50', 'kmurl',
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
