@@ -9,7 +9,7 @@
  * See .claude/skills/sprk-custom-landers.
  *
  * Same folders, same door slug, every time he swaps the design — so nothing in the database moves:
- *   KERM/US + /kmurl + KM50/US1..US100  ->  applepay750-us-kerman
+ *   KERM/US + /saskrurl + KM50/US1..US100  ->  applepay750-us-kerman
  *
  * ── What the supplied file is ───────────────────────────────────────────────────────────────
  * A single static page: topbar, hero with a reward card, three steps, an FAQ, a final CTA, a
@@ -45,7 +45,7 @@ const SOURCE = fs.readFileSync(path.join(__dirname, 'kerman-apay-source.html'), 
 const CANON_DIR = 'KERM';
 const FAMILY    = 'KM50';
 const GEO       = 'US';
-const VANITY    = 'kmurl';
+const VANITY    = 'saskrurl';
 
 /** Must equal the slug on his landing_pages row, or the click dies at the door — silently. */
 const DOOR_SLUG = 'applepay750-us-kerman';

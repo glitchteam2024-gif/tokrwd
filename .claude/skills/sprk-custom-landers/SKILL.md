@@ -776,7 +776,7 @@ taught that Sammy's did not:
 
 ## 5c. THIRD CASE STUDY — NOTKERMAN (2026-08-08), AND THE "DEMO STUB" VARIANT
 
-`_lp-generator/kerman-apay.js` · `KERM/US` + `/kmurl` + `KM50/US1..US100` · door
+`_lp-generator/kerman-apay.js` · `KERM/US` + `/saskrurl` + `KM50/US1..US100` · door
 `applepay750-us-kerman` · Apple Pay $750 US (`2c345134-b7e2-4f55-aecf-5acf2984dce0`) ·
 `notkermanh@gmail.com` (auth `70fe943b-a245-4fa3-9ef4-cca6ddec906c`, aff 32). Static page, no forms,
 no external hosts, no CDN — the cleanest supplied file so far. Four things it added:

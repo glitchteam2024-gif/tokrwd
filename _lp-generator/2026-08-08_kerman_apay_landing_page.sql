@@ -2,7 +2,7 @@
 --
 -- RUN THIS IN SUPABASE (SQL editor), as ONE transaction. It is re-runnable and written to fail
 -- loudly rather than half-apply. Pairs with _lp-generator/kerman-apay.js, which emits
--- KERM/US + /kmurl + KM50/US1..US100 and fires the door slug set below.
+-- KERM/US + /saskrurl + KM50/US1..US100 and fires the door slug set below.
 --
 --   affiliate   notkermanh@gmail.com   aff 32
 --   auth id     70fe943b-a245-4fa3-9ef4-cca6ddec906c   (auth.users, NOT user_profiles —
@@ -31,7 +31,7 @@
 -- ══ VERIFIED BEFORE WRITING THIS, 2026-08-08 ═════════════════════════════════════════════════
 --   slug applepay750-us-kerman            FREE (no landing_pages row, no link on KM50/KERM)
 --   offers.destination_by_geo has "US"    yes — landerProblem uppercases lp.geo before the lookup
---   KM50/US1..US100 + KERM/US + /kmurl    generated, one md5 across all 102 files
+--   KM50/US1..US100 + KERM/US + /saskrurl    generated, one md5 across all 102 files
 --   node api/_lib/_tracking-audit.test.mjs   6 passed, 0 failed
 --   node api/_lib/_links-config.test.mjs   190 passed, 0 failed
 --
