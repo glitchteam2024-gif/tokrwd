@@ -194,7 +194,9 @@ h1,h2,.fig{overflow-wrap:anywhere;min-width:0}
 }
 .screen.leaving{opacity:0;transition:opacity var(--dur-base) var(--ease-in)}
 
-/* ── Source lockup ───────────────────────────────────────────────────────────
+/* ── Source lockup — the ONLY imagery on this page ───────────────────────────
+   The Apple Cash card art was removed 2026-08-08 (Migi): the two marks carry the whole visual.
+   Structure D is untouched — there the card IS the page.
    Both marks ship from this origin. The reference hotlinked freepik and a Google image cache,
    either of which can rate-limit or vanish mid-campaign and leave a broken tile above the fold. */
 .lockup{display:flex;align-items:center;justify-content:center;gap:var(--space-sm);
@@ -209,13 +211,6 @@ h1,h2,.fig{overflow-wrap:anywhere;min-width:0}
    viewport by design and stays in normal flow. */
 #screenA{min-height:calc(100svh - var(--space-2xl));justify-content:center}
 
-.cardwrap{border-radius:var(--radius-lg);overflow:hidden;width:100%}
-.cardimg{display:block;width:100%;height:auto}
-.cardimg[hidden]{display:none}
-.cardwrap--empty{aspect-ratio:1.59;
-  background-image:radial-gradient(circle at center,var(--strip-dots) 1.1px,transparent 1.2px),
-    var(--strip-fallback);
-  background-size:13px 13px,auto}
 
 h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03em;
   margin:var(--space-lg) 0 var(--space-xs)}
@@ -268,7 +263,6 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
 <!-- Screen A — the age gate -->
 <div class="screen" id="screenA">
   <div class="lockup anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="168" height="168" decoding="async"><span>&times;</span><img src="/images/landers/logos/apple.png" alt="" width="168" height="168" decoding="async"></div>
-  <div class="cardwrap anim" style="--d:.06s"><img id="passArt" class="cardimg" alt="" aria-hidden="true" decoding="async" fetchpriority="high" width="900" height="566" src="/images/landers/pass/applecash-us.jpg"></div>
   <h1 class="anim" style="--d:.14s">$750 to your Apple Cash wallet</h1>
   <p class="lede anim" style="--d:.2s">Complete a few quick deals and the full amount is yours. No credit card needed.</p>
   <button class="choice anim" style="--d:.28s" id="gateA" type="button">
@@ -351,17 +345,6 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
   }
   document.getElementById('gateA').addEventListener('click', advance);
   document.getElementById('gateB').addEventListener('click', advance);
-})();
-/* Card art — same contract as structure D. */
-(function(){
-  var el = document.getElementById('passArt');
-  if (!el) return;
-  el.addEventListener('error', function(){
-    el.hidden = true;
-    var w = el.parentNode; if (w) w.className += ' cardwrap--empty';
-  });
-  var override = window.__PASS_ART__;
-  if (override) { el.src = override; el.hidden = false; }
 })();
 </script>
   </div>
