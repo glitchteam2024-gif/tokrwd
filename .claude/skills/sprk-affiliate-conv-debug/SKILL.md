@@ -327,6 +327,76 @@ without comparing against `cake_conversions`.
   every perf/admin surface built on it. Don't compare an affiliate's dashboard day to an admin-board
   day and assume one of them is broken.
 
+### 10. "I got a conversion on the WRONG test" — two campaigns sharing one `s1` collapse into one bucket
+- **Presents:** an affiliate runs test A, then test B with a different `sub1`, sees a conversion in
+  the Ads Launcher against the spark code, and attributes it to whichever test they were watching.
+  Someone else checks the network dash, sees 0 conversions on test B's subid, and it reads as a
+  tracking break. Triggering case 2026-08-01: ssammyofficial18 (aff #12), SPK-4FD5-E5AE.
+- **Root cause:** self-serve launches let the affiliate edit `sub1` while leaving `s1` alone. Both
+  launches went out as `trendhavenn.com/frrcsh-us-mon-man-prelander.html?sub1=<varies>&s1=SPK-4FD5-E5AE&s3=<ad acct>`
+  — 7/29 23:41 UTC with `sub1=SPK-4FD5-E5AE`, 7/31 02:19 UTC with `sub1=sxmmy-test`. Everything of
+  ours (CAKE mirror, Ads Launcher, dashboards) keys on the SPARK CODE, which came from `s1` and was
+  identical, so the two tests are ONE row on our side. Only the network's own SubAffiliate report,
+  which keys on `sub1`, separates them. Both TikTok campaigns were also *named* `SPK-4FD5-E5AE`
+  (`tracked_campaigns` had three rows under that one name), so the launcher UI can't disambiguate
+  either. NOT a tracking break — a collision.
+- **How to settle one of these in three queries:**
+  1. `select ... from form_jobs where template::text ilike '%<code>%'` → `template->'final_page'->>'website_url'`
+     gives the EXACT link per launch and `created_at` gives when the campaign was born.
+  2. `select added_at, campaign_id from tracked_campaigns where advertiser_id='<s3>'` → maps each
+     TikTok campaign to its launch job within ~90s. Then `campaign_spend_daily` gives per-campaign spend.
+  3. `select subid_1..subid_5 from cake_conversions where conversion_id=…` → subids are copied off the
+     CONVERTING CLICK, so a bare `subid_1` with s2–s5 NULL proves the traffic bypassed our door.
+  A conversion that predates a campaign's `tracked_campaigns.added_at` cannot belong to it. **Compare
+  absolute UTC timestamps, never `stat_day`** — `campaign_spend_daily.stat_day` is the AD ACCOUNT's
+  local timezone (verified: campaign `1872195071886465`, added 07-31 02:20 UTC, has spend on stat_day
+  07-30), so a campaign legitimately shows spend "the day before" it was created.
+- **Fix/status:** BEHAVIOR. Tell the affiliate which launch earned it. Durable fix (Migi's call):
+  make self-serve stamp a unique `s1` per launch, or block reusing a spark code's campaign name.
+
+### 11. Freecash US postbacks under-price at $13.50 vs CAKE's $17.9966 — and it reached a payout batch
+- **Presents:** admin revenue board shows less than the affiliate's Home dashboard for the same
+  Freecash conversion. Postback row `gross_payout=13.5 / affiliate_payout=12.15`; CAKE row
+  `network_price=17.996616585 / affiliate_payout=16.19`.
+- **Confirmed against the advertiser 2026-08-01:** a Monetise SubAffiliate export (7/2–8/1) lists
+  `SPK-4FD5-E5AE` at **$17.9966** — so CAKE is right and the $13.50 postback is unambiguously wrong.
+  That same export reconciles to our `cake_conversions` mirror at **0 missing rows, 0 revenue
+  mismatches** across 379 subids ($13,676.58 vs $13,679.58; the whole $3.00 delta is one Copper
+  Banking conversion on an offer outside the report). The CAKE mirror is trustworthy; the POSTBACK
+  ledger is the one that drifts — and it is the one wired to payouts.
+- **Root cause:** the network-side postback template for "Freecash - New CPA [US]" fires
+  `payout=13.5000` (raw payload confirms). CAKE settles the same conversion at $17.9966, which is
+  what `offers.payout_by_geo.US = 17.99` expects. Offer-specific — Reco Social ($0.80, $2.50) and
+  Rewards US ($0.7872) postbacks match CAKE to the cent.
+- **Why it bites:** `payout_item_conversions.conversion_id` is a **uuid → `conversions.id`**, i.e. the
+  payout ledger is built from the POSTBACK table, not CAKE. So this is not merely a display gap — it
+  propagates into staged payout amounts.
+- **Exposure as of 2026-08-01:** 24 postback rows at $13.50 since 07-01 = $324 recorded vs $431.92
+  actual ⇒ **$107.92 gross understated**. Of those, 6 are user-attributed: aff #12 ×2, #22 ×2, #25 ×2
+  ⇒ **$24.69 affiliate shortfall**. Two (aff #22, $8.38) are already inside batch
+  `7d4f69de-112d-49c0-8c32-20f4760d4a3c`. **That batch is `status='staged'`, `pushed_at`/`paid_at`
+  NULL — nothing has actually been sent to Tipalti yet**, so this is still catchable before it ships.
+  The other 18 rows are `unmatched` (mostly `Dyl-*` test subids, issue #3 family, ~$189 unattributed).
+- **Fix/status:** OPEN. (a) Migi: fix the Freecash US payout macro in the Monetise/CAKE postback
+  template. (b) Decide whether the payout ledger should read `cake_conversions` instead of
+  `conversions` — that is the durable fix and it is a money-math change, so `/code-review high` +
+  read-only prod sim per `sprk-money-audit` before shipping. (c) Re-stage the affected batch after
+  (a)/(b) rather than topping up after the fact.
+- **NOTE this supersedes the old "payout is not in code" belief:** `payout_batches` / `payout_items` /
+  `payout_item_conversions` are REAL and populated (first batches 2026-07-28/29). The earlier grep that
+  concluded there was no ledger searched for `affiliate_payments`, which is simply a different name.
+
+### 12. `cake_conversions.conversion_at` runs UTC+1 — the conversions feed is NOT UTC
+- **Presents:** a conversion appears an hour later on CAKE-sourced surfaces than the postback log says
+  it happened; near-midnight rows land in the wrong day bucket.
+- **Root cause:** every live postback pairs at **exactly +60 min** against its CAKE row, across all
+  offers and both networks (checked 10 days of `match_source <> 'cake-rebuild'` rows: Freecash, Reco
+  Social, Rewards US — all +60). CAKE's conversions feed reports in BST/UTC+1.
+- **Careful:** this REFINES, not contradicts, the note in issue #8 — that UTC verification was on the
+  **/Clicks** endpoint, which really is UTC. Clicks and conversions are on different clocks.
+- **Fix/status:** OPEN, diagnosed 2026-08-01. Nothing normalizes the hour today. Any day-bucketing or
+  click→conversion correlation on `conversion_at` inherits the skew.
+
 ## Closing the loop
 
 - Tell Migi plainly: what the affiliate sees, what admin sees, which known issue explains the gap,
