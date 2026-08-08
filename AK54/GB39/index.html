@@ -112,6 +112,9 @@ window.__STATS__    = window.__STATS__ || null;
      mode as the CTA label (see --color-on-accent above). Do not "brighten" it back to the accent
      without re-measuring — the accent is sized for a filled button, not for 11px on paper. */
   --color-accent-on-paper: oklch(45% 0.18 15);
+  /* Same role on the light palette; darker so white type on it still clears 4.5:1. */
+  --color-warn:     oklch(52% 0.21 27);
+  --color-on-warn:  oklch(99% 0 0);
 
   /* ── Wallet pass (structure D) ────────────────────────────────────────────
      Same principle inverted for a light paper: the pass is lighter than the page and the stack
@@ -186,8 +189,12 @@ h1,h2,.fig{overflow-wrap:anywhere;min-width:0}
 [data-palette="ember"] .card{--color-accent:var(--color-ink);--color-on-accent:var(--color-paper)}
 .card{position:relative;padding-top:var(--space-md);text-align:center}
 
-.screen{display:flex;flex-direction:column;align-items:center}
+.screen{display:flex;flex-direction:column;align-items:center;width:100%}
 .screen[hidden]{display:none}
+/* Screen A is a single composed screen, vertically centred like the reference. svh not vh so the
+   iOS URL bar collapsing does not shove the buttons under the fold. Screen B is taller than the
+   viewport by design and stays in normal flow. */
+#screenA{min-height:calc(100svh - var(--space-2xl));justify-content:center}
 
 .cardwrap{border-radius:var(--radius-lg);overflow:hidden;width:100%}
 .cardimg{display:block;width:100%;height:auto}
@@ -213,8 +220,16 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
 .choice .sub{display:block;font-size:var(--text-xs);margin-top:.15rem;opacity:.65}
 
 /* Screen B */
-.tick{width:2rem;height:2rem;border-radius:50%;background:var(--color-accent);
-  display:grid;place-items:center;margin:0 auto var(--space-sm)}
+/* Small mark at the top, mirroring the reference's logo row. Same file as the hero card, so it is
+   already in cache and costs no second request. */
+/* height:auto is load-bearing — the img carries real width/height attributes for the hero
+   size, and without it the 566px height attribute wins and the thumb renders as a column. */
+.thumb{display:block;width:5.5rem;height:auto;border-radius:var(--radius-sm);
+  margin-bottom:var(--space-md)}
+/* Tick and heading sit on ONE line, as in the reference — not stacked. */
+.check-row{display:flex;align-items:center;justify-content:center;gap:var(--space-sm)}
+.tick{flex:none;width:2rem;height:2rem;border-radius:50%;background:var(--color-accent);
+  display:grid;place-items:center}
 .tick svg{display:block}
 .panel{background:var(--color-paper-2);border-radius:var(--radius-lg);padding:var(--space-lg);
   width:100%;text-align:left;margin-bottom:var(--space-sm)}
@@ -227,8 +242,13 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
   font-size:var(--text-xs);font-weight:800}
 .step-t{font-size:var(--text-base);font-weight:700;line-height:1.35}
 .step-s{font-size:var(--text-sm);color:var(--color-ink-2);line-height:1.5;margin-top:var(--space-2xs)}
-.note{border:var(--rule-hair) solid var(--color-rule);border-radius:var(--radius-lg);
-  padding:var(--space-md);width:100%;text-align:left;margin-bottom:var(--space-md)}
+/* The IMPORTANT callout: red hairline + a badge notched over the top edge, per the reference.
+   overflow is visible so the badge can sit on the border rather than inside it. */
+.note{position:relative;border:var(--rule-hair) solid var(--color-warn);border-radius:var(--radius-lg);
+  padding:var(--space-md);width:100%;text-align:left;margin:var(--space-sm) 0 var(--space-md)}
+.badge{position:absolute;top:-.6rem;right:var(--space-md);background:var(--color-warn);
+  color:var(--color-on-warn);font-size:var(--text-xs);font-weight:800;letter-spacing:.08em;
+  padding:.15rem var(--space-xs);border-radius:var(--radius-sm)}
 .note h3{font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-2xs)}
 .note p{font-size:var(--text-sm);color:var(--color-ink-2);line-height:1.5}
 .note strong{color:var(--color-ink);font-weight:700}
@@ -255,12 +275,15 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
 
 <!-- Screen B — the brief + the real CTA -->
 <div class="screen" id="screenB" hidden>
-  <div class="tick" aria-hidden="true">
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10l3.5 3.5L15 7"
-      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-      style="color:var(--color-on-accent)"/></svg>
+  <img class="thumb" alt="" aria-hidden="true" decoding="async" width="1280" height="720" src="/images/landers/pass/applepay1000-gb.webp">
+  <div class="check-row">
+    <span class="tick" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10l3.5 3.5L15 7"
+        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+        style="color:var(--color-on-accent)"/></svg>
+    </span>
+    <h1 style="margin:0">You&rsquo;re in</h1>
   </div>
-  <h1 style="margin-top:0">You&rsquo;re in</h1>
   <p class="lede">Your <span class="tnum" data-geo-amount>£1,000</span> is reserved.
      Finish the steps below to unlock it.</p>
 
@@ -282,6 +305,7 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
   </div>
 
   <div class="note">
+    <span class="badge">IMPORTANT</span>
     <h3>Activation required</h3>
     <p>New users complete <strong>3&ndash;5 quick deals</strong> to unlock the full
        £1,000. That is the whole exchange &mdash; the deals are how it is funded.</p>
