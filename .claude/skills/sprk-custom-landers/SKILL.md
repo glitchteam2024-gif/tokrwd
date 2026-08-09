@@ -1026,6 +1026,45 @@ no apostrophes, which is why nobody had hit it. **Reword the comment; never weak
 and note that the sibling list in `links-config.js` is parsed the same way. A warning comment now
 sits in `breakout.js` above the bespoke roots.
 
+### 12. ORDER OF OPERATIONS: DEPLOY THE PAGES **BEFORE** THE ROWS
+
+The §1 checklist reads generator → SQL → verify, and taking that as a running order is what produced
+a live window of paid 404s on 2026-08-09.
+
+**The two halves go live independently, and the DB half is the one that publishes.** The moment the
+`landing_pages` + `landing_page_affiliates` rows exist, `get_offer_landing_pages` shows the design in
+the affiliate's picker and `resolveAffiliateOfferLinks` starts handing out
+`https://www.tokrwd.co/<FAMILY>/<GEO>1`. If tokrwd has not deployed, **every one of those URLs is a
+404** — and nothing anywhere reports it:
+
+- the DOOR still answers perfectly (302 with `s1`, 404 without) — it resolves from `landing_pages`
+  and never touches the page, so door checks pass and prove nothing about the lander;
+- the picker card renders, the launcher issues links, the affiliate sees a normal screen;
+- the only symptom is clicks with no conversions, which reads like a bad creative.
+
+Measured that day: all 7 doors 302'd correctly while all 8 lander URLs returned 404.
+
+**Correct order:** push tokrwd and confirm `curl -sI <link>` is 200 on every numbered link the SQL
+names, THEN run the SQL. If the rows are already in (someone ran the SQL first), the fix is to
+deploy immediately — the exposure lasts exactly as long as the gap.
+
+⚠️ **Pushing the branch is not deploying.** Vercel builds `main`. `git push -u origin claude/<x>`
+leaves the pages 404 — the deploy is `git push origin HEAD:main` (a fast-forward, once the branch is
+0 behind). Same for the preview PNGs in SPRKNetworkAds, which serve `/offers`: a non-NULL
+`preview_image` pointing at an undeployed file renders a BROKEN IMAGE, not the "Preview coming soon"
+placeholder — that fallback only fires when the column is NULL.
+
+**Working in the SPRK repo without disturbing WIP:** that checkout is routinely mid-feature on
+another branch with uncommitted files, and `git checkout -b … origin/main` can refuse or drag them
+along. Use a throwaway worktree instead — it leaves the working tree untouched:
+
+```bash
+git worktree add -b claude/<name> /tmp/wt origin/main
+cp …/*.png /tmp/wt/images/landers/ && cd /tmp/wt && git add images/landers/*.png
+git commit -m … && git push origin HEAD:main
+cd - && git worktree remove /tmp/wt --force && git worktree prune
+```
+
 ---
 
 ## 7. HOW TO QUERY THE DB FROM THIS MAC
