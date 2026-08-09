@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090909">
+  <meta name="description" content="Review the requirements for a $750 SHEIN gift-card reward and begin the qualifying offer flow.">
+  <title>SHEIN $750 Gift Card Offer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #090909;
+      --ink-2: #131313;
+      --paper: #f5f5f2;
+      --white: #ffffff;
+      --muted: #c8c8c3;
+      --steel: #a8aaad;
+      --line: #3d3d3b;
+      --acid: #ff3189;
+      --magenta: #b80f5b;
+      --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+      --body: "Manrope", "Helvetica Neue", sans-serif;
+      --ease-out: cubic-bezier(.16, 1, .3, 1);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--ink); }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--white);
+      background: var(--ink);
+      font-family: var(--body);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { color: var(--ink); background: var(--acid); }
+    * { scrollbar-color: var(--acid) var(--ink-2); scrollbar-width: thin; }
+    *::-webkit-scrollbar { width: 10px; }
+    *::-webkit-scrollbar-track { background: var(--ink-2); }
+    *::-webkit-scrollbar-thumb { border: 2px solid var(--ink-2); background: var(--acid); }
+    a, button, summary { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; }
+    .shell { width: min(1460px, calc(100% - 40px)); margin-inline: auto; }
+
+    .campaign-strip {
+      min-height: 44px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 20px;
+      padding: 8px max(20px, calc((100vw - 1460px) / 2));
+      color: var(--ink);
+      background: var(--acid);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    .campaign-strip strong { justify-self: center; }
+    .campaign-strip span:first-child { justify-self: start; }
+    .campaign-strip span:last-child { justify-self: end; }
+    .availability { justify-self: end; }
+    .constraint { display: inline-flex; align-items: center; gap: 8px; }
+    .constraint::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: currentColor;
+      animation: constraint-pulse 1.65s cubic-bezier(.16, 1, .3, 1) infinite;
+      animation-play-state: paused;
+      transform-origin: center;
+    }
+    .constraint.is-active::before { animation-play-state: running; }
+    .document-hidden .constraint::before { animation-play-state: paused; }
+    @keyframes constraint-pulse {
+      0%, 100% { opacity: .62; transform: scale(.78); box-shadow: 0 0 0 0 currentColor; }
+      42% { opacity: 1; transform: scale(1.18); box-shadow: 0 0 0 0 currentColor; }
+      72% { opacity: .84; transform: scale(1); box-shadow: 0 0 0 6px transparent; }
+    }
+
+    .corridor {
+      display: grid;
+      grid-template-columns: minmax(270px, .82fr) minmax(380px, 1.18fr) minmax(340px, 1fr);
+      min-height: calc(100svh - 44px);
+      border-inline: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .bay { position: relative; min-width: 0; overflow: hidden; }
+    .bay + .bay { border-left: 1px solid #5a5a57; }
+
+    .identity-bay {
+      padding: clamp(42px, 5vw, 76px) clamp(26px, 2.2vw, 34px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(130deg, #111 0%, #070707 72%);
+    }
+    .brand {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 9px;
+      width: fit-content;
+      margin-bottom: clamp(52px, 7vw, 92px);
+      color: var(--white);
+      text-decoration: none;
+    }
+    .brand strong { font-family: var(--display); font-size: clamp(46px, 5.2vw, 82px); font-weight: 800; line-height: .8; letter-spacing: .08em; }
+    .brand span { font-size: 11px; font-weight: 700; letter-spacing: .38em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      max-width: 640px;
+      margin-bottom: 24px;
+      font-family: var(--display);
+      font-size: clamp(52px, 4.4vw, 66px);
+      font-weight: 800;
+      line-height: .88;
+      letter-spacing: -.025em;
+      text-transform: uppercase;
+      text-wrap: balance;
+    }
+    .identity-copy { max-width: 42ch; margin-bottom: 0; color: var(--muted); font-size: clamp(16px, 1.5vw, 19px); text-wrap: pretty; }
+    .registration-mark {
+      position: absolute;
+      right: 26px;
+      bottom: 26px;
+      width: 18px;
+      height: 18px;
+      color: var(--magenta);
+    }
+    .registration-mark::before, .registration-mark::after { content: ""; position: absolute; background: currentColor; }
+    .registration-mark::before { left: 8px; top: 0; width: 2px; height: 18px; }
+    .registration-mark::after { left: 0; top: 8px; width: 18px; height: 2px; }
+
+    .mirror-bay {
+      min-height: 680px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(48px, 5vw, 72px);
+      color: var(--ink);
+      background-color: #1a1a1a;
+      background-image: linear-gradient(rgba(9,9,9,.08), rgba(9,9,9,.08));
+      background-size: cover;
+      background-position: center;
+    }
+    .mirror {
+      position: relative;
+      width: min(100%, 530px);
+      min-height: min(72vh, 710px);
+      padding: clamp(52px, 6vw, 84px) clamp(30px, 4vw, 58px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: rgba(250, 250, 247, .94);
+      box-shadow: 0 26px 70px rgba(0,0,0,.42), inset 0 0 0 9px #b7b9b8, inset 0 0 0 12px #353535;
+    }
+    .mirror::before, .mirror::after {
+      content: "";
+      position: absolute;
+      top: 26px;
+      bottom: 26px;
+      width: 14px;
+      background: radial-gradient(circle, #fff 0 4px, #c7c6bd 5px, transparent 7px) center top / 14px 58px repeat-y;
+      filter: drop-shadow(0 0 8px rgba(255,255,230,.7));
+      animation: mirror-wake 1.1s var(--ease-out) both;
+    }
+    .mirror::before { left: 20px; }
+    .mirror::after { right: 20px; animation-delay: .12s; }
+    .mirror-label { margin-bottom: 18px; font-size: 12px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+    .reward-amount {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(96px, 7.8vw, 116px);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      line-height: .78;
+      letter-spacing: -.03em;
+    }
+    .reward-type { margin: 28px 0 0; font-size: 13px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    .mirror .registration-mark { right: 38px; bottom: 38px; }
+    @keyframes mirror-wake {
+      from { opacity: .25; filter: drop-shadow(0 0 0 rgba(255,255,230,0)); }
+      to { opacity: 1; filter: drop-shadow(0 0 8px rgba(255,255,230,.7)); }
+    }
+
+    .steps-bay {
+      padding: clamp(42px, 5vw, 72px) clamp(26px, 3.5vw, 54px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #0d0d0d;
+    }
+    .steps-bay h2 {
+      margin-bottom: 32px;
+      font-family: var(--display);
+      font-size: clamp(42px, 4vw, 64px);
+      font-weight: 800;
+      line-height: .9;
+      letter-spacing: -.02em;
+      text-transform: uppercase;
+    }
+    .tag-stack { position: relative; display: grid; gap: 14px; }
+    .tag-stack::before { content: ""; position: absolute; z-index: 0; left: 24px; right: 24px; top: -18px; height: 8px; border-radius: 6px; background: linear-gradient(#d0d2d2, #616364 45%, #d7d8d8 55%, #555); box-shadow: 0 7px 18px rgba(0,0,0,.7); }
+    .claim-tag {
+      position: relative;
+      z-index: 1;
+      min-height: 116px;
+      padding: 24px 68px 22px 72px;
+      display: grid;
+      align-content: center;
+      color: var(--ink);
+      background: var(--paper);
+      clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 14px, 100% calc(100% - 14px), calc(100% - 14px) 100%, 14px 100%, 0 calc(100% - 14px), 0 14px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.24);
+      animation: tag-settle .8s var(--ease-out) both;
+    }
+    .claim-tag:nth-child(2) { animation-delay: .1s; }
+    .claim-tag:nth-child(3) { animation-delay: .2s; }
+    .claim-tag::before { content: ""; position: absolute; top: 14px; left: 28px; width: 16px; height: 16px; border-radius: 50%; background: var(--ink); box-shadow: inset 0 0 0 4px #8b8b87; }
+    .claim-tag::after { content: ""; position: absolute; right: 22px; top: 24px; bottom: 24px; width: 24px; background: repeating-linear-gradient(90deg, #090909 0 2px, transparent 2px 4px, #090909 4px 5px, transparent 5px 8px); }
+    .step-label { position: absolute; left: 0; top: 0; bottom: 0; width: 54px; display: grid; place-items: center; color: var(--ink); background: var(--acid); font-family: var(--display); font-size: 30px; font-weight: 900; }
+    .claim-tag h3 { margin: 0 0 5px; font-family: var(--display); font-size: 25px; font-weight: 800; line-height: 1; letter-spacing: -.01em; text-transform: uppercase; }
+    .claim-tag p { margin: 0; color: #494945; font-size: 12px; font-weight: 600; line-height: 1.45; }
+    @keyframes tag-settle { from { transform: translateY(-12px); } to { transform: translateY(0); } }
+
+    .cta-wrap { margin-top: 24px; }
+    .cta {
+      position: relative;
+      min-height: 60px;
+      padding: 0 64px 0 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink);
+      background: var(--acid);
+      font-family: var(--display);
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      text-decoration: none;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+      transition: background .18s ease, transform .18s var(--ease-out), color .18s ease;
+    }
+    .cta::after { content: ""; position: absolute; right: 24px; width: 22px; height: 12px; border-right: 3px solid currentColor; border-bottom: 3px solid currentColor; transform: rotate(-45deg); }
+    .cta:hover { color: var(--white); background: var(--magenta); transform: translateY(-2px); }
+    .cta:focus-visible, summary:focus-visible { outline: 3px solid var(--magenta); outline-offset: 4px; }
+    .cta-note { margin: 12px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .cta-note strong { color: var(--acid); }
+
+    .disclosure-stage { color: var(--ink); background: var(--paper); }
+    .disclosure {
+      display: grid;
+      grid-template-columns: minmax(250px, .7fr) minmax(0, 1.3fr);
+      gap: clamp(50px, 9vw, 150px);
+      padding: clamp(84px, 10vw, 140px) 0;
+    }
+    .disclosure-lead {
+      align-self: start;
+      padding: clamp(28px, 4vw, 52px);
+      background: var(--acid);
+      clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+    }
+    .disclosure h2 { max-width: 560px; margin-bottom: 22px; font-family: var(--display); font-size: clamp(52px, 6vw, 88px); font-weight: 800; line-height: .9; letter-spacing: -.025em; text-transform: uppercase; }
+    .disclosure-intro { max-width: 42ch; margin: 0; color: rgba(9,9,9,.76); text-wrap: pretty; }
+    .faq { display: grid; gap: 12px; }
+    details {
+      --faq-surface: var(--white);
+      --faq-ink: var(--ink);
+      --faq-mark: var(--magenta);
+      --faq-mark-ink: var(--white);
+      color: var(--faq-ink);
+      background: var(--faq-surface);
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    }
+    details:nth-child(1) { --faq-surface: var(--acid); --faq-mark: var(--ink); --faq-mark-ink: var(--white); }
+    details:nth-child(2) { --faq-surface: var(--white); --faq-mark: var(--magenta); --faq-mark-ink: var(--white); }
+    details:nth-child(3) { --faq-surface: var(--steel); --faq-mark: var(--ink); --faq-mark-ink: var(--white); }
+    details:nth-child(4) { --faq-surface: var(--ink-2); --faq-ink: var(--white); --faq-mark: var(--acid); --faq-mark-ink: var(--ink); }
+    summary { min-height: 76px; padding: 0 18px 0 22px; display: flex; align-items: center; justify-content: space-between; gap: 20px; cursor: pointer; list-style: none; font-weight: 800; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; width: 36px; height: 36px; flex: 0 0 auto; display: grid; place-items: center; color: var(--faq-mark-ink); background: var(--faq-mark); font-size: 26px; font-weight: 500; }
+    details[open] summary::after { content: "−"; }
+    details p { max-width: 66ch; margin: -4px 64px 26px 22px; color: currentColor; opacity: .78; }
+
+    .final-claim { color: var(--ink); background: var(--acid); }
+    .final-claim .shell { min-height: 250px; padding-block: 52px; display: flex; align-items: center; justify-content: space-between; gap: 44px; }
+    .final-claim h2 { max-width: 760px; margin: 0; font-family: var(--display); font-size: clamp(50px, 6vw, 90px); font-weight: 900; line-height: .87; letter-spacing: -.02em; text-transform: uppercase; }
+    .final-claim .cta { flex: 0 0 auto; color: var(--white); background: var(--ink); }
+    .final-claim .cta:hover { background: var(--magenta); }
+    footer { padding: 28px 0 110px; display: flex; justify-content: space-between; gap: 30px; color: #95958f; font-size: 11px; }
+    footer p { max-width: 72ch; margin: 0; }
+    .mobile-claim { display: none; }
+
+    @media (max-width: 1080px) {
+      .corridor { grid-template-columns: minmax(260px, .8fr) minmax(380px, 1.2fr); }
+      .steps-bay { grid-column: 1 / -1; border-top: 1px solid var(--line); border-left: 0 !important; }
+      .tag-stack { grid-template-columns: repeat(3, 1fr); }
+      .claim-tag { padding: 70px 38px 24px 24px; }
+      .step-label { left: 0; top: 0; bottom: auto; width: 58px; height: 50px; }
+      .claim-tag::before { top: 17px; left: auto; right: 54px; }
+      .cta-wrap { display: flex; align-items: center; gap: 22px; }
+      .cta-note { margin: 0; }
+    }
+
+    @media (max-width: 720px) {
+      .shell { width: min(100% - 28px, 620px); }
+      .campaign-strip { grid-template-columns: 1fr auto; min-height: 48px; padding-inline: 14px; font-size: 10px; letter-spacing: .08em; }
+      .campaign-strip strong { justify-self: start; }
+      .campaign-strip span:first-child { display: none; }
+      .campaign-strip span:last-child { justify-self: end; }
+      .corridor { display: flex; flex-direction: column; width: 100%; border-inline: 0; }
+      .bay + .bay { border-left: 0; border-top: 1px solid var(--line); }
+      .identity-bay { min-height: 500px; padding: 60px 22px 54px; }
+      .brand { margin-bottom: 72px; }
+      .brand strong { font-size: 58px; }
+      .brand span { font-size: 9px; }
+      h1 { font-size: clamp(54px, 17vw, 74px); }
+      .identity-copy { font-size: 16px; }
+      .mirror-bay { min-height: 650px; padding: 38px 22px; }
+      .mirror { min-height: 565px; padding-inline: 34px; }
+      .reward-amount { font-size: clamp(92px, 28vw, 110px); }
+      .reward-type { max-width: 240px; line-height: 1.6; }
+      .steps-bay { padding: 68px 18px 92px; }
+      .steps-bay h2 { font-size: 52px; }
+      .tag-stack { grid-template-columns: 1fr; gap: 16px; }
+      .tag-stack::before { left: 18px; right: 18px; }
+      .claim-tag { min-height: 132px; padding: 30px 60px 28px 78px; }
+      .step-label { top: 0; bottom: 0; width: 58px; height: auto; }
+      .claim-tag::before { top: 16px; left: 22px; right: auto; width: 14px; height: 14px; }
+      .claim-tag h3 { font-size: 26px; }
+      .claim-tag p { font-size: 12px; }
+      .cta-wrap { display: block; }
+      .cta { width: 100%; min-height: 62px; }
+      .cta-note { margin-top: 12px; text-align: center; }
+      .disclosure { grid-template-columns: 1fr; gap: 28px; padding: 64px 0; }
+      .disclosure-lead { padding: 32px 24px; }
+      .disclosure h2 { font-size: 58px; }
+      .final-claim .shell { min-height: 330px; align-items: stretch; flex-direction: column; justify-content: center; }
+      .final-claim h2 { font-size: 52px; overflow-wrap: anywhere; }
+      footer { flex-direction: column; padding-bottom: 120px; }
+      .mobile-claim {
+        position: fixed;
+        z-index: 20;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        min-height: 68px;
+        padding: 9px 10px 9px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--ink);
+        background: var(--acid);
+        box-shadow: 0 18px 48px rgba(0,0,0,.55);
+        clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+        transition: opacity .2s ease, transform .2s ease;
+      }
+      .mobile-claim.is-hidden { opacity: 0; transform: translateY(calc(100% + 24px)); pointer-events: none; }
+      .mobile-claim strong { display: block; font-family: var(--display); font-size: 24px; line-height: 1; text-transform: uppercase; }
+      .mobile-claim small { display: block; margin-top: 3px; font-size: 9px; font-weight: 700; }
+      .mobile-claim small.constraint { display: inline-flex; }
+      .mobile-claim a { min-height: 48px; padding: 0 18px; display: inline-flex; align-items: center; color: var(--white); background: var(--ink); font-family: var(--display); font-size: 17px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; text-decoration: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+    }
+  </style>
+  <style>
+    /* ── Mobile refinements — added by _lp-generator/kerman-shein.js, not by the operator ──────
+       Phone-only. The desktop layout above is his, unmodified. ─────────────────────────────── */
+
+    /* iOS Safari inflates body text in landscape without this. */
+    html { -webkit-text-size-adjust: 100%; }
+
+    @media (max-width: 720px) {
+      /* THE ONE THAT ACTUALLY LOOKED BROKEN. The reward figure is the hero of this design and it
+         did not fit its own card: it overran the mirror's content box by 22px at 360px and 38px
+         at 320px, so the leading currency mark and the trailing digit collided with the
+         illuminated bulb strips down each side. Cause: clamp(92px, 28vw, 110px) has a 92px FLOOR, so
+         below ~330px the type stops shrinking while the mirror keeps narrowing. Only the largest
+         phones (430px) were unaffected, which is why it survived a desktop review.
+         Fix is two-part, and deliberately keeps the figure BIG: give the mirror back 20px of
+         width that the bay padding was spending, then re-ramp the type with a NEGATIVE intercept
+         so it stays large on a big phone and still clears the frame at 320px.
+
+         The ramp is sized for the WIDEST case, not the one on screen while you look at it:
+           · widest STRING is a six-glyph thousands figure (currency mark + 1,000), not a
+             four-glyph 750 one. This generator ships both.
+           · widest FONT is the FALLBACK, not Barlow Condensed. Measured em-widths for the
+             six-glyph string: Barlow 2.92, Arial Narrow 2.51, generic sans 3.06. Google Fonts is
+             loaded with display=swap, so EVERY Android load paints the fallback first — tuning
+             to Barlow alone would flash a broken layout on every cold visit.
+           Content box is (100vw - 92px) here, so the generic-sans limit is (100vw-92)/3.06,
+           i.e. ~32.7vw - 30px. The ramp below sits ~8% under that at every phone width. */
+      .mirror-bay { padding-inline: 12px; }
+      .reward-amount { font-size: clamp(52px, calc(30vw - 28px), 110px); }
+
+      /* The legal links were a 15px-tall tap target — well under the 44px both Apple and Google
+         publish, and they are exactly the links an ad reviewer taps. */
+      footer a { display: inline-block; padding: 14px 8px; }
+
+      /* The brand block pushed the headline ~72px down, so on a short phone (iPhone SE, 667px)
+         the offer itself started below the fold behind a mostly empty panel. */
+      .brand { margin-bottom: 44px; }
+      .identity-bay { min-height: 440px; }
+
+      /* 9px is below comfortable reading size on a phone. */
+      .brand span { font-size: 10px; }
+      .mobile-claim small { font-size: 10px; }
+
+      /* 'anywhere' breaks a word mid-word even when it would fit on a line of its own;
+         'break-word' only breaks when it genuinely cannot fit. */
+      .final-claim h2 { overflow-wrap: break-word; }
+    }
+  </style>
+</head>
+<body>
+  <!--
+  THESIS: A back-to-school reward becomes a fitting-room journey; this refuses the centered coupon flyer and generic fashion hero.
+  OWN-WORLD: Ink-black bays, fitting-room white, campaign-pink action fields, deep-pink crop marks, stainless rails, illuminated mirror, clipped garment tags.
+  STORY: Recognize the SHEIN offer, see the $750 reward, understand email → 3–5 deals → reward, then act.
+  FIRST VIEWPORT: Three desktop bays—identity left, reward mirror center, requirement tags and CTA right; mobile stacks them in that same order.
+  FORM: Three-bay fitting corridor, grounded direction index 3, seed 3c2f9c70.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+  -->
+  <header class="campaign-strip">
+    <span>Gift card offer</span>
+    <strong>Shein Reward 2026</strong>
+    <span class="availability constraint">Limited spots remaining</span>
+  </header>
+
+  <main>
+    <section class="corridor" aria-labelledby="offer-title">
+      <div class="bay identity-bay">
+        <a class="brand" href="#offer-title" aria-label="SHEIN gift card offer"><strong>SHEIN</strong><span>Gift card</span></a>
+        <h1 id="offer-title">Claim your $750 reward.</h1>
+        <p class="identity-copy">Start with a valid email, complete 3–5 recommended deals, and unlock credit to spend at SHEIN.</p>
+        <span class="registration-mark" aria-hidden="true"></span>
+      </div>
+
+      <div class="bay mirror-bay" aria-label="$750 SHEIN gift-card reward">
+        <div class="mirror">
+          <span class="mirror-label">Your reward</span>
+          <p class="reward-amount">$750</p>
+          <p class="reward-type">Free credit to spend at SHEIN</p>
+          <span class="registration-mark" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="bay steps-bay">
+        <h2>Three steps.<br>One reward.</h2>
+        <div class="tag-stack">
+          <article class="claim-tag">
+            <span class="step-label" aria-hidden="true">1</span>
+            <h3>Enter your email</h3>
+            <p>Use a valid address to start. No credit card is needed.</p>
+          </article>
+          <article class="claim-tag">
+            <span class="step-label" aria-hidden="true">2</span>
+            <h3>Complete 3–5 deals</h3>
+            <p>Finish the required recommended offers and free trials.</p>
+          </article>
+          <article class="claim-tag">
+            <span class="step-label" aria-hidden="true">3</span>
+            <h3>Unlock your reward</h3>
+            <p>Completing the requirements unlocks the full $750.</p>
+          </article>
+        </div>
+        <div class="cta-wrap">
+          <a class="cta" href="#claim" aria-label="See qualifying offers">See my offers</a>
+          <p class="cta-note"><strong class="constraint">Limited spots remaining.</strong> No credit card needed to start.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="disclosure-stage">
+    <section class="shell disclosure" aria-labelledby="questions-title">
+      <div class="disclosure-lead">
+        <h2 id="questions-title">Know the deal before you start.</h2>
+        <p class="disclosure-intro">The requirements should be as visible as the reward. Review them before sharing your email or completing an offer.</p>
+      </div>
+      <div class="faq">
+        <details open>
+          <summary>What do I actually get?</summary>
+          <p>A $750 SHEIN gift-card reward or credit to spend at SHEIN after completing the qualifying requirements.</p>
+        </details>
+        <details>
+          <summary>What do I need to do?</summary>
+          <p>Start with a valid email address, then complete 3–5 recommended deals, including qualifying offers and free trials.</p>
+        </details>
+        <details>
+          <summary>Do I need a credit card?</summary>
+          <p>No credit card is needed to start. Review each recommended deal’s own terms before participating.</p>
+        </details>
+        <details>
+          <summary>What funds the reward?</summary>
+          <p>The qualifying partner offers fund the reward. Completing the required deals is what unlocks the $750.</p>
+        </details>
+      </div>
+    </section>
+    </div>
+
+    <section class="final-claim" id="claim">
+      <div class="shell">
+        <h2>Ready to see your qualifying offers?</h2>
+        <a class="cta" href="https://sprktrax.org/api/link/product-reviewer-shein-bonus-au-kerman" id="claim-button">See my offers</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <p>Offer requirements and availability apply. Review the terms of every qualifying offer before participating.</p>
+    <p>Shein Reward / 2026 · <a href="/Rewards/terms">Terms &amp; Conditions</a> · <a href="/Rewards/privacy">Privacy Policy</a></p>
+  </footer>
+
+  <div class="mobile-claim" aria-label="Mobile claim action">
+    <div><strong>Your $750</strong><small class="constraint">Limited spots remaining</small></div>
+    <a href="#claim">See offers</a>
+  </div>
+
+  <script>
+    // ---- Outbound: the SPRK tracking DOOR ----
+    // Replaced the supplied demo handler, which cancelled the only converting click on the page.
+    // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
+    // and 302s to the real Shein URL — which lives in the offer row and never appears in this
+    // page's source.
+    const DOOR = "https://sprktrax.org/api/link/product-reviewer-shein-bonus-au-kerman";
+
+    // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
+    const q = new URLSearchParams(location.search);
+
+    // campid is the Carrd/Spartis name for the same value — promote it when s1 is absent.
+    if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+
+    // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
+    // the door 404s an untagged click by design, and that is the real attribution gate.
+    if (!q.get('s1')) {
+      const mc = q.get('mc_attr') || '', f = {};
+      mc.split('..').forEach((kv) => { const i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+      const d = f.e || f.c; if (d) q.set('s1', d);
+    }
+
+    function offerUrl() {
+      // s1 LAST — ad automations append to the tail. campid is a lander-side alias, lg routes the
+      // lander; neither belongs in what the network sees.
+      const out = new URLSearchParams(q.toString());
+      out.delete('s1'); out.delete('campid'); out.delete('lg');
+      const qs = out.toString(), s1 = q.get('s1') || '';
+      let url = DOOR + (qs ? '?' + qs : '');
+      if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+      return url;
+    }
+
+    // Upgrade the static href in place. Left as a plain anchor on purpose: the browser handles the
+    // navigation, so long-press / open-in-new-tab / middle-click all behave, and there is no click
+    // handler that could swallow the tap. This script sits at the end of <body>, so the element
+    // exists; nothing above it depends on JS, so the page still renders if this never runs.
+    const claimButton = document.getElementById('claim-button');
+    if (claimButton) claimButton.setAttribute('href', offerUrl());
+
+    const mobileClaim = document.querySelector('.mobile-claim');
+    const inlineActions = document.querySelectorAll('.cta-wrap, .disclosure-stage, .final-claim');
+    const actionObserver = new IntersectionObserver((entries) => {
+      const inlineActionVisible = entries.some((entry) => entry.isIntersecting);
+      mobileClaim.classList.toggle('is-hidden', inlineActionVisible);
+    }, { threshold: 0.08 });
+    inlineActions.forEach((action) => actionObserver.observe(action));
+
+    const constraints = document.querySelectorAll('.constraint');
+    const constraintObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => entry.target.classList.toggle('is-active', entry.isIntersecting));
+    }, { threshold: 0.25 });
+    constraints.forEach((constraint) => constraintObserver.observe(constraint));
+    const syncDocumentVisibility = () => document.body.classList.toggle('document-hidden', document.hidden);
+    document.addEventListener('visibilitychange', syncDocumentVisibility);
+    syncDocumentVisibility();
+  </script>
+<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
+     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+<script src="/js/ttclid.js" async></script>
+</body>
+</html>

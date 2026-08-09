@@ -377,6 +377,54 @@
       *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
     }
   </style>
+  <style>
+    /* ── Mobile refinements — added by _lp-generator/kerman-shein.js, not by the operator ──────
+       Phone-only. The desktop layout above is his, unmodified. ─────────────────────────────── */
+
+    /* iOS Safari inflates body text in landscape without this. */
+    html { -webkit-text-size-adjust: 100%; }
+
+    @media (max-width: 720px) {
+      /* THE ONE THAT ACTUALLY LOOKED BROKEN. The reward figure is the hero of this design and it
+         did not fit its own card: it overran the mirror's content box by 22px at 360px and 38px
+         at 320px, so the leading currency mark and the trailing digit collided with the
+         illuminated bulb strips down each side. Cause: clamp(92px, 28vw, 110px) has a 92px FLOOR, so
+         below ~330px the type stops shrinking while the mirror keeps narrowing. Only the largest
+         phones (430px) were unaffected, which is why it survived a desktop review.
+         Fix is two-part, and deliberately keeps the figure BIG: give the mirror back 20px of
+         width that the bay padding was spending, then re-ramp the type with a NEGATIVE intercept
+         so it stays large on a big phone and still clears the frame at 320px.
+
+         The ramp is sized for the WIDEST case, not the one on screen while you look at it:
+           · widest STRING is a six-glyph thousands figure (currency mark + 1,000), not a
+             four-glyph 750 one. This generator ships both.
+           · widest FONT is the FALLBACK, not Barlow Condensed. Measured em-widths for the
+             six-glyph string: Barlow 2.92, Arial Narrow 2.51, generic sans 3.06. Google Fonts is
+             loaded with display=swap, so EVERY Android load paints the fallback first — tuning
+             to Barlow alone would flash a broken layout on every cold visit.
+           Content box is (100vw - 92px) here, so the generic-sans limit is (100vw-92)/3.06,
+           i.e. ~32.7vw - 30px. The ramp below sits ~8% under that at every phone width. */
+      .mirror-bay { padding-inline: 12px; }
+      .reward-amount { font-size: clamp(52px, calc(30vw - 28px), 110px); }
+
+      /* The legal links were a 15px-tall tap target — well under the 44px both Apple and Google
+         publish, and they are exactly the links an ad reviewer taps. */
+      footer a { display: inline-block; padding: 14px 8px; }
+
+      /* The brand block pushed the headline ~72px down, so on a short phone (iPhone SE, 667px)
+         the offer itself started below the fold behind a mostly empty panel. */
+      .brand { margin-bottom: 44px; }
+      .identity-bay { min-height: 440px; }
+
+      /* 9px is below comfortable reading size on a phone. */
+      .brand span { font-size: 10px; }
+      .mobile-claim small { font-size: 10px; }
+
+      /* 'anywhere' breaks a word mid-word even when it would fit on a line of its own;
+         'break-word' only breaks when it genuinely cannot fit. */
+      .final-claim h2 { overflow-wrap: break-word; }
+    }
+  </style>
 </head>
 <body>
   <!--
