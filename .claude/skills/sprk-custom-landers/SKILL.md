@@ -857,6 +857,45 @@ Four more things it taught:
 mobile breakpoint. Shot at `1280,720` then `sips -z 450 800`. **The card came out well precisely
 because the missing photo degrades to a flat dark panel** — check the capture, do not assume.
 
+### 5d-ii. ONE DESIGN ACROSS MANY OFFERS, AND MOBILE (2026-08-09, same page)
+
+Migi then asked for the page to be phone-optimised and run on **all seven** Shein offers, still
+locked to notkerman. Both went in the GENERATOR — the source file stays byte-for-byte his, and
+every change stays auditable as ours. Four things worth keeping:
+
+1. **A SUPPLIED PAGE'S HERO NUMBER IS THE THING THAT BREAKS ON A PHONE, AND A DESKTOP REVIEW
+   CANNOT SEE IT.** His reward figure overran the mirror's content box by 22px at 360px and 38px
+   at 320px and sat on top of the frame's bulb strips. Cause: `clamp(92px, 28vw, 110px)` — the
+   **floor** stops the type shrinking while the container keeps narrowing. Only 430px-class phones
+   were clean. **A `clamp()` floor on a display figure is the bug; look for it first.** Fix shape:
+   claw back container padding, then re-ramp with a NEGATIVE intercept (`calc(30vw - 28px)`) so it
+   stays large at the top of the range and clears at the bottom.
+
+2. **SIZE THE RAMP FOR THE WIDEST FONT, NOT THE ONE YOU SEE.** Google Fonts is loaded with
+   `display=swap`, so **every Android cold load paints the fallback first**. Measured em-widths for
+   a six-glyph thousands figure: Barlow Condensed 2.92, Arial Narrow 2.51, **generic sans 3.06**.
+   Tuning to the webfont alone flashes a broken layout on every first visit. Measure the fallback
+   in-page (`font-family: sans-serif` on a hidden span) and target ≥8% margin against the worst.
+
+3. **FANNING ONE DESIGN ACROSS OFFERS IS A COPY PROBLEM BEFORE IT IS A PLUMBING PROBLEM.** His file
+   hardcodes its amount in **ten** places. Four of the seven offers pay 750 and three are non-USD.
+   Copying the page unchanged would promise a figure the offer does not pay — on a money path, in
+   the affiliate's name. Substitute amount + currency per variant, assert **all ten**, and add a
+   guard that fails the build if a symbol from the wrong currency survives anywhere. Move the
+   campaign label with it (Back-to-School branding on an AU Product Reviewer offer is a mismatch a
+   reviewer can question). Structure it as a `VARIANTS` table — one row per offer carrying
+   `{key, geo, family, vanity, amount, campaign, slug, offerId}` — and print all of them each run.
+
+4. **ONE VANITY PATH, NOT ONE PER OFFER.** It carries no slot number, so it is a single shared URL
+   with none of the numbered fan-out's anti-flag property, and `resolveAffiliateOfferLinks` serves
+   the numbered clone anyway. Seven of them would be seven single points of failure for a
+   convenience nothing uses.
+
+⚠️ **The currency guard fired twice on this generator's OWN comments** — the same lesson as §5c
+item 4, now with a second instance. A comment that *names* the thing it is guarding against trips
+the guard. **Reword the comment; never weaken the assertion.** Worth making guard errors print
+surrounding context — a bare "1 stray symbol" is unactionable across a 700-file build.
+
 ## 6. THE TRAPS
 
 ### 1. Three different id columns, and two of them are wrong
