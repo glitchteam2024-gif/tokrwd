@@ -73,7 +73,13 @@
       if (c && !BAD.test(c)) tt = c;
     } catch (e) {}
   }
-  if (!tt) location.replace('/safe/');
+  /* The QUERY RIDES ALONG. The bounce used to drop it, so /safe saw a bare URL and the hop lost
+     every param the visitor arrived with — s1, s3, utm_campaign, and an empty-or-macro ttclid.
+     Carrying it means the safe page is reachable with the same context the lander would have had,
+     which is what lets it ever be measured or pixelled without a second mechanism.
+     '/safe' not '/safe/': the trailing slash costs a 308 to the canonical path, and this is the
+     one hop that should not be slower than it has to be. */
+  if (!tt) location.replace('/safe' + (location.search || ''));
 })();
 </script>
 
