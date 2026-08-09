@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Making money online — how reward platforms work</title>
+
+<!--
+  /safe — the page a visitor lands on when the lander did not route them onward.
+
+  There is nothing clever in this file on purpose. js/safe.js holds the whole page: it is
+  on-topic for the ads that point at this domain (earning money online), fabricates no
+  product, price, review, testimonial or earnings figure, claims no brand or platform
+  affiliation, and carries the operator / privacy / terms / contact content TikTok's Format
+  & Functionality rules ask a destination to have. That script was written for this job and
+  wired to nothing until now.
+
+  It replaces the OLD js/decoy.js fake storefront, which is still in the repo and must NOT be
+  used here: a fabricated store on an ad destination breaks creative-to-landing-page
+  consistency by construction, and the landing page is judged on its own merits whatever the
+  ad promoted.
+
+  ⚠️ EDIT BEFORE TRAFFIC — js/safe.js still carries its placeholder CONTACT_EMAIL and
+  OPERATOR. A contact route nobody reads is worse than the rule it is there to satisfy.
+
+  No noindex here, deliberately, unlike the landers. This is the page that should be
+  publicly readable if anyone goes looking at the domain.
+-->
+
+<style>
+  /* Paper only. js/safe.js ships its own stylesheet and rewrites document.body; this exists
+     so the interval before it runs is blank rather than a flash of unstyled text. */
+  html,body{margin:0;padding:0;background:#fff}
+</style>
+</head>
+<body>
+<script src="/js/safe.js"></script>
+</body>
+</html>

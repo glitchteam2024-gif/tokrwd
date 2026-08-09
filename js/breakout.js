@@ -74,7 +74,9 @@
   ];
 
   /** Never forwardable, whatever the allowlist says. Belt to the allowlist's braces. */
-  var RESERVED_ROOTS = ['api', 'c', 'r', 'pre', 'admin', 'js', 'images', 'postback'];
+  // 'safe' is here for the same reason as 'pre': to=/safe would spend the budget landing paid
+  // traffic on the page whose entire job is to be the one that does NOT convert.
+  var RESERVED_ROOTS = ['api', 'c', 'r', 'pre', 'admin', 'js', 'images', 'postback', 'safe'];
 
   /** Auto-attempt the handoff once the page has painted. */
   var ESCAPE_AT_MS = 250;

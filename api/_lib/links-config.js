@@ -537,6 +537,9 @@ const RESERVED_LANDER_ROOTS = new Set([
   // The partner portal, for the same reason as `admin`: `lp=portal` would otherwise
   // resolve and put paid traffic on a login screen.
   'portal',
+  // The safe page. `lp=safe` / `to=/safe` would spend the whole budget landing paid
+  // traffic on the page whose entire job is to be the one that does NOT convert.
+  'safe',
 ]);
 
 /**

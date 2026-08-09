@@ -32,6 +32,50 @@
 })();
 </script>
 
+<!-- ══ ttclid GATE — no click id, no offer page ════════════════════════════════════════════════
+     Owner decision, 2026-08-09, taken against a written objection. Recorded here rather than in a
+     commit message because the next person to read this file has to know it was deliberate.
+
+     WHAT IT DOES. A visitor with no usable TikTok click id is sent to /safe — an on-topic,
+     fabricates-nothing information page — instead of the offer. Everyone else sees the lander.
+
+     WHAT IT COSTS, MEASURED. Over the 24h to 2026-08-09, 8 of 369 real clicks (2.2%) reached the
+     door with no usable ttclid: 4 empty, 4 an unsubstituted macro. Those are buyers. The cookie
+     read below is what keeps that number at 2.2% instead of far higher — a query stripped on an
+     in-app-browser hop still passes if _ttclid was banked at /pre or on an earlier view.
+
+     WHAT IT RISKS. This is the one thing js/breakout.js in the tokrwd repo is written to forbid:
+     "ONE destination for everyone… NO review detection of any kind… serving ad-review traffic a
+     DIFFERENT PAGE with a DIFFERENT DESTINATION… is what gets a domain flagged." ttclid is the
+     sharpest possible proxy for review traffic, because TikTok appends it only on a real ad click
+     — an ad reviewer opening the destination URL has none, and therefore never sees this page.
+     A flag lands on the DOMAIN, so it would take every campaign on tokrwd.co with it, not just
+     this one. The owner was shown this and chose to ship it.
+
+     WHY IT RUNS HERE. Before the pixel block below, so a visitor who is about to be bounced never
+     fires a PageView — otherwise the pixel learns from traffic that never saw the offer. And
+     before first paint, so there is no flash of the offer page on the way out.
+
+     location.replace, not assign: the bounced visitor must not be able to reach the lander with a
+     Back tap, which would make the gate decorative. -->
+<script>
+(function(){
+  var BAD = /CLICK_ID|__CLICKID__|[{}\[\]#%]/i;
+  var tt = (new URLSearchParams(location.search).get('ttclid') || '').trim();
+  if (tt && BAD.test(tt)) tt = '';
+  if (!tt) {
+    /* Same cookie /js/ttclid.js banks, read with the same validation the door applies. Without
+       this the gate would reject the exact visitors the cookie fallback exists to rescue. */
+    try {
+      var m = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
+      var c = m ? decodeURIComponent(m[1]).trim() : '';
+      if (c && !BAD.test(c)) tt = c;
+    } catch (e) {}
+  }
+  if (!tt) location.replace('/safe/');
+})();
+</script>
+
 <script id="offer-config">
 /* This page IS one geo — US, with its own figures baked into the markup. There is deliberately
    NO runtime geo detection, no language switcher and no cookie: the geo is decided by WHICH PAGE the
