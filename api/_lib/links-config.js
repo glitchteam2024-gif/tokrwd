@@ -906,6 +906,14 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // destination" while still charging for the click. Same failure the 2026-07-30 note above
   // describes, one slice generation later.
   'ac53', 'ac54', 'af53', 'af54', 'ak53', 'ak54', 'ap53', 'ap54',
+  // Bespoke, single-affiliate pages: acsm/as50/sasurl (Sammy), ashl/ah50/ashurl (Ashlyn),
+  // kerm/km50/saskrurl + shkm/sk50/shkrurl (notkerman — Apple Pay and Shein, two separate pages
+  // on two separate offers). Registered for the same reason as everything else here — an
+  // lp=/to=-routed hit does go through /r — not because the affiliate's assigned link uses /pre.
+  'kerm', 'km50', 'saskrurl',
+  // shkm + sk50..sk56 is ONE design on all seven Shein offers, one clone family each; only the
+  // flagship carries a vanity path. `node _lp-generator/kerman-shein.js` prints this exact list.
+  'shkm', 'sk50', 'sk51', 'sk52', 'sk53', 'sk54', 'sk55', 'sk56', 'shkrurl',
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',

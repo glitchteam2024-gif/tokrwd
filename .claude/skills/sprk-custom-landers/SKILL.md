@@ -774,6 +774,128 @@ taught that Sammy's did not:
    database outage silently eating paid clicks. Any hand-off must be **best-effort-then-go** —
    attempt the write, log it, send the visitor either way.
 
+## 5c. THIRD CASE STUDY — NOTKERMAN (2026-08-08), AND THE "DEMO STUB" VARIANT
+
+`_lp-generator/kerman-apay.js` · `KERM/US` + `/saskrurl` + `KM50/US1..US100` · door
+`applepay750-us-kerman` · Apple Pay $750 US (`2c345134-b7e2-4f55-aecf-5acf2984dce0`) ·
+`notkermanh@gmail.com` (auth `70fe943b-a245-4fa3-9ef4-cca6ddec906c`, aff 32). Static page, no forms,
+no external hosts, no CDN — the cleanest supplied file so far. Four things it added:
+
+1. **THE NO-OUTBOUND-PATH DEFECT HAS A THIRD DISGUISE, AND IT IS THE CONVINCING ONE.** Sammy's
+   pointed at `example.com`; Ashlyn's third design used `href='#'`; his shipped a **demo stub that
+   simulates a working button** — a real listener that `preventDefault()`s and rewrites the label to
+   *"Connect your claim flow here"*. It is the hardest variant to catch by clicking, because
+   something visibly happens. **Four supplied landers in a row, four times the same defect.** Run the
+   grep first, every time, and add a fourth item to the finding set: `example.com`, `href="#"`,
+   `javascript:void(0)`, **and any handler that cancels the click**.
+
+2. **LEGAL LINKS MAY BE ABSENT, NOT BROKEN.** §3 trap 3 says Terms/Privacy ship as `href="#"`. His
+   footer had the disclaimer prose and **no links at all**, which reads as fine to a human and fails
+   the same ad-network fetch. Grep for `Rewards/terms`, not for `href="#"`.
+
+3. **THE §8 PREVIEW RECIPE FAILS ON A BIG-CLAMP HERO.** `--window-size=460,259` puts a page with
+   `font-size: clamp(58px, 7.5vw, 104px)` into its own mobile breakpoint, and the card comes out as
+   three cropped words — the same broken-zoom read `b47731b` fixed on the grid side. **Shoot at
+   `--window-size=1280,720` and `sips -z 450 800`** when the design has a fluid hero. Check the
+   capture before committing it; the recipe is a starting point, not a guarantee.
+
+4. **THE `never()` GUARDS POLICE THE GENERATOR'S OWN COMMENTS — let them.** Adding
+   `never(h, 'preventDefault', …)` failed the first build on a comment in the injected wiring that
+   *described* the stub it replaced. That is the guard working (same lesson as Ashlyn's placeholder
+   comment, `ashlyn-apay.js:143-145`). **Reword the comment; never weaken the assertion.**
+
+Also worth copying: his hero and sticky CTAs are in-page anchors to `#claim`, and the `#claim`
+section exists only to hold the converting button. That two-step is the operator's funnel — wire the
+converting button and **leave the scroll anchors alone**, then assert `must(h, 'href="#claim"', 3)`
+so a future source edit that breaks the internal funnel fails the build instead of shipping.
+
+⚠️ He was **already active on a house design** (`applepay750-us-c`, slot 1, `chosen_by='affiliate'`),
+so this is the first bespoke build where the release-before-you-claim trap in §2 was live rather
+than theoretical. The SQL is committed at
+`_lp-generator/2026-08-08_kerman_apay_landing_page.sql` and archives it in the same transaction.
+
+## 5d. FOURTH CASE STUDY — NOTKERMAN AGAIN (2026-08-09), A SECOND PAGE FOR THE SAME AFFILIATE
+
+`_lp-generator/kerman-shein.js` · `SHKM/US` + `/shkrurl` + `SK50/US1..US100` · door
+`shein-b2s-us-kerman` · Rewards US - Shein $1000 Back to School
+(`7018d82b-f19d-4759-9910-de9e837774e5`, code FL220841) · same affiliate as §5c. Static page,
+no forms, no CDN, no third-party database; Google Fonts is its only external host.
+
+**An affiliate can hold more than one bespoke page — they simply do not interact.** Different
+offer, different door slug, different `landing_pages` row, different assignment. The release
+sweep in §2 is scoped to `(offer, geo)`, so his Apple Pay page is untouched by the Shein build and
+vice versa. Nothing new is needed for the second one; just do not reuse the vanity path (§1 step 3)
+and do not reuse folder roots.
+
+Four more things it taught:
+
+1. **THE NO-OUTBOUND-PATH DEFECT CAN WEAR BOTH DISGUISES AT ONCE — and that combination is
+   undetectable by inspection.** His money button was `href="#"` **and** its only script was a
+   demo stub that cancelled the click and relabelled itself. Reading the href suggests the script
+   handles it; clicking it makes something visibly happen. Neither check finds the truth alone.
+   **Five supplied landers in a row, five times this defect.** It is not carelessness — these pages
+   are built as design comps, and the destination is the one thing a comp cannot know. Assume it.
+
+2. **A SUPPLIED PAGE MAY REFERENCE AN ASSET THAT WAS NEVER SENT.** His `.mirror-bay` asked for
+   `url("../assets/shein-mirror-scene.png")`. There is no `assets/` directory in tokrwd and the
+   photo did not come with the HTML, so it 404s on every load of all 102 copies. **Add
+   `grep -noE 'url\(["'"'"']?[^)"'"'"']+' file.html` to the first-pass grep**, alongside the
+   outbound-link check. A failed `background-image` never paints, so dropping the reference is a
+   ZERO-visual-change edit that only removes the broken request — do that, and print the restore
+   path (root-relative `/assets/...`, never `../assets/`, which is wrong from every clone depth).
+
+3. **GOOGLE FONTS IS ALLOWED; THE STRAY-HOST GUARD MUST BE WIDENED DELIBERATELY, NOT DELETED.**
+   431 landers in this repo already load `fonts.googleapis.com`, and it sits on no money path.
+   Add the two font hosts to the generator's `allowed` set with the reason written down; keep the
+   guard throwing on everything else. Sammy's and notkerman's Apple Pay pages reached zero hosts,
+   so their generators allow only ours — do not copy that set blindly onto a page that uses webfonts.
+
+4. **Legal links were absent again, not broken** — confirming §5c item 2 is the norm, not a one-off.
+
+⚠️ **The §8 preview recipe needed the §5c override again.** This design has a `clamp(52px, 4.4vw,
+66px)` hero and a 3-column grid that collapses at 1080px, so `--window-size=460,259` shoots its
+mobile breakpoint. Shot at `1280,720` then `sips -z 450 800`. **The card came out well precisely
+because the missing photo degrades to a flat dark panel** — check the capture, do not assume.
+
+### 5d-ii. ONE DESIGN ACROSS MANY OFFERS, AND MOBILE (2026-08-09, same page)
+
+Migi then asked for the page to be phone-optimised and run on **all seven** Shein offers, still
+locked to notkerman. Both went in the GENERATOR — the source file stays byte-for-byte his, and
+every change stays auditable as ours. Four things worth keeping:
+
+1. **A SUPPLIED PAGE'S HERO NUMBER IS THE THING THAT BREAKS ON A PHONE, AND A DESKTOP REVIEW
+   CANNOT SEE IT.** His reward figure overran the mirror's content box by 22px at 360px and 38px
+   at 320px and sat on top of the frame's bulb strips. Cause: `clamp(92px, 28vw, 110px)` — the
+   **floor** stops the type shrinking while the container keeps narrowing. Only 430px-class phones
+   were clean. **A `clamp()` floor on a display figure is the bug; look for it first.** Fix shape:
+   claw back container padding, then re-ramp with a NEGATIVE intercept (`calc(30vw - 28px)`) so it
+   stays large at the top of the range and clears at the bottom.
+
+2. **SIZE THE RAMP FOR THE WIDEST FONT, NOT THE ONE YOU SEE.** Google Fonts is loaded with
+   `display=swap`, so **every Android cold load paints the fallback first**. Measured em-widths for
+   a six-glyph thousands figure: Barlow Condensed 2.92, Arial Narrow 2.51, **generic sans 3.06**.
+   Tuning to the webfont alone flashes a broken layout on every first visit. Measure the fallback
+   in-page (`font-family: sans-serif` on a hidden span) and target ≥8% margin against the worst.
+
+3. **FANNING ONE DESIGN ACROSS OFFERS IS A COPY PROBLEM BEFORE IT IS A PLUMBING PROBLEM.** His file
+   hardcodes its amount in **ten** places. Four of the seven offers pay 750 and three are non-USD.
+   Copying the page unchanged would promise a figure the offer does not pay — on a money path, in
+   the affiliate's name. Substitute amount + currency per variant, assert **all ten**, and add a
+   guard that fails the build if a symbol from the wrong currency survives anywhere. Move the
+   campaign label with it (Back-to-School branding on an AU Product Reviewer offer is a mismatch a
+   reviewer can question). Structure it as a `VARIANTS` table — one row per offer carrying
+   `{key, geo, family, vanity, amount, campaign, slug, offerId}` — and print all of them each run.
+
+4. **ONE VANITY PATH, NOT ONE PER OFFER.** It carries no slot number, so it is a single shared URL
+   with none of the numbered fan-out's anti-flag property, and `resolveAffiliateOfferLinks` serves
+   the numbered clone anyway. Seven of them would be seven single points of failure for a
+   convenience nothing uses.
+
+⚠️ **The currency guard fired twice on this generator's OWN comments** — the same lesson as §5c
+item 4, now with a second instance. A comment that *names* the thing it is guarding against trips
+the guard. **Reword the comment; never weaken the assertion.** Worth making guard errors print
+surrounding context — a bare "1 stray symbol" is unactionable across a 700-file build.
+
 ## 6. THE TRAPS
 
 ### 1. Three different id columns, and two of them are wrong
@@ -890,6 +1012,58 @@ in-app-browser escape never fires on the real affiliate path. The roots are regi
 `PRELANDER_ALLOWED_ROOTS`/`ALLOWED_ROOTS` because an `lp=`/`to=`-routed hit does go through `/r`, and
 because the test pins the two lists together. **This is true of every SPRK-assigned lander** — do not
 "fix" it for one bespoke page.
+
+### 11. NO APOSTROPHES IN THE `ALLOWED_ROOTS` BLOCK IN `js/breakout.js`
+
+`_links-config.test.mjs` reads that list by scanning the raw file for **single-quoted literals** —
+it does not parse the JS. So a contraction in a nearby comment (`notkerman's two pages`) opens a
+string at the `'` and the parser swallows everything up to the next quote, emitting comment
+fragments as roots and dropping the real ones. The failure is loud but the message is baffling:
+the `got:` list comes back full of `",\n    "` entries and prose.
+
+Measured 2026-08-09, adding `shkm`/`sk50`/`shkrurl`. The pre-existing comments in that block have
+no apostrophes, which is why nobody had hit it. **Reword the comment; never weaken the test** —
+and note that the sibling list in `links-config.js` is parsed the same way. A warning comment now
+sits in `breakout.js` above the bespoke roots.
+
+### 12. ORDER OF OPERATIONS: DEPLOY THE PAGES **BEFORE** THE ROWS
+
+The §1 checklist reads generator → SQL → verify, and taking that as a running order is what produced
+a live window of paid 404s on 2026-08-09.
+
+**The two halves go live independently, and the DB half is the one that publishes.** The moment the
+`landing_pages` + `landing_page_affiliates` rows exist, `get_offer_landing_pages` shows the design in
+the affiliate's picker and `resolveAffiliateOfferLinks` starts handing out
+`https://www.tokrwd.co/<FAMILY>/<GEO>1`. If tokrwd has not deployed, **every one of those URLs is a
+404** — and nothing anywhere reports it:
+
+- the DOOR still answers perfectly (302 with `s1`, 404 without) — it resolves from `landing_pages`
+  and never touches the page, so door checks pass and prove nothing about the lander;
+- the picker card renders, the launcher issues links, the affiliate sees a normal screen;
+- the only symptom is clicks with no conversions, which reads like a bad creative.
+
+Measured that day: all 7 doors 302'd correctly while all 8 lander URLs returned 404.
+
+**Correct order:** push tokrwd and confirm `curl -sI <link>` is 200 on every numbered link the SQL
+names, THEN run the SQL. If the rows are already in (someone ran the SQL first), the fix is to
+deploy immediately — the exposure lasts exactly as long as the gap.
+
+⚠️ **Pushing the branch is not deploying.** Vercel builds `main`. `git push -u origin claude/<x>`
+leaves the pages 404 — the deploy is `git push origin HEAD:main` (a fast-forward, once the branch is
+0 behind). Same for the preview PNGs in SPRKNetworkAds, which serve `/offers`: a non-NULL
+`preview_image` pointing at an undeployed file renders a BROKEN IMAGE, not the "Preview coming soon"
+placeholder — that fallback only fires when the column is NULL.
+
+**Working in the SPRK repo without disturbing WIP:** that checkout is routinely mid-feature on
+another branch with uncommitted files, and `git checkout -b … origin/main` can refuse or drag them
+along. Use a throwaway worktree instead — it leaves the working tree untouched:
+
+```bash
+git worktree add -b claude/<name> /tmp/wt origin/main
+cp …/*.png /tmp/wt/images/landers/ && cd /tmp/wt && git add images/landers/*.png
+git commit -m … && git push origin HEAD:main
+cd - && git worktree remove /tmp/wt --force && git worktree prune
+```
 
 ---
 

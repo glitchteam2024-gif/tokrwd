@@ -59,6 +59,12 @@
     // api/_lib/links-config.js — _links-config.test.mjs reads this file off disk and fails the
     // build when the two lists differ.
     'ac53', 'ac54', 'af53', 'af54', 'ak53', 'ak54', 'ap53', 'ap54',
+    // Bespoke, single-affiliate pages: acsm/as50/sasurl, ashl/ah50/ashurl, plus the two that
+    // belong to notkerman — kerm/km50/saskrurl (Apple Pay) and shkm/sk50/shkrurl (Shein).
+    // NOTE: no apostrophes in this block. _links-config.test.mjs parses these roots by scanning
+    // for single-quoted literals, so a contraction in a comment reads as a string and fails.
+    'kerm', 'km50', 'saskrurl',
+    'shkm', 'sk50', 'sk51', 'sk52', 'sk53', 'sk54', 'sk55', 'sk56', 'shkrurl',
     'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
     'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
     'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
