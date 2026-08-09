@@ -55,6 +55,10 @@
   var ALLOWED_ROOTS = [
     '50fc', '50fcii', '50tu', 'ac50', 'acash', 'acsm', 'ah50', 'ashl', 'ashurl', 'as50', 'sasurl', 'af50', 'ak50', 'ap50', 'apay1k',
     'ac51', 'ac52', 'af51', 'af52', 'ak51', 'ak52', 'ap51', 'ap52',
+    // Slices 53 + 54, added 2026-08-09. MUST stay in sync with PRELANDER_ALLOWED_ROOTS in
+    // api/_lib/links-config.js — _links-config.test.mjs reads this file off disk and fails the
+    // build when the two lists differ.
+    'ac53', 'ac54', 'af53', 'af54', 'ak53', 'ak54', 'ap53', 'ap54',
     'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
     'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
     'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',

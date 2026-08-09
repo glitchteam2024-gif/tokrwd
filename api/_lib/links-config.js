@@ -901,6 +901,11 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // new slices silently lose the prelander — which would make an A/B of structure secretly an
   // A/B of 'has the in-app-browser escape', i.e. unreadable.
   'ac51', 'ac52', 'af51', 'af52', 'ak51', 'ak52', 'ap51', 'ap52',
+  // Slices 53 (wallet-pass) + 54 (age-gate). Added 2026-08-09 — the trees were deployed but
+  // neither list was updated, so /pre answered every one of them with "This link is missing its
+  // destination" while still charging for the click. Same failure the 2026-07-30 note above
+  // describes, one slice generation later.
+  'ac53', 'ac54', 'af53', 'af54', 'ak53', 'ak54', 'ap53', 'ap54',
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',

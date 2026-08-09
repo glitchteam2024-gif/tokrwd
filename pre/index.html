@@ -121,6 +121,12 @@
   <p class="note" id="preNote"></p>
 </main>
 
+<!-- ttclid FIRST, and deliberately NOT async. It writes the _ttclid cookie synchronously at parse
+     time, and breakout.js on the next line can location.replace() away within milliseconds — an
+     async tag here is a race the cookie loses. Loading it on /pre banks the click id one hop
+     EARLIER than the lander, so a hop that strips the query between here and the lander is still
+     recoverable. -->
+<script src="/js/ttclid.js"></script>
 <script src="/js/breakout.js"></script>
 </body>
 </html>
