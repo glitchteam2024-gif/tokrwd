@@ -27,7 +27,9 @@ Two repos, and the work splits cleanly:
 
 Sibling skills: `tokrwd-landers` (lander architecture, the NO-CLOAKING rule, the propagate loop),
 `sprk-new-offer` (offer rows, door slugs, revshare), `sprk-affiliate-conv-debug` (their conversions
-look wrong afterwards).
+look wrong afterwards), **`sprk-lander-mobile-fanout`** (the page is hosted and now it has to look
+right on PHONES, or run across MANY offers at different amounts — and the deploy-order and
+verification ladder that go with that).
 
 ⚠️ **Verify every claim against `origin/main`, never a local working tree — in BOTH repos.** Measured
 2026-08-02: `~/Documents/GitHub/tokrwd` sat on `main`, **52 commits behind `origin/main`**, with no
