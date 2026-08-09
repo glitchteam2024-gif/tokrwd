@@ -814,6 +814,49 @@ so this is the first bespoke build where the release-before-you-claim trap in §
 than theoretical. The SQL is committed at
 `_lp-generator/2026-08-08_kerman_apay_landing_page.sql` and archives it in the same transaction.
 
+## 5d. FOURTH CASE STUDY — NOTKERMAN AGAIN (2026-08-09), A SECOND PAGE FOR THE SAME AFFILIATE
+
+`_lp-generator/kerman-shein.js` · `SHKM/US` + `/shkrurl` + `SK50/US1..US100` · door
+`shein-b2s-us-kerman` · Rewards US - Shein $1000 Back to School
+(`7018d82b-f19d-4759-9910-de9e837774e5`, code FL220841) · same affiliate as §5c. Static page,
+no forms, no CDN, no third-party database; Google Fonts is its only external host.
+
+**An affiliate can hold more than one bespoke page — they simply do not interact.** Different
+offer, different door slug, different `landing_pages` row, different assignment. The release
+sweep in §2 is scoped to `(offer, geo)`, so his Apple Pay page is untouched by the Shein build and
+vice versa. Nothing new is needed for the second one; just do not reuse the vanity path (§1 step 3)
+and do not reuse folder roots.
+
+Four more things it taught:
+
+1. **THE NO-OUTBOUND-PATH DEFECT CAN WEAR BOTH DISGUISES AT ONCE — and that combination is
+   undetectable by inspection.** His money button was `href="#"` **and** its only script was a
+   demo stub that cancelled the click and relabelled itself. Reading the href suggests the script
+   handles it; clicking it makes something visibly happen. Neither check finds the truth alone.
+   **Five supplied landers in a row, five times this defect.** It is not carelessness — these pages
+   are built as design comps, and the destination is the one thing a comp cannot know. Assume it.
+
+2. **A SUPPLIED PAGE MAY REFERENCE AN ASSET THAT WAS NEVER SENT.** His `.mirror-bay` asked for
+   `url("../assets/shein-mirror-scene.png")`. There is no `assets/` directory in tokrwd and the
+   photo did not come with the HTML, so it 404s on every load of all 102 copies. **Add
+   `grep -noE 'url\(["'"'"']?[^)"'"'"']+' file.html` to the first-pass grep**, alongside the
+   outbound-link check. A failed `background-image` never paints, so dropping the reference is a
+   ZERO-visual-change edit that only removes the broken request — do that, and print the restore
+   path (root-relative `/assets/...`, never `../assets/`, which is wrong from every clone depth).
+
+3. **GOOGLE FONTS IS ALLOWED; THE STRAY-HOST GUARD MUST BE WIDENED DELIBERATELY, NOT DELETED.**
+   431 landers in this repo already load `fonts.googleapis.com`, and it sits on no money path.
+   Add the two font hosts to the generator's `allowed` set with the reason written down; keep the
+   guard throwing on everything else. Sammy's and notkerman's Apple Pay pages reached zero hosts,
+   so their generators allow only ours — do not copy that set blindly onto a page that uses webfonts.
+
+4. **Legal links were absent again, not broken** — confirming §5c item 2 is the norm, not a one-off.
+
+⚠️ **The §8 preview recipe needed the §5c override again.** This design has a `clamp(52px, 4.4vw,
+66px)` hero and a 3-column grid that collapses at 1080px, so `--window-size=460,259` shoots its
+mobile breakpoint. Shot at `1280,720` then `sips -z 450 800`. **The card came out well precisely
+because the missing photo degrades to a flat dark panel** — check the capture, do not assume.
+
 ## 6. THE TRAPS
 
 ### 1. Three different id columns, and two of them are wrong
@@ -930,6 +973,19 @@ in-app-browser escape never fires on the real affiliate path. The roots are regi
 `PRELANDER_ALLOWED_ROOTS`/`ALLOWED_ROOTS` because an `lp=`/`to=`-routed hit does go through `/r`, and
 because the test pins the two lists together. **This is true of every SPRK-assigned lander** — do not
 "fix" it for one bespoke page.
+
+### 11. NO APOSTROPHES IN THE `ALLOWED_ROOTS` BLOCK IN `js/breakout.js`
+
+`_links-config.test.mjs` reads that list by scanning the raw file for **single-quoted literals** —
+it does not parse the JS. So a contraction in a nearby comment (`notkerman's two pages`) opens a
+string at the `'` and the parser swallows everything up to the next quote, emitting comment
+fragments as roots and dropping the real ones. The failure is loud but the message is baffling:
+the `got:` list comes back full of `",\n    "` entries and prose.
+
+Measured 2026-08-09, adding `shkm`/`sk50`/`shkrurl`. The pre-existing comments in that block have
+no apostrophes, which is why nobody had hit it. **Reword the comment; never weaken the test** —
+and note that the sibling list in `links-config.js` is parsed the same way. A warning comment now
+sits in `breakout.js` above the bespoke roots.
 
 ---
 
