@@ -132,7 +132,17 @@ const SOURCE = fs.readFileSync(path.join(__dirname, 'ravi-playful-source.html'),
  * looks like a broken layout on a live page. Pinning the source hash makes that a build failure
  * and forces a deliberate re-pin. Rebuild command is in the header.
  */
-const SOURCE_MD5 = '837056a0d1d45a0344343a7536063348';
+// v2, 2026-08-10 — Ravi removed every "$5 sign-up bonus" claim (see the CONCERNS entry on
+// 'No sign-up required'). Re-pinned only after recompiling BOTH inputs and diffing them:
+// ravi-playful.css came back byte-identical (the v2 is pure copy, no new utility classes) and
+// the icon table came back with the same 19 keys and the same path data.
+//
+// ⚠️ THE ICON TABLE CANNOT BE REBUILT BY SCANNING THE MARKUP ALONE. The hamburger sets
+// data-lucide="${menuIcon}" and swaps that value between 'menu' and 'x' on every tap, so 'x'
+// appears nowhere a regex over the HTML can find it. A naive regeneration drops it, the shim
+// then falls through its `if (!inner) continue`, and the close button renders as an invisible
+// <i> — on the only control in the header on a phone. Always union in ['menu','x'].
+const SOURCE_MD5 = '4fcd5b1d6906616f2cb4f435d34392a7';
 {
   const got = crypto.createHash('md5').update(SOURCE).digest('hex');
   if (got !== SOURCE_MD5) {
@@ -145,6 +155,17 @@ const SOURCE_MD5 = '837056a0d1d45a0344343a7536063348';
 }
 const TW_CSS = fs.readFileSync(path.join(__dirname, 'ravi-playful.css'), 'utf8');
 const ICONS = JSON.parse(fs.readFileSync(path.join(__dirname, 'ravi-playful-icons.json'), 'utf8'));
+
+// The two icons whose NAME is computed at runtime, so no scan of the markup can discover them.
+// See the note on SOURCE_MD5. Asserted here so a naive rebuild of the table fails the build
+// instead of shipping a mobile menu whose close button is an empty <i>.
+for (const n of ['menu', 'x']) {
+  if (!ICONS[n]) {
+    throw new Error(`ravi-playful-icons.json is missing "${n}" — the hamburger swaps `
+      + 'data-lucide between menu and x at runtime, so both must be in the table even though '
+      + 'only one of them appears in the HTML. Union them in when regenerating.');
+  }
+}
 
 const CANON_DIR = 'RAVI';
 
@@ -218,8 +239,12 @@ const CONCERNS = [
    + 'waiting for you", including one who picked nothing meaningful. The per-answer subtext '
    + '("Finding the best puzzle games for iOS") is personalisation theatre over a fixed result.'],
   ['No sign-up required',
-   'CONTRADICTS THE FAQ ON THE SAME PAGE, which says the bonus is "waiting after sign-up", and '
-   + 'contradicts the phrase "$5 sign-up bonus" used three times.'],
+   'CONTRADICTS THE FAQ ON THE SAME PAGE, which says offers are "waiting after sign-up", and the '
+   + 'two CTAs that now read "Sign up and start playing". Narrowed 2026-08-10: the sharper half of '
+   + 'this — a specific "$5 sign-up bonus" promised three times — was REMOVED BY RAVI in his v2, '
+   + 'along with "Claim your $5 bonus now", "Get my $5 bonus" and "Your first $5 is on us". A '
+   + 'named monetary sign-up bonus is a substantiable promise; "flexible rewards when you complete '
+   + 'game offers" is not. The remaining wording clash is his to resolve if he wants to.'],
   ['Instant payouts',
    'stated flatly here and as "Cash out instantly" / "Cash out anytime", but the FAQ qualifies it '
    + 'with "once you reach the minimum cash-out amount" — a threshold the page never discloses.'],
