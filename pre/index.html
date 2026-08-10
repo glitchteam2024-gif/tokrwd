@@ -145,12 +145,6 @@ window.__trk = function (name, props) {
   }
   @media (prefers-reduced-motion:reduce){.later{animation:none}}
 
-  /* The post-tap prompt. Shown only once a tap has fired the scheme, so it is feedback ("we asked
-     your browser to open") plus a second chance if iOS silently dropped it. Deliberately OUR panel
-     and not a replica of the iOS sheet: a page drawing fake system chrome is a flag risk and the
-     visitor cannot tell what is really theirs. */
-  .prompt{display:none;margin-bottom:14px;font-size:14px;line-height:1.55;color:var(--ink)}
-  .card[data-stage="tapped"] .prompt{display:block}
   /* The one remaining fallback. Outlined rather than filled so it reads as secondary to the arrow
      — same tap area, clearly not the main road. */
   /* Filled gold with ink text, matching the arrow. It was an outline in gold-on-black, which
@@ -214,7 +208,6 @@ window.__trk = function (name, props) {
        breakout.js guards every one of these lookups (`if (hint)`, `if (copy)`), so removing the
        elements is safe — it does not need a matching JS change to keep working. -->
   <div class="later" id="later">
-    <p class="prompt" id="preTapPrompt">We asked your browser to open this page.<br>If nothing happened, continue below.</p>
     <a class="secondary" id="preStay" href="#">Continue here</a>
   </div>
 

@@ -28,9 +28,13 @@
  *      "address is invalid" error page. So the scheme is attempted ONLY inside a
  *      detected in-app webview; every real browser is sent straight through with
  *      `location.replace`, which is also what a crawler gets.
- *   5. The click is never lost. Every path ends at the lander — escape succeeded,
- *      escape blocked, user tapped "continue here", the post-tap watchdog fired, or
- *      the strand net carried a visitor who never interacted at all.
+ *   5. A tap is never lost. Every path FROM A TAP ends at the lander — escape
+ *      succeeded, escape blocked and the 2s post-tap watchdog carried them, or they
+ *      pressed the fallback button themselves.
+ *      ⚠️ NARROWED 2026-08-10, deliberately: a visitor who never taps at all now STAYS
+ *      on this page. The strand net that used to carry them was an automatic redirect,
+ *      which rule 6 forbids. That is a real cost on paid traffic and the owner accepted
+ *      it — a page that moves people without asking was the thing being removed.
  *   6. THE SCHEME IS ONLY EVER FIRED BY A TAP (2026-08-10). Nothing on this page
  *      navigates to an OS scheme on a timer. A gesture is not decoration here: iOS
  *      honours a custom scheme far more readily when it carries user activation, and
@@ -267,7 +271,6 @@
     var card = document.getElementById('preCard');
     var open = document.getElementById('preOpen');
     var stay = document.getElementById('preStay');
-    var hint = document.getElementById('preHint');
     var copy = document.getElementById('preCopy');
     var note = document.getElementById('preNote');
 
@@ -322,7 +325,7 @@
       // the one that fired on exactly the visitor who had already shown the handoff was broken.
       // Now it just surfaces the manual route and waits for a tap, like every other path.
       trk('PreReturned', { content_name: 'returned to webview' });
-      reveal(true);
+      reveal();
     }
     try {
       sessionStorage.setItem(SESSION_KEY + target, '1');
@@ -339,21 +342,20 @@
      *  and is the path most likely to work. Only AFTER a tap has failed to hand off does the OS
      *  menu become the useful instruction. Shipping the post-tap copy on the 1.5s timer would have
      *  told every visitor to go menu-diving past a button they had not pressed. */
-    function reveal(afterTap) {
-      // Two stages on one attribute: 'hint' is the 2s pop, 'tapped' additionally reveals the
-      // prompt panel and relabels the button. 'tapped' must never be downgraded back to 'hint' —
-      // the 2s timer can land after a fast tap, and the visitor should not watch the prompt they
-      // just earned disappear.
-      if (card && card.getAttribute('data-stage') !== 'tapped') {
-        card.setAttribute('data-stage', afterTap ? 'tapped' : 'hint');
-      }
-      if (afterTap && stay) stay.textContent = 'Continue To Browser';
-      if (!hint) return;
-      hint.textContent = afterTap
-        ? (isAndroid
-            ? 'Still here? Tap the ⋮ menu at the top and choose "Open in browser".'
-            : 'Still here? Tap the ••• menu at the bottom and choose "Open in browser".')
-        : 'Tap the arrow above to open your reward page, or carry on here.';
+    /** After a tap has fired the scheme, the fallback stops being a generic escape hatch and
+     *  becomes the specific next step — so it says so. That relabel is now the ENTIRE job of this
+     *  function.
+     *
+     *  It used to also drive a data-stage attribute and write a hint paragraph. Both are gone:
+     *  #preHint was removed when the fallback collapsed to one button, and the explanatory prompt
+     *  came out on 2026-08-10 (owner: the button says it, the sentence above it did not earn its
+     *  space). data-stage went with the prompt — it was styling nothing, and an attribute that
+     *  toggles nothing is a trap for the next person reading this file.
+     *
+     *  Idempotent, which is why no guard is needed: every caller passes true, and setting the same
+     *  string twice is a no-op. */
+    function reveal() {
+      if (stay) stay.textContent = 'Continue To Browser';
     }
 
     function markLeft() {
@@ -378,7 +380,7 @@
       // hand them a second copy inside the webview they just escaped. Surfacing the
       // manual route is the move that helps in both cases.
       left = false;
-      reveal(true);
+      reveal();
     });
     window.addEventListener('pagehide', markLeft);
 
@@ -417,7 +419,7 @@
 
         // Reveal on the FIRST tap. On iOS the scheme is best-effort and gets dropped silently, so
         // a tap that appears to do nothing must still leave the visitor somewhere to go.
-        reveal(true);
+        reveal();
         escape_(target);
 
         // The watchdog starts HERE, not on page load. It only ever runs when a real tap has
