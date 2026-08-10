@@ -925,6 +925,10 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // kathuria, aff 25), one clone family per geo; only the flagship carries a vanity path.
   // `node _lp-generator/ravi-playful.js` prints this exact list.
   'ravi', 'rv50', 'rv51', 'rv52', 'rv53', 'ravurl',
+  // ravsh + rv54..rv60 is his SECOND design, on all seven Shein offers we sell in an English geo
+  // (US x4, GB x2, AU x1 — there is no Canadian Shein offer). One clone family per offer; only
+  // the flagship carries a vanity path. `node _lp-generator/ravi-shein.js` prints this exact list.
+  'ravsh', 'rv54', 'rv55', 'rv56', 'rv57', 'rv58', 'rv59', 'rv60', 'ravshurl',
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
