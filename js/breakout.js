@@ -74,6 +74,10 @@
     // for single-quoted literals, so a contraction in a comment reads as a string and fails.
     'kerm', 'km50', 'saskrurl',
     'shkm', 'sk50', 'sk51', 'sk52', 'sk53', 'sk54', 'sk55', 'sk56', 'shkrurl',
+    // ravi/rv50..rv53/ravurl is ONE design on all four English geos of Playful Rewards, one
+    // clone family each; only the flagship carries a vanity path. Printed by
+    // node _lp-generator/ravi-playful.js on every run.
+    'ravi', 'rv50', 'rv51', 'rv52', 'rv53', 'ravurl',
     'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
     'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
     'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',

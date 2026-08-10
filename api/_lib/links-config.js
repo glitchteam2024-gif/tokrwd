@@ -918,6 +918,10 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // shkm + sk50..sk56 is ONE design on all seven Shein offers, one clone family each; only the
   // flagship carries a vanity path. `node _lp-generator/kerman-shein.js` prints this exact list.
   'shkm', 'sk50', 'sk51', 'sk52', 'sk53', 'sk54', 'sk55', 'sk56', 'shkrurl',
+  // ravi + rv50..rv53 is ONE design on all four ENGLISH geos of Playful Rewards (ravitej
+  // kathuria, aff 25), one clone family per geo; only the flagship carries a vanity path.
+  // `node _lp-generator/ravi-playful.js` prints this exact list.
+  'ravi', 'rv50', 'rv51', 'rv52', 'rv53', 'ravurl',
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
