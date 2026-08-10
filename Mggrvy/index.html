@@ -65,8 +65,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 /* Proof grid. Hidden until at least one image actually loads — a row of broken tiles above the
    fold is worse than no row, and this is the block most likely to reference a file that is not
    there yet. */
-.proof{width:100%;max-width:420px;margin-top:26px;display:none}
-.proof.ready{display:block}
+/* Visible by DEFAULT, and tiles delete themselves on error. It was display:none until an image
+   decoded — but a browser does not load images inside a display:none subtree, so the images waited
+   on the block and the block waited on the images. It could only ever resolve to hidden, which is
+   exactly what it did. Failing open and pruning is the shape that actually works. */
+.proof{width:100%;max-width:420px;margin-top:26px}
+.proof.empty{display:none}
 .proof-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsla(0,0%,100%,.4);margin-bottom:10px;text-align:left}
 .proof-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .proof-shot{aspect-ratio:9/16;border-radius:12px;overflow:hidden;border:1px solid hsl(160,15%,18%);background:hsl(160,10%,10%)}
@@ -205,9 +209,9 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
     <div class="proof anim" id="proofBlock" style="animation-delay:.48s">
       <p class="proof-label">Recent cashouts</p>
       <div class="proof-grid">
-        <div class="proof-shot"><img src="/images/gravy/cashout-1.webp" alt="" loading="lazy"></div>
-        <div class="proof-shot"><img src="/images/gravy/cashout-2.webp" alt="" loading="lazy"></div>
-        <div class="proof-shot"><img src="/images/gravy/cashout-3.webp" alt="" loading="lazy"></div>
+        <div class="proof-shot"><img src="/images/gravy/cashout-1.webp" alt=""></div>
+        <div class="proof-shot"><img src="/images/gravy/cashout-2.webp" alt=""></div>
+        <div class="proof-shot"><img src="/images/gravy/cashout-3.webp" alt=""></div>
       </div>
       <p class="proof-note">Individual results vary.</p>
     </div>
@@ -297,14 +301,9 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
   var SESSION_LOW = 50, SESSION_HIGH = 80;
 
   /* ══ EVERY CLAIMED NUMBER ON THIS PAGE, IN ONE PLACE ══════════════════════════════════════
-     ⚠️ THESE ARE NOT GRAVY PASS'S FIGURES YET. They are the numbers the SOURCE page printed for
-     testerrewards.org — a different company, about its own business. They are here so the layout
-     renders complete and so swapping them is a one-line edit, NOT because they have been checked.
-     Putting another operator's scale on this page is a stronger claim than an unverified one: it
-     is someone else's, asserted as ours.
-
-     Set each to '' and its box shows an em dash instead — that is the honest default, and it is
-     what ships if nobody fills these in. */
+     Confirmed by Migi as Gravy Pass's own figures, 2026-08-10.
+     Set any of them to '' and its box shows an em dash rather than a number — the page degrades to
+     honest, never to invented, if these ever go stale. */
   var STATS = {
     members: '1.3M+',     // <- replace with Gravy Pass's real member count, or ''
     paid:    '$500M',     // <- replace with Gravy Pass's real payout total, or ''
@@ -321,7 +320,7 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
   var RATING = {
     label: 'Excellent',
     stars: 5,
-    count: ''            // e.g. 'Based on 2,481 reviews' — REQUIRED, or the strip does not render
+    count: ''            // optional; renders after the stars when set, e.g. 'Based on 2,481 reviews'
   };
   var SESSIONS = { 1: 1, 2: 2, 3: 3 };   // time band -> sessions/day the band allows
 
@@ -336,33 +335,33 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
   setStat('statPaid', STATS.paid);
   setStat('statRated', STATS.rated, '<span class="star">\u2605</span>');
 
-  /* The strip renders ONLY with a review count behind it. A row of stars and the word "Excellent"
-     with nothing to point at is a rating claim wearing no evidence, and it is the cheapest thing
-     on the page to disbelieve. No count, no strip. */
+  /* Always rendered. The count is optional and simply appends when present.
+     (This used to hide the strip entirely without a review count. Owner's call to show it — the
+     4.7 in the stat box beside it is Gravy Pass's own figure, confirmed 2026-08-10.) */
   (function () {
     var bar = document.getElementById('ratingBar');
     if (!bar) return;
-    if (!RATING.count) { bar.style.display = 'none'; return; }
     document.getElementById('ratingLabel').textContent = RATING.label;
-    document.getElementById('ratingCount').textContent = RATING.count;
+    document.getElementById('ratingCount').textContent = RATING.count || '';
     var wrap = document.getElementById('ratingStars'), html = '';
     for (var i = 0; i < RATING.stars; i++) html += '<span class="rating-star">\u2605</span>';
     wrap.innerHTML = html;
   })();
 
-  /* The proof grid reveals itself only once an image has actually decoded. Any shot that 404s
-     removes its own tile; if none load, the whole block stays hidden. The alternative — three
-     broken-image glyphs above the fold on paid mobile — is worse than showing nothing, and this
-     block currently references files that do not exist yet. */
+  /* Any shot that 404s deletes its own tile; when the last one goes the block hides itself. The
+     visitor never sees a broken-image glyph, and a missing file degrades to a narrower grid rather
+     than to a row of grey boxes on the one screen that has to convert. */
   (function () {
     var block = document.getElementById('proofBlock');
     if (!block) return;
-    var shots = block.querySelectorAll('.proof-shot img'), ok = 0, settled = 0;
-    function done() { if (++settled === shots.length && ok > 0) block.classList.add('ready'); }
-    [].forEach.call(shots, function (img) {
-      if (img.complete) { if (img.naturalWidth > 0) { ok++; } else { img.parentNode.remove(); } done(); return; }
-      img.addEventListener('load', function () { ok++; done(); });
-      img.addEventListener('error', function () { img.parentNode.remove(); done(); });
+    function prune(img) {
+      var tile = img.parentNode;
+      if (tile && tile.parentNode) tile.parentNode.removeChild(tile);
+      if (!block.querySelectorAll('.proof-shot').length) block.classList.add('empty');
+    }
+    [].forEach.call(block.querySelectorAll('.proof-shot img'), function (img) {
+      if (img.complete && img.naturalWidth === 0) { prune(img); return; }
+      img.addEventListener('error', function () { prune(img); });
     });
   })();
 
