@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#e0006e" />
+    <title>Claim Your $750 Shein Gift Card — Flash Reward Event</title>
+    <meta name="description" content="Limited-time flash reward event. Claim your $750 Shein gift card with 100% free entry, instant digital delivery, and simple tasks." />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              shein: {
+                50: '#fff1f6', 100: '#ffe4ee', 200: '#fecadd', 300: '#fd9ec5',
+                400: '#fb62a6', 500: '#f4188c', 600: '#e0006e', 700: '#bd005c',
+                800: '#9c004d', 900: '#820542', 950: '#5a002c',
+              },
+              ink: {
+                50: '#f7f7f8', 100: '#eeeef0', 200: '#d9d9de', 300: '#bcbcc4',
+                400: '#9a9aa6', 500: '#7d7d8c', 600: '#666673', 700: '#52525c',
+                800: '#3a3a42', 900: '#1d1d22', 950: '#0c0c0f',
+              },
+            },
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+            },
+            keyframes: {
+              'fade-up': { '0%': { opacity: '0', transform: 'translateY(16px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+              'fade-in': { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+              'slide-in': { '0%': { opacity: '0', transform: 'translateX(24px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
+              'pulse-ring': { '0%': { transform: 'scale(0.95)', opacity: '0.7' }, '70%': { transform: 'scale(1.3)', opacity: '0' }, '100%': { transform: 'scale(1.3)', opacity: '0' } },
+              'shimmer': { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
+              'float': { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
+              'bounce-in': { '0%': { opacity: '0', transform: 'scale(0.8)' }, '60%': { opacity: '1', transform: 'scale(1.05)' }, '100%': { transform: 'scale(1)' } },
+            },
+            animation: {
+              'fade-up': 'fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both',
+              'fade-in': 'fade-in 0.5s ease both',
+              'slide-in': 'slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both',
+              'pulse-ring': 'pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'shimmer': 'shimmer 2.5s linear infinite',
+              'float': 'float 4s ease-in-out infinite',
+              'bounce-in': 'bounce-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both',
+            },
+          },
+        },
+      };
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+    <style>
+      * { -webkit-tap-highlight-color: transparent; }
+      html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+      body { background: #fff; color: #1d1d22; font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+      ::selection { background: #f4188c; color: #fff; }
+
+      .shimmer-text {
+        background: linear-gradient(90deg, #e0006e 0%, #ff3b9a 25%, #e0006e 50%, #ff3b9a 75%, #e0006e 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 3s linear infinite;
+      }
+      .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+      .card-glow {
+        box-shadow: 0 0 0 1px rgba(224,0,110,0.1), 0 20px 60px -15px rgba(224,0,110,0.35), 0 8px 24px -8px rgba(0,0,0,0.12);
+      }
+      .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+      .faq-grid { display: grid; grid-template-rows: 0fr; opacity: 0; transition: all 0.3s ease; }
+      .faq-grid.open { grid-template-rows: 1fr; opacity: 1; }
+      .faq-grid > div { overflow: hidden; }
+
+      [data-quiz-step] { display: none; }
+      [data-quiz-step].active { display: block; }
+      #quiz-loading { display: none; }
+    </style>
+    <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+</head>
+  <body>
+    <div class="min-h-screen bg-white">
+      <!-- Urgency Banner -->
+      <div id="urgency-banner" class="relative overflow-hidden bg-gradient-to-r from-shein-600 via-shein-500 to-shein-600 text-white">
+        <div class="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.15)_50%,transparent_100%)] bg-[length:200%_100%] animate-shimmer"></div>
+        <div class="relative mx-auto flex max-w-2xl flex-col items-center gap-2 px-4 py-2.5 text-center sm:flex-row sm:justify-center sm:gap-4 sm:text-left">
+          <div class="flex items-center gap-1.5 font-semibold">
+            <i data-lucide="zap" class="h-4 w-4 fill-white"></i>
+            <span class="text-sm">Flash Reward Event</span>
+          </div>
+          <div class="hidden h-4 w-px bg-white/40 sm:block"></div>
+          <div class="text-sm font-medium">
+            Only <span class="font-extrabold underline decoration-white/50">14</span> cards left for <span id="today-date"></span>
+          </div>
+          <div class="hidden h-4 w-px bg-white/40 sm:block"></div>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="h-4 w-4"></i>
+            <span class="text-sm font-medium">Verified Offer</span>
+          </div>
+          <div class="hidden h-4 w-px bg-white/40 sm:block"></div>
+          <div class="flex items-center gap-1 font-mono text-sm font-bold tabular-nums">
+            <span class="rounded bg-white/20 px-1.5 py-0.5" id="ub-h">00</span>
+            <span class="animate-pulse">:</span>
+            <span class="rounded bg-white/20 px-1.5 py-0.5" id="ub-m">00</span>
+            <span class="animate-pulse">:</span>
+            <span class="rounded bg-white/20 px-1.5 py-0.5" id="ub-s">00</span>
+          </div>
+        </div>
+      </div>
+
+      <main>
+        <!-- Hero -->
+        <section class="relative overflow-hidden px-4 pt-8 pb-6 sm:pt-12">
+          <div class="pointer-events-none absolute inset-0 -z-10">
+            <div class="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-shein-100 blur-3xl"></div>
+            <div class="absolute top-20 -right-20 h-64 w-64 rounded-full bg-shein-50 blur-3xl"></div>
+          </div>
+          <div class="mx-auto max-w-2xl">
+            <div class="mb-5 flex justify-center animate-fade-in">
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-shein-50 px-3 py-1.5 text-xs font-semibold text-shein-700 ring-1 ring-shein-200">
+                <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+                Limited Time · Flash Reward Event
+              </span>
+            </div>
+            <h1 class="text-center text-3xl font-extrabold leading-[1.1] tracking-tight text-ink-950 sm:text-5xl sm:leading-[1.05] animate-fade-up">
+              Claim Your <span class="shimmer-text">$750 Shein</span> Gift Card &amp; Upgrade Your Wardrobe
+            </h1>
+            <p class="mx-auto mt-4 max-w-md text-center text-base text-ink-600 sm:text-lg animate-fade-up" style="animation-delay:80ms">
+              <span class="font-semibold text-ink-800">100% Free Entry</span> · Instant Digital Delivery · Simple Tasks
+            </p>
+
+            <!-- Gift Card -->
+            <div class="relative mx-auto mt-8 w-full max-w-sm animate-fade-up" style="animation-delay:160ms">
+              <div class="relative aspect-[1.6/1] w-full animate-float">
+                <div class="absolute inset-0 rounded-2xl bg-shein-500/20 blur-2xl"></div>
+                <div class="card-glow relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-ink-900 via-ink-800 to-ink-950 p-5 ring-1 ring-white/10">
+                  <div class="absolute -left-1/2 -top-1/2 h-[200%] w-[200%] rotate-12 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+                  <div class="relative flex items-start justify-between">
+                    <div>
+                      <div class="text-[10px] font-bold uppercase tracking-[0.2em] text-shein-400">SHEIN</div>
+                      <div class="mt-0.5 text-[10px] font-medium text-white/50">Gift Card</div>
+                    </div>
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-shein-500/20 ring-1 ring-shein-400/30">
+                      <i data-lucide="sparkles" class="h-4 w-4 text-shein-400"></i>
+                    </div>
+                  </div>
+                  <div class="relative">
+                    <div class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">$750</div>
+                    <div class="mt-1 text-xs font-medium text-white/60">Shopping Spree Balance</div>
+                  </div>
+                  <div class="relative flex items-end justify-between">
+                    <div class="space-y-1">
+                      <div class="h-2 w-24 rounded-full bg-white/10"></div>
+                      <div class="h-2 w-16 rounded-full bg-white/10"></div>
+                    </div>
+                    <div class="text-right">
+                      <div class="text-[10px] font-semibold uppercase tracking-wider text-shein-400">Digital Delivery</div>
+                      <div class="text-[10px] text-white/40">Instant via Email</div>
+                    </div>
+                  </div>
+                  <div class="absolute right-5 h-7 w-9 rounded-md bg-gradient-to-br from-amber-200 to-amber-400 shadow-inner" style="top:calc(50% - 8px)"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="mt-7 flex flex-col items-center gap-3 animate-fade-up" style="animation-delay:240ms">
+              <button onclick="scrollToQuiz()" class="group relative w-full max-w-md overflow-hidden rounded-2xl bg-shein-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-shein-500/30 transition-all duration-200 hover:bg-shein-700 hover:shadow-xl hover:shadow-shein-500/40 active:scale-[0.98] sm:text-lg">
+                <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></span>
+                <span class="relative">Claim My $750 Card Now</span>
+              </button>
+              <div class="flex items-center gap-1.5 text-xs text-ink-500">
+                <i data-lucide="shield-check" class="h-3.5 w-3.5 text-shein-600"></i>
+                No credit card required
+              </div>
+            </div>
+
+            <!-- Trust signals -->
+            <div class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm animate-fade-up" style="animation-delay:320ms">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="shield-check" class="h-4 w-4 text-shein-600"></i>
+                <span class="font-medium text-ink-700">Verified Shein Offer</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="users" class="h-4 w-4 text-shein-600"></i>
+                <span class="font-medium text-ink-700">Over 45,000 Cards Claimed</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="star" class="h-4 w-4 fill-shein-500 text-shein-500"></i>
+                <span class="font-medium text-ink-700">Rated 4.9/5</span>
+              </div>
+            </div>
+
+            <div class="mt-8 flex justify-center animate-fade-in" style="animation-delay:600ms">
+              <i data-lucide="chevron-down" class="h-5 w-5 text-ink-400 animate-bounce"></i>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quiz -->
+        <section id="quiz" class="px-4 py-12 sm:py-16">
+          <div class="mx-auto max-w-lg">
+            <div id="quiz-content">
+              <div class="mb-6 text-center">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-shein-50 px-3 py-1 text-xs font-semibold text-shein-700 ring-1 ring-shein-200">
+                  <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+                  Quick Survey
+                </span>
+                <h2 class="mt-3 text-2xl font-extrabold tracking-tight text-ink-950 sm:text-3xl">Unlock Your Reward</h2>
+                <p class="mt-1.5 text-sm text-ink-500">Answer 3 quick questions to reserve your card</p>
+              </div>
+
+              <div class="mb-6">
+                <div class="mb-2 flex items-center justify-between text-xs font-medium text-ink-500">
+                  <span id="quiz-step-label">Question 1 of 3</span>
+                  <span id="quiz-percent">33%</span>
+                </div>
+                <div class="h-2 overflow-hidden rounded-full bg-ink-100">
+                  <div id="quiz-progress" class="h-full rounded-full bg-gradient-to-r from-shein-500 to-shein-600 transition-all duration-500 ease-out" style="width:33%"></div>
+                </div>
+              </div>
+
+              <!-- Step 1 -->
+              <div data-quiz-step="0" class="active animate-slide-in">
+                <div class="rounded-3xl border border-ink-100 bg-white p-6 shadow-sm sm:p-8">
+                  <h3 class="mb-5 text-lg font-bold text-ink-900 sm:text-xl">How often do you shop on Shein?</h3>
+                  <div class="grid gap-3" id="quiz-options-0"></div>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div data-quiz-step="1" class="animate-slide-in">
+                <div class="rounded-3xl border border-ink-100 bg-white p-6 shadow-sm sm:p-8">
+                  <h3 class="mb-5 text-lg font-bold text-ink-900 sm:text-xl">What fashion category do you love most?</h3>
+                  <div class="grid gap-3" id="quiz-options-1"></div>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div data-quiz-step="2" class="animate-slide-in">
+                <div class="rounded-3xl border border-ink-100 bg-white p-6 shadow-sm sm:p-8">
+                  <h3 class="mb-5 text-lg font-bold text-ink-900 sm:text-xl">Are you ready to complete 2-3 quick sponsor deals to claim your card?</h3>
+                  <div class="grid gap-3" id="quiz-options-2"></div>
+                </div>
+              </div>
+
+              <button id="quiz-back" onclick="quizBack()" class="mt-4 hidden w-full items-center justify-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-700">
+                <i data-lucide="arrow-right" class="h-4 w-4 rotate-180"></i>
+                Back
+              </button>
+            </div>
+
+            <!-- Loading -->
+            <div id="quiz-loading" class="flex min-h-[60vh] items-center justify-center">
+              <div class="w-full max-w-sm text-center animate-bounce-in">
+                <div class="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center">
+                  <span id="loading-ring" class="absolute inset-0 rounded-full bg-shein-200 animate-pulse-ring"></span>
+                  <div id="loading-circle" class="relative flex h-20 w-20 items-center justify-center rounded-full bg-shein-500 shadow-lg">
+                    <i data-lucide="loader-2" class="h-10 w-10 animate-spin text-white" id="loading-icon"></i>
+                  </div>
+                </div>
+                <h3 id="loading-title" class="text-xl font-extrabold text-ink-950">Processing...</h3>
+                <p id="loading-label" class="mt-2 text-sm font-medium text-ink-500">Checking regional inventory...</p>
+                <div class="mt-6 flex items-center justify-center gap-2" id="loading-dots"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Winners Ticker -->
+        <section class="bg-ink-50/50 px-4 py-12 sm:py-16">
+          <div class="mx-auto max-w-2xl">
+            <div class="mb-6 text-center">
+              <div class="mb-3 inline-flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500"></span>
+                </span>
+                <span class="text-xs font-bold uppercase tracking-wider text-green-600">Live Activity</span>
+              </div>
+              <h2 class="text-2xl font-extrabold tracking-tight text-ink-950 sm:text-3xl">Recent Winners</h2>
+              <p class="mt-1.5 text-sm text-ink-500">Real users claiming their $750 Shein cards right now</p>
+            </div>
+            <div class="space-y-2.5" id="winners-list"></div>
+            <p class="mt-4 text-center text-xs text-ink-400" id="winners-total">Showing 5 of 45,327 total claims</p>
+          </div>
+        </section>
+
+        <!-- How to Claim -->
+        <section class="px-4 py-12 sm:py-16">
+          <div class="mx-auto max-w-2xl">
+            <div class="mb-8 text-center">
+              <h2 class="text-2xl font-extrabold tracking-tight text-ink-950 sm:text-3xl">How to Claim</h2>
+              <p class="mt-1.5 text-sm text-ink-500">Three simple steps to your $750 Shein gift card</p>
+            </div>
+            <div class="relative">
+              <div class="absolute left-6 top-12 bottom-12 w-px bg-gradient-to-b from-shein-300 via-shein-200 to-transparent sm:left-1/2 sm:-translate-x-1/2"></div>
+              <div class="space-y-5" id="steps-container"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="bg-ink-50/50 px-4 py-12 sm:py-16">
+          <div class="mx-auto max-w-2xl">
+            <div class="mb-8 text-center">
+              <h2 class="text-2xl font-extrabold tracking-tight text-ink-950 sm:text-3xl">Frequently Asked Questions</h2>
+              <p class="mt-1.5 text-sm text-ink-500">Everything you need to know before claiming</p>
+            </div>
+            <div class="space-y-3" id="faq-container"></div>
+          </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="px-4 py-14 sm:py-20">
+          <div class="mx-auto max-w-lg text-center">
+            <h2 class="text-2xl font-extrabold tracking-tight text-ink-950 sm:text-4xl">
+              Your $750 Wardrobe Upgrade<br><span class="shimmer-text">Awaits</span>
+            </h2>
+            <p class="mx-auto mt-3 max-w-sm text-sm text-ink-500 sm:text-base">Join 45,000+ shoppers who've already claimed their free Shein gift card.</p>
+            <button onclick="scrollToQuiz()" class="group relative mt-6 w-full max-w-md overflow-hidden rounded-2xl bg-shein-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-shein-500/30 transition-all hover:bg-shein-700 hover:shadow-xl active:scale-[0.98] sm:text-lg">
+              <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></span>
+              <span class="relative">Claim My $750 Card Now</span>
+            </button>
+            <div class="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+              <div class="flex items-center gap-1.5"><i data-lucide="shield-check" class="h-4 w-4 text-shein-600"></i><span class="font-medium text-ink-700">Verified Offer</span></div>
+              <div class="flex items-center gap-1.5"><i data-lucide="star" class="h-4 w-4 fill-shein-500 text-shein-500"></i><span class="font-medium text-ink-700">4.9/5 Rating</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-ink-100 bg-ink-50/50 px-4 py-8 pb-24 sm:pb-8">
+          <div class="mx-auto max-w-2xl text-center">
+            <p class="text-xs leading-relaxed text-ink-400">This is a promotional rewards event and is not affiliated with or endorsed by Shein. Shein is a trademark of its respective owner. Gift cards are delivered by verified sponsor partners upon completion of qualifying deals. Offer subject to availability and terms. Must be 18+ to participate.</p>
+            <p class="mt-3 text-xs font-medium text-ink-400">© <span id="year"></span> Flash Reward Events. All rights reserved.</p>
+          </div>
+        </footer>
+      </main>
+
+      <!-- Sticky Bar -->
+      <div id="sticky-bar" class="fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 translate-y-full">
+        <div class="glass border-t border-ink-100 bg-white/85 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)] safe-bottom">
+          <div class="mx-auto flex max-w-2xl items-center gap-3 px-4 py-3">
+            <div class="hidden shrink-0 items-center gap-1.5 sm:flex">
+              <i data-lucide="zap" class="h-4 w-4 text-shein-600"></i>
+              <div class="font-mono text-sm font-bold tabular-nums text-ink-900" id="sb-time">00:00:00</div>
+              <span class="text-xs font-medium text-ink-500">left</span>
+            </div>
+            <div class="hidden h-8 w-px bg-ink-100 sm:block"></div>
+            <div class="shrink-0 sm:hidden">
+              <div class="text-xs font-medium text-ink-500">Ends in</div>
+              <div class="font-mono text-sm font-bold tabular-nums text-ink-900" id="sb-time-mobile">00:00:00</div>
+            </div>
+            <button onclick="scrollToQuiz()" class="group relative flex-1 overflow-hidden rounded-xl bg-shein-600 px-4 py-3 text-sm font-bold text-white shadow-md shadow-shein-500/30 transition-all hover:bg-shein-700 active:scale-[0.98] sm:text-base">
+              <span class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></span>
+              <span class="relative">Claim Your $750 Card</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // === Countdown ===
+      var TARGET = Date.now() + 4 * 60 * 60 * 1000 + 23 * 60 * 1000;
+      function pad(n) { return n.toString().padStart(2, '0'); }
+      function tick() {
+        var diff = Math.max(0, TARGET - Date.now());
+        var s = Math.floor(diff / 1000);
+        var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+        var H = pad(h), M = pad(m), S = pad(sec);
+        var ubh = document.getElementById('ub-h'), ubm = document.getElementById('ub-m'), ubs = document.getElementById('ub-s');
+        if (ubh) ubh.textContent = H; if (ubm) ubm.textContent = M; if (ubs) ubs.textContent = S;
+        var sb = document.getElementById('sb-time'), sbm = document.getElementById('sb-time-mobile');
+        if (sb) sb.textContent = H + ':' + M + ':' + S;
+        if (sbm) sbm.textContent = H + ':' + M + ':' + S;
+      }
+      tick(); setInterval(tick, 1000);
+
+      // === Date ===
+      document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      // === Scroll to quiz ===
+      function scrollToQuiz() {
+        document.getElementById('quiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // === Sticky bar visibility ===
+      window.addEventListener('scroll', function() {
+        var bar = document.getElementById('sticky-bar');
+        if (window.scrollY > 600) bar.classList.remove('translate-y-full');
+        else bar.classList.add('translate-y-full');
+      });
+
+      // === Quiz ===
+      var QUESTIONS = [
+        { options: [
+          { id: 'weekly', label: 'Weekly', icon: 'shopping-bag' },
+          { id: 'monthly', label: 'Monthly', icon: 'shopping-bag' },
+          { id: 'first', label: 'First Time', icon: 'shopping-bag' },
+        ]},
+        { options: [
+          { id: 'women', label: "Women's Fashion", icon: 'shirt' },
+          { id: 'streetwear', label: 'Streetwear', icon: 'shopping-bag' },
+          { id: 'accessories', label: 'Accessories', icon: 'watch' },
+          { id: 'home', label: 'Home', icon: 'home' },
+        ]},
+        { options: [
+          { id: 'yes', label: "Yes, I'm Ready", icon: 'check' },
+          { id: 'no', label: 'No', icon: 'x' },
+        ]},
+      ];
+      var LOADING_STEPS = [
+        { label: 'Checking regional inventory...', duration: 1400 },
+        { label: 'Verifying card availability...', duration: 1200 },
+        { label: 'Card Reserved! Redirecting...', duration: 1000 },
+      ];
+      var quizStep = 0;
+      var answers = {};
+
+      function renderOptions(stepIdx) {
+        var container = document.getElementById('quiz-options-' + stepIdx);
+        var opts = QUESTIONS[stepIdx].options;
+        container.innerHTML = '';
+        opts.forEach(function(opt) {
+          var btn = document.createElement('button');
+          btn.className = 'group flex items-center justify-between rounded-2xl border-2 border-ink-200 bg-white px-4 py-4 text-left transition-all duration-200 active:scale-[0.98] hover:border-shein-300 hover:bg-shein-50/50';
+          btn.innerHTML =
+            '<span class="flex items-center gap-3">' +
+              '<span class="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-100 text-ink-600 transition-colors group-hover:bg-shein-100 group-hover:text-shein-600">' +
+                '<i data-lucide="' + opt.icon + '" class="h-5 w-5"></i>' +
+              '</span>' +
+              '<span class="font-semibold text-ink-800">' + opt.label + '</span>' +
+            '</span>' +
+            '<i data-lucide="arrow-right" class="h-5 w-5 text-ink-300 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all"></i>';
+          btn.onclick = function() { selectOption(stepIdx, opt.id, btn); };
+          container.appendChild(btn);
+        });
+        lucide.createIcons();
+      }
+
+      function selectOption(stepIdx, optId, btn) {
+        answers[stepIdx] = optId;
+        btn.classList.remove('border-ink-200', 'bg-white');
+        btn.classList.add('border-shein-500', 'bg-shein-50', 'shadow-md', 'shadow-shein-500/10');
+        var iconBox = btn.querySelector('span > span');
+        iconBox.classList.remove('bg-ink-100', 'text-ink-600');
+        iconBox.classList.add('bg-shein-500', 'text-white');
+        var label = btn.querySelector('span > span:nth-child(2)');
+        if (label) { label.classList.remove('text-ink-800'); label.classList.add('text-shein-700'); }
+        setTimeout(function() {
+          if (stepIdx < QUESTIONS.length - 1) {
+            showStep(stepIdx + 1);
+          } else {
+            startLoading();
+          }
+        }, 250);
+      }
+
+      function showStep(idx) {
+        quizStep = idx;
+        document.querySelectorAll('[data-quiz-step]').forEach(function(el) { el.classList.remove('active'); });
+        var el = document.querySelector('[data-quiz-step="' + idx + '"]');
+        el.classList.add('active');
+        el.classList.remove('animate-slide-in');
+        void el.offsetWidth;
+        el.classList.add('animate-slide-in');
+        var pct = Math.round(((idx + 1) / QUESTIONS.length) * 100);
+        document.getElementById('quiz-progress').style.width = pct + '%';
+        document.getElementById('quiz-step-label').textContent = 'Question ' + (idx + 1) + ' of ' + QUESTIONS.length;
+        document.getElementById('quiz-percent').textContent = pct + '%';
+        var back = document.getElementById('quiz-back');
+        if (idx > 0) back.classList.remove('hidden'); else back.classList.add('hidden');
+      }
+
+      function quizBack() {
+        if (quizStep > 0) showStep(quizStep - 1);
+      }
+
+      function startLoading() {
+        document.getElementById('quiz-content').style.display = 'none';
+        document.getElementById('quiz-loading').style.display = 'flex';
+        var dots = document.getElementById('loading-dots');
+        dots.innerHTML = '';
+        LOADING_STEPS.forEach(function(_, i) {
+          var s = document.createElement('span');
+          s.className = 'h-2 rounded-full transition-all duration-300 ' + (i === 0 ? 'w-8 bg-shein-500' : 'w-2 bg-ink-200');
+          dots.appendChild(s);
+        });
+        var elapsed = 0;
+        LOADING_STEPS.forEach(function(s, i) {
+          setTimeout(function() {
+            document.getElementById('loading-label').textContent = s.label;
+            var title = document.getElementById('loading-title');
+            var circle = document.getElementById('loading-circle');
+            var ring = document.getElementById('loading-ring');
+            var icon = document.getElementById('loading-icon');
+            if (i >= 2) {
+              title.textContent = 'Card Reserved!';
+              circle.classList.remove('bg-shein-500'); circle.classList.add('bg-green-500');
+              ring.style.display = 'none';
+              icon.outerHTML = '<i data-lucide="check" class="h-10 w-10 text-white" style="stroke-width:3" id="loading-icon"></i>';
+              lucide.createIcons();
+            }
+            var dotsEls = dots.children;
+            for (var j = 0; j < dotsEls.length; j++) {
+              if (j <= i) { dotsEls[j].className = 'h-2 rounded-full transition-all duration-300 w-8 bg-shein-500'; }
+              else { dotsEls[j].className = 'h-2 rounded-full transition-all duration-300 w-2 bg-ink-200'; }
+            }
+          }, elapsed);
+          elapsed += s.duration;
+        });
+        setTimeout(function() {
+          document.getElementById('quiz-content').style.display = 'block';
+          document.getElementById('quiz-loading').style.display = 'none';
+          quizStep = 0; answers = {};
+          showStep(0);
+          QUESTIONS.forEach(function(_, i) { renderOptions(i); });
+          document.getElementById('quiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, elapsed + 400);
+      }
+
+      // Init quiz
+      QUESTIONS.forEach(function(_, i) { renderOptions(i); });
+
+      // === Winners ===
+      var WINNERS = [
+        { name: 'Jessica T.', initials: 'JT', location: 'Los Angeles, CA', minutesAgo: 4, color: 'bg-shein-500' },
+        { name: 'Marcus L.', initials: 'ML', location: 'Houston, TX', minutesAgo: 9, color: 'bg-ink-700' },
+        { name: 'Aisha B.', initials: 'AB', location: 'Atlanta, GA', minutesAgo: 12, color: 'bg-purple-500' },
+        { name: 'Emily R.', initials: 'ER', location: 'Phoenix, AZ', minutesAgo: 17, color: 'bg-blue-500' },
+        { name: 'Carlos M.', initials: 'CM', location: 'Miami, FL', minutesAgo: 23, color: 'bg-emerald-500' },
+      ];
+      var NEW_NAMES = [
+        ['Brianna H.', 'BH', 'Dallas, TX'], ['Jordan F.', 'JF', 'Boston, MA'],
+        ['Maria G.', 'MG', 'San Diego, CA'], ['Devon C.', 'DC', 'Portland, OR'],
+        ['Riley S.', 'RS', 'Nashville, TN'], ['Ava N.', 'AN', 'Las Vegas, NV'],
+      ];
+      var COLORS = ['bg-shein-500', 'bg-ink-700', 'bg-purple-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500'];
+
+      function renderWinners(pulse) {
+        var list = document.getElementById('winners-list');
+        list.innerHTML = '';
+        WINNERS.slice(0, 5).forEach(function(w, i) {
+          var div = document.createElement('div');
+          div.className = 'flex items-center gap-3 rounded-2xl border border-ink-100 bg-white p-3 shadow-sm transition-all' + (i === 0 && pulse ? ' ring-2 ring-shein-400 animate-bounce-in' : '');
+          div.innerHTML =
+            '<div class="relative shrink-0">' +
+              '<div class="flex h-11 w-11 items-center justify-center rounded-full ' + w.color + ' text-sm font-bold text-white">' + w.initials + '</div>' +
+              '<div class="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-white">' +
+                '<i data-lucide="badge-check" class="h-4 w-4 text-shein-500"></i>' +
+              '</div>' +
+            '</div>' +
+            '<div class="min-w-0 flex-1">' +
+              '<p class="truncate text-sm font-semibold text-ink-900">' + w.name + ' claimed a <span class="text-shein-600">$750 Shein Card</span></p>' +
+              '<p class="truncate text-xs text-ink-400">' + w.location + ' · ' + (w.minutesAgo === 0 ? 'just now' : w.minutesAgo + ' mins ago') + '</p>' +
+            '</div>' +
+            (i === 0 && pulse ? '<span class="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold uppercase text-green-600">New</span>' : '');
+          list.appendChild(div);
+        });
+        lucide.createIcons();
+      }
+
+      renderWinners(false);
+      setInterval(function() {
+        var entry = NEW_NAMES[Math.floor(Math.random() * NEW_NAMES.length)];
+        var color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        WINNERS.unshift({ name: entry[0], initials: entry[1], location: entry[2], minutesAgo: 0, color: color });
+        WINNERS = WINNERS.slice(0, 8);
+        renderWinners(true);
+        document.getElementById('winners-total').textContent = 'Showing 5 of ' + (45200 + Math.floor(Math.random() * 300)) + ' total claims';
+      }, 6000);
+
+      // Increment minutes over time
+      setInterval(function() {
+        WINNERS.forEach(function(w) { if (w.minutesAgo > 0) w.minutesAgo++; });
+      }, 60000);
+
+      // === Steps ===
+      var STEPS = [
+        { num: 1, title: 'Answer Quick Survey', desc: 'Complete 3 simple questions about your shopping preferences.', icon: 'clipboard-list' },
+        { num: 2, title: 'Complete Sponsor Deals', desc: 'Finish 2-3 quick deals from our verified partners to unlock your reward.', icon: 'handshake' },
+        { num: 3, title: 'Receive Your Code', desc: 'Get your $750 Shein gift card code delivered instantly via email.', icon: 'mail' },
+      ];
+      var stepsContainer = document.getElementById('steps-container');
+      STEPS.forEach(function(step, i) {
+        var reverse = i % 2 === 1;
+        var div = document.createElement('div');
+        div.className = 'relative flex items-start gap-4 sm:gap-0' + (reverse ? ' sm:flex-row-reverse' : '');
+        div.innerHTML =
+          '<div class="relative z-10 flex shrink-0 items-center justify-center sm:w-1/2 sm:justify-center">' +
+            '<div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-shein-600 text-white shadow-lg shadow-shein-500/30">' +
+              '<i data-lucide="' + step.icon + '" class="h-6 w-6"></i>' +
+            '</div>' +
+          '</div>' +
+          '<div class="flex-1 sm:w-1/2 ' + (reverse ? 'sm:pl-8' : 'sm:pr-8 sm:text-right') + '">' +
+            '<div class="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm">' +
+              '<div class="mb-1.5 flex items-center gap-2 ' + (reverse ? 'sm:justify-end' : '') + '">' +
+                '<span class="flex h-5 w-5 items-center justify-center rounded-full bg-shein-100 text-[10px] font-bold text-shein-700">' + step.num + '</span>' +
+                '<span class="text-xs font-bold uppercase tracking-wider text-shein-600">Step ' + step.num + '</span>' +
+              '</div>' +
+              '<h3 class="text-base font-bold text-ink-900">' + step.title + '</h3>' +
+              '<p class="mt-1 text-sm text-ink-500">' + step.desc + '</p>' +
+            '</div>' +
+          '</div>';
+        stepsContainer.appendChild(div);
+      });
+
+      // === FAQ ===
+      var FAQS = [
+        { q: 'Is this really free?', a: 'Yes! Entry is 100% free. To receive your $750 Shein gift card, you complete 2-3 quick sponsor deals from our verified partners — no purchase is required for most deals, and no credit card is needed to start.' },
+        { q: 'How do I receive my code?', a: 'Once you complete the survey and sponsor deals, your $750 Shein gift card code is sent instantly to the email address you provide during signup. Most codes arrive within minutes of completion.' },
+        { q: 'Can I use this on existing Shein sale items?', a: 'Absolutely. Your Shein gift card works just like a regular payment method at checkout. You can stack it with sale prices, promo codes, and clearance items for maximum savings on your shopping spree.' },
+        { q: 'How long is the gift card valid?', a: 'Shein gift cards are typically valid for 12 months from the date of issuance. You can check your exact expiration date in the original delivery email or in your Shein account wallet.' },
+        { q: 'Is my personal information safe?', a: 'We take privacy seriously. Your information is encrypted and never sold. We only use your email to deliver your gift card code and send optional reward updates you can opt out of anytime.' },
+      ];
+      var faqContainer = document.getElementById('faq-container');
+      FAQS.forEach(function(faq, i) {
+        var div = document.createElement('div');
+        div.className = 'overflow-hidden rounded-2xl border border-ink-100 bg-white';
+        div.id = 'faq-' + i;
+        var btn = document.createElement('button');
+        btn.className = 'flex w-full items-center justify-between gap-3 px-5 py-4 text-left';
+        btn.innerHTML =
+          '<span class="text-sm font-semibold text-ink-900 sm:text-base">' + faq.q + '</span>' +
+          '<span class="faq-chevron flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-ink-100 text-ink-500 transition-all duration-300">' +
+            '<i data-lucide="chevron-down" class="h-4 w-4"></i>' +
+          '</span>';
+        var content = document.createElement('div');
+        content.className = 'faq-grid';
+        content.innerHTML = '<div><p class="px-5 pb-4 text-sm leading-relaxed text-ink-600">' + faq.a + '</p></div>';
+        btn.onclick = function() { toggleFaq(i); };
+        div.appendChild(btn);
+        div.appendChild(content);
+        faqContainer.appendChild(div);
+      });
+
+      function toggleFaq(idx) {
+        var div = document.getElementById('faq-' + idx);
+        var grid = div.querySelector('.faq-grid');
+        var chevron = div.querySelector('.faq-chevron');
+        var isOpen = grid.classList.contains('open');
+        // close all
+        document.querySelectorAll('.faq-grid').forEach(function(g) { g.classList.remove('open'); });
+        document.querySelectorAll('.faq-chevron').forEach(function(c) {
+          c.classList.remove('bg-shein-500', 'text-white', 'rotate-180');
+          c.classList.add('bg-ink-100', 'text-ink-500');
+        });
+        document.querySelectorAll('[id^="faq-"]').forEach(function(f) {
+          f.classList.remove('border-shein-200', 'shadow-sm');
+          f.classList.add('border-ink-100');
+        });
+        if (!isOpen) {
+          grid.classList.add('open');
+          chevron.classList.remove('bg-ink-100', 'text-ink-500');
+          chevron.classList.add('bg-shein-500', 'text-white', 'rotate-180');
+          div.classList.remove('border-ink-100');
+          div.classList.add('border-shein-200', 'shadow-sm');
+        }
+      }
+
+      // open first FAQ by default
+      toggleFaq(0);
+
+      // === Init icons ===
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
