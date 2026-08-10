@@ -910,6 +910,9 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // describes, one slice generation later.
   'ac53', 'ac54', 'af53', 'af54', 'ak53', 'ak54', 'ap53', 'ap54',
     'ac55', 'af55', 'ak55', 'ap55',
+    // Gravy Pass (offer GP). Directory is /Mggrvy — Vercel serves paths case-sensitively, but
+    // cleanPath lowercases the root before testing it, so the entry here is lowercase.
+    'mggrvy',
   // Bespoke, single-affiliate pages: acsm/as50/sasurl (Sammy), ashl/ah50/ashurl (Ashlyn),
   // kerm/km50/saskrurl + shkm/sk50/shkrurl (notkerman — Apple Pay and Shein, two separate pages
   // on two separate offers). Registered for the same reason as everything else here — an

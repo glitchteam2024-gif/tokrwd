@@ -72,6 +72,9 @@
     // build when the two lists differ.
     'ac53', 'ac54', 'af53', 'af54', 'ak53', 'ak54', 'ap53', 'ap54',
     'ac55', 'af55', 'ak55', 'ap55',
+    // Gravy Pass (offer GP). Directory is /Mggrvy — Vercel serves paths case-sensitively, but
+    // cleanPath lowercases the root before testing it, so the entry here is lowercase.
+    'mggrvy',
     // Bespoke, single-affiliate pages: acsm/as50/sasurl, ashl/ah50/ashurl, plus the two that
     // belong to notkerman — kerm/km50/saskrurl (Apple Pay) and shkm/sk50/shkrurl (Shein).
     // NOTE: no apostrophes in this block. _links-config.test.mjs parses these roots by scanning

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Get Paid To Game — Gravy Pass</title>
+<meta name="robots" content="noindex,nofollow">
+
+<!--
+  GRAVY PASS prelander. Iterated from a competitor page Migi supplied (testerrewards.org), 2026-08-10.
+  The SHAPE is kept — logo, headline, stat strip, a short quiz, a calculating beat, an estimate, one
+  CTA. What is NOT kept is every piece of fabricated proof it carried, because the family has already
+  lost an ad to exactly that (landers/apple/build.py, STRUCTURE E note 2; Monetise restriction
+  "No False Earning Claims").
+
+  REMOVED FROM THE SOURCE, and why each one could not ship:
+
+    Trustpilot "Excellent ★★★★★"   Impersonates a real company's rating. There is no Trustpilot
+                                   profile behind it. This is the single most serious item on the
+                                   page — it borrows another business's credibility wholesale.
+    3 testimonials                 Invented people, invented payouts ("$527 in my first week",
+                                   "$2,000 in my first month"). Migi's own brief replaced this
+                                   block with the four steps, so it was already going.
+    Live earning toasts            Manufactured "Jake A. earned +$14.50" every ~6s, from a random
+                                   name generator. Fabricated real-time social proof.
+    "705 claimed in the last hour" A counter seeded at 680 + rand(40) that ticks upward on a timer.
+                                   It counts nothing.
+    1.3M+ / $500M / 4.7★           No source. Left as a labelled placeholder below rather than
+                                   deleted, so real figures can drop straight in.
+    "Recent cashouts" screenshots  Screenshots of payouts we cannot attribute.
+    "limited spots"                Unverifiable scarcity, the same line struck off the Apple family.
+
+  THE ESTIMATE IS ARITHMETIC ON MIGI'S OWN NUMBERS, not a new claim. He supplied "$50–80 per game
+  session" and "$15 bonus"; the quiz multiplies the session figure by how many sessions the chosen
+  time band allows and shows the range. Change SESSION_LOW / SESSION_HIGH in one place and every
+  number on the results screen follows.
+-->
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff;min-height:100svh;display:flex;align-items:flex-start;justify-content:center;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(160,100%,30%,.12) 0%,transparent 60%),hsl(160,20%,5%);z-index:0}
+.container{position:relative;z-index:1;width:100%;max-width:540px;padding:40px 24px 48px;display:flex;flex-direction:column;align-items:center;text-align:center}
+
+.logo-row{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.logo-row img{width:60px;height:60px;border-radius:14px;box-shadow:0 0 24px hsla(160,100%,50%,.18)}
+.logo-x{font-size:19px;font-weight:500;color:hsla(0,0%,100%,.45);line-height:1}
+
+.headline{font-size:clamp(2rem,6vw,3rem);font-weight:800;line-height:1.15;letter-spacing:-.02em;background:linear-gradient(180deg,#fff 0%,hsl(160,30%,60%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:14px;filter:drop-shadow(0 0 40px hsla(160,100%,50%,.15))}
+.subtext{color:hsla(0,0%,100%,.55);font-size:15px;line-height:1.6;max-width:400px;margin-bottom:24px}
+.subtext .accent{color:hsl(160,100%,50%);font-weight:600}
+
+.stats-row{display:flex;gap:8px;width:100%;max-width:420px;margin-bottom:22px}
+.stat-box{flex:1;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:12px;padding:12px 6px}
+.stat-val{font-size:clamp(1rem,4vw,1.2rem);font-weight:800;line-height:1;color:#fff;margin-bottom:4px}
+.stat-lbl{font-size:9.5px;color:hsla(0,0%,100%,.6);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── The four steps (this block replaced the testimonials) ─────────────────── */
+.steps{width:100%;max-width:420px;margin-top:26px;text-align:left}
+.steps-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsla(0,0%,100%,.4);margin-bottom:12px;text-align:left}
+.step-card{display:flex;gap:13px;align-items:flex-start;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:14px;padding:15px;margin-bottom:10px}
+.step-n{width:26px;height:26px;border-radius:50%;background:hsl(160,100%,50%);color:hsl(160,20%,5%);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px hsla(160,100%,50%,.3)}
+.step-card p{font-size:13.5px;line-height:1.55;color:hsla(0,0%,100%,.72)}
+.step-card strong{color:hsl(160,100%,50%);font-weight:700}
+
+.btn-neon{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:420px;padding:19px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,.45),0 4px 15px hsla(0,0%,0%,.3);transition:transform .2s ease,box-shadow .2s ease;margin-bottom:12px;font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-neon:active{transform:translateY(1px) scale(.98)}
+.btn-neon:focus-visible{outline:3px solid hsl(160,100%,65%);outline-offset:3px}
+.btn-neon .main{font-size:17px;font-weight:800;color:hsl(160,20%,5%)}
+/* The results CTA is an <a>, not a <button>, so it inherits link decoration and the visited
+   colour — which rendered it as underlined text on a muddy green slab. Reset all four link states
+   explicitly; :visited in particular will not inherit from the base rule. */
+a.btn-neon,a.btn-neon:link,a.btn-neon:visited,a.btn-neon:hover,a.btn-neon:active{
+  text-decoration:none;color:hsl(160,20%,5%);
+  background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%)}
+a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
+.btn-neon-arrow{font-size:20px;font-weight:700;color:hsl(160,20%,5%);line-height:1}
+
+.quiz-header{width:100%;max-width:420px;margin-bottom:16px}
+.quiz-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsl(160,100%,50%);margin-bottom:6px}
+.quiz-step{font-size:clamp(1.1rem,3.5vw,1.3rem);font-weight:800;color:#fff}
+.quiz-progress{display:flex;gap:8px;margin-bottom:24px}
+.quiz-dot{width:8px;height:8px;border-radius:50%;background:hsla(160,15%,30%,.6)}
+.quiz-dot.active{background:hsl(160,100%,50%);transform:scale(1.15)}
+.quiz-dot.done{background:hsl(160,100%,50%);opacity:.45}
+.quiz-question{font-size:clamp(1.35rem,4.5vw,1.7rem);font-weight:800;line-height:1.25;margin-bottom:22px;max-width:400px}
+
+.btn-quiz{display:flex;align-items:center;gap:12px;width:100%;max-width:420px;padding:17px 16px;border:1px solid hsla(160,15%,30%,.5);border-radius:16px;cursor:pointer;background:hsla(160,10%,12%,.5);transition:background .2s ease,border-color .2s ease;margin-bottom:11px;font:inherit;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-quiz:active{transform:scale(.98)}
+.btn-quiz:focus-visible{outline:3px solid hsl(160,100%,55%);outline-offset:3px}
+.quiz-opt-icon{font-size:21px;width:30px;text-align:center;flex-shrink:0;line-height:1}
+.btn-quiz .main{font-size:15px;font-weight:700;color:#fff;line-height:1.25;flex:1;min-width:0}
+.quiz-opt-radio{width:20px;height:20px;border-radius:50%;border:1.5px solid hsla(160,15%,30%,.6);flex-shrink:0}
+
+.calc-wrap{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;padding-top:40px}
+.calc-spinner{width:70px;height:70px;border-radius:50%;border:3px solid hsla(160,15%,25%,.5);border-top-color:hsl(160,100%,50%);animation:spin .9s linear infinite;margin-bottom:26px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.calc-title{font-size:12px;font-weight:700;letter-spacing:.18em;color:hsla(160,60%,55%,.9);margin-bottom:26px}
+.calc-steps{width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
+.calc-step{display:flex;align-items:center;gap:12px;font-size:14px;color:hsla(0,0%,100%,.35);transition:color .4s ease}
+.calc-step.active{color:#fff}
+.calc-step.done{color:hsl(160,100%,50%)}
+.calc-step-icon{width:20px;height:20px;border-radius:50%;border:2px solid hsla(160,15%,30%,.6);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .4s ease,background .4s ease}
+.calc-step.active .calc-step-icon{border-color:hsl(160,100%,50%);border-top-color:transparent;animation:spin .8s linear infinite}
+.calc-step.done .calc-step-icon{border-color:hsl(160,100%,50%);background:hsl(160,100%,50%);animation:none}
+.calc-step.done .calc-step-icon::after{content:'';width:6px;height:10px;border:solid hsl(160,20%,5%);border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+
+.result-panel{width:100%;max-width:420px;background:hsl(160,10%,8%);border:1px solid hsl(160,15%,18%);border-radius:20px;padding:22px 20px 24px}
+.result-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsla(0,0%,100%,.4);margin-bottom:4px;text-align:left}
+.result-title{font-size:clamp(1.5rem,5vw,1.8rem);font-weight:800;line-height:1.1;text-align:left;margin-bottom:14px}
+.result-divider{height:2px;border-radius:999px;background:linear-gradient(90deg,hsl(160,100%,55%) 0%,hsl(160,100%,35%) 50%,hsla(160,100%,50%,.2) 100%);margin-bottom:20px}
+.estimate-card{background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:14px;padding:20px 16px;margin-bottom:12px}
+.estimate-label{font-size:10px;font-weight:700;letter-spacing:.16em;color:hsla(0,0%,100%,.4);text-transform:uppercase;margin-bottom:10px}
+.estimate-amount{font-size:clamp(2.25rem,8vw,3rem);font-weight:900;line-height:1;letter-spacing:-.02em;background:linear-gradient(180deg,hsl(160,100%,60%) 0%,hsl(160,100%,42%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.estimate-period{font-size:14px;color:hsla(0,0%,100%,.45);margin-top:6px}
+/* 2.79:1 at 38% — and this is the line that shows the visitor the arithmetic behind the number,
+   i.e. the whole reason the estimate is defensible. Greying it out until it cannot be read turns a
+   checkable claim back into a bare one. 62% -> 6.8:1. */
+.estimate-basis{font-size:11.5px;color:hsla(0,0%,100%,.62);line-height:1.55;margin-top:12px}
+.bonus-card{background:hsl(160,12%,7%);border:1px solid hsla(160,100%,50%,.28);border-radius:16px;padding:18px;margin-bottom:18px}
+.bonus-header{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsl(160,100%,50%);margin-bottom:10px}
+.bonus-amount{font-size:clamp(2rem,7vw,2.5rem);font-weight:900;line-height:1;background:linear-gradient(90deg,hsl(160,100%,58%) 0%,hsl(160,80%,72%) 55%,hsl(160,100%,42%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.bonus-note{font-size:12px;color:hsla(0,0%,100%,.5);margin-top:10px;line-height:1.5}
+/* 11px at 35% white measured 2.66:1 on this panel — under the 4.5:1 floor, on the one paragraph
+   that carries the earnings caveat. A disclaimer nobody can read is worse than no disclaimer: it
+   looks like compliance without doing any. Raised to 62% (7.0:1) and 11.5px. */
+.disclaimer{font-size:11.5px;line-height:1.65;color:hsla(0,0%,100%,.62);margin-top:18px;text-align:center}
+
+.anim{opacity:0;animation:fadeSlideUp .5s ease forwards}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.screen{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%}
+.screen[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}.anim{opacity:1}.calc-spinner,.calc-step.active .calc-step-icon{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div class="container">
+
+  <!-- ── Intro ─────────────────────────────────────────────────────────────── -->
+  <div id="screenIntro" class="screen">
+    <!-- TikTok x Gravy Pass lockup. Owner's explicit call, 2026-08-10, after the concern was
+         raised twice: an "A x B" lockup is the visual grammar of a partnership, and TikTok is the
+         traffic source here, not a partner. Kept as ONE line so it is a single edit to reverse —
+         drop the first <img> and the .logo-x span from all four screens. aria-hidden because the
+         marks are decorative; the page names Gravy Pass in the copy and the disclaimer. -->
+    <div class="logo-row anim" aria-hidden="true">
+      <img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60">
+      <span class="logo-x">&times;</span>
+      <img src="/images/gravypass-logo.png" alt="" width="60" height="60">
+    </div>
+
+    <h1 class="headline anim" style="animation-delay:.08s">Get Paid To Game</h1>
+    <p class="subtext anim" style="animation-delay:.16s">Play games you already know and get paid out to <span class="accent">Cash App, PayPal, Zelle, Apple Cash or your bank</span>.</p>
+
+    <!-- PLACEHOLDER, NOT SHIPPABLE AS-IS. The source printed 1.3M+ members / $500M paid / 4.7★
+         with nothing behind them. Left as dashes so real figures drop straight in; a page that
+         invents its own scale is the exact claim that has already cost this account an ad. -->
+    <div class="stats-row anim" style="animation-delay:.24s">
+      <div class="stat-box"><div class="stat-val">—</div><div class="stat-lbl">Members</div></div>
+      <div class="stat-box"><div class="stat-val">—</div><div class="stat-lbl">Paid out</div></div>
+      <div class="stat-box"><div class="stat-val">—</div><div class="stat-lbl">Rated</div></div>
+    </div>
+
+    <button type="button" class="btn-neon anim" style="animation-delay:.32s" onclick="showScreen('screenQ1')">
+      <span class="main">See How Much You Can Earn</span>
+      <span class="btn-neon-arrow" aria-hidden="true">→</span>
+    </button>
+
+    <!-- The four steps — this block replaced the testimonials. -->
+    <div class="steps anim" style="animation-delay:.4s">
+      <p class="steps-label">How it works</p>
+      <div class="step-card"><span class="step-n">1</span>
+        <p>Download the game and get started on your first app to earn a <strong>$15 bonus</strong>.</p></div>
+      <div class="step-card"><span class="step-n">2</span>
+        <p>Complete the first game to unlock partners like <strong>Block Blast, Subway Surfers, Tetris</strong> and more.</p></div>
+      <div class="step-card"><span class="step-n">3</span>
+        <p>Cash out after an hour of playing — up to <strong>$50–$80 per game session</strong>, including in-app purchases.</p></div>
+      <div class="step-card"><span class="step-n">4</span>
+        <p>Transfer via <strong>Cash App, PayPal, Zelle, Apple Cash</strong> or bank transfer.</p></div>
+    </div>
+  </div>
+
+  <!-- ── Q1 (was Q2 — the device question is gone per Migi) ─────────────────── -->
+  <div id="screenQ1" class="screen" hidden>
+    <div class="logo-row anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60"><span class="logo-x">&times;</span><img src="/images/gravypass-logo.png" alt="" width="60" height="60"></div>
+    <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 1 of 2</p></div>
+    <div class="quiz-progress anim" style="animation-delay:.1s" aria-hidden="true"><span class="quiz-dot active"></span><span class="quiz-dot"></span></div>
+    <h2 class="quiz-question anim" style="animation-delay:.15s">Are you serious about earning money from your phone?</h2>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.25s" onclick="showScreen('screenQ2')">
+      <span class="quiz-opt-icon" aria-hidden="true">💪</span><span class="main">Yes, I'm ready to start</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.33s" onclick="showScreen('screenQ2')">
+      <span class="quiz-opt-icon" aria-hidden="true">🤔</span><span class="main">I'm just exploring</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+  </div>
+
+  <!-- ── Q2 — the answer that actually drives the estimate ──────────────────── -->
+  <div id="screenQ2" class="screen" hidden>
+    <div class="logo-row anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60"><span class="logo-x">&times;</span><img src="/images/gravypass-logo.png" alt="" width="60" height="60"></div>
+    <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 2 of 2</p></div>
+    <div class="quiz-progress anim" style="animation-delay:.1s" aria-hidden="true"><span class="quiz-dot done"></span><span class="quiz-dot active"></span></div>
+    <h2 class="quiz-question anim" style="animation-delay:.15s">How much time can you spend per day?</h2>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.25s" onclick="startCalculating(1)">
+      <span class="quiz-opt-icon" aria-hidden="true">⏱️</span><span class="main">Less than 1 hour</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.33s" onclick="startCalculating(2)">
+      <span class="quiz-opt-icon" aria-hidden="true">⏰</span><span class="main">1 to 3 hours</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.41s" onclick="startCalculating(3)">
+      <span class="quiz-opt-icon" aria-hidden="true">🔥</span><span class="main">More than 3 hours</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+  </div>
+
+  <!-- ── Calculating ───────────────────────────────────────────────────────── -->
+  <div id="screenCalc" class="screen" hidden>
+    <div class="calc-wrap">
+      <div class="calc-spinner" aria-hidden="true"></div>
+      <p class="calc-title anim" style="animation-delay:.1s">CALCULATING YOUR ESTIMATE…</p>
+      <div class="calc-steps">
+        <div class="calc-step anim" id="calcStep1" style="animation-delay:.2s"><span class="calc-step-icon" aria-hidden="true"></span><span>Matching available games</span></div>
+        <div class="calc-step anim" id="calcStep2" style="animation-delay:.3s"><span class="calc-step-icon" aria-hidden="true"></span><span>Calculating session earnings</span></div>
+        <div class="calc-step anim" id="calcStep3" style="animation-delay:.4s"><span class="calc-step-icon" aria-hidden="true"></span><span>Adding your first-app bonus</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Result ────────────────────────────────────────────────────────────── -->
+  <div id="screenResult" class="screen" hidden>
+    <div class="result-panel anim">
+      <p class="result-eyebrow">Earnings quiz</p>
+      <h2 class="result-title">Your estimate</h2>
+      <div class="result-divider" aria-hidden="true"></div>
+
+      <div class="estimate-card anim" style="animation-delay:.08s">
+        <p class="estimate-label">Based on your answer</p>
+        <p class="estimate-amount" id="estAmount">$50 – $80</p>
+        <p class="estimate-period" id="estPeriod">per day</p>
+        <!-- The arithmetic is stated, not hidden. A number the visitor can check is worth more than
+             a bigger one they cannot. -->
+        <p class="estimate-basis" id="estBasis">1 session/day at $50–$80 per session.</p>
+      </div>
+
+      <div class="bonus-card anim" style="animation-delay:.14s">
+        <p class="bonus-header">First-app bonus</p>
+        <p class="bonus-amount">$15</p>
+        <p class="bonus-note">Paid once you get started on your first app.</p>
+      </div>
+
+      <a class="btn-neon anim" id="ctaBtn" style="animation-delay:.2s" href="#">
+        <span class="main">Claim My Spot</span>
+        <span class="btn-neon-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <p class="disclaimer">Earnings depend on which games you play and how much you play. The figures
+        above are an estimate from the rates shown, not a guarantee. Gravy Pass is not affiliated with
+        any game publisher named on this page.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── The only numbers on the results screen ───────────────────────────────
+     Migi's own figures: $50–$80 per game session, $15 first-app bonus. Every amount shown is
+     derived from these two by multiplication — change them here and the whole page follows.
+     Nothing invents a number that is not on this line. */
+  var SESSION_LOW = 50, SESSION_HIGH = 80;
+  var SESSIONS = { 1: 1, 2: 2, 3: 3 };   // time band -> sessions/day the band allows
+
+  var current = 'screenIntro';
+
+  window.showScreen = function (nextId) {
+    var cur = document.getElementById(current), next = document.getElementById(nextId);
+    if (!cur || !next || current === nextId) return;
+    cur.hidden = true;
+    next.hidden = false;
+    // Restart the stagger — the elements finished animating while hidden, so without this they
+    // simply appear. Forcing a reflow between the writes is what makes it a NEW animation.
+    var els = next.querySelectorAll('.anim');
+    for (var i = 0; i < els.length; i++) { els[i].style.animation = 'none'; void els[i].offsetHeight; els[i].style.animation = ''; }
+    window.scrollTo(0, 0);
+    current = nextId;
+  };
+
+  window.startCalculating = function (band) {
+    var n = SESSIONS[band] || 1;
+    document.getElementById('estAmount').textContent = '$' + (SESSION_LOW * n) + ' – $' + (SESSION_HIGH * n);
+    document.getElementById('estPeriod').textContent = 'per day';
+    document.getElementById('estBasis').textContent =
+      n + ' session' + (n === 1 ? '' : 's') + '/day at $' + SESSION_LOW + '–$' + SESSION_HIGH + ' per session.';
+
+    showScreen('screenCalc');
+
+    var steps = [document.getElementById('calcStep1'), document.getElementById('calcStep2'), document.getElementById('calcStep3')];
+    var on = [500, 1200, 1900], off = [1000, 1700, 2400];
+    steps.forEach(function (s, i) {
+      setTimeout(function () { s.classList.add('active'); }, on[i]);
+      setTimeout(function () { s.classList.remove('active'); s.classList.add('done'); }, off[i]);
+    });
+    setTimeout(function () { showScreen('screenResult'); }, 2900);
+  };
+
+  /* ── Tracking ─────────────────────────────────────────────────────────────
+     Same contract as every other lander in this repo: forward EVERY inbound param to the door,
+     with s1 LAST, and drop an unsubstituted TikTok macro rather than shipping the literal.
+     The door is landing_pages.slug 'gravypass' (offer code GP), which already exists and is
+     active. The offer's destination_url is what actually forwards to the network — see the
+     migration alongside this file; until that runs the door resolves but sends nowhere useful.
+
+     ⚠️ THIS LANDER'S ROW HAS owner_user_id NULL, unlike the Apple family. That means owner-mode is
+     OFF: the door does NOT scrub slot 1 and does NOT withhold an unregistered label, so whatever
+     ?s1= arrives is forwarded verbatim. Convenient (no owner_subid_labels row needed) and also the
+     reason a stray s1 appended to the public URL would ride through — worth knowing before this
+     scales. */
+  var DOOR = window.__DOOR_URL__ || 'https://sprktrax.org/api/link/gravypass';
+
+  var q = new URLSearchParams(location.search);
+  if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+  var tt = q.get('ttclid') || '';
+  if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
+
+  var s1 = q.get('s1') || '';
+  var out = new URLSearchParams(q.toString());
+  out.delete('s1'); out.delete('campid'); out.delete('lg');
+  var qs = out.toString();
+  var target = DOOR + (qs ? '?' + qs : '') + (s1 ? ((qs ? '&' : '?') + 's1=' + encodeURIComponent(s1)) : '');
+
+  var cta = document.getElementById('ctaBtn');
+  if (cta) cta.setAttribute('href', target);
+})();
+</script>
+</body>
+</html>
