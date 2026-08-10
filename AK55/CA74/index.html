@@ -32,63 +32,22 @@
 })();
 </script>
 
-<!-- ══ ttclid GATE — no click id, no offer page ════════════════════════════════════════════════
-     Owner decision, 2026-08-09, taken against a written objection. Recorded here rather than in a
-     commit message because the next person to read this file has to know it was deliberate.
+<!-- THE TTCLID GATE IS GONE (owner, 2026-08-10). It used to bounce any visitor without a usable
+     ttclid to /safe before first paint. Three reasons it came out, and the owner made the call:
 
-     WHAT IT DOES. A visitor with no usable TikTok click id is sent to /safe — an on-topic,
-     fabricates-nothing information page — instead of the offer. Everyone else sees the lander.
+       1. IT BLOCKED REAL BUYERS. Measured against production the day it shipped: 8 of 369 clicks
+          in 24h arrived with no usable ttclid — 4 empty, 4 an unsubstituted macro. That is 2.2%
+          of paid traffic turned away at the door, and they are disproportionately the in-app
+          visitors whose query got stripped on a hop, i.e. exactly who the funnel is built for.
+       2. IT WAS THE ONE CLOAKING-SHAPED THING LEFT. ttclid exists only on a real ad click, so
+          gating on it served ad review a different page from buyers. js/breakout.js in tokrwd
+          spells out why that is the pattern that gets a domain flagged.
+       3. IT BOUGHT NOTHING FOR ATTRIBUTION. ttclid is still CAPTURED — the query carries it to the
+          door, api/link/[slug].js writes it to clicks.ttclid, and api/postback.js reads it back for
+          the Events API forward. Recording never depended on refusing anybody entry.
 
-     WHAT IT COSTS, MEASURED. Over the 24h to 2026-08-09, 8 of 369 real clicks (2.2%) reached the
-     door with no usable ttclid: 4 empty, 4 an unsubstituted macro. Those are buyers. The cookie
-     read below is what keeps that number at 2.2% instead of far higher — a query stripped on an
-     in-app-browser hop still passes if _ttclid was banked at /pre or on an earlier view.
-
-     WHAT IT RISKS. This is the one thing js/breakout.js in the tokrwd repo is written to forbid:
-     "ONE destination for everyone… NO review detection of any kind… serving ad-review traffic a
-     DIFFERENT PAGE with a DIFFERENT DESTINATION… is what gets a domain flagged." ttclid is the
-     sharpest possible proxy for review traffic, because TikTok appends it only on a real ad click
-     — an ad reviewer opening the destination URL has none, and therefore never sees this page.
-     A flag lands on the DOMAIN, so it would take every campaign on tokrwd.co with it, not just
-     this one. The owner was shown this and chose to ship it.
-
-     WHY IT RUNS HERE. Before the pixel block below, so a visitor who is about to be bounced never
-     fires a PageView — otherwise the pixel learns from traffic that never saw the offer. And
-     before first paint, so there is no flash of the offer page on the way out.
-
-     location.replace, not assign: the bounced visitor must not be able to reach the lander with a
-     Back tap, which would make the gate decorative. -->
-<script>
-(function(){
-  var BAD = /CLICK_ID|__CLICKID__|[{}\[\]#%]/i;
-  var tt = (new URLSearchParams(location.search).get('ttclid') || '').trim();
-  if (tt && BAD.test(tt)) tt = '';
-  if (!tt) {
-    /* Same cookie /js/ttclid.js banks, read with the same validation the door applies. Without
-       this the gate would reject the exact visitors the cookie fallback exists to rescue. */
-    try {
-      var m = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
-      var c = m ? decodeURIComponent(m[1]).trim() : '';
-      if (c && !BAD.test(c)) tt = c;
-    } catch (e) {}
-  }
-  /* The QUERY RIDES ALONG. The bounce used to drop it, so /safe saw a bare URL and the hop lost
-     every param the visitor arrived with — s1, s3, utm_campaign, and an empty-or-macro ttclid.
-     Carrying it means the safe page is reachable with the same context the lander would have had,
-     which is what lets it ever be measured or pixelled without a second mechanism.
-     '/safe' not '/safe/': the trailing slash costs a 308 to the canonical path, and this is the
-     one hop that should not be slower than it has to be. */
-  if (!tt) {
-    /* SafeBounce — fired on DEPARTURE, so treat it as best-effort: the pixel SDK may not have
-       loaded in the moment before location.replace(). /safe fires SafeView on ARRIVAL, which
-       always has time to send, and that is the number to trust. This one exists because the two
-       together separate "the gate diverted them" from "they never got here at all" — SafeView
-       alone cannot tell you WHICH lander the visitor was turned away from. */
-    try { if (window.ttq) ttq.track('SafeBounce', { content_name: '{{PIXEL}} gate bounce' }); } catch(e) {}
-    location.replace('/safe' + (location.search || ''));
-  }
-})();
-</script>
+     Clicks now reach the offer whether or not TikTok gave them a click id. /safe still exists and
+     still carries its pixel; nothing routes to it from here any more. -->
 
 <script id="offer-config">
 /* This page IS one geo — CA, with its own figures baked into the markup. There is deliberately

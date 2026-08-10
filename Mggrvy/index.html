@@ -118,10 +118,9 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
 .quiz-dot.done{background:hsl(160,100%,50%);opacity:.45}
 .quiz-question{font-size:clamp(1.35rem,4.5vw,1.7rem);font-weight:800;line-height:1.25;margin-bottom:22px;max-width:400px}
 
-.btn-quiz{display:flex;align-items:center;gap:12px;width:100%;max-width:420px;padding:17px 16px;border:1px solid hsla(160,15%,30%,.5);border-radius:16px;cursor:pointer;background:hsla(160,10%,12%,.5);transition:background .2s ease,border-color .2s ease;margin-bottom:11px;font:inherit;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-quiz{display:flex;align-items:center;gap:14px;padding-left:18px;width:100%;max-width:420px;padding:17px 16px;border:1px solid hsla(160,15%,30%,.5);border-radius:16px;cursor:pointer;background:hsla(160,10%,12%,.5);transition:background .2s ease,border-color .2s ease;margin-bottom:11px;font:inherit;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .btn-quiz:active{transform:scale(.98)}
 .btn-quiz:focus-visible{outline:3px solid hsl(160,100%,55%);outline-offset:3px}
-.quiz-opt-icon{font-size:21px;width:30px;text-align:center;flex-shrink:0;line-height:1}
 .btn-quiz .main{font-size:15px;font-weight:700;color:#fff;line-height:1.25;flex:1;min-width:0}
 .quiz-opt-radio{width:20px;height:20px;border-radius:50%;border:1.5px solid hsla(160,15%,30%,.6);flex-shrink:0}
 
@@ -234,10 +233,8 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
     <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 1 of 2</p></div>
     <div class="quiz-progress anim" style="animation-delay:.1s" aria-hidden="true"><span class="quiz-dot active"></span><span class="quiz-dot"></span></div>
     <h2 class="quiz-question anim" style="animation-delay:.15s">Are you serious about earning money from your phone?</h2>
-    <button type="button" class="btn-quiz anim" style="animation-delay:.25s" onclick="showScreen('screenQ2')">
-      <span class="quiz-opt-icon" aria-hidden="true">💪</span><span class="main">Yes, I'm ready to start</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
-    <button type="button" class="btn-quiz anim" style="animation-delay:.33s" onclick="showScreen('screenQ2')">
-      <span class="quiz-opt-icon" aria-hidden="true">🤔</span><span class="main">I'm just exploring</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.25s" onclick="showScreen('screenQ2')"><span class="main">Yes, I'm ready to start</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.33s" onclick="showScreen('screenQ2')"><span class="main">I'm just exploring</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
   </div>
 
   <!-- ── Q2 — the answer that actually drives the estimate ──────────────────── -->
@@ -246,12 +243,9 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
     <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 2 of 2</p></div>
     <div class="quiz-progress anim" style="animation-delay:.1s" aria-hidden="true"><span class="quiz-dot done"></span><span class="quiz-dot active"></span></div>
     <h2 class="quiz-question anim" style="animation-delay:.15s">How much time can you spend per day?</h2>
-    <button type="button" class="btn-quiz anim" style="animation-delay:.25s" onclick="startCalculating(1)">
-      <span class="quiz-opt-icon" aria-hidden="true">⏱️</span><span class="main">Less than 1 hour</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
-    <button type="button" class="btn-quiz anim" style="animation-delay:.33s" onclick="startCalculating(2)">
-      <span class="quiz-opt-icon" aria-hidden="true">⏰</span><span class="main">1 to 3 hours</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
-    <button type="button" class="btn-quiz anim" style="animation-delay:.41s" onclick="startCalculating(3)">
-      <span class="quiz-opt-icon" aria-hidden="true">🔥</span><span class="main">More than 3 hours</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.25s" onclick="startCalculating(1)"><span class="main">Less than 1 hour</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.33s" onclick="startCalculating(2)"><span class="main">1 to 3 hours</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.41s" onclick="startCalculating(3)"><span class="main">More than 3 hours</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
   </div>
 
   <!-- ── Calculating ───────────────────────────────────────────────────────── -->
