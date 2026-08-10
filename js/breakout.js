@@ -96,8 +96,9 @@
      lingering constant is how a future edit "restores" the auto-fire without realising the gesture
      is the point. See the wiring block below. */
 
-  /** Reveal the manual instructions if we are still here. */
-  var HINT_AT_MS = 1500;
+  /** Pop the fallback in. 1500 -> 2000 on 2026-08-10: it should land a beat AFTER the visitor has
+   *  looked at the arrow, not while their eye is still travelling to it. */
+  var HINT_AT_MS = 2000;
   /** Last resort: load the lander in place rather than strand a paid click.
    *
    *  6000 -> 2000 on 2026-08-10. This timer ONLY ever runs when the handoff has already failed —
@@ -338,7 +339,14 @@
      *  menu become the useful instruction. Shipping the post-tap copy on the 1.5s timer would have
      *  told every visitor to go menu-diving past a button they had not pressed. */
     function reveal(afterTap) {
-      if (card) card.setAttribute('data-stage', 'hint');
+      // Two stages on one attribute: 'hint' is the 2s pop, 'tapped' additionally reveals the
+      // prompt panel and relabels the button. 'tapped' must never be downgraded back to 'hint' —
+      // the 2s timer can land after a fast tap, and the visitor should not watch the prompt they
+      // just earned disappear.
+      if (card && card.getAttribute('data-stage') !== 'tapped') {
+        card.setAttribute('data-stage', afterTap ? 'tapped' : 'hint');
+      }
+      if (afterTap && stay) stay.textContent = 'Continue To Browser';
       if (!hint) return;
       hint.textContent = afterTap
         ? (isAndroid
