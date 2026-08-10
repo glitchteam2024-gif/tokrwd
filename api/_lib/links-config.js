@@ -913,6 +913,8 @@ export const PRELANDER_ALLOWED_ROOTS = [
     // Gravy Pass (offer GP). Directory is /Mggrvy — Vercel serves paths case-sensitively, but
     // cleanPath lowercases the root before testing it, so the entry here is lowercase.
     'mggrvy',
+    // Freecash CA. Door is the freecash-ca slug; destination_by_geo already routes CA.
+    'mgfrcsh',
   // Bespoke, single-affiliate pages: acsm/as50/sasurl (Sammy), ashl/ah50/ashurl (Ashlyn),
   // kerm/km50/saskrurl + shkm/sk50/shkrurl (notkerman — Apple Pay and Shein, two separate pages
   // on two separate offers). Registered for the same reason as everything else here — an

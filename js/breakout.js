@@ -75,6 +75,8 @@
     // Gravy Pass (offer GP). Directory is /Mggrvy — Vercel serves paths case-sensitively, but
     // cleanPath lowercases the root before testing it, so the entry here is lowercase.
     'mggrvy',
+    // Freecash CA. Door is the freecash-ca slug; destination_by_geo already routes CA.
+    'mgfrcsh',
     // Bespoke, single-affiliate pages: acsm/as50/sasurl, ashl/ah50/ashurl, plus the two that
     // belong to notkerman — kerm/km50/saskrurl (Apple Pay) and shkm/sk50/shkrurl (Shein).
     // NOTE: no apostrophes in this block. _links-config.test.mjs parses these roots by scanning

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Get Paid To Game — Freecash</title>
+<meta name="robots" content="noindex,nofollow">
+
+<!-- TikTok pixel. Same id as every other lander in this funnel (public value; it already ships in
+     their markup). Without it this page is a hole in the funnel: /pre reports, the Apple landers
+     report, and this one was silent. -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D9R5S3BC77UA78AD3M10');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+
+<!--
+  GRAVY PASS prelander. Iterated from a competitor page Migi supplied (testerrewards.org), 2026-08-10.
+  The SHAPE is kept — logo, headline, stat strip, a short quiz, a calculating beat, an estimate, one
+  CTA. What is NOT kept is every piece of fabricated proof it carried, because the family has already
+  lost an ad to exactly that (landers/apple/build.py, STRUCTURE E note 2; Monetise restriction
+  "No False Earning Claims").
+
+  REMOVED FROM THE SOURCE, and why each one could not ship:
+
+    Trustpilot "Excellent ★★★★★"   Impersonates a real company's rating. There is no Trustpilot
+                                   profile behind it. This is the single most serious item on the
+                                   page — it borrows another business's credibility wholesale.
+    3 testimonials                 Invented people, invented payouts ("$527 in my first week",
+                                   "$2,000 in my first month"). Migi's own brief replaced this
+                                   block with the four steps, so it was already going.
+    Live earning toasts            Manufactured "Jake A. earned +$14.50" every ~6s, from a random
+                                   name generator. Fabricated real-time social proof.
+    "705 claimed in the last hour" A counter seeded at 680 + rand(40) that ticks upward on a timer.
+                                   It counts nothing.
+    1.3M+ / $500M / 4.7★           No source. Left as a labelled placeholder below rather than
+                                   deleted, so real figures can drop straight in.
+    "Recent cashouts" screenshots  Screenshots of payouts we cannot attribute.
+    "limited spots"                Unverifiable scarcity, the same line struck off the Apple family.
+
+  THE ESTIMATE IS ARITHMETIC ON MIGI'S OWN NUMBERS, not a new claim. He supplied "$50–80 per game
+  session" and "$15 bonus"; the quiz multiplies the session figure by how many sessions the chosen
+  time band allows and shows the range. Change SESSION_LOW / SESSION_HIGH in one place and every
+  number on the results screen follows.
+-->
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff;min-height:100svh;display:flex;align-items:flex-start;justify-content:center;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(160,100%,30%,.12) 0%,transparent 60%),hsl(160,20%,5%);z-index:0}
+.container{position:relative;z-index:1;width:100%;max-width:540px;padding:40px 24px 48px;display:flex;flex-direction:column;align-items:center;text-align:center}
+
+.logo-row{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.logo-row img{width:60px;height:60px;border-radius:14px;box-shadow:0 0 24px hsla(160,100%,50%,.18)}
+.logo-x{font-size:19px;font-weight:500;color:hsla(0,0%,100%,.45);line-height:1}
+
+.headline{font-size:clamp(2rem,6vw,3rem);font-weight:800;line-height:1.15;letter-spacing:-.02em;background:linear-gradient(180deg,#fff 0%,hsl(160,30%,60%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:14px;filter:drop-shadow(0 0 40px hsla(160,100%,50%,.15))}
+.subtext{color:hsla(0,0%,100%,.55);font-size:15px;line-height:1.6;max-width:400px;margin-bottom:24px}
+.subtext .accent{color:hsl(160,100%,50%);font-weight:600}
+
+.stats-row{display:flex;gap:8px;width:100%;max-width:420px;margin-bottom:22px}
+.stat-box{flex:1;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:12px;padding:12px 6px}
+.stat-val{font-size:clamp(1rem,4vw,1.2rem);font-weight:800;line-height:1;color:#fff;margin-bottom:4px}
+.stat-lbl{font-size:9.5px;color:hsla(0,0%,100%,.6);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.stat-val .star{color:hsl(160,100%,50%)}
+
+/* Rating strip. NOT Trustpilot-branded — see the note by RATING in the script. */
+.rating-bar{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:22px}
+.rating-label{font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap}
+.rating-stars{display:flex;gap:3px}
+.rating-star{width:18px;height:18px;border-radius:3px;background:hsl(160,100%,50%);display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;color:hsl(160,20%,5%);font-weight:700}
+.rating-count{font-size:11.5px;font-weight:600;color:hsla(0,0%,100%,.6);white-space:nowrap}
+
+/* Proof grid. Hidden until at least one image actually loads — a row of broken tiles above the
+   fold is worse than no row, and this is the block most likely to reference a file that is not
+   there yet. */
+/* Visible by DEFAULT, and tiles delete themselves on error. It was display:none until an image
+   decoded — but a browser does not load images inside a display:none subtree, so the images waited
+   on the block and the block waited on the images. It could only ever resolve to hidden, which is
+   exactly what it did. Failing open and pruning is the shape that actually works. */
+.proof{width:100%;max-width:420px;margin-top:26px}
+.proof.empty{display:none}
+.proof-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsla(0,0%,100%,.4);margin-bottom:10px;text-align:left}
+.proof-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.proof-shot{aspect-ratio:9/16;border-radius:12px;overflow:hidden;border:1px solid hsl(160,15%,18%);background:hsl(160,10%,10%)}
+.proof-shot img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.proof-note{font-size:10.5px;color:hsla(0,0%,100%,.45);margin-top:8px;text-align:left}
+
+/* ── The four steps (this block replaced the testimonials) ─────────────────── */
+.steps{width:100%;max-width:420px;margin-top:26px;text-align:left}
+.steps-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsla(0,0%,100%,.4);margin-bottom:12px;text-align:left}
+.step-card{display:flex;gap:13px;align-items:flex-start;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:14px;padding:15px;margin-bottom:10px}
+.step-n{width:26px;height:26px;border-radius:50%;background:hsl(160,100%,50%);color:hsl(160,20%,5%);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px hsla(160,100%,50%,.3)}
+.step-card p{font-size:13.5px;line-height:1.55;color:hsla(0,0%,100%,.72)}
+.step-card strong{color:hsl(160,100%,50%);font-weight:700}
+
+.btn-neon{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:420px;padding:19px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,.45),0 4px 15px hsla(0,0%,0%,.3);transition:transform .2s ease,box-shadow .2s ease;margin-bottom:12px;font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-neon:active{transform:translateY(1px) scale(.98)}
+.btn-neon:focus-visible{outline:3px solid hsl(160,100%,65%);outline-offset:3px}
+.btn-neon .main{font-size:17px;font-weight:800;color:hsl(160,20%,5%)}
+/* The results CTA is an <a>, not a <button>, so it inherits link decoration and the visited
+   colour — which rendered it as underlined text on a muddy green slab. Reset all four link states
+   explicitly; :visited in particular will not inherit from the base rule. */
+a.btn-neon,a.btn-neon:link,a.btn-neon:visited,a.btn-neon:hover,a.btn-neon:active{
+  text-decoration:none;color:hsl(160,20%,5%);
+  background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%)}
+a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
+.btn-neon-arrow{font-size:20px;font-weight:700;color:hsl(160,20%,5%);line-height:1}
+
+.quiz-header{width:100%;max-width:420px;margin-bottom:16px}
+.quiz-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsl(160,100%,50%);margin-bottom:6px}
+.quiz-step{font-size:clamp(1.1rem,3.5vw,1.3rem);font-weight:800;color:#fff}
+.quiz-progress{display:flex;gap:8px;margin-bottom:24px}
+.quiz-dot{width:8px;height:8px;border-radius:50%;background:hsla(160,15%,30%,.6)}
+.quiz-dot.active{background:hsl(160,100%,50%);transform:scale(1.15)}
+.quiz-dot.done{background:hsl(160,100%,50%);opacity:.45}
+.quiz-question{font-size:clamp(1.35rem,4.5vw,1.7rem);font-weight:800;line-height:1.25;margin-bottom:22px;max-width:400px}
+
+.btn-quiz{display:flex;align-items:center;gap:14px;padding-left:18px;width:100%;max-width:420px;padding:17px 16px;border:1px solid hsla(160,15%,30%,.5);border-radius:16px;cursor:pointer;background:hsla(160,10%,12%,.5);transition:background .2s ease,border-color .2s ease;margin-bottom:11px;font:inherit;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.btn-quiz:active{transform:scale(.98)}
+.btn-quiz:focus-visible{outline:3px solid hsl(160,100%,55%);outline-offset:3px}
+.btn-quiz .main{font-size:15px;font-weight:700;color:#fff;line-height:1.25;flex:1;min-width:0}
+.quiz-opt-radio{width:20px;height:20px;border-radius:50%;border:1.5px solid hsla(160,15%,30%,.6);flex-shrink:0}
+
+.calc-wrap{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;padding-top:40px}
+.calc-spinner{width:70px;height:70px;border-radius:50%;border:3px solid hsla(160,15%,25%,.5);border-top-color:hsl(160,100%,50%);animation:spin .9s linear infinite;margin-bottom:26px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.calc-title{font-size:12px;font-weight:700;letter-spacing:.18em;color:hsla(160,60%,55%,.9);margin-bottom:26px}
+.calc-steps{width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
+.calc-step{display:flex;align-items:center;gap:12px;font-size:14px;color:hsla(0,0%,100%,.35);transition:color .4s ease}
+.calc-step.active{color:#fff}
+.calc-step.done{color:hsl(160,100%,50%)}
+.calc-step-icon{width:20px;height:20px;border-radius:50%;border:2px solid hsla(160,15%,30%,.6);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:border-color .4s ease,background .4s ease}
+.calc-step.active .calc-step-icon{border-color:hsl(160,100%,50%);border-top-color:transparent;animation:spin .8s linear infinite}
+.calc-step.done .calc-step-icon{border-color:hsl(160,100%,50%);background:hsl(160,100%,50%);animation:none}
+.calc-step.done .calc-step-icon::after{content:'';width:6px;height:10px;border:solid hsl(160,20%,5%);border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px}
+
+.result-panel{width:100%;max-width:420px;background:hsl(160,10%,8%);border:1px solid hsl(160,15%,18%);border-radius:20px;padding:22px 20px 24px}
+.result-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsla(0,0%,100%,.4);margin-bottom:4px;text-align:left}
+.result-title{font-size:clamp(1.5rem,5vw,1.8rem);font-weight:800;line-height:1.1;text-align:left;margin-bottom:14px}
+.result-divider{height:2px;border-radius:999px;background:linear-gradient(90deg,hsl(160,100%,55%) 0%,hsl(160,100%,35%) 50%,hsla(160,100%,50%,.2) 100%);margin-bottom:20px}
+.estimate-card{background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:14px;padding:20px 16px;margin-bottom:12px}
+.estimate-label{font-size:10px;font-weight:700;letter-spacing:.16em;color:hsla(0,0%,100%,.4);text-transform:uppercase;margin-bottom:10px}
+.estimate-amount{font-size:clamp(2.25rem,8vw,3rem);font-weight:900;line-height:1;letter-spacing:-.02em;background:linear-gradient(180deg,hsl(160,100%,60%) 0%,hsl(160,100%,42%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.estimate-period{font-size:14px;color:hsla(0,0%,100%,.45);margin-top:6px}
+/* 2.79:1 at 38% — and this is the line that shows the visitor the arithmetic behind the number,
+   i.e. the whole reason the estimate is defensible. Greying it out until it cannot be read turns a
+   checkable claim back into a bare one. 62% -> 6.8:1. */
+.estimate-basis{font-size:11.5px;color:hsla(0,0%,100%,.62);line-height:1.55;margin-top:12px}
+.bonus-card{background:hsl(160,12%,7%);border:1px solid hsla(160,100%,50%,.28);border-radius:16px;padding:18px;margin-bottom:18px}
+.bonus-header{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsl(160,100%,50%);margin-bottom:10px}
+.bonus-amount{font-size:clamp(2rem,7vw,2.5rem);font-weight:900;line-height:1;background:linear-gradient(90deg,hsl(160,100%,58%) 0%,hsl(160,80%,72%) 55%,hsl(160,100%,42%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.bonus-note{font-size:12px;color:hsla(0,0%,100%,.5);margin-top:10px;line-height:1.5}
+/* 11px at 35% white measured 2.66:1 on this panel — under the 4.5:1 floor, on the one paragraph
+   that carries the earnings caveat. A disclaimer nobody can read is worse than no disclaimer: it
+   looks like compliance without doing any. Raised to 62% (7.0:1) and 11.5px. */
+.disclaimer{font-size:11.5px;line-height:1.65;color:hsla(0,0%,100%,.62);margin-top:18px;text-align:center}
+
+.anim{opacity:0;animation:fadeSlideUp .5s ease forwards}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.screen{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%}
+.screen[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}.anim{opacity:1}.calc-spinner,.calc-step.active .calc-step-icon{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div class="container">
+
+  <!-- ── Intro ─────────────────────────────────────────────────────────────── -->
+  <div id="screenIntro" class="screen">
+    <!-- FreeCash mark alone. No TikTok lockup on this one (owner, 2026-08-10) — which also drops
+         the partnership reading the paired version carries. aria-hidden because the mark is
+         decorative; the brand is named in the copy and the disclaimer. -->
+    <div class="logo-row anim" aria-hidden="true">
+      <img src="/images/freecash-logo.webp" alt="" width="60" height="60">
+    </div>
+
+    <h1 class="headline anim" style="animation-delay:.08s">Get Paid To Game</h1>
+    <p class="subtext anim" style="animation-delay:.16s">Play games you already know and get paid out to <span class="accent">Cash App, PayPal, Zelle, Apple Cash or your bank</span>.</p>
+
+    <div class="stats-row anim" style="animation-delay:.24s">
+      <div class="stat-box"><div class="stat-val" id="statMembers">—</div><div class="stat-lbl">Members</div></div>
+      <div class="stat-box"><div class="stat-val" id="statPaid">—</div><div class="stat-lbl">Paid out</div></div>
+      <div class="stat-box"><div class="stat-val" id="statRated">—</div><div class="stat-lbl">Rated</div></div>
+    </div>
+
+    <div class="rating-bar anim" style="animation-delay:.28s" id="ratingBar">
+      <span class="rating-label" id="ratingLabel">Excellent</span>
+      <span class="rating-stars" id="ratingStars" aria-hidden="true"></span>
+      <span class="rating-count" id="ratingCount"></span>
+    </div>
+
+    <button type="button" class="btn-neon anim" style="animation-delay:.32s" onclick="showScreen('screenQ1')">
+      <span class="main">See How Much You Can Earn</span>
+      <span class="btn-neon-arrow" aria-hidden="true">→</span>
+    </button>
+
+    <!-- The four steps — this block replaced the testimonials. -->
+    <div class="steps anim" style="animation-delay:.4s">
+      <p class="steps-label">How it works</p>
+      <div class="step-card"><span class="step-n">1</span>
+        <p>Download the game and get started on your first app to earn a <strong>$15 bonus</strong>.</p></div>
+      <div class="step-card"><span class="step-n">2</span>
+        <p>Complete the first game to unlock partners like <strong>Block Blast, Subway Surfers, Tetris</strong> and more.</p></div>
+      <div class="step-card"><span class="step-n">3</span>
+        <p>Cash out after an hour of playing — up to <strong>$50–$80 per game session</strong>, including in-app purchases.</p></div>
+      <div class="step-card"><span class="step-n">4</span>
+        <p>Transfer via <strong>Cash App, PayPal, Zelle, Apple Cash</strong> or bank transfer.</p></div>
+    </div>
+
+    <div class="proof anim" id="proofBlock" style="animation-delay:.48s">
+      <p class="proof-label">Recent cashouts</p>
+      <div class="proof-grid">
+        <div class="proof-shot"><img src="/images/gravy/cashout-1.webp" alt=""></div>
+        <div class="proof-shot"><img src="/images/gravy/cashout-2.webp" alt=""></div>
+        <div class="proof-shot"><img src="/images/gravy/cashout-3.webp" alt=""></div>
+      </div>
+      <p class="proof-note">Individual results vary.</p>
+    </div>
+  </div>
+
+  <!-- ── Q1 (was Q2 — the device question is gone per Migi) ─────────────────── -->
+  <div id="screenQ1" class="screen" hidden>
+    <div class="logo-row anim" aria-hidden="true"><img src="/images/freecash-logo.webp" alt="" width="60" height="60"></div>
+    <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 1 of 2</p></div>
+    <div class="quiz-progress anim" style="animation-delay:.1s" aria-hidden="true"><span class="quiz-dot active"></span><span class="quiz-dot"></span></div>
+    <h2 class="quiz-question anim" style="animation-delay:.15s">Are you serious about earning money from your phone?</h2>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.25s" onclick="showScreen('screenQ2')"><span class="main">Yes, I'm ready to start</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.33s" onclick="showScreen('screenQ2')"><span class="main">I'm just exploring</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+  </div>
+
+  <!-- ── Q2 — the answer that actually drives the estimate ──────────────────── -->
+  <div id="screenQ2" class="screen" hidden>
+    <div class="logo-row anim" aria-hidden="true"><img src="/images/freecash-logo.webp" alt="" width="60" height="60"></div>
+    <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 2 of 2</p></div>
+    <div class="quiz-progress anim" style="animation-delay:.1s" aria-hidden="true"><span class="quiz-dot done"></span><span class="quiz-dot active"></span></div>
+    <h2 class="quiz-question anim" style="animation-delay:.15s">How much time can you spend per day?</h2>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.25s" onclick="startCalculating(1)"><span class="main">Less than 1 hour</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.33s" onclick="startCalculating(2)"><span class="main">1 to 3 hours</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+    <button type="button" class="btn-quiz anim" style="animation-delay:.41s" onclick="startCalculating(3)"><span class="main">More than 3 hours</span><span class="quiz-opt-radio" aria-hidden="true"></span></button>
+  </div>
+
+  <!-- ── Calculating ───────────────────────────────────────────────────────── -->
+  <div id="screenCalc" class="screen" hidden>
+    <div class="calc-wrap">
+      <div class="calc-spinner" aria-hidden="true"></div>
+      <p class="calc-title anim" style="animation-delay:.1s">CALCULATING YOUR ESTIMATE…</p>
+      <div class="calc-steps">
+        <div class="calc-step anim" id="calcStep1" style="animation-delay:.2s"><span class="calc-step-icon" aria-hidden="true"></span><span>Matching available games</span></div>
+        <div class="calc-step anim" id="calcStep2" style="animation-delay:.3s"><span class="calc-step-icon" aria-hidden="true"></span><span>Calculating session earnings</span></div>
+        <div class="calc-step anim" id="calcStep3" style="animation-delay:.4s"><span class="calc-step-icon" aria-hidden="true"></span><span>Adding your first-app bonus</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Result ────────────────────────────────────────────────────────────── -->
+  <div id="screenResult" class="screen" hidden>
+    <div class="result-panel anim">
+      <p class="result-eyebrow">Earnings quiz</p>
+      <h2 class="result-title">Your estimate</h2>
+      <div class="result-divider" aria-hidden="true"></div>
+
+      <div class="estimate-card anim" style="animation-delay:.08s">
+        <p class="estimate-label">Based on your answer</p>
+        <p class="estimate-amount" id="estAmount">$50 – $80</p>
+        <p class="estimate-period" id="estPeriod">per day</p>
+        <!-- The arithmetic is stated, not hidden. A number the visitor can check is worth more than
+             a bigger one they cannot. -->
+        <p class="estimate-basis" id="estBasis">1 session/day at $50–$80 per session.</p>
+      </div>
+
+      <div class="bonus-card anim" style="animation-delay:.14s">
+        <p class="bonus-header">First-app bonus</p>
+        <p class="bonus-amount">$15</p>
+        <p class="bonus-note">Paid once you get started on your first app.</p>
+      </div>
+
+      <a class="btn-neon anim" id="ctaBtn" style="animation-delay:.2s" href="#">
+        <span class="main">Claim My Spot</span>
+        <span class="btn-neon-arrow" aria-hidden="true">→</span>
+      </a>
+
+      <p class="disclaimer">Earnings depend on which games you play and how much you play. The figures
+        above are an estimate from the rates shown, not a guarantee. Gravy Pass is not affiliated with
+        any game publisher named on this page.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── The only numbers on the results screen ───────────────────────────────
+     Migi's own figures: $50–$80 per game session, $15 first-app bonus. Every amount shown is
+     derived from these two by multiplication — change them here and the whole page follows.
+     Nothing invents a number that is not on this line. */
+  var SESSION_LOW = 50, SESSION_HIGH = 80;
+
+  /* ══ EVERY CLAIMED NUMBER ON THIS PAGE, IN ONE PLACE ══════════════════════════════════════
+     Confirmed by Migi as Gravy Pass's own figures, 2026-08-10.
+     Set any of them to '' and its box shows an em dash rather than a number — the page degrades to
+     honest, never to invented, if these ever go stale. */
+  var STATS = {
+    members: '1.3M+',     // <- replace with Gravy Pass's real member count, or ''
+    paid:    '$500M',     // <- replace with Gravy Pass's real payout total, or ''
+    rated:   '4.7'        // <- replace with Gravy Pass's real rating, or ''
+  };
+
+  /* The rating strip. NOT Trustpilot.
+     The source rendered a Trustpilot wordmark with five stars, which uses a real company's
+     trademark to assert a rating that does not exist on their platform — that is the one item on
+     that page I will not reproduce, because it borrows a third party's credibility rather than
+     overstating our own. If Gravy Pass HAS a Trustpilot profile, the legitimate move is their
+     official embed widget, which pulls the live score; say the word and I will wire it.
+     Until then this is an unbranded strip, and it hides itself entirely when `count` is empty. */
+  var RATING = {
+    label: 'Excellent',
+    stars: 5,
+    count: ''            // optional; renders after the stars when set, e.g. 'Based on 2,481 reviews'
+  };
+  var SESSIONS = { 1: 1, 2: 2, 3: 3 };   // time band -> sessions/day the band allows
+
+  /* Paint the stats. An empty value renders an em dash rather than a fabricated one — the page
+     degrades to honest instead of degrading to invented. */
+  function setStat(id, val, suffix) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = val ? (val + (suffix || '')) : '&mdash;';
+  }
+  setStat('statMembers', STATS.members);
+  setStat('statPaid', STATS.paid);
+  setStat('statRated', STATS.rated, '<span class="star">\u2605</span>');
+
+  /* Always rendered. The count is optional and simply appends when present.
+     (This used to hide the strip entirely without a review count. Owner's call to show it — the
+     4.7 in the stat box beside it is Gravy Pass's own figure, confirmed 2026-08-10.) */
+  (function () {
+    var bar = document.getElementById('ratingBar');
+    if (!bar) return;
+    document.getElementById('ratingLabel').textContent = RATING.label;
+    document.getElementById('ratingCount').textContent = RATING.count || '';
+    var wrap = document.getElementById('ratingStars'), html = '';
+    for (var i = 0; i < RATING.stars; i++) html += '<span class="rating-star">\u2605</span>';
+    wrap.innerHTML = html;
+  })();
+
+  /* Any shot that 404s deletes its own tile; when the last one goes the block hides itself. The
+     visitor never sees a broken-image glyph, and a missing file degrades to a narrower grid rather
+     than to a row of grey boxes on the one screen that has to convert. */
+  (function () {
+    var block = document.getElementById('proofBlock');
+    if (!block) return;
+    function prune(img) {
+      var tile = img.parentNode;
+      if (tile && tile.parentNode) tile.parentNode.removeChild(tile);
+      if (!block.querySelectorAll('.proof-shot').length) block.classList.add('empty');
+    }
+    [].forEach.call(block.querySelectorAll('.proof-shot img'), function (img) {
+      if (img.complete && img.naturalWidth === 0) { prune(img); return; }
+      img.addEventListener('error', function () { prune(img); });
+    });
+  })();
+
+  var current = 'screenIntro';
+
+  window.showScreen = function (nextId) {
+    var cur = document.getElementById(current), next = document.getElementById(nextId);
+    if (!cur || !next || current === nextId) return;
+    cur.hidden = true;
+    next.hidden = false;
+    // Restart the stagger — the elements finished animating while hidden, so without this they
+    // simply appear. Forcing a reflow between the writes is what makes it a NEW animation.
+    var els = next.querySelectorAll('.anim');
+    for (var i = 0; i < els.length; i++) { els[i].style.animation = 'none'; void els[i].offsetHeight; els[i].style.animation = ''; }
+    window.scrollTo(0, 0);
+    current = nextId;
+  };
+
+  window.startCalculating = function (band) {
+    var n = SESSIONS[band] || 1;
+    document.getElementById('estAmount').textContent = '$' + (SESSION_LOW * n) + ' – $' + (SESSION_HIGH * n);
+    document.getElementById('estPeriod').textContent = 'per day';
+    document.getElementById('estBasis').textContent =
+      n + ' session' + (n === 1 ? '' : 's') + '/day at $' + SESSION_LOW + '–$' + SESSION_HIGH + ' per session.';
+
+    showScreen('screenCalc');
+
+    var steps = [document.getElementById('calcStep1'), document.getElementById('calcStep2'), document.getElementById('calcStep3')];
+    var on = [500, 1200, 1900], off = [1000, 1700, 2400];
+    steps.forEach(function (s, i) {
+      setTimeout(function () { s.classList.add('active'); }, on[i]);
+      setTimeout(function () { s.classList.remove('active'); s.classList.add('done'); }, off[i]);
+    });
+    setTimeout(function () { showScreen('screenResult'); }, 2900);
+  };
+
+  /* ── Tracking ─────────────────────────────────────────────────────────────
+     Same contract as every other lander in this repo: forward EVERY inbound param to the door,
+     with s1 LAST, and drop an unsubstituted TikTok macro rather than shipping the literal.
+     The door is landing_pages.slug 'freecash-ca' — the CA row on the Freecash offer, already
+     active. NO DB CHANGE WAS NEEDED for this geo: offers.destination_by_geo already routes CA to
+     ?a=26648&c=55506, the exact campaign Migi supplied. His link named montrk3 and the stored map
+     names montrk5; both were followed to the same final destination (pp4a.adj.st), so they are
+     interchangeable tracking hosts for this network and the stored one was left alone.
+
+     ⚠️ DO NOT "FIX" THIS BY EDITING offers.destination_url. That column is the FALLBACK shared by
+     every Freecash geo — us, at, ca, de, gb, jp, nl all hang off the same offer row. Writing the CA
+     campaign there would send US, GB, DE and JP traffic to the Canadian campaign. Per-geo routing
+     is what destination_by_geo is for, and api/_lib/offer-geo.js names this exact offer as the
+     live bug that motivated it.
+
+     ⚠️ THIS LANDER'S ROW HAS owner_user_id NULL, unlike the Apple family. That means owner-mode is
+     OFF: the door does NOT scrub slot 1 and does NOT withhold an unregistered label, so whatever
+     ?s1= arrives is forwarded verbatim. Convenient (no owner_subid_labels row needed) and also the
+     reason a stray s1 appended to the public URL would ride through — worth knowing before this
+     scales. */
+  var DOOR = window.__DOOR_URL__ || 'https://sprktrax.org/api/link/freecash-ca';
+
+  var q = new URLSearchParams(location.search);
+  if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+  var tt = q.get('ttclid') || '';
+  if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
+
+  /* COOKIE FALLBACK for a ttclid the query lost — the same leak closed on the Apple family.
+     /js/ttclid.js banks the click id in a first-party _ttclid cookie, but its own rewriter only
+     tags <a href> anchors that already point at a tracker, and this page BUILDS that href in JS
+     afterwards. So the cookie was being written and never read. Re-validated against the same
+     rules api/_lib/tiktok-event.js usableTtclid() applies, because a cookie is attacker-writable
+     and a garbage value promoted here is indistinguishable downstream from a real click id. */
+  if (!q.get('ttclid')) {
+    try {
+      var ck = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
+      var ckv = ck ? decodeURIComponent(ck[1]) : '';
+      if (ckv && !/[{}\[\]#%]/.test(ckv) && !/CLICK_ID|__CLICKID__/i.test(ckv)) q.set('ttclid', ckv);
+    } catch (e) {}
+  }
+
+  var s1 = q.get('s1') || '';
+  var out = new URLSearchParams(q.toString());
+  out.delete('s1'); out.delete('campid'); out.delete('lg');
+  var qs = out.toString();
+  var target = DOOR + (qs ? '?' + qs : '') + (s1 ? ((qs ? '&' : '?') + 's1=' + encodeURIComponent(s1)) : '');
+
+  var cta = document.getElementById('ctaBtn');
+  if (cta) cta.setAttribute('href', target);
+
+  try { if (window.ttq) ttq.track('LanderView', { content_name: 'freecash CA lander reached' }); } catch (e) {}
+
+  /* NO s1 = THIS CLICK IS ALREADY DEAD. api/link/[slug].js 404s any hit without one, by design —
+     it is the attribution gate. The failure was SILENT though: the CTA looked normal, the tap went
+     nowhere, and nothing said why. That cost a live test.
+     Now it is loud in all three places it can be: an event for the funnel, a console line for
+     whoever is testing, and visible text on the page under ?debug=1. */
+  if (!s1) {
+    try { if (window.ttq) ttq.track('CtaNoS1', { content_name: 'freecash CA cta without s1' }); } catch (e) {}
+    console.warn('[mgfrcsh] NO ?s1= ON THIS URL — the door will 404 and this click cannot be ' +
+                 'attributed. Add ?s1=<your spark code>. Door: ' + DOOR);
+    if (location.search.indexOf('debug=1') > -1) {
+      var warn = document.createElement('p');
+      warn.style.cssText = 'margin:14px auto 0;max-width:420px;font-size:12.5px;line-height:1.5;' +
+        'color:#ffb4b4;border:1px solid rgba(255,120,120,.4);border-radius:10px;padding:10px 12px';
+      warn.textContent = 'debug: no ?s1= on this URL — the door will 404. Append ?s1=<spark code>.';
+      var card = document.querySelector('.container');
+      if (card) card.appendChild(warn);
+    }
+  }
+
+  if (location.search.indexOf('debug=1') > -1) {
+    console.log('[mgfrcsh debug]', { s1: s1 || '(none — door will 404)', ttclid: q.get('ttclid') || '(none)', door: DOOR, target: target });
+  }
+})();
+</script>
+<!-- Banks ttclid in the _ttclid cookie so the fallback above has something to read. -->
+<script src="/js/ttclid.js" async></script>
+</body>
+</html>
