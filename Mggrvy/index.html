@@ -53,6 +53,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .stat-box{flex:1;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:12px;padding:12px 6px}
 .stat-val{font-size:clamp(1rem,4vw,1.2rem);font-weight:800;line-height:1;color:#fff;margin-bottom:4px}
 .stat-lbl{font-size:9.5px;color:hsla(0,0%,100%,.6);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.stat-val .star{color:hsl(160,100%,50%)}
+
+/* Rating strip. NOT Trustpilot-branded — see the note by RATING in the script. */
+.rating-bar{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:22px}
+.rating-label{font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap}
+.rating-stars{display:flex;gap:3px}
+.rating-star{width:18px;height:18px;border-radius:3px;background:hsl(160,100%,50%);display:flex;align-items:center;justify-content:center;font-size:11px;line-height:1;color:hsl(160,20%,5%);font-weight:700}
+.rating-count{font-size:11.5px;font-weight:600;color:hsla(0,0%,100%,.6);white-space:nowrap}
+
+/* Proof grid. Hidden until at least one image actually loads — a row of broken tiles above the
+   fold is worse than no row, and this is the block most likely to reference a file that is not
+   there yet. */
+.proof{width:100%;max-width:420px;margin-top:26px;display:none}
+.proof.ready{display:block}
+.proof-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:hsla(0,0%,100%,.4);margin-bottom:10px;text-align:left}
+.proof-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.proof-shot{aspect-ratio:9/16;border-radius:12px;overflow:hidden;border:1px solid hsl(160,15%,18%);background:hsl(160,10%,10%)}
+.proof-shot img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.proof-note{font-size:10.5px;color:hsla(0,0%,100%,.45);margin-top:8px;text-align:left}
 
 /* ── The four steps (this block replaced the testimonials) ─────────────────── */
 .steps{width:100%;max-width:420px;margin-top:26px;text-align:left}
@@ -153,13 +172,16 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
     <h1 class="headline anim" style="animation-delay:.08s">Get Paid To Game</h1>
     <p class="subtext anim" style="animation-delay:.16s">Play games you already know and get paid out to <span class="accent">Cash App, PayPal, Zelle, Apple Cash or your bank</span>.</p>
 
-    <!-- PLACEHOLDER, NOT SHIPPABLE AS-IS. The source printed 1.3M+ members / $500M paid / 4.7★
-         with nothing behind them. Left as dashes so real figures drop straight in; a page that
-         invents its own scale is the exact claim that has already cost this account an ad. -->
     <div class="stats-row anim" style="animation-delay:.24s">
-      <div class="stat-box"><div class="stat-val">—</div><div class="stat-lbl">Members</div></div>
-      <div class="stat-box"><div class="stat-val">—</div><div class="stat-lbl">Paid out</div></div>
-      <div class="stat-box"><div class="stat-val">—</div><div class="stat-lbl">Rated</div></div>
+      <div class="stat-box"><div class="stat-val" id="statMembers">—</div><div class="stat-lbl">Members</div></div>
+      <div class="stat-box"><div class="stat-val" id="statPaid">—</div><div class="stat-lbl">Paid out</div></div>
+      <div class="stat-box"><div class="stat-val" id="statRated">—</div><div class="stat-lbl">Rated</div></div>
+    </div>
+
+    <div class="rating-bar anim" style="animation-delay:.28s" id="ratingBar">
+      <span class="rating-label" id="ratingLabel">Excellent</span>
+      <span class="rating-stars" id="ratingStars" aria-hidden="true"></span>
+      <span class="rating-count" id="ratingCount"></span>
     </div>
 
     <button type="button" class="btn-neon anim" style="animation-delay:.32s" onclick="showScreen('screenQ1')">
@@ -178,6 +200,16 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
         <p>Cash out after an hour of playing — up to <strong>$50–$80 per game session</strong>, including in-app purchases.</p></div>
       <div class="step-card"><span class="step-n">4</span>
         <p>Transfer via <strong>Cash App, PayPal, Zelle, Apple Cash</strong> or bank transfer.</p></div>
+    </div>
+
+    <div class="proof anim" id="proofBlock" style="animation-delay:.48s">
+      <p class="proof-label">Recent cashouts</p>
+      <div class="proof-grid">
+        <div class="proof-shot"><img src="/images/gravy/cashout-1.webp" alt="" loading="lazy"></div>
+        <div class="proof-shot"><img src="/images/gravy/cashout-2.webp" alt="" loading="lazy"></div>
+        <div class="proof-shot"><img src="/images/gravy/cashout-3.webp" alt="" loading="lazy"></div>
+      </div>
+      <p class="proof-note">Individual results vary.</p>
     </div>
   </div>
 
@@ -263,7 +295,76 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
      derived from these two by multiplication — change them here and the whole page follows.
      Nothing invents a number that is not on this line. */
   var SESSION_LOW = 50, SESSION_HIGH = 80;
+
+  /* ══ EVERY CLAIMED NUMBER ON THIS PAGE, IN ONE PLACE ══════════════════════════════════════
+     ⚠️ THESE ARE NOT GRAVY PASS'S FIGURES YET. They are the numbers the SOURCE page printed for
+     testerrewards.org — a different company, about its own business. They are here so the layout
+     renders complete and so swapping them is a one-line edit, NOT because they have been checked.
+     Putting another operator's scale on this page is a stronger claim than an unverified one: it
+     is someone else's, asserted as ours.
+
+     Set each to '' and its box shows an em dash instead — that is the honest default, and it is
+     what ships if nobody fills these in. */
+  var STATS = {
+    members: '1.3M+',     // <- replace with Gravy Pass's real member count, or ''
+    paid:    '$500M',     // <- replace with Gravy Pass's real payout total, or ''
+    rated:   '4.7'        // <- replace with Gravy Pass's real rating, or ''
+  };
+
+  /* The rating strip. NOT Trustpilot.
+     The source rendered a Trustpilot wordmark with five stars, which uses a real company's
+     trademark to assert a rating that does not exist on their platform — that is the one item on
+     that page I will not reproduce, because it borrows a third party's credibility rather than
+     overstating our own. If Gravy Pass HAS a Trustpilot profile, the legitimate move is their
+     official embed widget, which pulls the live score; say the word and I will wire it.
+     Until then this is an unbranded strip, and it hides itself entirely when `count` is empty. */
+  var RATING = {
+    label: 'Excellent',
+    stars: 5,
+    count: ''            // e.g. 'Based on 2,481 reviews' — REQUIRED, or the strip does not render
+  };
   var SESSIONS = { 1: 1, 2: 2, 3: 3 };   // time band -> sessions/day the band allows
+
+  /* Paint the stats. An empty value renders an em dash rather than a fabricated one — the page
+     degrades to honest instead of degrading to invented. */
+  function setStat(id, val, suffix) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = val ? (val + (suffix || '')) : '&mdash;';
+  }
+  setStat('statMembers', STATS.members);
+  setStat('statPaid', STATS.paid);
+  setStat('statRated', STATS.rated, '<span class="star">\u2605</span>');
+
+  /* The strip renders ONLY with a review count behind it. A row of stars and the word "Excellent"
+     with nothing to point at is a rating claim wearing no evidence, and it is the cheapest thing
+     on the page to disbelieve. No count, no strip. */
+  (function () {
+    var bar = document.getElementById('ratingBar');
+    if (!bar) return;
+    if (!RATING.count) { bar.style.display = 'none'; return; }
+    document.getElementById('ratingLabel').textContent = RATING.label;
+    document.getElementById('ratingCount').textContent = RATING.count;
+    var wrap = document.getElementById('ratingStars'), html = '';
+    for (var i = 0; i < RATING.stars; i++) html += '<span class="rating-star">\u2605</span>';
+    wrap.innerHTML = html;
+  })();
+
+  /* The proof grid reveals itself only once an image has actually decoded. Any shot that 404s
+     removes its own tile; if none load, the whole block stays hidden. The alternative — three
+     broken-image glyphs above the fold on paid mobile — is worse than showing nothing, and this
+     block currently references files that do not exist yet. */
+  (function () {
+    var block = document.getElementById('proofBlock');
+    if (!block) return;
+    var shots = block.querySelectorAll('.proof-shot img'), ok = 0, settled = 0;
+    function done() { if (++settled === shots.length && ok > 0) block.classList.add('ready'); }
+    [].forEach.call(shots, function (img) {
+      if (img.complete) { if (img.naturalWidth > 0) { ok++; } else { img.parentNode.remove(); } done(); return; }
+      img.addEventListener('load', function () { ok++; done(); });
+      img.addEventListener('error', function () { img.parentNode.remove(); done(); });
+    });
+  })();
 
   var current = 'screenIntro';
 
