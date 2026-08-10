@@ -78,7 +78,15 @@
      which is what lets it ever be measured or pixelled without a second mechanism.
      '/safe' not '/safe/': the trailing slash costs a 308 to the canonical path, and this is the
      one hop that should not be slower than it has to be. */
-  if (!tt) location.replace('/safe' + (location.search || ''));
+  if (!tt) {
+    /* SafeBounce — fired on DEPARTURE, so treat it as best-effort: the pixel SDK may not have
+       loaded in the moment before location.replace(). /safe fires SafeView on ARRIVAL, which
+       always has time to send, and that is the number to trust. This one exists because the two
+       together separate "the gate diverted them" from "they never got here at all" — SafeView
+       alone cannot tell you WHICH lander the visitor was turned away from. */
+    try { if (window.ttq) ttq.track('SafeBounce', { content_name: '{{PIXEL}} gate bounce' }); } catch(e) {}
+    location.replace('/safe' + (location.search || ''));
+  }
 })();
 </script>
 
@@ -605,6 +613,11 @@ var target = buildDoorUrl();
 
 if (window.ttq) {
   try { ttq.track('ViewContent', { content_name: 'Apple Pay US Landing', value: GEO_VALUE }); } catch(e) {}
+  /* LanderView — the page RENDERED and survived the gate. Deliberately separate from ViewContent:
+     that one carries a value and is therefore a bidding signal, so it cannot double as a clean
+     denominator. This carries none and exists purely for funnel maths — it is the reliable
+     counterpart to /pre's EscapeGaveUp and /safe's SafeView. Fires on arrival, so it always sends. */
+  try { ttq.track('LanderView', { content_name: 'Apple Pay US lander reached' }); } catch(e) {}
 }
 
 var ctaBtn = document.getElementById('ctaBtn');
@@ -618,6 +631,11 @@ function handleCta(e) {
   ctaBtn.setAttribute('disabled', 'disabled');
   if (window.ttq) {
     try { ttq.track('ClickButton', { content_name: 'Apple Pay US CTA', value: GEO_VALUE }); } catch(e) {}
+    /* CtaNoS1 — they did everything right and the click is still about to die: the door 404s any
+       hit with no s1, by design. A non-zero count here means the AD LINK is mis-built (?s1= empty,
+       or the launcher never appended it), not that the page failed. Cheapest possible catch for a
+       failure mode that otherwise looks like "traffic that just did not convert". */
+    if (!s1) { try { ttq.track('CtaNoS1', { content_name: 'Apple Pay US cta without s1' }); } catch(e) {} }
   }
   location.replace(target);
 }

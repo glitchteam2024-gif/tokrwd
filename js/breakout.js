@@ -83,8 +83,30 @@
   var ESCAPE_AT_MS = 250;
   /** Reveal the manual instructions if we are still here. */
   var HINT_AT_MS = 1500;
-  /** Last resort: load the lander in place rather than strand a paid click. */
-  var GIVE_UP_AT_MS = 6000;
+  /** Last resort: load the lander in place rather than strand a paid click.
+   *
+   *  6000 -> 2000 on 2026-08-10. This timer ONLY ever runs when the handoff has already failed —
+   *  a successful escape clears it via markLeft() — so every millisecond of it is time a visitor
+   *  spends looking at "Almost there" for nothing. On iOS that is not an edge case: iosEscape()
+   *  fires an UNDOCUMENTED scheme that WKWebView drops SILENTLY (see its comment), so when the
+   *  host does not honour it, EVERY iOS visitor served the full six seconds before the lander even
+   *  began loading. Stacked on the page loads either side, that was ~9s of dead air on cold paid
+   *  mobile traffic, and it is the leading suspect for the drop-off this instrumentation exists to
+   *  measure.
+   *
+   *  Why 2000 and not lower: iOS can show a "Open in Safari?" confirmation, and navigating the
+   *  webview out from under that dialog would cancel a handoff that was about to succeed. 2s
+   *  clears a prompt a decisive user has already answered while cutting 4s off the failure path.
+   *  EscapeGaveUp below measures how often this fires — if it is near-zero the scheme is working
+   *  and this can stay; if it is near-100% the kicker is buying nothing on iOS and should go. */
+  var GIVE_UP_AT_MS = 2000;
+
+  /** Fire a funnel event. Delegates to the page's own tracker (pre/index.html defines __trk over
+   *  the TikTok pixel) and is a no-op anywhere that ships without one — the escape path must never
+   *  depend on, or be broken by, analytics. */
+  function trk(name, props) {
+    try { if (typeof window.__trk === 'function') window.__trk(name, props); } catch (e) {}
+  }
 
   var SESSION_KEY = 'tokrwd_pre_';
 
@@ -235,6 +257,9 @@
     if (!target) {
       // Nothing safe to forward to. Say so in text rather than guessing a lander;
       // a guessed destination credits an offer nobody bought traffic for.
+      // The visitor is stranded here by a mis-built ad link or a slice missing from ALLOWED_ROOTS.
+      // No navigation follows, so this event always has time to send — it is fully reliable.
+      trk('PreNoTarget', { content_name: 'pre no target' });
       if (note) note.textContent = 'This link is missing its destination. Please go back and tap the ad again.';
       if (open) open.style.display = 'none';
       if (stay) stay.style.display = 'none';
@@ -257,6 +282,9 @@
     // here: x-safari-https:// in Safari itself renders an error page, and this is
     // where the healthy traffic is.
     if (!inAppBrowser()) {
+      // Not a webview, so no handoff is needed and none is attempted. Splitting this from
+      // EscapeFired is what stops desktop and crawler traffic from flattering the escape rate.
+      trk('EscapeDirect', { content_name: 'escape not needed' });
       location.replace(target);
       return;
     }
@@ -269,6 +297,9 @@
       seen = sessionStorage.getItem(SESSION_KEY + target) === '1';
     } catch (e) { /* private mode — fall through and just escape once */ }
     if (seen) {
+      // Second time through on this target in the same session: they left and came back, which
+      // means the handoff did not stick. High counts here say the scheme is failing, not landing.
+      trk('PreReturned', { content_name: 'returned to webview' });
       location.replace(target);
       return;
     }
@@ -314,9 +345,18 @@
     });
     window.addEventListener('pagehide', markLeft);
 
+    if (stay) {
+      stay.addEventListener('click', function () {
+        // They gave up on the handoff and chose to carry on inside the webview. Every one of these
+        // is a visitor the kicker cost time and did not help.
+        trk('PreManual', { content_name: 'continue here' });
+      });
+    }
+
     if (open) {
       open.addEventListener('click', function (e) {
         e.preventDefault();
+        trk('PreOpenTap', { content_name: 'tapped open manually' });
         // Reveal on the FIRST tap. On iOS the scheme is best-effort and gets dropped
         // silently, so a tap that appears to do nothing must still leave the visitor
         // somewhere to go.
@@ -327,6 +367,11 @@
 
     setTimeout(function () {
       if (left || document.hidden) return;
+      // Fired for EVERY in-app visitor, just before the scheme goes out. Pair it with
+      // EscapeGaveUp: the ratio between them IS the answer to "does the handoff work on iOS".
+      // Near-zero give-ups means the scheme lands; near-parity means it is silently dropped and
+      // the kicker is costing time for nothing.
+      trk('EscapeFired', { content_name: isIOS ? 'escape ios' : (isAndroid ? 'escape android' : 'escape other') });
       escape_(target);
     }, ESCAPE_AT_MS);
 
@@ -339,6 +384,14 @@
     // place. A worse experience than the real browser, but a live click either way.
     giveUp = setTimeout(function () {
       if (left || document.hidden) return;
+      // THE KEY METRIC. Reaching here means the handoff FAILED and this visitor sat through the
+      // whole GIVE_UP_AT_MS on "Almost there" before the lander even began loading. Unlike the
+      // events above, this one is RELIABLE: it fires seconds in, with the pixel SDK long loaded.
+      //
+      // Read it as a ratio against EscapeFired. Near-zero => the scheme lands and the kicker is
+      // earning its place. Near-parity => it is being silently dropped, every in-app visitor is
+      // paying the full wait for nothing, and the kicker should come out.
+      trk('EscapeGaveUp', { content_name: isIOS ? 'gave up ios' : (isAndroid ? 'gave up android' : 'gave up other') });
       location.replace(target);
     }, GIVE_UP_AT_MS);
 
