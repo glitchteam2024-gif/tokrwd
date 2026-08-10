@@ -96,8 +96,6 @@
      lingering constant is how a future edit "restores" the auto-fire without realising the gesture
      is the point. See the wiring block below. */
 
-  /** Last resort for a visitor who never interacts at all. Deliberately long — see the strand net. */
-  var STRAND_AT_MS = 15000;
   /** Reveal the manual instructions if we are still here. */
   var HINT_AT_MS = 1500;
   /** Last resort: load the lander in place rather than strand a paid click.
@@ -295,16 +293,18 @@
       return;
     }
 
-    // A real browser (and any crawler) goes straight through. No scheme is attempted
-    // here: x-safari-https:// in Safari itself renders an error page, and this is
-    // where the healthy traffic is.
-    if (!inAppBrowser()) {
-      // Not a webview, so no handoff is needed and none is attempted. Splitting this from
-      // EscapeFired is what stops desktop and crawler traffic from flattering the escape rate.
-      trk('EscapeDirect', { content_name: 'escape not needed' });
-      location.replace(target);
-      return;
-    }
+    // NO AUTOMATIC PASS-THROUGH (owner directive, 2026-08-10). This used to be
+    //     if (!inAppBrowser()) { location.replace(target); return; }
+    // which meant every normal browser — desktop, Safari opened from the escape, an ad
+    // reviewer, and the owner testing his own link — was forwarded before the page painted
+    // and never saw the button at all. The button is the product now: nothing on this page
+    // navigates without a tap.
+    //
+    // The UA is still read, but ONLY to choose the MECHANISM the tap uses (scheme inside a
+    // webview, plain navigation everywhere else) — never to decide WHETHER the visitor moves.
+    // That keeps rule 1 intact and is strictly more uniform than before: one page, one button,
+    // one destination, for everyone.
+    if (!inAppBrowser()) trk('EscapeDirect', { content_name: 'not a webview' });
 
     // Returning to the webview after an escape restores this page from bfcache, and
     // the Carrd embed re-fires its saved URL on popstate/pageshow. Without this guard
@@ -316,9 +316,11 @@
     if (seen) {
       // Second time through on this target in the same session: they left and came back, which
       // means the handoff did not stick. High counts here say the scheme is failing, not landing.
+      // It used to location.replace() them onward from here — another automatic navigation, and
+      // the one that fired on exactly the visitor who had already shown the handoff was broken.
+      // Now it just surfaces the manual route and waits for a tap, like every other path.
       trk('PreReturned', { content_name: 'returned to webview' });
-      location.replace(target);
-      return;
+      reveal(true);
     }
     try {
       sessionStorage.setItem(SESSION_KEY + target, '1');
@@ -327,9 +329,6 @@
     // ── in-app browser: try to hand off, but never strand the click ──
     var left = false;
     var giveUp = null;
-    // Set the moment a tap sends the scheme. The strand net reads it so a visitor who DID act is
-    // never yanked to the in-webview lander underneath a handoff that is still resolving.
-    var escaped = false;
 
     /** Show the manual route: the instructions, Copy link, and Continue here.
      *
@@ -405,7 +404,6 @@
     if (open) {
       open.addEventListener('click', function (e) {
         e.preventDefault();
-        escaped = true;
         trk('EscapeFired', { content_name: isIOS ? 'escape ios' : (isAndroid ? 'escape android' : 'escape other') });
 
         // Reveal on the FIRST tap. On iOS the scheme is best-effort and gets dropped silently, so
@@ -441,15 +439,12 @@
 
     // ── The strand net ───────────────────────────────────────────────────────────────────────
     // No tap, no scheme, no navigation — just a paid visitor sitting on a page that is not the
-    // offer. Long on purpose: this is a floor, not a flow, and it must never pre-empt someone who
-    // is reading the page or answering an "Open in Safari?" prompt. Anyone still here at
-    // STRAND_AT_MS has not engaged, so putting the lander in front of them is strictly better than
-    // leaving them where they are.
-    setTimeout(function () {
-      if (left || document.hidden || escaped) return;
-      trk('PreStranded', { content_name: 'no interaction' });
-      location.replace(target);
-    }, STRAND_AT_MS);
+    // THE STRAND NET IS GONE (owner directive, 2026-08-10). It loaded the lander in place after
+    // STRAND_AT_MS with no interaction, which is exactly the automatic redirect this page is not
+    // allowed to do any more. The trade is explicit and the owner made it: a visitor who never
+    // taps now stays on this page instead of being carried to the offer. That is a real cost on
+    // paid traffic — it is the old rule 5 being deliberately narrowed — but a page that moves
+    // people without asking is what we were trying to stop.
 
     if (copy) {
       copy.addEventListener('click', function (e) {
