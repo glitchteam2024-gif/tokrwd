@@ -898,6 +898,113 @@ item 4, now with a second instance. A comment that *names* the thing it is guard
 the guard. **Reword the comment; never weaken the assertion.** Worth making guard errors print
 surrounding context — a bare "1 stray symbol" is unactionable across a 700-file build.
 
+## 5e. FIFTH CASE STUDY — RAVITEJ (2026-08-10): FOUR GEOS THAT ARE ONE OFFER, AND A CDN PAGE
+
+`_lp-generator/ravi-playful.js` · `RAVI/{US,GB,CA,AU}` + `RV50..RV53` (30 clones each) + `/ravurl`
+· doors `playful-<geo>-ravi` · Playful Rewards (`eaf3fdda-1474-4c9a-adb6-516247e3fca8`) ·
+`ravitejkathuria011@gmail.com` (auth `9a619c72-035e-4fec-92d9-cc2a17034317`, aff 25).
+
+### ⚠️ THE BIG ONE: "one design across N geos" is NOT the same shape as "across N offers"
+
+§5d-ii fanned one design across seven SEPARATE Shein offers, and those never interact. **Playful
+Rewards is the opposite: all four English geos are `landing_pages` rows on ONE `offer_id`.** That
+one difference inverts the assignment rule, and every guard that would normally catch it is blind:
+
+- `resolveAffiliateOfferLinks` (`affiliate-links.js:238-251`) does `by_offer[lp.offer_id] = link`
+  in a `forEach` with **no `.order()`**, and `lp.geo` is **not even in its `select`** (`:214`). Two
+  active rows on one offer therefore serve **whichever row PostgREST returns last** — undefined,
+  and able to flip after any write to either (the rotation cron writes them all). This is the
+  **money path**: `spark-test/jobs.js:399` and `sales-test/jobs.js:318` use that map as the
+  server-side source of truth for a launch's Destination URL. A US spark code launches against a
+  GB lander, the door resolves the GB row's geo, and the visitor lands on the wrong country.
+- **The same-geo clash 409 does not fire** (`admin.js:1552-1573`) — four distinct geos, zero
+  clashes. The admin panel builds this state with no warning.
+- **`choose_landing_page` will not clean it up**: `heldLandersFor` is scoped `(offer, geo)`
+  (`admin.js:214-239`), deliberately, so picking GB while holding US releases nothing.
+- `autoAssignLanders` **already refuses this offer entirely** (`lander-autoassign.js:218-234`,
+  `skipped: 'ambiguous-geo'`) — the guard's own comment says *"this is the guard for when that
+  stops being true"*, and that is now. Cost: nothing is ever auto-claimed for Playful Rewards, and
+  because a refusal writes nothing, the ~6-round-trip pipeline re-runs on **every**
+  `get_my_landing_pages` load.
+- The picker shows all four geo cards **with the country invisible** — the payload carries
+  `geo` (`admin.js:5042`) and the card markup never renders it, so the affiliate reads four
+  countries as four styling choices.
+
+➜ **Build all N geo pages and all N rows; keep exactly ONE assignment `active`.** Switching geo is
+a release+claim pair in one transaction (committed at
+`_lp-generator/2026-08-10_ravi_playful_landing_pages.sql`, which also carries `DO $$` guards that
+RAISE if the count is ever not 1). Prod had **zero** affiliates holding two active landers on any
+offer on 2026-08-10 — check that invariant still holds before and after
+(query (d) in that file), and do not be the one who breaks it.
+
+**Also**: he was already active on the house `playful-us` (slot 2), so the release-before-claim
+trap in §2 was live again, as it was for notkerman. That is now three builds in a row where it
+mattered — assume it, always archive first.
+
+### A supplied page whose STYLING is a runtime CDN
+
+His file loaded `cdn.tailwindcss.com` (the Play CDN) plus `unpkg.com/lucide@latest`. Measured:
+**~824 KB of blocking third-party JS to produce 23 KB of CSS**, and no other lander in tokrwd
+loads either host. Two consequences that are invisible until the network is slow:
+
+1. **`hidden` is itself a Tailwind class.** If the CDN is slow or blocked, all three quiz steps
+   render at once and the result screen is exposed from first paint. The page is not merely
+   unstyled, it is *wrong*.
+2. **The icon CDN sat ON the conversion path, unpinned.** `lucide.createIcons()` runs immediately
+   before the `setTimeout` that reveals the only converting button. If it throws, the assignment
+   never happens, the spinner spins forever and the CTA is **never shown**. One hiccup, or one
+   breaking `@latest` major, dead-ends every visitor silently.
+
+**Fix: compile ahead of time, embed the icons, keep the design byte-identical.** `npm i -D
+tailwindcss@3` + the inline `tailwind.config` transcribed to a real config, `content` pointed at
+his HTML. 22.6 KB minified / 5.2 KB gzip.
+
+⚠️ **Do NOT extract the CSS by rendering the page and scraping the generated `<style>`.** Proven
+unsound: the Play CDN's candidate source is **the DOM, not the file text**, so classes that exist
+only inside JS strings are absent from a load-time snapshot — here that included
+`.border-neon-500`, the green border on the *selected* quiz option, and the close-state `x` icon.
+It self-heals at runtime via MutationObserver, so the omission never shows up until a user clicks.
+The real compiler's extractor scans the file as **raw text** and catches all of them; verify by
+grepping the output for the JS-only classes.
+
+**Fidelity is measurable — measure it.** Render the CDN build and the compiled build side by side
+and diff `getComputedStyle` across every element. Result here: **zero** differences in layout,
+colour, type, spacing, shadow or grid across 450+ elements. The only deltas were
+autoprefixer-prefix supersets (`-webkit-text-decoration-*`, plus `-moz-`/`-o-` the CDN omits) and
+`opacity` sampling on infinite animations — neither is a regression.
+
+**Pin the source hash.** The CSS and the icon map are compiled FROM the supplied file, so a v2
+silently makes them stale and a newly added utility class ships with **no CSS behind it** — a
+broken layout that appears in no diff. `SOURCE_MD5` in the generator turns that into a build
+failure. Verified to bite.
+
+### Smaller things this one added
+
+- **The no-outbound-path defect, sixth in a row, in its purest form yet**: not a placeholder, not
+  `href="#"`, not a demo stub — a *complete cycle*. All 16 anchors were in-page fragments and the
+  funnel looped hero → `#quiz` → result → `#final-cta` → `#quiz` forever, with no terminal state.
+  Assume it on every supplied file; the grep is still the first thing to run.
+- **A missing asset we already owned.** `/image.png` (3 refs) was never supplied, but
+  `images/playful-rewards-logo.png` is the genuine app icon already in the repo. Repointing beats
+  dropping — check what the repo has before deleting a reference.
+- **A third-party OG card.** `og:image`/`twitter:image` pointed at `bolt.new`'s default, so every
+  social preview of a tokrwd.co URL rendered StackBlitz's branding and fingerprinted the tool the
+  page was built in. Grep supplied files for `og:image`.
+- **An animation the operator declared that never ran.** His config defines a `shimmer` keyframe
+  and his CSS calls it by name, but the `animate-shimmer` utility is never used as a class, so
+  Tailwind never emitted the keyframe — on the CDN build either. Restoring a keyframe the author
+  already asked for is not editing his design; inventing one would be. Verify in-browser first.
+- **Mobile was tap targets, not layout.** His Tailwind layout is genuinely responsive at
+  320–430px; the document-level overflow (240px) is deliberate decorative bleed clipped by the
+  wrapper's own `overflow-hidden`. What was actually wrong: 16px-tall footer legal links, a 20px
+  FAQ CTA and a 38px hamburger. **Do not go looking for the §1 clamp-floor defect on every page** —
+  measure, then fix only what measured badly.
+- **Currency across geos can be unanswerable, and then you leave it.** His copy quotes USD
+  throughout; CA and AU also write "$", so only GB visibly mismatches. Every "fix" invents
+  something — `£5` fabricates a UK figure, converting fabricates a rate *and* an earnings number.
+  Left unchanged, with `currency` as a VARIANTS field and the question printed on every run.
+  Changing an amount is a claim, not a translation.
+
 ## 6. THE TRAPS
 
 ### 1. Three different id columns, and two of them are wrong

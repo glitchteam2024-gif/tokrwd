@@ -121,8 +121,28 @@
  */
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const SOURCE = fs.readFileSync(path.join(__dirname, 'ravi-playful-source.html'), 'utf8');
+
+/**
+ * ravi-playful.css was compiled from EXACTLY this source file, and Tailwind emits only the
+ * utility classes it finds in it. So if the source changes, the stylesheet may be stale — and a
+ * class he adds in a v2 would simply have no CSS behind it, which is invisible in a diff and
+ * looks like a broken layout on a live page. Pinning the source hash makes that a build failure
+ * and forces a deliberate re-pin. Rebuild command is in the header.
+ */
+const SOURCE_MD5 = '837056a0d1d45a0344343a7536063348';
+{
+  const got = crypto.createHash('md5').update(SOURCE).digest('hex');
+  if (got !== SOURCE_MD5) {
+    throw new Error(
+      `ravi-playful-source.html changed (md5 ${got}, expected ${SOURCE_MD5}).\n`
+      + '      ravi-playful.css and ravi-playful-icons.json are compiled FROM that file, so they are\n'
+      + '      now potentially stale — a newly added utility class would ship with no CSS behind it.\n'
+      + '      Recompile both (see the header), re-verify, then update SOURCE_MD5.');
+  }
+}
 const TW_CSS = fs.readFileSync(path.join(__dirname, 'ravi-playful.css'), 'utf8');
 const ICONS = JSON.parse(fs.readFileSync(path.join(__dirname, 'ravi-playful-icons.json'), 'utf8'));
 
