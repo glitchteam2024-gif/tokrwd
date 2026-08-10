@@ -909,6 +909,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // destination" while still charging for the click. Same failure the 2026-07-30 note above
   // describes, one slice generation later.
   'ac53', 'ac54', 'af53', 'af54', 'ak53', 'ak54', 'ap53', 'ap54',
+    'ac55', 'af55', 'ak55', 'ap55',
   // Bespoke, single-affiliate pages: acsm/as50/sasurl (Sammy), ashl/ah50/ashurl (Ashlyn),
   // kerm/km50/saskrurl + shkm/sk50/shkrurl (notkerman — Apple Pay and Shein, two separate pages
   // on two separate offers). Registered for the same reason as everything else here — an
