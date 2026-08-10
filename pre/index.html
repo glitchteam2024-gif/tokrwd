@@ -56,82 +56,104 @@ window.__trk = function (name, props) {
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
 
-  body{
-    background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-    min-height:100vh;display:flex;justify-content:center;align-items:center;
-    padding:20px;position:relative;overflow:hidden;color:#1f2937;
+  /* Black + muted gold, per the house direction in SPRKNetworkAds/CLAUDE.md ("dark + muted gold,
+     clean, trustworthy"). #D8BA68 is the same gold the app itself uses, not a new one invented
+     here. The white card and the two decorative orbs are gone: on a page whose whole job is to get
+     one tap, a floating panel and background bubbles are furniture between the visitor and the
+     control. What replaces them is a single gold bloom BEHIND the arrow — it points at the thing
+     to press instead of decorating the space around it. */
+  :root{
+    --gold:#D8BA68;
+    --gold-lo:#B99A4A;
+    --gold-hi:#EBD9A3;
+    --ink:#F6F6F8;
+    --ink-2:#9A97A6;
+    --paper:#08080A;
   }
 
-  .orbs{position:fixed;inset:0;z-index:0;pointer-events:none}
-  .orb{position:absolute;background:rgba(29,78,216,.10);border-radius:50%}
-  .orb-a{width:300px;height:300px;top:-150px;left:-150px}
-  .orb-b{width:400px;height:400px;bottom:-200px;right:-200px}
+  body{
+    background:
+      radial-gradient(60% 45% at 50% 38%, rgba(216,186,104,.10), transparent 70%),
+      linear-gradient(to bottom,#0C0C10 0%,#08080A 55%,#050506 100%);
+    background-color:var(--paper);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    min-height:100vh;min-height:100svh;
+    display:flex;justify-content:center;align-items:center;
+    padding:24px;position:relative;overflow:hidden;color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
 
+  /* No panel. The content sits straight on the black. */
   .card{
-    background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
-    border-radius:24px;padding:40px 32px;box-shadow:0 20px 40px rgba(29,78,216,.10);
-    max-width:520px;width:100%;text-align:center;position:relative;z-index:1;
-    border:1px solid rgba(29,78,216,.18);
+    max-width:460px;width:100%;text-align:center;position:relative;z-index:1;
   }
 
   h1{
-    font-size:clamp(28px,7vw,40px);font-weight:800;line-height:1.15;margin-bottom:12px;
-    background:linear-gradient(135deg,#1d4ed8 0%,#3b82f6 100%);
+    font-size:clamp(28px,7.5vw,40px);font-weight:800;line-height:1.14;
+    letter-spacing:-.02em;margin-bottom:12px;
+    background:linear-gradient(135deg,var(--gold-hi) 0%,var(--gold) 55%,var(--gold-lo) 100%);
     -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   }
-  .sub{font-size:clamp(14px,3.6vw,16px);color:#4b5563;line-height:1.6;margin-bottom:28px}
+  .sub{font-size:clamp(14px,3.6vw,16px);color:var(--ink-2);line-height:1.6;margin-bottom:34px}
+
+  /* THE GLOW. A blurred gold disc sitting behind the button, not on it — so the light reads as
+     coming off the control rather than as a border drawn around it. pointer-events:none keeps the
+     bloom from eating taps aimed at the arrow it sits under. */
+  .arrowwrap{position:relative;width:132px;height:132px;margin:0 auto 30px;display:grid;place-items:center}
+  .arrowwrap::before{
+    content:"";position:absolute;width:132px;height:132px;border-radius:50%;
+    background:radial-gradient(circle, rgba(216,186,104,.55) 0%, rgba(216,186,104,.18) 45%, transparent 72%);
+    filter:blur(18px);pointer-events:none;
+    animation:breathe 3.2s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{opacity:.75;transform:scale(1)}
+    50%{opacity:1;transform:scale(1.08)}
+  }
 
   /* The arrow IS the control. 112px is well past the 44px touch-target floor and the whole disc is
      tappable, not just the glyph. grid + place-items rather than `margin:0 auto` on the child —
      that centres horizontally only, and left the arrow riding high in the disc. */
   .arrowbtn{
+    position:relative;z-index:1;
     display:grid;place-items:center;
-    width:112px;height:112px;margin:0 auto 26px;border:none;padding:0;cursor:pointer;
-    border-radius:50%;background:linear-gradient(135deg,#1d4ed8 0%,#3b82f6 100%);
-    box-shadow:0 14px 30px rgba(29,78,216,.32), inset 0 2px 0 rgba(255,255,255,.28);
+    width:112px;height:112px;border:none;padding:0;cursor:pointer;
+    border-radius:50%;
+    background:linear-gradient(145deg,var(--gold-hi) 0%,var(--gold) 45%,var(--gold-lo) 100%);
+    box-shadow:
+      0 0 34px rgba(216,186,104,.45),
+      0 14px 30px rgba(0,0,0,.55),
+      inset 0 2px 0 rgba(255,255,255,.35);
     -webkit-tap-highlight-color:transparent;touch-action:manipulation;
     transition:transform .15s ease, box-shadow .15s ease;
-    animation:invite 2.4s ease-in-out infinite;
   }
-  .arrowbtn:active{transform:scale(.96);box-shadow:0 8px 18px rgba(29,78,216,.30)}
-  .arrowbtn:focus-visible{outline:3px solid #1d4ed8;outline-offset:4px}
+  .arrowbtn:active{transform:scale(.96);box-shadow:0 0 22px rgba(216,186,104,.38),0 8px 18px rgba(0,0,0,.5)}
+  .arrowbtn:focus-visible{outline:3px solid var(--gold-hi);outline-offset:5px}
   .arrowbtn svg{width:46px;height:46px;display:block}
-  /* Nudges toward the top-right — the direction the visitor is about to be sent. */
-  @keyframes invite{
-    0%,100%{transform:translate(0,0)}
-    50%{transform:translate(3px,-3px)}
-  }
-  @media (prefers-reduced-motion:reduce){.arrowbtn{animation:none}}
+  @media (prefers-reduced-motion:reduce){.arrowwrap::before{animation:none}}
 
-
-  .later{margin-top:22px;display:none}
+  .later{margin-top:26px;display:none}
   /* The one remaining fallback. Outlined rather than filled so it reads as secondary to the arrow
      — same tap area, clearly not the main road. */
   .secondary{
     display:block;width:100%;padding:15px 20px;border-radius:100px;
-    background:transparent;border:1.5px solid rgba(29,78,216,.35);
-    color:#1d4ed8;font-family:inherit;font-size:15px;font-weight:600;
+    background:transparent;border:1px solid rgba(216,186,104,.38);
+    color:var(--gold);font-family:inherit;font-size:15px;font-weight:600;
     text-decoration:none;cursor:pointer;
     -webkit-tap-highlight-color:transparent;touch-action:manipulation;
     transition:background .15s ease,border-color .15s ease;
   }
-  .secondary:active{background:rgba(29,78,216,.08);border-color:rgba(29,78,216,.55)}
-  .secondary:focus-visible{outline:3px solid #1d4ed8;outline-offset:3px}
+  .secondary:active{background:rgba(216,186,104,.10);border-color:rgba(216,186,104,.65)}
+  .secondary:focus-visible{outline:3px solid var(--gold-hi);outline-offset:3px}
   .card[data-stage="hint"] .later,
   .card[data-preview="1"] .later{display:block}
 
-  .note{font-size:12.5px;color:#6b7280;line-height:1.6;margin-top:18px}
+  .note{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-top:20px}
 
-  @media (max-width:480px){.card{padding:30px 20px}}
+  @media (max-width:480px){body{padding:20px}}
 </style>
 </head>
 <body>
-
-<div class="orbs" aria-hidden="true">
-  <div class="orb orb-a"></div>
-  <div class="orb orb-b"></div>
-</div>
 
 <main class="card" id="preCard">
   <h1>Tap to continue</h1>
@@ -146,13 +168,18 @@ window.__trk = function (name, props) {
          · it is one target, 112px, so there is nothing to misread and nothing to miss
        The spinner that used to sit here was removed on purpose — a spinner instructs the visitor to
        WAIT, and this page now needs them to ACT. -->
+  <div class="arrowwrap">
   <a class="arrowbtn" id="preOpen" href="#" rel="noopener" aria-label="Open in my browser">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
+    <!-- Dark ink, not white. Measured through a canvas: white on this gold is 1.88:1, under the
+         3:1 a graphical UI component needs and visibly washed out on a bright phone. Ink is
+         10.5:1 on the same fill. -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0C" stroke-width="2.5"
          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M7 17L17 7"></path>
       <path d="M8 7h9v9"></path>
     </svg>
   </a>
+  </div>
   <p class="sub" style="margin-bottom:0">Opens in Safari or Chrome</p>
 
   <!-- One fallback, not three. The hint paragraph and Copy link are gone: on a phone, "Copy link"
