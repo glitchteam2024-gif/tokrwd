@@ -132,16 +132,18 @@ window.__trk = function (name, props) {
   .arrowbtn svg{width:46px;height:46px;display:block}
   @media (prefers-reduced-motion:reduce){.arrowwrap::before{animation:none}}
 
-  /* Pops in rather than appearing. It arrives 2s after load — a beat AFTER the visitor has looked
-     at the arrow — so it has to announce itself or it reads as a page glitch. transform+opacity
-     only, so it never reflows the layout underneath it. */
-  .later{margin-top:26px;display:none}
-  .card[data-stage] .later{animation:pop .32s cubic-bezier(.16,1,.3,1) both}
+  /* VISIBLE FROM LOAD (owner correction, 2026-08-10). It was display:none until a 2s timer
+     revealed it, which meant the fallback the visitor needs most — the one that works when the
+     scheme is silently dropped — was missing for the first two seconds of every visit. On a page
+     people leave in single-digit seconds, a control that is not there yet is a control that does
+     not exist. It now renders with the page and merely ANIMATES in, so the entrance is still
+     legible without ever gating availability on a clock. */
+  .later{margin-top:26px;animation:pop .34s cubic-bezier(.16,1,.3,1) both}
   @keyframes pop{
     from{opacity:0;transform:translateY(10px) scale(.96)}
     to{opacity:1;transform:none}
   }
-  @media (prefers-reduced-motion:reduce){.card[data-stage] .later{animation:none}}
+  @media (prefers-reduced-motion:reduce){.later{animation:none}}
 
   /* The post-tap prompt. Shown only once a tap has fired the scheme, so it is feedback ("we asked
      your browser to open") plus a second chance if iOS silently dropped it. Deliberately OUR panel
@@ -169,12 +171,8 @@ window.__trk = function (name, props) {
   }
   .secondary:active{transform:scale(.99);box-shadow:0 4px 12px rgba(0,0,0,.4)}
   .secondary:focus-visible{outline:3px solid var(--gold-hi);outline-offset:3px}
-  /* ANY stage, not just "hint". This used to name "hint" alone, so the moment a tap set the stage
-     to "tapped" the whole block went display:none and the button vanished under the visitor — the
-     exact opposite of what the tap is supposed to produce. Attribute-presence selector means a new
-     stage can never silently hide it again. */
-  .card[data-stage] .later,
-  .card[data-preview="1"] .later{display:block}
+  /* No display rule for .later any more — it is visible from load and nothing may hide it. The
+     stage attribute now controls ONLY the post-tap prompt below. */
 
   .note{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-top:20px}
 

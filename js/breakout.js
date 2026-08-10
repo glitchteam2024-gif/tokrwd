@@ -96,9 +96,10 @@
      lingering constant is how a future edit "restores" the auto-fire without realising the gesture
      is the point. See the wiring block below. */
 
-  /** Pop the fallback in. 1500 -> 2000 on 2026-08-10: it should land a beat AFTER the visitor has
-   *  looked at the arrow, not while their eye is still travelling to it. */
-  var HINT_AT_MS = 2000;
+  /* HINT_AT_MS is gone (2026-08-10). It revealed the fallback button on a timer; the button now
+     renders with the page and nothing may hide it, so the timer had nothing left to reveal —
+     reveal() with no argument became a no-op. A dead timer around a control this important is how
+     someone later "restores" the delay without realising availability was the whole point. */
   /** Last resort: load the lander in place rather than strand a paid click.
    *
    *  6000 -> 2000 on 2026-08-10. This timer ONLY ever runs when the handoff has already failed —
@@ -437,13 +438,6 @@
         }, GIVE_UP_AT_MS);
       });
     }
-
-    // Surface the manual route on its own timer so a visitor who hesitates still sees "Continue
-    // here" without having to tap the arrow first.
-    setTimeout(function () {
-      if (left || document.hidden) return;
-      reveal();
-    }, HINT_AT_MS);
 
     // ── The strand net ───────────────────────────────────────────────────────────────────────
     // No tap, no scheme, no navigation — just a paid visitor sitting on a page that is not the
