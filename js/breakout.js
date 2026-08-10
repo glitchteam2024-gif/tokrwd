@@ -29,12 +29,20 @@
  *      detected in-app webview; every real browser is sent straight through with
  *      `location.replace`, which is also what a crawler gets.
  *   5. The click is never lost. Every path ends at the lander — escape succeeded,
- *      escape blocked, user tapped "continue here", or the watchdog fired.
+ *      escape blocked, user tapped "continue here", the post-tap watchdog fired, or
+ *      the strand net carried a visitor who never interacted at all.
+ *   6. THE SCHEME IS ONLY EVER FIRED BY A TAP (2026-08-10). Nothing on this page
+ *      navigates to an OS scheme on a timer. A gesture is not decoration here: iOS
+ *      honours a custom scheme far more readily when it carries user activation, and
+ *      the auto-fire this replaced was the case most likely to be silently dropped.
+ *      A future edit that "helpfully" restores an automatic escape reverses that, and
+ *      re-adds the AUTO_FIRE signature below.
  *
- * Our own QA harness (api/signatures.js) scores this page well over BLOCK_THRESHOLD,
- * on SCHEME_BREAKOUT + AUTO_FIRE + INAPP_UA_SNIFF. That is expected and correct — the
- * detector's job is to find this mechanism, and this is the one place we run it on
- * purpose. If it starts matching anywhere ELSE in the repo, that is a real finding;
+ * Our own QA harness (api/signatures.js) scores this page over BLOCK_THRESHOLD on
+ * SCHEME_BREAKOUT + INAPP_UA_SNIFF (90). It USED to also trip AUTO_FIRE (weight 40,
+ * total 130); rule 6 removed it. That is expected and correct — the detector's job is
+ * to find this mechanism, and this is the one page that runs it on purpose. If it
+ * starts matching anywhere ELSE in the repo, that is a real finding;
  * _tracking-audit.test.mjs fails the build when it does.
  */
 (function () {
@@ -79,8 +87,13 @@
   // traffic on the page whose entire job is to be the one that does NOT convert.
   var RESERVED_ROOTS = ['api', 'c', 'r', 'pre', 'admin', 'js', 'images', 'postback', 'safe'];
 
-  /** Auto-attempt the handoff once the page has painted. */
-  var ESCAPE_AT_MS = 250;
+  /* ESCAPE_AT_MS (250) was the auto-fire delay and is GONE as of 2026-08-10 — the handoff is now
+     tap-initiated, so there is no timer that fires a scheme. Removed rather than left at 0: a
+     lingering constant is how a future edit "restores" the auto-fire without realising the gesture
+     is the point. See the wiring block below. */
+
+  /** Last resort for a visitor who never interacts at all. Deliberately long — see the strand net. */
+  var STRAND_AT_MS = 15000;
   /** Reveal the manual instructions if we are still here. */
   var HINT_AT_MS = 1500;
   /** Last resort: load the lander in place rather than strand a paid click.
@@ -310,13 +323,25 @@
     // ── in-app browser: try to hand off, but never strand the click ──
     var left = false;
     var giveUp = null;
+    // Set the moment a tap sends the scheme. The strand net reads it so a visitor who DID act is
+    // never yanked to the in-webview lander underneath a handoff that is still resolving.
+    var escaped = false;
 
-    /** Show the manual route: the instructions, Copy link, and Continue here. */
-    function reveal() {
+    /** Show the manual route: the instructions, Copy link, and Continue here.
+     *
+     *  TWO STAGES, because the right advice depends on whether they have tried the arrow yet.
+     *  Before a tap, telling someone to hunt for the OS menu is wrong — the arrow is right there
+     *  and is the path most likely to work. Only AFTER a tap has failed to hand off does the OS
+     *  menu become the useful instruction. Shipping the post-tap copy on the 1.5s timer would have
+     *  told every visitor to go menu-diving past a button they had not pressed. */
+    function reveal(afterTap) {
       if (card) card.setAttribute('data-stage', 'hint');
-      if (hint) hint.textContent = isAndroid
-        ? 'Still here? Tap the ⋮ menu at the top and choose "Open in browser".'
-        : 'Still here? Tap the ••• menu at the bottom and choose "Open in browser".';
+      if (!hint) return;
+      hint.textContent = afterTap
+        ? (isAndroid
+            ? 'Still here? Tap the ⋮ menu at the top and choose "Open in browser".'
+            : 'Still here? Tap the ••• menu at the bottom and choose "Open in browser".')
+        : 'Tap the arrow above to open your reward page, or carry on here.';
     }
 
     function markLeft() {
@@ -341,7 +366,7 @@
       // hand them a second copy inside the webview they just escaped. Surfacing the
       // manual route is the move that helps in both cases.
       left = false;
-      reveal();
+      reveal(true);
     });
     window.addEventListener('pagehide', markLeft);
 
@@ -353,47 +378,74 @@
       });
     }
 
+    // ── TAP-INITIATED, NOT AUTO-FIRED (2026-08-10) ───────────────────────────────────────────
+    // The scheme used to go out on a 250ms timer with no gesture behind it. Two reasons that was
+    // the wrong shape, and they compound:
+    //
+    //   1. iOS. A custom scheme carried by USER ACTIVATION is honoured far more readily than a
+    //      programmatic navigation the visitor never asked for. iosEscape() fires an undocumented
+    //      scheme that WKWebView drops SILENTLY — an auto-fire is the case most likely to be
+    //      dropped, and it was firing for every single in-app visitor.
+    //   2. The wait was pure loss. When the scheme was dropped the visitor sat watching a spinner
+    //      until the watchdog rescued them, having never been asked to do anything.
+    //
+    // It also removes AUTO_FIRE (weight 40) from this page's own signature score in
+    // api/signatures.js — 130 -> 90. Still over BLOCK_THRESHOLD on SCHEME_BREAKOUT +
+    // INAPP_UA_SNIFF, which is expected and correct for the one page that runs this on purpose,
+    // but strictly less machinery pointed at the visitor.
+    //
+    // ⚠️ RULE 5 STILL HOLDS: the click is never lost. Nothing auto-fires a SCHEME any more, but a
+    //    visitor who never taps is still carried to the lander in place by the strand net below.
+    //    Removing that net would turn every undecided visitor into a paid click that bought a
+    //    dead-end page.
     if (open) {
       open.addEventListener('click', function (e) {
         e.preventDefault();
-        trk('PreOpenTap', { content_name: 'tapped open manually' });
-        // Reveal on the FIRST tap. On iOS the scheme is best-effort and gets dropped
-        // silently, so a tap that appears to do nothing must still leave the visitor
-        // somewhere to go.
-        reveal();
+        escaped = true;
+        trk('EscapeFired', { content_name: isIOS ? 'escape ios' : (isAndroid ? 'escape android' : 'escape other') });
+
+        // Reveal on the FIRST tap. On iOS the scheme is best-effort and gets dropped silently, so
+        // a tap that appears to do nothing must still leave the visitor somewhere to go.
+        reveal(true);
         escape_(target);
+
+        // The watchdog starts HERE, not on page load. It only ever runs when a real tap has
+        // already failed to hand off, which is the only moment its 2s is meaningful — before the
+        // tap there is nothing to wait for.
+        if (giveUp) clearTimeout(giveUp);
+        giveUp = setTimeout(function () {
+          if (left || document.hidden) return;
+          // THE KEY METRIC. Reaching here means a genuine tap did NOT hand off — the strongest
+          // evidence available that the scheme is being dropped, because it now carries user
+          // activation and still failed. RELIABLE: fires 2s in, SDK long loaded.
+          //
+          // Ratio against EscapeFired. Near-zero => the scheme lands, the kicker earns its place.
+          // Near-parity => it is dropped even from a real gesture, the kicker is buying nothing on
+          // iOS, and it should come out.
+          trk('EscapeGaveUp', { content_name: isIOS ? 'gave up ios' : (isAndroid ? 'gave up android' : 'gave up other') });
+          location.replace(target);
+        }, GIVE_UP_AT_MS);
       });
     }
 
-    setTimeout(function () {
-      if (left || document.hidden) return;
-      // Fired for EVERY in-app visitor, just before the scheme goes out. Pair it with
-      // EscapeGaveUp: the ratio between them IS the answer to "does the handoff work on iOS".
-      // Near-zero give-ups means the scheme lands; near-parity means it is silently dropped and
-      // the kicker is costing time for nothing.
-      trk('EscapeFired', { content_name: isIOS ? 'escape ios' : (isAndroid ? 'escape android' : 'escape other') });
-      escape_(target);
-    }, ESCAPE_AT_MS);
-
+    // Surface the manual route on its own timer so a visitor who hesitates still sees "Continue
+    // here" without having to tap the arrow first.
     setTimeout(function () {
       if (left || document.hidden) return;
       reveal();
     }, HINT_AT_MS);
 
-    // If the handoff was blocked and nobody tapped anything, load the lander in
-    // place. A worse experience than the real browser, but a live click either way.
-    giveUp = setTimeout(function () {
-      if (left || document.hidden) return;
-      // THE KEY METRIC. Reaching here means the handoff FAILED and this visitor sat through the
-      // whole GIVE_UP_AT_MS on "Almost there" before the lander even began loading. Unlike the
-      // events above, this one is RELIABLE: it fires seconds in, with the pixel SDK long loaded.
-      //
-      // Read it as a ratio against EscapeFired. Near-zero => the scheme lands and the kicker is
-      // earning its place. Near-parity => it is being silently dropped, every in-app visitor is
-      // paying the full wait for nothing, and the kicker should come out.
-      trk('EscapeGaveUp', { content_name: isIOS ? 'gave up ios' : (isAndroid ? 'gave up android' : 'gave up other') });
+    // ── The strand net ───────────────────────────────────────────────────────────────────────
+    // No tap, no scheme, no navigation — just a paid visitor sitting on a page that is not the
+    // offer. Long on purpose: this is a floor, not a flow, and it must never pre-empt someone who
+    // is reading the page or answering an "Open in Safari?" prompt. Anyone still here at
+    // STRAND_AT_MS has not engaged, so putting the lander in front of them is strictly better than
+    // leaving them where they are.
+    setTimeout(function () {
+      if (left || document.hidden || escaped) return;
+      trk('PreStranded', { content_name: 'no interaction' });
       location.replace(target);
-    }, GIVE_UP_AT_MS);
+    }, STRAND_AT_MS);
 
     if (copy) {
       copy.addEventListener('click', function (e) {

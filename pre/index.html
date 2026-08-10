@@ -57,52 +57,53 @@ window.__trk = function (name, props) {
   *{margin:0;padding:0;box-sizing:border-box}
 
   body{
-    background:linear-gradient(135deg,#f5f3ff 0%,#ede9fe 100%);
+    background:linear-gradient(135deg,#eff6ff 0%,#dbeafe 100%);
     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
     min-height:100vh;display:flex;justify-content:center;align-items:center;
     padding:20px;position:relative;overflow:hidden;color:#1f2937;
   }
 
   .orbs{position:fixed;inset:0;z-index:0;pointer-events:none}
-  .orb{position:absolute;background:rgba(91,33,182,.10);border-radius:50%}
+  .orb{position:absolute;background:rgba(29,78,216,.10);border-radius:50%}
   .orb-a{width:300px;height:300px;top:-150px;left:-150px}
   .orb-b{width:400px;height:400px;bottom:-200px;right:-200px}
 
   .card{
     background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
-    border-radius:24px;padding:40px 32px;box-shadow:0 20px 40px rgba(91,33,182,.10);
+    border-radius:24px;padding:40px 32px;box-shadow:0 20px 40px rgba(29,78,216,.10);
     max-width:520px;width:100%;text-align:center;position:relative;z-index:1;
-    border:1px solid rgba(91,33,182,.18);
+    border:1px solid rgba(29,78,216,.18);
   }
 
   h1{
     font-size:clamp(28px,7vw,40px);font-weight:800;line-height:1.15;margin-bottom:12px;
-    background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 100%);
+    background:linear-gradient(135deg,#1d4ed8 0%,#3b82f6 100%);
     -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
   }
   .sub{font-size:clamp(14px,3.6vw,16px);color:#4b5563;line-height:1.6;margin-bottom:28px}
 
-  .ring{width:96px;height:96px;margin:0 auto 28px}
-  .ring .track{stroke:rgba(91,33,182,.15);fill:none;stroke-width:5}
-  /* r=42 → circumference ≈ 264. The dash pair must be scaled to THAT, not to 100:
-     a "90 120" pair on this radius renders as a barely visible speck. */
-  .ring .arc{
-    stroke:#5b21b6;fill:none;stroke-width:5;stroke-linecap:round;
-    stroke-dasharray:66 198;
-    transform-origin:50% 50%;
-    animation:spin 1.1s linear infinite;
+  /* The arrow IS the control. 112px is well past the 44px touch-target floor and the whole disc is
+     tappable, not just the glyph. grid + place-items rather than `margin:0 auto` on the child —
+     that centres horizontally only, and left the arrow riding high in the disc. */
+  .arrowbtn{
+    display:grid;place-items:center;
+    width:112px;height:112px;margin:0 auto 26px;border:none;padding:0;cursor:pointer;
+    border-radius:50%;background:linear-gradient(135deg,#1d4ed8 0%,#3b82f6 100%);
+    box-shadow:0 14px 30px rgba(29,78,216,.32), inset 0 2px 0 rgba(255,255,255,.28);
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+    transition:transform .15s ease, box-shadow .15s ease;
+    animation:invite 2.4s ease-in-out infinite;
   }
-  @keyframes spin{from{transform:rotate(-90deg)}to{transform:rotate(270deg)}}
-  @media (prefers-reduced-motion:reduce){.ring .arc{animation:none;transform:rotate(-90deg)}}
+  .arrowbtn:active{transform:scale(.96);box-shadow:0 8px 18px rgba(29,78,216,.30)}
+  .arrowbtn:focus-visible{outline:3px solid #1d4ed8;outline-offset:4px}
+  .arrowbtn svg{width:46px;height:46px;display:block}
+  /* Nudges toward the top-right — the direction the visitor is about to be sent. */
+  @keyframes invite{
+    0%,100%{transform:translate(0,0)}
+    50%{transform:translate(3px,-3px)}
+  }
+  @media (prefers-reduced-motion:reduce){.arrowbtn{animation:none}}
 
-  .btn{
-    display:block;width:100%;background:linear-gradient(135deg,#5b21b6 0%,#7c3aed 100%);
-    color:#fff;font-family:inherit;font-size:17px;font-weight:600;padding:18px 24px;
-    border-radius:100px;border:none;cursor:pointer;text-decoration:none;
-    text-transform:uppercase;letter-spacing:.6px;transition:transform .2s ease,box-shadow .2s ease;
-  }
-  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(91,33,182,.22)}
-  .btn:active{transform:translateY(1px)}
 
   .later{margin-top:22px;display:none}
   .card[data-stage="hint"] .later,
@@ -110,7 +111,7 @@ window.__trk = function (name, props) {
 
   .hint{font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:14px}
   .minor{
-    display:inline-block;font-size:13px;font-weight:500;color:#5b21b6;
+    display:inline-block;font-size:13px;font-weight:500;color:#1d4ed8;
     text-decoration:underline;text-underline-offset:3px;background:none;border:none;
     font-family:inherit;cursor:pointer;padding:6px 10px;
   }
@@ -128,18 +129,29 @@ window.__trk = function (name, props) {
 </div>
 
 <main class="card" id="preCard">
-  <h1>Almost there</h1>
-  <p class="sub">We're opening your reward page in your browser so everything loads properly.</p>
+  <h1>Tap to continue</h1>
+  <p class="sub">Your reward page opens in your browser, where everything loads properly.</p>
 
-  <svg class="ring" viewBox="0 0 96 96" aria-hidden="true">
-    <circle class="track" cx="48" cy="48" r="42"></circle>
-    <circle class="arc" cx="48" cy="48" r="42"></circle>
-  </svg>
-
-  <a class="btn" id="preOpen" href="#" rel="noopener">Open in my browser</a>
+  <!-- THE ARROW IS THE PRIMARY CONTROL, and it is an <a> carrying the real destination — not a
+       decorative div with a click handler. That matters three ways:
+         · href works with JS off, and a crawler reading this page sees the same lander a buyer gets
+         · the tap supplies USER ACTIVATION, which is the whole reason this replaced the 250ms
+           auto-fire: iOS honours a custom scheme far more readily from a real gesture than from a
+           programmatic navigation it never asked for
+         · it is one target, 112px, so there is nothing to misread and nothing to miss
+       The spinner that used to sit here was removed on purpose — a spinner instructs the visitor to
+       WAIT, and this page now needs them to ACT. -->
+  <a class="arrowbtn" id="preOpen" href="#" rel="noopener" aria-label="Open in my browser">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M7 17L17 7"></path>
+      <path d="M8 7h9v9"></path>
+    </svg>
+  </a>
+  <p class="sub" style="margin-bottom:0">Opens in Safari or Chrome</p>
 
   <div class="later" id="later">
-    <p class="hint" id="preHint">Taking a moment? You can open it yourself, or carry on here.</p>
+    <p class="hint" id="preHint">Tap the arrow above to open your reward page, or carry on here.</p>
     <button class="minor" id="preCopy" type="button">Copy link</button>
     <a class="minor" id="preStay" href="#">Continue here</a>
   </div>
