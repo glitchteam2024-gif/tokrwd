@@ -6,6 +6,17 @@
 <title>Get Paid To Game — Gravy Pass</title>
 <meta name="robots" content="noindex,nofollow">
 
+<!-- TikTok pixel. Same id as every other lander in this funnel (public value; it already ships in
+     their markup). Without it this page is a hole in the funnel: /pre reports, the Apple landers
+     report, and this one was silent. -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D9R5S3BC77UA78AD3M10');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+
 <!--
   GRAVY PASS prelander. Iterated from a competitor page Migi supplied (testerrewards.org), 2026-08-10.
   The SHAPE is kept — logo, headline, stat strip, a short quiz, a calculating beat, an estimate, one
@@ -417,6 +428,20 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
   var tt = q.get('ttclid') || '';
   if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
 
+  /* COOKIE FALLBACK for a ttclid the query lost — the same leak closed on the Apple family.
+     /js/ttclid.js banks the click id in a first-party _ttclid cookie, but its own rewriter only
+     tags <a href> anchors that already point at a tracker, and this page BUILDS that href in JS
+     afterwards. So the cookie was being written and never read. Re-validated against the same
+     rules api/_lib/tiktok-event.js usableTtclid() applies, because a cookie is attacker-writable
+     and a garbage value promoted here is indistinguishable downstream from a real click id. */
+  if (!q.get('ttclid')) {
+    try {
+      var ck = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
+      var ckv = ck ? decodeURIComponent(ck[1]) : '';
+      if (ckv && !/[{}\[\]#%]/.test(ckv) && !/CLICK_ID|__CLICKID__/i.test(ckv)) q.set('ttclid', ckv);
+    } catch (e) {}
+  }
+
   var s1 = q.get('s1') || '';
   var out = new URLSearchParams(q.toString());
   out.delete('s1'); out.delete('campid'); out.delete('lg');
@@ -425,7 +450,34 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
 
   var cta = document.getElementById('ctaBtn');
   if (cta) cta.setAttribute('href', target);
+
+  try { if (window.ttq) ttq.track('LanderView', { content_name: 'gravypass lander reached' }); } catch (e) {}
+
+  /* NO s1 = THIS CLICK IS ALREADY DEAD. api/link/[slug].js 404s any hit without one, by design —
+     it is the attribution gate. The failure was SILENT though: the CTA looked normal, the tap went
+     nowhere, and nothing said why. That cost a live test.
+     Now it is loud in all three places it can be: an event for the funnel, a console line for
+     whoever is testing, and visible text on the page under ?debug=1. */
+  if (!s1) {
+    try { if (window.ttq) ttq.track('CtaNoS1', { content_name: 'gravypass cta without s1' }); } catch (e) {}
+    console.warn('[Mggrvy] NO ?s1= ON THIS URL — the door will 404 and this click cannot be ' +
+                 'attributed. Add ?s1=<your spark code>. Door: ' + DOOR);
+    if (location.search.indexOf('debug=1') > -1) {
+      var warn = document.createElement('p');
+      warn.style.cssText = 'margin:14px auto 0;max-width:420px;font-size:12.5px;line-height:1.5;' +
+        'color:#ffb4b4;border:1px solid rgba(255,120,120,.4);border-radius:10px;padding:10px 12px';
+      warn.textContent = 'debug: no ?s1= on this URL — the door will 404. Append ?s1=<spark code>.';
+      var card = document.querySelector('.container');
+      if (card) card.appendChild(warn);
+    }
+  }
+
+  if (location.search.indexOf('debug=1') > -1) {
+    console.log('[Mggrvy debug]', { s1: s1 || '(none — door will 404)', ttclid: q.get('ttclid') || '(none)', door: DOOR, target: target });
+  }
 })();
 </script>
+<!-- Banks ttclid in the _ttclid cookie so the fallback above has something to read. -->
+<script src="/js/ttclid.js" async></script>
 </body>
 </html>
