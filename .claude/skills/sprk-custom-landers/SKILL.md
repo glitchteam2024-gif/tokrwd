@@ -1005,6 +1005,95 @@ failure. Verified to bite.
   Left unchanged, with `currency` as a VARIANTS field and the question printed on every run.
   Changing an amount is a claim, not a translation.
 
+## 5f. SIXTH CASE STUDY — RAVITEJ AGAIN (2026-08-11): FREECASH, AND THE FAKE-SUCCESS BUTTON
+
+`_lp-generator/ravi-freecash.js` · `RAVFC/{US,CA,GB}` + `RV61/US1..30`, `RV62/CA1..30`,
+`RV63/GB1..30` + `/ravfcurl` · doors `freecash-<geo>-ravi` · Freecash
+(`6d298639-835d-450e-9442-6f4515bc2ce8`) · same affiliate as §5e (aff 25). His THIRD bespoke page.
+
+Same shape as §5e — **three geos that are ONE offer** — so everything in that section's ⚠️ applies
+verbatim, and the SQL again ships ONE active assignment (US) with CA/GB ready. He was again already
+active on the house design (`freecash`, slot 15), so release-before-you-claim mattered for the
+**fourth** build running. Stop treating that as a special case.
+
+### The no-outbound-path defect, SEVENTH in a row — and the disguise that visibly succeeds
+
+Not a placeholder, not `href="#"`, not a demo stub, not a closed cycle. His single converting
+control was a `<button>` whose only handler **rewrote its own label to "Chest Claimed — Check your
+email!"** and stopped. Nothing navigated and no email was ever sent, so the page also **stated
+something untrue**. It is the hardest variant yet to catch by clicking, because the button reports
+success. The fix is two patches, not one: promote it to a real `<a>` at the door **and delete the
+handler** — left in place beside a real href it would flash the false label before navigating.
+
+➜ Add to the finding set: **any handler that mutates its own control into a success state.**
+Grep `textContent =` / `innerHTML =` on the converting element, not just for navigation.
+
+### 🔴 THE NEW ONE: a page whose JS writes the `background` SHORTHAND defeats `background-clip`
+
+His hours slider is 8px tall, so the standard mobile fix is `box-sizing:content-box` + vertical
+padding to reach 44px, with `background-clip:content-box` keeping the painted track at 8px. **It
+cannot work here, and it fails silently in the direction that looks fine everywhere except a
+screenshot.** `updateCalculator()` assigns `slider.style.background = 'linear-gradient(...)'` on
+load and on every input event; `background` is the **shorthand**, so it resets `background-clip` to
+`border-box` and wipes the rule. Measured: computed `background-clip` came back `border-box`
+whatever the stylesheet said. The gradient then painted across the full 44px box — his slim track
+became a fat green bar — and the negative margin that kept the layout tight put that bar **on top
+of its own "Hours per week" label**. Built, measured, reverted.
+
+**Two transferable rules:**
+
+1. **Before styling any control on a supplied page, grep for `style.<prop> =` in their JS.** An
+   inline shorthand write beats every non-`!important` rule you add, and only on the properties
+   the shorthand resets — which is not where you will look.
+2. **A computed-style diff will NOT catch a regression inside a mobile media query.** The 553-element
+   comparison in §5e is run at desktop width and came back clean while this was live. **Screenshot
+   the phone widths and LOOK at them.** That is what caught it.
+
+### The guards policed this generator's own comments FOUR times in one build
+
+§5c item 4 and §5d-ii both flag this once each. Here it fired on `<button>`, on the runtime config
+object's name, on `href="#"`, and — a new mechanism — on a **backtick**, because the injected style
+layer lives inside a JS template literal, so one backtick in a comment ends the string and the
+generator stops parsing entirely. A fifth was a real assertion bug: `must(h, 'href="#calculator"', 5)`
+also counted the **CSS selector** in our own style layer and came back 6.
+
+➜ **Tag-qualify markup assertions** (`'<a href="#calculator"'`, not `'href="#calculator"'`) so they
+measure markup rather than anything that merely contains the string. And keep a pre-flight that
+scans the injected style layer for every `never()` needle plus a backtick before rebuilding.
+
+### ⚠️ NEVER PIPE A GENERATOR RUN TO /dev/null OR THROUGH A FILTER THAT HIDES A THROW
+
+Twice in this build a rebuild failed while the next command measured the **previous** build and
+produced confident, wrong conclusions — once a "fix" that was never in the file, once a mobile
+measurement of stale output. `node _lp-generator/<x>.js && <measure>` at minimum; read the output.
+
+### Smaller things it added
+
+- **An animation declared but never emitted, SECOND instance on his pages** (`rise` here, `shimmer`
+  in §5e). His config declares the keyframe and both hero columns invoke it via inline
+  `style="animation:rise .5s"`, but `animate-rise` is never used as a class, so Tailwind emits
+  nothing — on the Play CDN either. **Both hero blocks had never animated in, on any load.** This is
+  now 2 for 2 on his files: diff the config's declared keyframes against `@keyframes` in the
+  compiled CSS on every supplied page. Verify in-browser before restoring.
+- **`<button>` → `<a>` silently loses `text-align:center`** (UA stylesheet). Invisible while the
+  label fits one line; it left-aligns the wrap on a narrow phone, on the converting control. Caught
+  only by the computed-style diff. Restore it explicitly.
+- **A page can arrive as a CHAT PASTE, not a file.** His did. `SOURCE_MD5` then pins a
+  transcription, not his bytes — say so in the generator so a v2 gets diffed against the right
+  thing.
+- **No hide rows were needed.** All seven house Freecash rows are `self_serve = false`, so
+  `pickableLanders` already filters them out for everyone; `capacity=1` + `self_serve` alone
+  delivered "his exclusive page". Check `self_serve` on the house rows before writing hide rows —
+  on this offer they would have been inert noise occupying a UNIQUE pair.
+- **Same two CDNs as §5e** (`cdn.tailwindcss.com` + `unpkg.com/lucide@latest`), so the §5e recipe
+  transferred whole. The 9 icons shared with his Playful page compiled **byte-identical** to
+  `ravi-playful-icons.json` — a cheap provenance check worth repeating (serialise with a space
+  before `/>` to match).
+- **`_tracking-audit.test.mjs` was ALREADY RED on `main`** — `mgfrcsh/index.html` links straight to
+  `montrk5.co.uk` (Migi's own `/mgfrcsh` CA page, commit `1225c5d`, "direct-to-network"). Prove a
+  pre-existing failure against `git archive HEAD` in a temp dir before you spend time on it, and
+  say so in the handoff rather than shipping alongside a red test silently.
+
 ## 6. THE TRAPS
 
 ### 1. Three different id columns, and two of them are wrong
