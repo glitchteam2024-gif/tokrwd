@@ -305,7 +305,39 @@
   // and 302s to the real Playful Rewards URL — which lives in the offer row and never appears here.
   // Never wire this CTA straight to the network: that skips the door, so no click_id is minted, no
   // clicks row is written, and the conversion lands unmatched.
-  var DOOR = 'https://sprktrax.org/api/link/playful-rewards-cash-us';
+  var DOOR = 'https://www.fkn8s74mztrk.com/F2R45HNR/H1N8TBG5/';
+/* SPRK-DIRECT-OFFER v1 */
+  /* Build the network URL. Reads the query directly, so it does not care which local the lander
+     happened to keep it in.
+       - s1 (the SPK) is placed LAST: ad automations append to the tail, and a first-match tracker
+         must not meet a different s1 first.
+       - lg / campid are lander-side routing aliases and never reach the network.
+       - s5 is a UNIQUE-PER-CLICK anti-duplicate token. Monetise sends a real txid on 1.2% of
+         conversions (17/1439, measured over 30 days), so with no click token api/postback.js dedups
+         on (network, spark, sub2..sub5) inside 120s -- and s1/s2/s3 are CONSTANT per creative. A
+         unique s5 is the only thing keeping two genuine leads from collapsing into one payment. It
+         resolves to nothing; uniqueness is its whole job, so a collision costs one dedup, never
+         attribution.
+       - the separator is derived from the base, because every Monetise link already carries
+         ?a=&c= while the Everflow ones are a bare path. Hardcoding '?' is what produced two '?'
+         in one URL (and silently dropped ttclid) in the funnel this family was adapted from. */
+  function __sprkOffer(base) {
+    var p = new URLSearchParams(location.search);
+    p.delete('lg'); p.delete('campid');
+    var s1 = p.get('s1') || p.get('sub1') || '';
+    p.delete('s1'); p.delete('sub1');
+    var t;
+    try { t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { t = ''; }
+    if (!t) t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+    t = t.slice(0, 22);
+    ['2','3'].forEach(function(n){ var v = p.get('s'+n); if (v && !p.get('sub'+n)) p.set('sub'+n, v); p.delete('s'+n); });
+    if (!p.get('sub5')) p.set('sub5', t);
+    var qs = p.toString();
+    var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');
+    if (s1) url += (url.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(s1);
+    return url;
+  }
+
 
   // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
   var q = new URLSearchParams(location.search);
@@ -327,8 +359,7 @@
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('campid'); out.delete('lg');
     var qs = out.toString(), s1 = q.get('s1') || '';
-    var url = DOOR + (qs ? '?' + qs : '');
-    if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+    var url = __sprkOffer(DOOR);
     return url;
   }
 

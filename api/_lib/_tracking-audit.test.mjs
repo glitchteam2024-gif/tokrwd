@@ -91,6 +91,7 @@ const SKIP_FILES = new Set([
 const EXCEPTIONS = {
   'api/affrkr.js': 'Playful → affrkr.com. Opaque token (es4v=…), no campaign id we can map to an OFFER_LINKS slug. Page is live but orphaned (nothing in the repo links to it). DECIDE: which offer should this credit, or retire the page?',
   'api/copper.js': 'ApplePay → trendhavenn.com/copper-play-earn.html, an external LANDER. We run the Copper offer ourselves (door slug `copper`, our own CB lander). Page is live but orphaned. DECIDE: re-point at /c/copper (our door, full attribution), or is trendhavenn part of the deal?',
+  'mgfrcsh/index.html': 'Links straight to montrk5 (Monetise) from OUTSIDE the numbered clone structure, so the per-geo check below cannot judge it. PRE-EXISTING — it is an owner-mode page (see migrations/2026-08-10_mgfrcsh_owner_mode.sql in SPRKNetworkAds), not part of the 2026-08-11 direct-offer rollout. DECIDE: fold it into a numbered slice so its geo is checkable, or confirm one hardcoded geo is correct for it forever.',
   'EOZ.html': 'Third-party tracker script vmry7.ttrk.io/track.js (×15 campaign ids). Its OFFER hop is already ours (/api/redirect → sprktrax /aff_c); it is the tracking SCRIPT that is not. Page is live but orphaned. DECIDE: drop the script, or keep it as a client-facing report?',
 };
 
@@ -109,17 +110,59 @@ function walk(dir, out = []) {
 const files = walk('./');
 console.log(`scanning ${files.length} deployed file(s)\n`);
 
-// ── 1. No deployed file may link straight to a network tracker ────────────────
+// ── 1. A lander's network link must be the RIGHT one for its slice and geo ────
+//
+// ⚠️ THIS CHECK CHANGED MEANING ON 2026-08-11, BY OWNER DECISION. It used to be "no deployed file
+// may link straight to a network tracker at all" — because every lander routed through the SPRK
+// door, and a direct link was by definition a bypass. Migi removed the door from the funnel: the
+// lander now links to the network itself, carrying s1=<SPK>, s2=<affiliate id>, s3=<ad account>
+// and a unique s5. So "links to a tracker" is no longer the defect.
+//
+// WHAT REPLACED IT IS A REAL RISK, AND IT IS WHY THIS CHECK WAS NARROWED RATHER THAN DELETED.
+// The door used to resolve the per-geo destination per click (offers.destination_by_geo). Hardcoding
+// it into the page moves that lookup into 1,410 static files, and Freecash alone is SEVEN campaign
+// ids — /50FC/GB1 must reach c=55503, not the US c=55504. A wrong-geo link does not error: it pays
+// out against another country's campaign, on a page quoting the wrong currency, and nothing in the
+// funnel notices. So the invariant is now "the link matches this clone's own slice and geo", and a
+// copy-paste or a stale campaign id fails the build.
+//
+// KEEP THIS TABLE IN STEP WITH SPRKNetworkAds landers/prelander/direct-offer.py OFFERS, which is
+// what writes the links, and with offers.destination_by_geo, which is what the network actually
+// honours. Three copies is two too many — but the other two live in another repo and a database,
+// and a build cannot read either.
+const OFFER_LINKS_BY_SLICE = {
+  '50FC': { FC: 'c=55504', US: 'c=55504', CA: 'c=55506', GB: 'c=55503',
+            NL: 'c=55508', JP: 'c=55510', AT: 'c=55513', DE: 'c=55520' },
+  CR50: { CR: 'c=55412' },
+  GP:   { GP: 'c=56278' },
+  PG50: { US: 'c=56213', GB: 'c=56213' },
+  PG51: { US: 'c=56213', GB: 'c=56213' },
+  PG52: { US: 'c=56213', GB: 'c=56213' },
+  RC50: { US: 'c=56065' }, RC51: { US: 'c=56065' }, RC52: { US: 'c=56065' },
+  // Everflow: a path, no campaign query. Matched on the offer path segment instead.
+  PR50: { US: 'GS3NQC1D', CA: 'GS3NQC1D', GB: 'GS3NQC1D', AU: 'GS3NQC1D' },
+  PC50: { US: 'H1N8TBG5' },
+};
+const CLONE_PATH = /^([A-Za-z0-9]+)\/([A-Za-z]+)(\d+)\/go\/index\.html$/;
+
 const offenders = [];
 for (const rel of files) {
   const src = readFileSync(new URL(rel, REPO), 'utf8');
-  // Only real links count. A comment saying what we MOVED AWAY FROM is written without
-  // a scheme precisely so it documents the history without tripping this.
-  for (const m of src.matchAll(/https?:\/\/([a-z0-9.-]+)/gi)) {
-    if (NETWORK_HOST_RE.test(m[1])) offenders.push(`${rel}: ${m[0]}`);
+  const hits = [...src.matchAll(/https?:\/\/([a-z0-9.-]+)/gi)].filter((m) => NETWORK_HOST_RE.test(m[1]));
+  if (!hits.length) continue;
+
+  const cm = CLONE_PATH.exec(rel);
+  if (!cm) {
+    // A network link OUTSIDE a clone lander is the original defect, unchanged.
+    offenders.push(`${rel}: ${hits[0][0]} (network link outside a clone lander)`);
+    continue;
   }
+  const [, slice, geo] = cm;
+  const want = (OFFER_LINKS_BY_SLICE[slice] || {})[geo.toUpperCase()];
+  if (!want) { offenders.push(`${rel}: no configured offer link for ${slice}/${geo}`); continue; }
+  if (!src.includes(want)) offenders.push(`${rel}: expected ${want} for ${slice}/${geo}, not found`);
 }
-report('no deployed lander links directly to a network tracker', offenders);
+report('every lander links to the offer link for its own slice and geo', offenders);
 
 // ── 2. Every /c/ offer link on a lander is on one of OUR hosts ────────────────
 const badOfferHosts = [];
