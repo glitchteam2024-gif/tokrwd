@@ -7,8 +7,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
-<link rel="preconnect" href="https://sprktrax.org" crossorigin>
-<link rel="dns-prefetch" href="https://sprktrax.org">
+<link rel="preconnect" href="https://monetisetrk4.co.uk" crossorigin>
+<link rel="dns-prefetch" href="https://monetisetrk4.co.uk">
 <link rel="preconnect" href="https://analytics.tiktok.com" crossorigin>
 
 <!-- ============================================================
@@ -152,7 +152,7 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
 if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
 
-var DOOR       = window.__DOOR_URL__   || 'https://sprktrax.org/api/link/prograd';
+var OFFER_URL       = window.__DOOR_URL__   || 'https://monetisetrk4.co.uk/?a=26648&c=56213';
 /* SPRK-DIRECT-OFFER v1 */
   /* Build the network URL. Reads the query directly, so it does not care which local the lander
      happened to keep it in.
@@ -254,9 +254,9 @@ var ttclid = q.get('ttclid') || '';
 function buildDoorUrl() {
   var out = new URLSearchParams(q.toString());
   out.delete('s1');
-  out.delete('lg');   // routes the lander only — the door/network never sees it
+  out.delete('lg');   // routes the lander only — the network never sees it
   var qs = out.toString();
-  var url = __sprkOffer(DOOR);
+  var url = __sprkOffer(OFFER_URL);
   return url;
 }
 var target = buildDoorUrl();

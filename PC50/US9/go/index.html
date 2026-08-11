@@ -300,12 +300,12 @@
 
 <script>
 (function(){
-  // ---- Outbound: the SPRK tracking DOOR ----
+  // ---- Outbound: the SPRK tracking OFFER_URL ----
   // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
   // and 302s to the real Playful Rewards URL — which lives in the offer row and never appears here.
   // Never wire this CTA straight to the network: that skips the door, so no click_id is minted, no
   // clicks row is written, and the conversion lands unmatched.
-  var DOOR = 'https://www.fkn8s74mztrk.com/F2R45HNR/H1N8TBG5/';
+  var OFFER_URL = 'https://www.fkn8s74mztrk.com/F2R45HNR/H1N8TBG5/';
 /* SPRK-DIRECT-OFFER v1 */
   /* Build the network URL. Reads the query directly, so it does not care which local the lander
      happened to keep it in.
@@ -359,7 +359,7 @@
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('campid'); out.delete('lg');
     var qs = out.toString(), s1 = q.get('s1') || '';
-    var url = __sprkOffer(DOOR);
+    var url = __sprkOffer(OFFER_URL);
     return url;
   }
 

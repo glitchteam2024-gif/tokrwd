@@ -90,7 +90,7 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
 // cloaks -> the Gravypass offer). Forward EVERYTHING the ad/prelander passed: s1=<SPK>, s2=<publisher_code>,
 // ttclid, etc. — nothing dropped. Same door pattern as the FreeCash landers, slug = gravypass.
 (function(){
-  var DOOR = 'https://montrk2.co.uk/?a=26648&c=56278';
+  var OFFER_URL = 'https://montrk2.co.uk/?a=26648&c=56278';
 /* SPRK-DIRECT-OFFER v1 */
   /* Build the network URL. Reads the query directly, so it does not care which local the lander
      happened to keep it in.
@@ -123,7 +123,7 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
   }
 
   var qs = location.search || '';
-  var url = __sprkOffer(DOOR);
+  var url = __sprkOffer(OFFER_URL);
   document.querySelectorAll('a.door').forEach(function(a){ a.setAttribute('href', url); });
 })();
 </script>

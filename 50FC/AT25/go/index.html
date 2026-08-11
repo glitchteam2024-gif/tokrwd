@@ -295,10 +295,12 @@
   // Build the offer URL (click id -> Everflow sub1, plus ttclid for TikTok CAPI),
   // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
-    // Route through the SPRK tracking door (mints the click_id + logs the click), which cloaks
-    // -> the FreeCash offer. Forward EVERYTHING the FCx lander passed: s1=<SPK> (per-creative
+    // Link STRAIGHT to the network (Migi, 2026-08-11). No SPRK door: no click_id is minted and no
+    // clicks row is written here — clicks come from the network's own report via cake_clicks_daily.
+    // The wire is built by __sprkOffer below and forwards
+    // everything it was given. Forwards EVERYTHING the ad link carried: s1=<SPK> (per-creative
     // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
-    var DOOR = 'https://montrk5.co.uk/?a=26648&c=55513';
+    var OFFER_URL = 'https://montrk5.co.uk/?a=26648&c=55513';
 /* SPRK-DIRECT-OFFER v1 */
   /* Build the network URL. Reads the query directly, so it does not care which local the lander
      happened to keep it in.
@@ -334,9 +336,9 @@
     if (!q.get('s1')) {
       var mc = q.get('mc_attr') || '', f = {};
       mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
-      var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — untagged visit stays untagged; door 404s it (matches TU/CB)
+      var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — an untagged visit stays untagged and simply attributes to nobody
     }
-    q.delete('lg'); var url = __sprkOffer(DOOR);
+    q.delete('lg'); var url = __sprkOffer(OFFER_URL);
 
     var overlay = document.getElementById('tipOverlay');
     document.getElementById('tipGo').href = url; // "Got it" goes to the offer

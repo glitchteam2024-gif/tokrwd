@@ -152,13 +152,21 @@ for (const rel of files) {
   if (!hits.length) continue;
 
   const cm = CLONE_PATH.exec(rel);
-  if (!cm) {
-    // A network link OUTSIDE a clone lander is the original defect, unchanged.
-    offenders.push(`${rel}: ${hits[0][0]} (network link outside a clone lander)`);
+  // A SLICE ROOT (e.g. GP/index.html) is a real deployed lander too — it is the page the fan-out
+  // was cloned FROM and it still answers at /GP/. It has no geo in its path, so it is checked
+  // against any link configured for its slice rather than exempted: exempting it is how the one
+  // page nobody re-checks ends up pointing at a retired campaign id.
+  const rm = cm ? null : /^([A-Za-z0-9]+)\/index\.html$/.exec(rel);
+  if (!cm && !rm) {
+    // A network link outside any lander at all is the original defect, unchanged.
+    offenders.push(`${rel}: ${hits[0][0]} (network link outside a lander)`);
     continue;
   }
-  const [, slice, geo] = cm;
-  const want = (OFFER_LINKS_BY_SLICE[slice] || {})[geo.toUpperCase()];
+  const slice = cm ? cm[1] : rm[1];
+  const geo = cm ? cm[2] : null;
+  const map = OFFER_LINKS_BY_SLICE[slice] || {};
+  const want = geo ? map[geo.toUpperCase()]
+                   : (Object.values(map).length === 1 ? Object.values(map)[0] : null);
   if (!want) { offenders.push(`${rel}: no configured offer link for ${slice}/${geo}`); continue; }
   if (!src.includes(want)) offenders.push(`${rel}: expected ${want} for ${slice}/${geo}, not found`);
 }

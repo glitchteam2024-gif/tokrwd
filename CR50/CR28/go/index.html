@@ -301,17 +301,17 @@
 </script>
 
 <!-- Copper offer wiring — builds the offer link at runtime (kept OUT of the markup) and routes
-     through the SPRK tracking DOOR, carrying every incoming param (esp. ?s1=<SPK> + ttclid) over so
+     through the SPRK tracking OFFER_URL, carrying every incoming param (esp. ?s1=<SPK> + ttclid) over so
      attribution lands. The real Monetise URL lives in the offer row (api/link/[slug].js), NEVER in
      this lander's source. Same door pattern as the Testerup 50TU/TU1 lander. -->
 <script>
 (function () {
   'use strict';
 
-  // The SPRK tracking DOOR (slug 'copper'). The door records the first-party click, mints the
+  // The SPRK tracking OFFER_URL (slug 'copper'). The door records the first-party click, mints the
   // canonical click_id (rides the offer's clickid_slot, default s5), stamps the per-affiliate label,
   // then 302s to the Copper offer's hidden destination — the real network URL lives in the offer row.
-  var DOOR = 'https://montrk.co.uk/?a=26648&c=55412';
+  var OFFER_URL = 'https://montrk.co.uk/?a=26648&c=55412';
 /* SPRK-DIRECT-OFFER v1 */
   /* Build the network URL. Reads the query directly, so it does not care which local the lander
      happened to keep it in.
@@ -352,7 +352,7 @@
     mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
     var d = f.e || f.c; if (d) q.set('s1', d);
   }
-  var offerUrl = __sprkOffer(DOOR);
+  var offerUrl = __sprkOffer(OFFER_URL);
 
   function wire() {
     var overlay = document.getElementById('tipOverlay');
