@@ -296,7 +296,8 @@
                     s1: q.get('s1') || '', s2: q.get('s2') || '', s3: q.get('s3') || '',
                     ttclid: q.get('ttclid') || '',
                     slice: seg[0] || '', clone: seg[1] || '', path: location.pathname
-                })], { type: 'application/json' });
+                })], { type: 'text/plain' });   /* see the note in lander-beacon.py: text/plain skips
+                       the CORS preflight that was blocking every beacon on the first live test */
                 navigator.sendBeacon(BEACON, b);
             } catch (e) { /* analytics must never break the funnel */ }
         }
@@ -312,21 +313,53 @@
             return location.origin + base + 'go/' + (qs ? '?' + qs : '');
         }
 
+        /* ── ESCALATING BREAKOUT ──────────────────────────────────────────────────────────────
+           One scheme is not enough. Measured live 2026-08-11: a link tapped from TikTok Messages
+           opened the in-app webview and `x-safari-https://` alone did nothing at all — no Safari,
+           no error, no visible failure. That is the normal case for a webview that refuses unknown
+           schemes: the navigation is simply dropped on the floor.
+
+           So we try the handlers in order, ~350ms apart, and stop the moment the page goes hidden
+           (which is the only reliable signal that another app took over):
+
+             iOS      x-safari-https://   Safari's own scheme
+                      googlechromes://    Chrome for iOS, if it is installed
+             Android  intent:// + package=com.android.chrome   explicitly names Chrome, rather
+                                                                than letting the webview claim it
+                      intent:// with no package                 the default browser
+
+           WHY THE PACKAGE MATTERS ON ANDROID: an intent with no package lets the SYSTEM pick a
+           handler, and inside an in-app browser the host app frequently is one — so the "escape"
+           hands the URL straight back to the app it was escaping. Naming Chrome removes that.
+
+           ⚠️ AND IF NONE OF THEM WORK, WE SAY SO RATHER THAN PRETENDING. Some webviews block every
+           scheme jump; no JavaScript can defeat that, and quietly forwarding to the lander would
+           hide the failure while the visitor sits inside the very browser that breaks the offer.
+           After the last attempt the page shows the manual instruction instead. Honest beats
+           silent: a visitor who is told to tap "Open in browser" can still convert. */
         function go() {
             var dest = landerUrl();
             var url;
 
-            if (/Android/i.test(navigator.userAgent)) {
-                /* intent:// hands the URL to the Android default browser. S.browser_fallback_url is
-                   what makes it safe on a device with no handler — without it a failed intent
-                   leaves the visitor on a dead page, on a click already paid for. */
-                url = 'intent://' + dest.replace(/^https?:\/\//, '')
-                    + '#Intent;scheme=https;S.browser_fallback_url=' + encodeURIComponent(dest) + ';end';
-            } else {
-                /* x-safari-https:// is the iOS escape. Harmless when already in Safari — it simply
-                   opens the URL — so it needs no UA test beyond the Android split above. */
-                url = dest.replace(/^https:\/\//, 'x-safari-https://');
-            }
+            var bare = dest.replace(/^https?:\/\//, '');
+            var attempts = /Android/i.test(navigator.userAgent)
+                ? [
+                    /* Chrome BY NAME first. An intent with no package lets the system choose a
+                       handler, and inside an in-app browser the host app is often one — so the
+                       "escape" hands the URL back to the app it was escaping. */
+                    'intent://' + bare + '#Intent;scheme=https;package=com.android.chrome;'
+                        + 'S.browser_fallback_url=' + encodeURIComponent(dest) + ';end',
+                    /* Then whatever the default browser is. S.browser_fallback_url keeps a device
+                       with no handler from landing on a dead page, on a click already paid for. */
+                    'intent://' + bare + '#Intent;scheme=https;'
+                        + 'S.browser_fallback_url=' + encodeURIComponent(dest) + ';end',
+                  ]
+                : [
+                    /* Safari's own scheme. Harmless when already in Safari — it just opens the URL. */
+                    dest.replace(/^https:\/\//, 'x-safari-https://'),
+                    /* Chrome for iOS, if installed. googlechromes:// is the https variant. */
+                    dest.replace(/^https:\/\//, 'googlechromes://'),
+                  ];
 
             /* LAST-RESORT FALLBACK, ARMED BEFORE THE NAVIGATION — never after.
                If the scheme escape is silently swallowed (a webview that blocks unknown schemes
@@ -354,16 +387,47 @@
                pre_rescue is beaconed when this fires: it is the DIRECT measurement of how often the
                scheme escape is swallowed, which is the number that tells you whether the breakout
                is working on real phones. */
-            var t = setTimeout(function () { beacon('pre_rescue'); location.replace(dest); }, 1200);
-            function cancel() { clearTimeout(t); }
+            var done = false, timers = [];
+            function cancel() {
+                if (done) return;
+                done = true;
+                timers.forEach(clearTimeout);
+            }
             window.addEventListener('pagehide', cancel, { once: true });
             window.addEventListener('blur', cancel, { once: true });
             document.addEventListener('visibilitychange', function () {
                 if (document.hidden) cancel();
             }, { once: true });
 
-            try { (window.top || window).location.href = url; }
-            catch (e) { window.location.href = url; }
+            function jump(u) {
+                if (done) return;
+                try { (window.top || window).location.href = u; }
+                catch (e) { window.location.href = u; }
+            }
+
+            /* First attempt fires SYNCHRONOUSLY, inside the tap. iOS only honours a scheme jump
+               while the user gesture is still active, so anything deferred is already too late. */
+            jump(attempts[0]);
+            for (var i = 1; i < attempts.length; i++) {
+                (function (u, n) { timers.push(setTimeout(function () { jump(u); }, 350 * n)); })(attempts[i], i);
+            }
+
+            /* Nothing took over -> every scheme was refused. Say so instead of silently forwarding:
+               dropping them on the lander inside this webview hides the failure while leaving the
+               visitor in the browser that breaks the offer. pre_rescue is beaconed either way, and
+               it is the direct measurement of how often the escape is swallowed. */
+            timers.push(setTimeout(function () {
+                if (done) return;
+                cancel();
+                beacon('pre_rescue');
+                var s = document.querySelector('.sub'), b = document.getElementById('ctaBtn');
+                if (s) s.innerHTML = 'Your app blocked the browser hand-off. Tap the <b>•••</b> menu '
+                    + 'at the top of this screen and choose <b>Open in browser</b>.';
+                if (b) { b.disabled = false; b.textContent = 'Continue anyway'; }
+                /* A second tap now goes straight through in-app rather than retrying the schemes —
+                   they have already been refused, and a visitor who insists should not be stuck. */
+                if (b) b.onclick = function (e) { e.preventDefault(); location.replace(dest); };
+            }, 350 * attempts.length + 900));
         }
 
         btn.addEventListener('click', function (e) {
