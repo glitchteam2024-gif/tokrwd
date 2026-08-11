@@ -260,12 +260,56 @@
         var btn = document.getElementById('ctaBtn');
         if (!btn) return;
 
+        /* ── THE FUNNEL BEACON ────────────────────────────────────────────────────────────────
+           Removing the door removed the only place SPRK saw a click. These four events are the
+           whole first-party funnel: pre_view -> pre_tap -> lp_view -> offer_click, plus pre_rescue
+           when the scheme escape is swallowed and the watchdog has to step in.
+
+           sendBeacon, never fetch: the browser sends it asynchronously and keeps it alive across
+           the page unloading, so it cannot delay the tap or be cancelled by the navigation that
+           immediately follows it. Every call is wrapped — analytics must never be able to throw on
+           the path to the offer.
+
+           NO UA SNIFFING HERE, deliberately. Whether this is an in-app webview is classified
+           SERVER-SIDE by /api/funnel-beacon from the request's own User-Agent. Putting that test in
+           the page would trip tokrwd's _tracking-audit, and rightly: a page that can tell it is
+           being reviewed is a page that can behave differently for a reviewer. */
+        var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+        var q = new URLSearchParams(location.search);
+
+        /* The journey id. Minted here, carried to the lander, and the ONLY thing that makes the
+           four events one story: without it you have four counters and cannot tell a failed
+           breakout from a lander bounce. Rides the query and is stripped before the network URL. */
+        var sid = q.get('sid') || '';
+        if (!sid) {
+            try { sid = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { sid = ''; }
+            if (!sid) sid = Date.now().toString(36) + Math.random().toString(36).slice(2);
+            sid = sid.slice(0, 32);
+            q.set('sid', sid);
+        }
+
+        var seg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+        function beacon(event) {
+            try {
+                var b = new Blob([JSON.stringify({
+                    event: event, sid: sid,
+                    s1: q.get('s1') || '', s2: q.get('s2') || '', s3: q.get('s3') || '',
+                    ttclid: q.get('ttclid') || '',
+                    slice: seg[0] || '', clone: seg[1] || '', path: location.pathname
+                })], { type: 'application/json' });
+                navigator.sendBeacon(BEACON, b);
+            } catch (e) { /* analytics must never break the funnel */ }
+        }
+        beacon('pre_view');
+
         /* The lander, resolved against THIS clone's own directory. `new URL`-free on purpose so it
            behaves the same on old in-app webviews; the two replaces normalise a path with or
            without its trailing slash, and a literal /index.html, to the same base. */
+        /* `q`, not location.search, so the sid minted above rides to the lander. */
         function landerUrl() {
             var base = location.pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
-            return location.origin + base + 'go/' + (location.search || '');
+            var qs = q.toString();
+            return location.origin + base + 'go/' + (qs ? '?' + qs : '');
         }
 
         function go() {
@@ -301,7 +345,16 @@
                unloaded, so pagehide may never fire and a pagehide-only cancel would fire the
                fallback on every SUCCESSFUL breakout. Going hidden is the reliable signal that
                another app took over. */
-            var t = setTimeout(function () { location.replace(dest); }, 1200);
+            /* THE RESCUE GOES TO THE LANDER, NOT THE OFFER (Migi, 2026-08-11). `dest` is ./go.
+               Sending a rescued visitor straight to the network would put them on the offer inside
+               the very webview this page exists to escape — the failure would be hidden rather than
+               fixed, and the offer flow is what degrades there. The lander still works in-app, so
+               they keep a usable page and the click is not thrown away.
+
+               pre_rescue is beaconed when this fires: it is the DIRECT measurement of how often the
+               scheme escape is swallowed, which is the number that tells you whether the breakout
+               is working on real phones. */
+            var t = setTimeout(function () { beacon('pre_rescue'); location.replace(dest); }, 1200);
             function cancel() { clearTimeout(t); }
             window.addEventListener('pagehide', cancel, { once: true });
             window.addEventListener('blur', cancel, { once: true });
@@ -316,6 +369,7 @@
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             btn.disabled = true;
+            beacon('pre_tap');   /* fired BEFORE go(), so it is sent even if the app switch is instant */
             go();
         });
     })();

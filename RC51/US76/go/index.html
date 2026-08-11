@@ -162,7 +162,7 @@ var OFFER_URL       = window.__DOOR_URL__   || 'https://monetisetrk2.co.uk/?a=26
          in one URL (and silently dropped ttclid) in the funnel this family was adapted from. */
   function __sprkOffer(base) {
     var p = new URLSearchParams(location.search);
-    p.delete('lg'); p.delete('campid');
+    p.delete('lg'); p.delete('campid'); p.delete('sid');
     var s1 = p.get('s1') || p.get('sub1') || '';
     p.delete('s1'); p.delete('sub1');
     var t;
@@ -170,11 +170,48 @@ var OFFER_URL       = window.__DOOR_URL__   || 'https://monetisetrk2.co.uk/?a=26
     if (!t) t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
     t = t.slice(0, 22);
     if (!p.get('s5')) p.set('s5', t);
+    try { window.__SPRK_S5 = p.get('s5'); } catch (e) {}
     var qs = p.toString();
     var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');
     if (s1) url += (url.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(s1);
     return url;
   }
+  /* SPRK-FUNNEL-BEACON v1 */
+  /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
+     analytics cannot throw on the path to the offer. No UA test here -- /api/funnel-beacon
+     classifies in-app server-side, which keeps this page identical for every visitor. */
+  (function(){
+    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    var bseg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+    function bsend(ev, extra){
+      try {
+        var d = { event: ev, sid: bq.get('sid') || '',
+                  s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                  ttclid: bq.get('ttclid') || '',
+                  slice: bseg[0] || '', clone: bseg[1] || '', path: location.pathname };
+        if (extra) for (var k in extra) d[k] = extra[k];
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify(d)], { type: 'application/json' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    /* Bound to the CTA, not to the URL builder: on family A the builder runs at page LOAD, so
+       beaconing there would count a click for everyone who merely saw the page. Fires once. */
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'ctaBtn' || el.id === 'tipGo'
+            || (el.classList && (el.classList.contains('offer-link') || el.classList.contains('store-combo')))) {
+          fired = true;
+          bsend('offer_click', { s5: (window.__SPRK_S5 || '') });
+          return;
+        }
+      }
+    }, true);
+  })();
+
 /* Amounts are baked into the markup at build time — nothing to substitute at runtime. */
 var GEO_VALUE = 0;
 
