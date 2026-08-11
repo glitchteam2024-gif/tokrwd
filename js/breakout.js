@@ -91,6 +91,10 @@
     // sell in an English geo (US x4, GB x2, AU x1 — there is no Canadian Shein offer). One clone
     // family per offer. Printed by node _lp-generator/ravi-shein.js on every run.
     'ravsh', 'rv54', 'rv55', 'rv56', 'rv57', 'rv58', 'rv59', 'rv60', 'ravshurl',
+    // ravfc/rv61..rv63/ravfcurl is the same affiliate THIRD design, on the US/CA/GB geos of the
+    // ONE Freecash offer. One clone family per geo. Printed by
+    // node _lp-generator/ravi-freecash.js on every run.
+    'ravfc', 'rv61', 'rv62', 'rv63', 'ravfcurl',
     'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
     'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
     'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',

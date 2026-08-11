@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#00E676" />
+  <meta name="description" content="Join over 10 million users earning cash and free gift cards by testing games and apps. Get a free welcome chest worth up to $250. Instant PayPal, Visa, and gift card cashouts." />
+  <title>Freecash — Earn Cash &amp; Free Gift Cards for Testing Games &amp; Apps</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: { 950:'#070A0F',900:'#0B1018',850:'#0F1622',800:'#141C2B',700:'#1C2638',600:'#283349',500:'#3A4660' },
+            neon: { 50:'#E6FFF4',100:'#B8FFD9',200:'#7DFFB8',300:'#3DFA94',400:'#00E676',500:'#00C853',600:'#00A840',700:'#007A2E',800:'#00501E',900:'#003012' },
+          },
+          fontFamily: {
+            sans: ['Inter','system-ui','sans-serif'],
+            display: ['"Plus Jakarta Sans"','Inter','system-ui','sans-serif'],
+          },
+          boxShadow: {
+            'neon-sm':'0 0 12px -2px rgba(0,230,118,0.45)',
+            'neon-md':'0 0 24px -2px rgba(0,230,118,0.55)',
+            'neon-lg':'0 0 48px -4px rgba(0,230,118,0.6)',
+          },
+          animation: {
+            'ticker-scroll':'tickerScroll 40s linear infinite',
+            'float-slow':'floatSlow 6s ease-in-out infinite',
+            'rise':'rise 0.5s ease-out',
+          },
+          keyframes: {
+            tickerScroll: { '0%':{transform:'translateX(0)'},'100%':{transform:'translateX(-50%)'} },
+            floatSlow: { '0%,100%':{transform:'translateY(0px)'},'50%':{transform:'translateY(-12px)'} },
+            rise: { '0%':{opacity:'0',transform:'translateY(20px)'},'100%':{opacity:'1',transform:'translateY(0)'} },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body { background:#070A0F; color:#fff; font-family:'Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+    [data-lucide] { stroke-width: 2; }
+
+    .text-gradient-neon {
+      background:linear-gradient(to right,#3DFA94,#00E676,#00C853);
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .glass { background:rgba(20,28,43,0.6); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+    .grid-bg {
+      background-image:linear-gradient(rgba(0,230,118,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.04) 1px,transparent 1px);
+      background-size:48px 48px;
+    }
+    .radial-fade {
+      -webkit-mask-image:radial-gradient(ellipse 60% 60% at 50% 40%,#000 40%,transparent 100%);
+      mask-image:radial-gradient(ellipse 60% 60% at 50% 40%,#000 40%,transparent 100%);
+    }
+
+    /* Range slider */
+    input[type=range].neon-slider { -webkit-appearance:none; appearance:none; height:8px; border-radius:999px; outline:none; }
+    input[type=range].neon-slider::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:28px; height:28px; border-radius:50%; background:#00E676; border:4px solid #0B1018; box-shadow:0 0 0 1px #00E676,0 0 16px rgba(0,230,118,0.6); cursor:pointer; transition:transform .15s ease; }
+    input[type=range].neon-slider::-webkit-slider-thumb:active { transform:scale(1.15); }
+    input[type=range].neon-slider::-moz-range-thumb { width:28px; height:28px; border-radius:50%; background:#00E676; border:4px solid #0B1018; box-shadow:0 0 0 1px #00E676,0 0 16px rgba(0,230,118,0.6); cursor:pointer; }
+
+    ::-webkit-scrollbar { width:10px; }
+    ::-webkit-scrollbar-track { background:#0B1018; }
+    ::-webkit-scrollbar-thumb { background:#283349; border-radius:999px; }
+    ::-webkit-scrollbar-thumb:hover { background:#3A4660; }
+
+    .faq-answer { display:grid; grid-template-rows:0fr; opacity:0; transition:all .3s; }
+    .faq-answer.open { grid-template-rows:1fr; opacity:1; }
+    .faq-answer > div { overflow:hidden; }
+    .faq-chevron { transition:transform .3s; }
+    .faq-chevron.open { transform:rotate(180deg); }
+
+    .shine::after {
+      content:''; position:absolute; inset:0; transform:translateX(-100%);
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+      transition:transform .7s;
+    }
+    .shine:hover::after { transform:translateX(100%); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+    }
+  </style>
+</head>
+<body class="bg-ink-950 text-white">
+
+  <!-- Urgency Bar -->
+  <div class="relative z-30 w-full bg-ink-900 border-b border-neon-400/15">
+    <div class="mx-auto flex max-w-7xl items-center justify-center gap-x-3 gap-y-1 px-4 py-2.5 text-center text-xs sm:text-sm">
+      <span class="flex items-center gap-1.5 font-semibold text-neon-300">
+        <span class="relative flex h-2.5 w-2.5">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon-400 opacity-60"></span>
+          <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-neon-400"></span>
+        </span>
+        LIVE
+      </span>
+      <span class="text-white/90">
+        <span class="font-bold text-neon-300" id="payoutAmount">$48,200+</span> paid out to users today
+      </span>
+      <span class="hidden text-white/30 sm:inline">|</span>
+      <span class="hidden text-white/70 sm:inline">Average cashout time: <span class="font-semibold text-white">17 minutes</span></span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <header class="sticky top-0 z-30 glass border-b border-white/5">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-2">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-neon-400 text-ink-950 shadow-neon-sm">
+          <i data-lucide="wallet" class="h-5 w-5"></i>
+        </div>
+        <span class="font-display text-xl font-extrabold tracking-tight">Free<span class="text-neon-400">cash</span></span>
+      </div>
+      <nav class="hidden items-center gap-7 text-sm font-medium text-white/70 md:flex">
+        <a href="#calculator" class="transition-colors hover:text-white">Earn</a>
+        <a href="#features" class="transition-colors hover:text-white">Why Freecash</a>
+        <a href="#faq" class="transition-colors hover:text-white">FAQ</a>
+      </nav>
+      <a href="#calculator" class="hidden rounded-xl bg-neon-400 px-4 py-2 text-sm font-bold text-ink-950 transition-colors hover:bg-neon-300 sm:inline-block">Sign Up Free</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24">
+      <div class="pointer-events-none absolute inset-0 grid-bg radial-fade"></div>
+      <div class="pointer-events-none absolute left-1/2 top-0 h-[520px] w-[680px] -translate-x-1/2 rounded-full bg-neon-400/10 blur-[120px]"></div>
+
+      <div class="relative mx-auto grid max-w-7xl items-center gap-12 px-4 lg:grid-cols-2 lg:gap-8">
+        <div class="text-center lg:text-left" style="animation:rise .5s ease-out">
+          <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-neon-400/30 bg-neon-400/10 px-4 py-1.5 text-xs font-semibold text-neon-300">
+            <i data-lucide="gift" class="h-3.5 w-3.5"></i>
+            Free Welcome Chest worth up to $250
+          </div>
+          <h1 class="font-display text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+            Earn Cash &amp; Free Gift Cards for <span class="text-gradient-neon">Testing Games &amp; Apps</span>
+          </h1>
+          <p class="mx-auto mt-5 max-w-xl text-base text-white/70 sm:text-lg lg:mx-0">
+            Join over <span class="font-semibold text-white">10 Million users</span> earning up to $100+ per month. Get a free surprise welcome chest worth up to $250 upon signing up.
+          </p>
+          <div class="mt-8 flex flex-col items-center gap-4 sm:flex-row justify-center lg:justify-start">
+            <a href="#calculator" class="shine group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-neon-400 px-7 py-4 text-base font-bold text-ink-950 shadow-neon-md transition-all hover:bg-neon-300 hover:shadow-neon-lg active:scale-[0.98] sm:w-auto">
+              Open Free Welcome Chest ($250 Max)
+              <i data-lucide="arrow-right" class="h-5 w-5 transition-transform group-hover:translate-x-1"></i>
+            </a>
+          </div>
+          <div class="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/60 lg:justify-start">
+            <span class="inline-flex items-center gap-1.5"><i data-lucide="star" class="h-4 w-4 fill-neon-400 text-neon-400"></i><span class="font-semibold text-white">4.6</span> Trustpilot (80k+ reviews)</span>
+            <span class="inline-flex items-center gap-1.5"><i data-lucide="wallet" class="h-4 w-4 text-neon-400"></i> $0 Fees</span>
+            <span class="inline-flex items-center gap-1.5"><i data-lucide="zap" class="h-4 w-4 text-neon-400"></i> Instant Cashouts</span>
+          </div>
+        </div>
+
+        <!-- Reward card mockup -->
+        <div class="relative mx-auto w-full max-w-md lg:max-w-lg" style="animation:rise .5s ease-out">
+          <div class="animate-float-slow">
+            <div class="relative rounded-3xl border border-white/10 bg-gradient-to-br from-ink-800 to-ink-900 p-6 shadow-2xl shadow-black/50">
+              <div class="pointer-events-none absolute -inset-px rounded-3xl bg-gradient-to-br from-neon-400/20 via-transparent to-transparent"></div>
+              <div class="relative">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-neon-400 text-ink-950"><i data-lucide="wallet" class="h-5 w-5"></i></div>
+                    <span class="font-display text-lg font-bold">Your Rewards</span>
+                  </div>
+                  <span class="rounded-full bg-neon-400/15 px-2.5 py-1 text-xs font-semibold text-neon-300">Available</span>
+                </div>
+                <div class="mt-5 rounded-2xl border border-neon-400/20 bg-ink-850 p-5">
+                  <p class="text-xs uppercase tracking-wider text-white/40">Balance</p>
+                  <p class="mt-1 font-display text-4xl font-extrabold text-white">$<span class="text-gradient-neon">250.00</span></p>
+                  <div class="mt-3 flex items-center gap-1.5 text-xs text-neon-300"><i data-lucide="shield-check" class="h-4 w-4"></i> Ready to withdraw instantly</div>
+                </div>
+                <p class="mt-5 mb-2 text-xs font-semibold uppercase tracking-wider text-white/40">Cashout methods</p>
+                <div class="grid grid-cols-2 gap-2.5">
+                  <div class="flex items-center gap-2 rounded-xl border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-sm font-semibold text-blue-300 shadow-lg"><span class="text-base font-extrabold italic">P</span><span>PayPal</span></div>
+                  <div class="flex items-center gap-2 rounded-xl border border-blue-700/30 bg-blue-700/10 px-3 py-2 text-sm font-semibold text-blue-200 shadow-lg"><span class="text-xs font-bold tracking-widest">VISA</span><span>Visa Prepaid</span></div>
+                  <div class="flex items-center gap-2 rounded-xl border border-orange-500/30 bg-orange-500/10 px-3 py-2 text-sm font-semibold text-orange-300 shadow-lg"><span class="text-xs font-bold">a</span><span>Amazon</span></div>
+                  <div class="flex items-center gap-2 rounded-xl border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm font-semibold text-green-300 shadow-lg"><span class="text-xs font-bold">&#9654;</span><span>Google Play</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="absolute -left-4 top-1/4 hidden rounded-2xl border border-white/10 bg-ink-800/90 px-3 py-2 text-xs font-semibold shadow-xl backdrop-blur sm:block"><span class="text-neon-300">+$5.00</span> survey</div>
+            <div class="absolute -right-4 bottom-1/4 hidden rounded-2xl border border-white/10 bg-ink-800/90 px-3 py-2 text-xs font-semibold shadow-xl backdrop-blur sm:block"><span class="text-neon-300">+$12.50</span> game test</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cash Calculator -->
+    <section id="calculator" class="relative py-16 sm:py-24">
+      <div class="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-neon-400/5 blur-[120px]"></div>
+      <div class="relative mx-auto max-w-3xl px-4">
+        <div class="mb-8 text-center">
+          <span class="text-xs font-bold uppercase tracking-widest text-neon-400">Reward Calculator</span>
+          <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">See how much you could earn</h2>
+          <p class="mt-2 text-white/60">Pick your payout method and estimate your time commitment.</p>
+        </div>
+        <div class="rounded-3xl border border-white/10 bg-ink-850/80 p-6 shadow-2xl backdrop-blur sm:p-8">
+          <p class="mb-3 text-sm font-semibold text-white/80">Choose your payout method</p>
+          <div class="grid grid-cols-2 gap-2.5 sm:grid-cols-5" id="methodGrid"></div>
+
+          <div class="mt-7">
+            <div class="mb-2 flex items-center justify-between">
+              <span class="flex items-center gap-1.5 text-sm font-semibold text-white/80"><i data-lucide="clock" class="h-4 w-4 text-neon-400"></i> Hours per week</span>
+              <span class="rounded-lg bg-neon-400/15 px-2.5 py-1 text-sm font-bold text-neon-300" id="hoursLabel">8h</span>
+            </div>
+            <input type="range" min="1" max="40" value="8" id="hoursSlider" class="neon-slider w-full" />
+            <div class="mt-1.5 flex justify-between text-[10px] text-white/30"><span>1h</span><span>20h</span><span>40h</span></div>
+          </div>
+
+          <div class="mt-7 overflow-hidden rounded-2xl border border-neon-400/20 bg-gradient-to-br from-ink-800 to-ink-900 p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="flex items-center gap-1.5 text-xs uppercase tracking-wider text-white/40"><i data-lucide="trending-up" class="h-3.5 w-3.5"></i> Est. monthly earnings</p>
+                <p class="mt-1 font-display text-4xl font-extrabold sm:text-5xl">$<span class="text-gradient-neon" id="monthlyAmount">155</span></p>
+                <p class="mt-1 text-xs text-white/50" id="methodLabel">Paid via PayPal &#183; no fees, instant withdrawal</p>
+              </div>
+              <div class="hidden h-16 w-16 items-center justify-center rounded-2xl bg-neon-400/10 text-neon-400 sm:flex"><i data-lucide="gift" class="h-8 w-8"></i></div>
+            </div>
+            <button id="claimBtn" class="group mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-neon-400 px-6 py-4 text-base font-bold text-ink-950 shadow-neon-md transition-all hover:bg-neon-300 hover:shadow-neon-lg active:scale-[0.98]">
+              <span id="claimText">Claim Your Starting Chest</span>
+              <i data-lucide="arrow-right" class="h-5 w-5 transition-transform group-hover:translate-x-1" id="claimIcon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="relative py-16 sm:py-24">
+      <div class="mx-auto max-w-7xl px-4">
+        <div class="mb-12 text-center">
+          <span class="text-xs font-bold uppercase tracking-widest text-neon-400">Why Freecash</span>
+          <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Built for people who actually want to earn</h2>
+        </div>
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4" id="featureGrid"></div>
+      </div>
+    </section>
+
+    <!-- Cashout Ticker -->
+    <section class="relative overflow-hidden py-16 sm:py-24">
+      <div class="mx-auto max-w-7xl px-4">
+        <div class="mb-8 text-center">
+          <span class="text-xs font-bold uppercase tracking-widest text-neon-400">Live Cashouts</span>
+          <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Real people, real payouts</h2>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="pointer-events-none absolute left-0 top-0 z-10 h-full w-24 bg-gradient-to-r from-ink-950 to-transparent"></div>
+        <div class="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-ink-950 to-transparent"></div>
+        <div class="flex w-max animate-ticker-scroll gap-3 px-3" id="tickerTrack"></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="relative py-16 sm:py-24">
+      <div class="mx-auto max-w-3xl px-4">
+        <div class="mb-10 text-center">
+          <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-neon-400"><i data-lucide="help-circle" class="h-4 w-4"></i> FAQ</span>
+          <h2 class="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Questions? Answered.</h2>
+        </div>
+        <div class="space-y-3" id="faqList"></div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="relative overflow-hidden py-20">
+      <div class="pointer-events-none absolute inset-0 grid-bg radial-fade opacity-50"></div>
+      <div class="pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-neon-400/10 blur-[120px]"></div>
+      <div class="relative mx-auto max-w-2xl px-4 text-center">
+        <h2 class="font-display text-3xl font-extrabold tracking-tight sm:text-5xl">Start earning in <span class="text-gradient-neon">under 2 minutes</span></h2>
+        <p class="mx-auto mt-4 max-w-md text-white/60">Join 10 million earners. Open your free welcome chest worth up to $250 &#8212; no card, no catch.</p>
+        <a href="#calculator" class="group mt-8 inline-flex items-center justify-center gap-2 rounded-2xl bg-neon-400 px-8 py-4 text-base font-bold text-ink-950 shadow-neon-md transition-all hover:bg-neon-300 hover:shadow-neon-lg active:scale-[0.98]">
+          Open Free Welcome Chest ($250 Max)
+          <i data-lucide="arrow-right" class="h-5 w-5 transition-transform group-hover:translate-x-1"></i>
+        </a>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-white/50">
+          <span class="inline-flex items-center gap-1.5"><i data-lucide="star" class="h-4 w-4 fill-neon-400 text-neon-400"></i> 4.6 Trustpilot</span>
+          <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check" class="h-4 w-4 text-neon-400"></i> $0 Fees</span>
+          <span class="inline-flex items-center gap-1.5"><i data-lucide="wallet" class="h-4 w-4 text-neon-400"></i> Instant Cashouts</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-10 pb-28 lg:pb-10">
+    <div class="mx-auto max-w-7xl px-4">
+      <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+        <div class="flex items-center gap-2">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-neon-400 text-ink-950"><i data-lucide="wallet" class="h-4 w-4"></i></div>
+          <span class="font-display text-lg font-extrabold">Free<span class="text-neon-400">cash</span></span>
+        </div>
+        <nav class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/50">
+          <a href="#" class="hover:text-white">About</a><a href="#" class="hover:text-white">Support</a><a href="#faq" class="hover:text-white">FAQ</a><a href="#" class="hover:text-white">Terms</a><a href="#" class="hover:text-white">Privacy</a>
+        </nav>
+        <p class="text-xs text-white/30">&#169; 2025 Freecash. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sticky Mobile CTA -->
+  <div class="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+    <div class="glass border-t border-neon-400/20 px-4 py-3" style="padding-bottom:max(0.75rem,env(safe-area-inset-bottom))">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-neon-400/15 text-neon-400"><i data-lucide="gift" class="h-5 w-5"></i></div>
+          <div class="leading-tight">
+            <p class="text-sm font-bold text-white">Your $250 Chest is Ready!</p>
+            <p class="text-xs text-white/50">Tap to open &#8212; free, no card needed</p>
+          </div>
+        </div>
+        <a href="#calculator" class="group inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-neon-400 px-4 py-3 text-sm font-bold text-ink-950 shadow-neon-sm transition-all hover:bg-neon-300 active:scale-95">
+          Open Now
+          <i data-lucide="arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-0.5"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === Lucide init ===
+    function refreshIcons() { lucide.createIcons(); }
+
+    // === Live payout counter ===
+    let payout = 48200;
+    const payoutEl = document.getElementById('payoutAmount');
+    setInterval(function () {
+      payout += Math.floor(Math.random() * 7) + 1;
+      payoutEl.textContent = '$' + payout.toLocaleString() + '+';
+    }, 2200);
+
+    // === Cash Calculator ===
+    var METHODS = [
+      { id:'paypal',  label:'PayPal',        glyph:'P',    color:'blue',    rate:1.0 },
+      { id:'amazon',  label:'Amazon',        glyph:'a',    color:'orange',  rate:1.05 },
+      { id:'visa',    label:'Visa Prepaid',  glyph:'VISA', color:'indigo',  rate:0.98 },
+      { id:'google',  label:'Google Play',   glyph:'\u25B6', color:'green', rate:1.02 },
+      { id:'apple',   label:'Apple',         glyph:'',     color:'slate',   rate:1.03 }
+    ];
+    var colorMap = {
+      blue:   { ring:'ring-blue-400',   bg:'bg-blue-500/15',   text:'text-blue-300',   border:'border-blue-500/40' },
+      orange: { ring:'ring-orange-400', bg:'bg-orange-500/15', text:'text-orange-300', border:'border-orange-500/40' },
+      indigo: { ring:'ring-indigo-400', bg:'bg-indigo-500/15', text:'text-indigo-300', border:'border-indigo-500/40' },
+      green:  { ring:'ring-green-400',  bg:'bg-green-500/15',  text:'text-green-300',  border:'border-green-500/40' },
+      slate:  { ring:'ring-slate-300',  bg:'bg-slate-500/15',  text:'text-slate-200',  border:'border-slate-400/40' }
+    };
+
+    var selectedMethod = 'paypal';
+    var hours = 8;
+    var claimed = false;
+
+    var methodGrid = document.getElementById('methodGrid');
+    METHODS.forEach(function (m) {
+      var btn = document.createElement('button');
+      btn.className = 'calc-btn flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 text-xs font-semibold transition-all border-white/10 bg-ink-800 text-white/60 hover:border-white/20 hover:text-white';
+      btn.dataset.id = m.id;
+      btn.innerHTML = '<span class="flex h-8 w-8 items-center justify-center rounded-lg bg-ink-700 text-sm font-bold">' + (m.glyph || '') + '</span>' + m.label;
+      btn.addEventListener('click', function () { selectedMethod = m.id; updateCalculator(); });
+      methodGrid.appendChild(btn);
+    });
+
+    var slider = document.getElementById('hoursSlider');
+    var hoursLabel = document.getElementById('hoursLabel');
+    var monthlyAmount = document.getElementById('monthlyAmount');
+    var methodLabel = document.getElementById('methodLabel');
+
+    slider.addEventListener('input', function (e) { hours = Number(e.target.value); updateCalculator(); });
+
+    function updateCalculator() {
+      var method = METHODS.find(function (mm) { return mm.id === selectedMethod; });
+      var c = colorMap[method.color];
+      var monthly = Math.round(4.5 * method.rate * 4.3 * hours);
+
+      methodGrid.querySelectorAll('.calc-btn').forEach(function (btn) {
+        var m = METHODS.find(function (mm) { return mm.id === btn.dataset.id; });
+        var cc = colorMap[m.color];
+        var active = m.id === selectedMethod;
+        btn.className = 'calc-btn flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 text-xs font-semibold transition-all ' +
+          (active
+            ? cc.bg + ' ' + cc.border + ' ' + cc.text + ' ring-2 ' + cc.ring + ' scale-[1.03]'
+            : 'border-white/10 bg-ink-800 text-white/60 hover:border-white/20 hover:text-white');
+        var iconSpan = btn.querySelector('span');
+        iconSpan.className = 'flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ' + (active ? cc.bg : 'bg-ink-700');
+      });
+
+      hoursLabel.textContent = hours + 'h';
+      slider.style.background = 'linear-gradient(to right,#00E676 0%,#00E676 ' + ((hours - 1) / 39) * 100 + '%,#1C2638 ' + ((hours - 1) / 39) * 100 + '%,#1C2638 100%)';
+      monthlyAmount.textContent = monthly.toLocaleString();
+      methodLabel.textContent = 'Paid via ' + method.label + ' \u00B7 no fees, instant withdrawal';
+    }
+
+    var claimBtn = document.getElementById('claimBtn');
+    var claimText = document.getElementById('claimText');
+    var claimIcon = document.getElementById('claimIcon');
+    claimBtn.addEventListener('click', function () {
+      claimed = true;
+      claimBtn.className = 'group mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-ink-700 px-6 py-4 text-base font-bold text-neon-300 transition-all active:scale-[0.98]';
+      claimText.textContent = 'Chest Claimed \u2014 Check your email!';
+      claimIcon.setAttribute('data-lucide', 'check');
+      refreshIcons();
+    });
+
+    updateCalculator();
+
+    // === Feature Grid ===
+    var FEATURES = [
+      { icon:'zap',                title:'Instant Cashouts',    desc:'Withdraw to PayPal, Visa, or gift cards starting at just $0.50. No waiting, no fees.',     accent:'from-neon-400/20 to-transparent' },
+      { icon:'badge-dollar-sign',  title:'Top-Paying Tasks',    desc:'The highest offer payouts in the industry. Surveys, games, and app tests that actually pay well.', accent:'from-blue-400/20 to-transparent' },
+      { icon:'trophy',             title:'Daily Leaderboards',  desc:'Compete with other earners and grab $500+ daily bonuses for topping the charts.',           accent:'from-orange-400/20 to-transparent' },
+      { icon:'headset',            title:'24/7 Live Support',   desc:'Real humans, fast processing. Get help any time of day with instant responses.',             accent:'from-purple-400/20 to-transparent' }
+    ];
+    var featureGrid = document.getElementById('featureGrid');
+    FEATURES.forEach(function (f) {
+      var card = document.createElement('div');
+      card.className = 'group relative overflow-hidden rounded-2xl border border-white/10 bg-ink-850 p-6 transition-all hover:border-neon-400/30 hover:-translate-y-1';
+      card.innerHTML =
+        '<div class="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br ' + f.accent + ' blur-2xl"></div>' +
+        '<div class="relative">' +
+          '<div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-neon-400/10 text-neon-400 ring-1 ring-neon-400/20 transition-colors group-hover:bg-neon-400 group-hover:text-ink-950"><i data-lucide="' + f.icon + '" class="h-6 w-6"></i></div>' +
+          '<h3 class="font-display text-lg font-bold">' + f.title + '</h3>' +
+          '<p class="mt-2 text-sm leading-relaxed text-white/60">' + f.desc + '</p>' +
+        '</div>';
+      featureGrid.appendChild(card);
+    });
+
+    // === Cashout Ticker ===
+    var CASHOUTS = [
+      { user:'sarah_m', amount:'$20.00', method:'PayPal',       glyph:'P',    color:'text-blue-300 bg-blue-500/15',     ago:'1m ago' },
+      { user:'david_k', amount:'$50.00', method:'Visa Prepaid', glyph:'VISA', color:'text-indigo-300 bg-indigo-500/15',  ago:'2m ago' },
+      { user:'lily_22', amount:'$5.00',  method:'Amazon',       glyph:'a',    color:'text-orange-300 bg-orange-500/15',  ago:'3m ago' },
+      { user:'mike_t',  amount:'$15.00', method:'PayPal',       glyph:'P',    color:'text-blue-300 bg-blue-500/15',     ago:'4m ago' },
+      { user:'emma_w',  amount:'$25.00', method:'Google Play',  glyph:'\u25B6', color:'text-green-300 bg-green-500/15',  ago:'5m ago' },
+      { user:'alex99',  amount:'$10.00', method:'Amazon',       glyph:'a',    color:'text-orange-300 bg-orange-500/15',  ago:'6m ago' },
+      { user:'ryan_b',  amount:'$50.00', method:'Visa Prepaid', glyph:'VISA', color:'text-indigo-300 bg-indigo-500/15',  ago:'7m ago' },
+      { user:'nora_x',  amount:'$5.00',  method:'PayPal',       glyph:'P',    color:'text-blue-300 bg-blue-500/15',     ago:'8m ago' },
+      { user:'leo_77',  amount:'$30.00', method:'Apple',        glyph:'',     color:'text-slate-200 bg-slate-500/15',    ago:'9m ago' },
+      { user:'kira_p',  amount:'$15.00', method:'Google Play',  glyph:'\u25B6', color:'text-green-300 bg-green-500/15',  ago:'10m ago' }
+    ];
+
+    function tickerCard(c, i) {
+      var div = document.createElement('div');
+      div.className = 'flex w-64 shrink-0 items-center gap-3 rounded-2xl border border-white/10 bg-ink-850/80 p-3.5 backdrop-blur';
+      div.innerHTML =
+        '<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ' + c.color + '">' + (c.glyph || '') + '</div>' +
+        '<div class="min-w-0 flex-1">' +
+          '<div class="flex items-center justify-between gap-2"><span class="truncate text-sm font-semibold text-white">' + c.user + '</span><span class="shrink-0 font-display text-base font-bold text-neon-300">' + c.amount + '</span></div>' +
+          '<div class="mt-0.5 flex items-center justify-between text-xs text-white/40"><span class="truncate">' + c.method + '</span><span class="shrink-0" data-ago="' + i + '">' + c.ago + '</span></div>' +
+        '</div>' +
+        '<i data-lucide="check-circle-2" class="h-4 w-4 shrink-0 text-neon-400"></i>';
+      return div;
+    }
+
+    var tickerTrack = document.getElementById('tickerTrack');
+    CASHOUTS.concat(CASHOUTS).forEach(function (c, i) { tickerTrack.appendChild(tickerCard(c, i)); });
+
+    // rotate "ago" labels
+    var agoItems = CASHOUTS.map(function (c, i) { return { agoNum: i + 1 }; });
+    setInterval(function () {
+      var moved = agoItems.shift();
+      moved.agoNum = 0;
+      agoItems = agoItems.map(function (c) { return { agoNum: c.agoNum + 1 }; });
+      agoItems.push(moved);
+      var agoSpans = tickerTrack.querySelectorAll('[data-ago]');
+      agoSpans.forEach(function (span, idx) {
+        var itemIdx = idx % CASHOUTS.length;
+        span.textContent = agoItems[itemIdx].agoNum === 0 ? 'just now' : agoItems[itemIdx].agoNum + 'm ago';
+      });
+    }, 3000);
+
+    // === FAQ ===
+    var FAQS = [
+      { q:'How do I get my welcome chest?', a:'Sign up for a free account and your surprise welcome chest is unlocked automatically. Open it to reveal a reward worth up to $250 \u2014 no deposit or payment required. You can cash it out once you reach the minimum withdrawal threshold.' },
+      { q:'What is the minimum withdrawal amount?', a:'You can withdraw starting at just $0.50 for most gift cards, and $5.00 for PayPal and Visa prepaid cards. There are no hidden fees \u2014 the amount you earn is the amount you receive.' },
+      { q:'What cashout options are available?', a:'Freecash supports PayPal cash, Visa prepaid cards, Amazon gift cards, Google Play credits, Apple gift cards, and dozens of other major retail gift cards. All cashouts are processed instantly, with an average completion time of around 17 minutes.' },
+      { q:'Is Freecash really free to use?', a:'Yes. Creating an account is completely free and there are no subscription or membership fees. You earn money by completing tasks, surveys, and testing games \u2014 you never pay anything to participate.' },
+      { q:'How fast do I get paid?', a:'Most cashouts are processed instantly. The average cashout time across all methods is about 17 minutes, and our 24/7 support team is available if you ever run into an issue.' }
+    ];
+
+    var faqList = document.getElementById('faqList');
+    var openFaq = 0;
+    FAQS.forEach(function (item, i) {
+      var wrap = document.createElement('div');
+      wrap.className = 'overflow-hidden rounded-2xl border border-white/10 bg-ink-850/60 transition-colors';
+      wrap.dataset.index = i;
+      wrap.innerHTML =
+        '<button class="faq-btn flex w-full items-center justify-between gap-4 px-5 py-4 text-left">' +
+          '<span class="font-display text-base font-semibold sm:text-lg">' + item.q + '</span>' +
+          '<i data-lucide="chevron-down" class="faq-chevron h-5 w-5 shrink-0 text-neon-400"></i>' +
+        '</button>' +
+        '<div class="faq-answer"><div><p class="px-5 pb-5 text-sm leading-relaxed text-white/60">' + item.a + '</p></div></div>';
+      faqList.appendChild(wrap);
+    });
+
+    function updateFaq() {
+      faqList.querySelectorAll('[data-index]').forEach(function (wrap) {
+        var i = Number(wrap.dataset.index);
+        var isOpen = i === openFaq;
+        wrap.className = 'overflow-hidden rounded-2xl border transition-colors ' + (isOpen ? 'border-neon-400/30 bg-ink-850' : 'border-white/10 bg-ink-850/60');
+        wrap.querySelector('.faq-answer').classList.toggle('open', isOpen);
+        wrap.querySelector('.faq-chevron').classList.toggle('open', isOpen);
+      });
+    }
+    faqList.addEventListener('click', function (e) {
+      var btn = e.target.closest('.faq-btn');
+      if (!btn) return;
+      var wrap = btn.closest('[data-index]');
+      var i = Number(wrap.dataset.index);
+      openFaq = openFaq === i ? -1 : i;
+      updateFaq();
+    });
+    updateFaq();
+
+    // === Init icons ===
+    refreshIcons();
+  </script>
+</body>
+</html>

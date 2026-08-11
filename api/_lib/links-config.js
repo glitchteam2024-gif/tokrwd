@@ -931,6 +931,11 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // (US x4, GB x2, AU x1 — there is no Canadian Shein offer). One clone family per offer; only
   // the flagship carries a vanity path. `node _lp-generator/ravi-shein.js` prints this exact list.
   'ravsh', 'rv54', 'rv55', 'rv56', 'rv57', 'rv58', 'rv59', 'rv60', 'ravshurl',
+  // ravfc + rv61..rv63 is his THIRD design, on the US/CA/GB geos of the ONE Freecash offer
+  // (6d298639-835d-450e-9442-6f4515bc2ce8 — the geo is chosen by which landing_pages row the
+  // click walks, not by the offer). One clone family per geo; only the flagship carries a
+  // vanity path. `node _lp-generator/ravi-freecash.js` prints this exact list.
+  'ravfc', 'rv61', 'rv62', 'rv63', 'ravfcurl',
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
