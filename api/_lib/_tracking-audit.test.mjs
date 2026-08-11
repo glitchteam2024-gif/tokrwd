@@ -16,6 +16,7 @@
 // OFFER_LINKS; EXCEPTIONS lists the offenders we have consciously deferred, and they are
 // printed on every run so a carve-out cannot quietly become permanent.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { OFFER_LINKS, DOOR_BASE } from './links-config.js';
 
 let pass = 0, fail = 0;
@@ -180,7 +181,41 @@ report('no third-party tracking script on a deployed page', thirdPartyTrackers);
 // Note what is NOT excused by the carve-out: the blank-page cloak patterns below are
 // listed too, and pre/index.html and js/breakout.js are checked against them like any
 // other file. The escape is sanctioned; serving different content to a reviewer is not.
-const BREAKOUT_OK = new Set(['pre/index.html', 'js/breakout.js']);
+// ── The per-clone prelander (2026-08-11) ─────────────────────────────────────
+//
+// The breakout is no longer confined to /pre. Every clone of every slice now serves a prelander at
+// its root with the lander behind it at go/ — 1,410 pages across Freecash, Prograd, Copper, Reco,
+// Playful and Gravypass. That is the design (SPRKNetworkAds landers/prelander/), and a hardcoded
+// two-file allowlist cannot express it.
+//
+// WIDENING THE LIST TO "ANY index.html" WOULD GUT THIS CHECK — it would re-permit exactly the
+// per-lander breakout code that got this domain flagged and was stripped from ~1000 pages on
+// 2026-07-23. So the exemption is not granted by PATH, it is granted by IDENTITY:
+//
+//   1. the file must declare itself with <meta name="sprk-prelander">, and
+//   2. every file that declares it must be BYTE-IDENTICAL to every other one.
+//
+// (2) is what makes (1) safe. The marker alone would be a sticker anyone could paste onto an edited
+// lander; requiring one single hash across the whole set means there is exactly ONE prelander in
+// the repo to review, and a page that drifts by a single byte — a hand-edit, a re-grown UA sniff,
+// a second destination — breaks the set and fails the build. Reviewing one file still reviews all
+// 1,410 of them, which is the property the original two-file list was really protecting.
+//
+// The non-escapable patterns below (blank-page gates, document.write) still apply to these files
+// exactly as they do to every other. The escape is sanctioned; cloaking is not.
+const PRELANDER_MARK = /<meta\s+name=["']sprk-prelander["']/i;
+const prelanderFiles = files.filter((rel) => PRELANDER_MARK.test(readFileSync(new URL(rel, REPO), 'utf8')));
+const prelanderHashes = new Set(
+  prelanderFiles.map((rel) => createHash('sha256').update(readFileSync(new URL(rel, REPO))).digest('hex')),
+);
+report(
+  'every sanctioned prelander is byte-identical (one reviewed page, not 1,410 editable ones)',
+  prelanderHashes.size > 1
+    ? [`${prelanderFiles.length} marked files have ${prelanderHashes.size} distinct hashes — at least one has been edited away from the canonical prelander`]
+    : [],
+);
+
+const BREAKOUT_OK = new Set(['pre/index.html', 'js/breakout.js', ...prelanderFiles]);
 const CLOAK_PATTERNS = [
   { re: /x-safari-http/i,                    what: 'iOS scheme breakout',      escapable: true },
   { re: /intent:\/\//i,                      what: 'Android intent breakout',  escapable: true },

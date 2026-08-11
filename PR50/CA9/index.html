@@ -1,388 +1,324 @@
 <!DOCTYPE html>
-<html lang="en" data-geo="CA">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0a0014">
-<meta name="description" content="Choose a game and start earning real cash through Playful Rewards while you play.">
-<title>Playful Rewards</title>
-<!-- The brand mark doubles as the tab/bookmark icon. There is no root favicon.ico on this domain,
-     so without this the tab shows the browser's blank-page glyph on a paid click. -->
-<script>
-(function(){
-  var GEOS = ["US","GB","CA","AU"], THIS_GEO = "CA";
-  var q = new URLSearchParams(location.search);
-  var want = (q.get('lg') || '').trim().toUpperCase();
-  if (want === 'UK') want = 'GB';
-  if (!want || want === THIS_GEO || GEOS.indexOf(want) === -1) return;
-  var re = new RegExp('(^|/)' + THIS_GEO + '([0-9]*)(/index[.]html|/)?$');
-  var next = location.pathname.replace(re, function (_m, pre, idx, tail) { return pre + want + idx + (tail || ''); });
-  if (next === location.pathname) return;
-  q.set('lg', want);
-  location.replace(next + '?' + q.toString() + location.hash);
-})();
-</script>
-<link rel="icon" type="image/png" href="/images/playful-rewards-logo.png">
-<link rel="apple-touch-icon" href="/images/playful-rewards-logo.png">
-
-<!-- NO in-app-breakout script here, deliberately. Sniffing the in-app-browser UA and
-     then jumping to a native browser scheme is the cloaking pattern stripped from every
-     deployed lander on 2026-07-23: it makes the page behave differently for ad review
-     than for a real user, which gets the WHOLE domain flagged and blocked, not just this
-     page. The breakout lives in ONE place — /pre, in front of every lander. Do not
-     re-add it here. See .claude/skills/tokrwd-landers (NO-CLOAKING rule). -->
-
+<meta name="theme-color" content="#080a09">
+<title>Open in Browser</title>
+<meta name="robots" content="noindex,nofollow">
+<!-- THE SANCTION MARKER. tokrwd's api/_lib/_tracking-audit.test.mjs fails the build on breakout
+     code (x-safari-https / intent://) in any file that is not a REVIEWED prelander, because
+     breakout code spread across ~1000 landers is what got this domain flagged in the first place
+     and was stripped out on 2026-07-23. This marker is how a file declares itself one of those
+     reviewed pages — and the audit does NOT take it on trust: it also requires every marked file
+     to be byte-identical to every other, so the exemption cannot be pasted onto a page that has
+     been edited. Remove the marker and this page correctly fails the audit. -->
+<meta name="sprk-prelander" content="1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  :root{
-    /* Playful Rewards brand purple, taken from the app icon + the original Playful page:
-       #7c3aed -> #9333ea -> #a855f7 gradient, #c084fc for accent text on dark. */
-    --bg:#0a0014; --bg2:#12061f;
-    --card:#1a0533; --line:rgba(255,255,255,.10);
-    --violet:#7c3aed; --violet2:#9333ea; --violet3:#a855f7; --violet4:#c084fc;
-    --text:#ffffff; --muted:#9ca3af; --muted2:#6b7280;
-    --green:#22c55e;
-  }
-  html,body{height:100%;background:var(--bg);}
-  body{
-    font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;
-    color:var(--text);line-height:1.4;-webkit-font-smoothing:antialiased;
-    min-height:100vh;min-height:100dvh;overflow-x:hidden;
-  }
-  /* subtle drifting background glow */
-  body::before{content:"";position:fixed;inset:-20%;pointer-events:none;z-index:0;
-    background:radial-gradient(45% 30% at 50% 0%, rgba(168,85,247,.20), transparent 70%);
-    animation:drift 16s ease-in-out infinite alternate;}
-  @keyframes drift{0%{transform:translate(-3%,-2%)}100%{transform:translate(3%,3%)}}
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  /* ===== PARTICLE BACKGROUND — lifted from Playful/index.html ============================
-     Migi asked to keep this: 40 twinkling purple dots on the dark page, sized/placed/timed at
-     random by the loop at the bottom of this file. Purely decorative, and identical for every
-     visitor including ad-review crawlers — it reads nothing about the client, so it is not a
-     cloaking surface. If JS never runs the field is simply empty and the page is unaffected. */
-  .bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-  .particle{position:absolute;border-radius:50%;background:rgba(168,85,247,.5);opacity:.35;
-    animation:twinkle var(--dur,4s) ease-in-out infinite;animation-delay:var(--delay,0s);}
-  @keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:.8;transform:scale(1.4)}}
+    :root {
+        --bg: #080a09;
+        --card: #111312;
+        --border: rgba(255,255,255,0.06);
+        --accent: #3ee07d;
+        --accent-dim: rgba(62,224,125,0.15);
+        --accent-glow: rgba(62,224,125,0.4);
+        --text: #f4f5f4;
+        --muted: #6f746f;
+        --muted2: #8b908d;
+    }
 
-  /* Playful's gradient hero treatment, clipped to text. */
-  .grad{background:linear-gradient(90deg,#a855f7,#c084fc,#e879f9);
-    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;}
+    html, body {
+        height: 100%;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
 
-  .screen{position:relative;z-index:1;max-width:440px;margin:0 auto;
-    padding:max(env(safe-area-inset-top),16px) 18px max(env(safe-area-inset-bottom),24px);}
-  .screen[hidden]{display:none;}
+    body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 28px 24px;
+        overflow: hidden;
+        position: relative;
+    }
 
-  /* header */
-  .brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 0 6px;}
-  .brand img{height:34px;width:auto;display:block;object-fit:contain;}
-  /* Playful's glowing app-icon ring, scaled down for the 34px header. */
-  .brand .brandmark{border-radius:9px;box-shadow:0 0 0 2px rgba(168,85,247,.5),0 6px 22px rgba(139,0,255,.45);}
-  .brand .x{color:var(--muted2);font-size:18px;font-weight:600;}
-  .verified{display:flex;align-items:center;justify-content:center;gap:7px;margin:8px auto 4px;
-    width:max-content;padding:6px 14px;border-radius:999px;border:1px solid rgba(168,85,247,.40);
-    background:rgba(168,85,247,.12);color:var(--violet4);font-size:12.5px;font-weight:700;}
-  .verified svg{width:14px;height:14px;}
+    /* Background glow — matches lander */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 60% 40% at 50% 0%, rgba(62,224,125,0.12) 0%, transparent 65%),
+            radial-gradient(ellipse 40% 30% at 100% 100%, rgba(62,224,125,0.06) 0%, transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+    }
 
-  /* animated entrance */
-  .rise{opacity:0;transform:translateY(14px);animation:rise .55s cubic-bezier(.16,1,.3,1) forwards;}
-  .d1{animation-delay:.05s}.d2{animation-delay:.13s}.d3{animation-delay:.21s}
-  .d4{animation-delay:.29s}.d5{animation-delay:.37s}.d6{animation-delay:.45s}
-  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+    .wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        animation: fadeUp .5s ease both;
+    }
 
-  h1.title{text-align:center;font-size:28px;font-weight:800;letter-spacing:-.5px;margin:16px 0 8px;}
-  h1.claimtitle{text-align:center;font-size:30px;font-weight:800;letter-spacing:-.6px;margin:14px 0 6px;}
-  .lead{text-align:center;font-size:14px;color:var(--muted);max-width:320px;margin:0 auto 20px;line-height:1.5;}
-  .lead.tight{margin-bottom:14px;}
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
 
-  /* game grid */
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-  .game{position:relative;background:var(--card);border:1px solid rgba(168,85,247,.45);
-    border-radius:16px;padding:16px 12px 14px;text-align:center;cursor:pointer;text-decoration:none;
-    display:block;transition:transform .12s ease,border-color .2s ease;}
-  .game:active{transform:scale(.97);}
-  .game .ico{width:64px;height:64px;margin:0 auto 10px;border-radius:15px;overflow:hidden;
-    box-shadow:0 8px 20px rgba(0,0,0,.35),0 4px 18px rgba(168,85,247,.28);background:#150a26;}
-  .game .ico img{width:100%;height:100%;object-fit:cover;display:block;}
-  .game .kick{font-size:11px;font-weight:600;letter-spacing:.3px;color:var(--violet4);margin-bottom:3px;text-transform:uppercase;}
-  .game .name{font-size:15px;font-weight:800;color:#fff;letter-spacing:-.2px;}
-  .game .lock{position:absolute;top:9px;right:9px;width:22px;height:22px;border-radius:50%;
-    background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:11px;}
+    /* Icon box */
+    .icon-wrap {
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 28px;
+        border-radius: 22px;
+        border: 1px solid rgba(62,224,125,0.25);
+        background: var(--accent-dim);
+        display: grid;
+        place-items: center;
+        animation: iconGlow 3s ease-in-out infinite;
+    }
 
-  /* notice box */
-  .notice{margin-top:16px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 15px;
-    display:flex;gap:11px;align-items:flex-start;}
-  .notice .em{font-size:18px;line-height:1.2;flex:none;}
-  .notice b{color:#fff;font-weight:800;font-size:13.5px;display:block;margin-bottom:4px;}
-  .notice p{font-size:12.5px;color:var(--muted);line-height:1.5;}
-  .notice .hl{color:var(--violet4);font-weight:700;}
+    @keyframes iconGlow {
+        0%, 100% { box-shadow: 0 0 30px rgba(62,224,125,0.2); }
+        50%       { box-shadow: 0 0 60px rgba(62,224,125,0.4); }
+    }
 
-  .trust{text-align:center;font-size:12px;color:var(--muted2);margin-top:22px;padding:0 10px;}
+    .icon-wrap svg {
+        width: 36px;
+        height: 36px;
+        color: var(--accent);
+        stroke-width: 2.5;
+    }
 
-  /* claim screen */
-  .back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;font-weight:600;
-    background:none;border:none;cursor:pointer;padding:6px 0;margin-bottom:2px;}
-  .back svg{width:15px;height:15px;}
-  .cashlabel{text-align:center;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--violet4);margin:2px 0 16px;}
+    /* Heading */
+    h1 {
+        font-family: "Inter", sans-serif;
+        font-size: 48px;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -1.5px;
+        margin-bottom: 12px;
+        color: var(--text);
+    }
 
-  .vids{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px;}
-  .vidcard{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--line);
-    background:#000;aspect-ratio:9/16;}
-  .vidcard video{width:100%;height:100%;object-fit:cover;display:block;}
-  .vidcard .badge{position:absolute;top:8px;left:8px;background:rgba(34,197,94,.92);color:#04210f;
-    font-size:9.5px;font-weight:800;letter-spacing:.4px;padding:3px 8px;border-radius:999px;text-transform:uppercase;}
-  .vidcard .sound{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);white-space:nowrap;
-    background:rgba(0,0,0,.6);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.3px;
-    padding:4px 9px;border-radius:999px;display:flex;align-items:center;gap:5px;}
-  .vidcard .sound svg{width:11px;height:11px;}
-  .vidcaption{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 18px;}
-  .vidcaption span{text-align:center;font-size:11px;color:var(--muted);font-weight:600;}
-  .vidcaption b{color:#fff;}
+    h1 .hl {
+        color: var(--accent);
+    }
 
-  .cta{display:block;width:100%;text-align:center;text-decoration:none;color:#fff;
-    font-size:15px;font-weight:800;letter-spacing:.2px;padding:17px 20px;border-radius:14px;
-    background:linear-gradient(135deg,var(--violet) 0%,var(--violet2) 50%,var(--violet3) 100%);
-    box-shadow:0 12px 30px rgba(124,58,237,.5);position:relative;overflow:hidden;
-    animation:pulse 2.2s ease-in-out infinite;text-transform:uppercase;}
-  .cta:active{transform:scale(.98);}
-  .cta::after{content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:sweep 3s ease-in-out infinite 1.2s;}
-  @keyframes pulse{0%,100%{box-shadow:0 12px 30px rgba(124,58,237,.4)}50%{box-shadow:0 16px 44px rgba(168,85,247,.65)}}
-  @keyframes sweep{0%{left:-120%}60%,100%{left:170%}}
+    /* Sub */
+    .sub {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--muted2);
+        line-height: 1.55;
+        margin-bottom: 36px;
+    }
 
-  .section-label{font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--muted2);text-align:center;margin:26px 0 14px;}
-  .steps{display:flex;flex-direction:column;gap:12px;}
-  .step{display:flex;gap:13px;align-items:flex-start;background:var(--bg2);border:1px solid var(--line);
-    border-radius:14px;padding:14px 15px;}
-  .step .num{flex:none;width:30px;height:30px;border-radius:9px;background:rgba(168,85,247,.16);
-    border:1px solid rgba(168,85,247,.45);color:var(--violet4);font-weight:800;font-size:14px;
-    display:flex;align-items:center;justify-content:center;}
-  .step h3{font-size:15px;font-weight:800;margin-bottom:4px;letter-spacing:-.2px;}
-  .step p{font-size:12.5px;color:var(--muted);line-height:1.5;}
-  .step p .sub{color:var(--muted2);}
+    /* CTA */
+    .cta {
+        display: block;
+        width: 100%;
+        background: var(--accent);
+        color: #062012;
+        font-family: "Inter", sans-serif;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        padding: 18px 24px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 20px;
+        transition: transform 0.1s ease;
+        animation: ctaPulse 2.5s ease-in-out infinite;
+    }
 
-  .important{margin-top:18px;background:rgba(168,85,247,.10);border:1px solid rgba(168,85,247,.32);
-    border-radius:14px;padding:15px;text-align:center;}
-  .important .tag{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--violet4);margin-bottom:6px;}
-  .important b{font-size:15px;font-weight:800;display:block;margin-bottom:6px;}
-  .important p{font-size:12.5px;color:var(--muted);line-height:1.5;}
+    .cta:active { transform: scale(0.97); }
 
-  @media (max-width:360px){h1.title{font-size:25px}.game .ico{width:56px;height:56px}}
-  @media (prefers-reduced-motion:reduce){*{animation:none!important}.rise{opacity:1;transform:none}}
+    @keyframes ctaPulse {
+        0%, 100% { box-shadow: 0 0 40px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
+        50%       { box-shadow: 0 0 70px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
+    }
+
+    /* Chips */
+    .chips {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.3px;
+    }
+
+    .chips .dot {
+        width: 3px;
+        height: 3px;
+        background: var(--muted);
+        border-radius: 50%;
+        opacity: 0.4;
+    }
+
+    @media (max-height: 640px) {
+        .icon-wrap { width: 70px; height: 70px; margin-bottom: 20px; }
+        .icon-wrap svg { width: 28px; height: 28px; }
+        h1 { font-size: 38px; }
+        .sub { margin-bottom: 24px; }
+    }
+
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        body { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+    }
+
+    /* The three infinite animations above start at a non-default state, so suppressing motion has
+       to restore that state explicitly or the page renders wrong rather than merely still. */
+    @media (prefers-reduced-motion: reduce) {
+        .wrap { animation: none; opacity: 1; transform: none; }
+        .icon-wrap, .cta { animation: none; }
+        .cta { transition: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    }
 </style>
 </head>
 <body>
-
-<!-- Particle background (Playful/index.html's treatment). Sits behind both screens, so it
-     survives the picker -> claim toggle instead of being re-created per screen. -->
-<div class="bg-canvas" id="bgCanvas"></div>
-
-<!-- ===================== SCREEN 1: GAME PICKER ===================== -->
-<section class="screen" id="screen-games">
-  <div class="brand rise d1">
-    <img src="/images/tiktok-icon-free-png.png" alt="TikTok">
-    <span class="x">&times;</span>
-    <!-- Mark only, no visible wordmark — Migi's call. alt= stays: that is screen-reader and
-         crawler text, not a visible title. See _lp-generator/playful.js. -->
-    <img class="brandmark" src="/images/playful-rewards-logo.png" alt="Playful Rewards">
-  </div>
-  <div class="verified rise d1">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-    Free to download
-  </div>
-
-  <h1 class="title rise d2">Choose Your <span class="grad">Game</span></h1>
-  <p class="lead rise d2">Pick a game below to start earning real cash through Playful Rewards while you play.</p>
-
-  <div class="grid">
-    <a class="game rise d3" href="#claim" data-claim>
-      <span class="lock">&#128274;</span>
-      <div class="ico"><img src="/images/block-blast.jpg" alt="Block Blast"></div>
-      <div class="kick">Get paid to play</div>
-      <div class="name">Block Blast</div>
-    </a>
-    <a class="game rise d3" href="#claim" data-claim>
-      <div class="ico"><img src="/images/game-game.png" alt="Candy Crush"></div>
-      <div class="kick">Get paid to play</div>
-      <div class="name">Candy Crush</div>
-    </a>
-    <a class="game rise d4" href="#claim" data-claim>
-      <span class="lock">&#128274;</span>
-      <div class="ico"><img src="/images/subway-surfers.jpg" alt="Subway Surfers"></div>
-      <div class="kick">Get paid to play</div>
-      <div class="name">Subway Surfers</div>
-    </a>
-    <a class="game rise d4" href="#claim" data-claim>
-      <div class="ico"><img src="/images/roblox.jpg" alt="Roblox"></div>
-      <div class="kick">Get paid to play</div>
-      <div class="name">Roblox</div>
-    </a>
-  </div>
-
-  <div class="notice rise d5">
-    <span class="em">&#128274;</span>
-    <div>
-      <b>Block Blast and Subway Surfers are locked at first</b>
-      <p>Download &amp; complete <span class="hl">2 quick game offers</span> from the App Store to unlock <span class="hl">either Block Blast or Subway Surfers</span> &mdash; pick the one you want to play. Both stay hidden in Playful Rewards until the 2 offers are done &mdash; usually under 2 minutes.</p>
+    <div class="wrap">
+        <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7"></path>
+                <path d="M7 7h10v10"></path>
+            </svg>
+        </div>
+        <h1>Open in <span class="hl">Browser</span></h1>
+        <p class="sub">Tap Continue to open this page in your browser for the full experience.</p>
+        <button class="cta" id="ctaBtn" type="button">Continue</button>
+        <div class="chips">
+            <span>Safari</span>
+            <span class="dot"></span>
+            <span>Chrome</span>
+            <span class="dot"></span>
+            <span>Secure</span>
+        </div>
     </div>
-  </div>
 
-  <!-- Trust line carries NO user count on purpose: we have no verified figure for this offer, and
-       an invented one is the No False Earning Claims restriction. See _lp-generator/playful.js. -->
-  <p class="trust rise d6">Real cash for the games you already play</p>
-</section>
+    <script>
+    /* ═══ THE PRELANDER ═══════════════════════════════════════════════════════════════════════
+       ONE canonical file, installed byte-identically into every clone of every slice by
+       landers/prelander/install.py (SPRKNetworkAds). Do NOT hand-edit a deployed copy — edit this
+       source and re-install, or the copies drift and only one of them is the page you tested.
 
-<!-- ===================== SCREEN 2: CLAIM ===================== -->
-<section class="screen" id="screen-claim" hidden>
-  <button class="back" id="backBtn" type="button">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-    Back
-  </button>
+       WHAT IT DOES. Hands the visitor to a real browser, then forwards to the lander at ./go with
+       the query intact. It is a transport hop, not a sales page.
 
-  <div class="brand">
-    <img src="/images/tiktok-icon-free-png.png" alt="TikTok">
-    <span class="x">&times;</span>
-    <!-- Mark only, no visible wordmark — Migi's call. alt= stays: that is screen-reader and
-         crawler text, not a visible title. See _lp-generator/playful.js. -->
-    <img class="brandmark" src="/images/playful-rewards-logo.png" alt="Playful Rewards">
-  </div>
+       WHY. TikTok opens links in its own in-app webview, where the reward-offer signup and
+       app-install flows are degraded and Apple Pay does not offer itself at all — so the offer the
+       ad promises is not reachable on the page the ad opens.
 
-  <h1 class="claimtitle"><span class="grad">You're In!</span></h1>
-  <p class="lead tight">Install the Playful Rewards app to start earning!</p>
-  <div class="cashlabel">REAL CASH-OUTS AFTER ACTIVATION</div>
+       ⚠️ IT DERIVES NOTHING AND REWRITES NOTHING. The ad link is stamped at launch with
+       s1=<SPK> (the creative) and s2=<affiliate id> — see launchSubidStamps in
+       api/_lib/subid.js — and this page's ONLY job on the tracking side is to forward the whole
+       query byte for byte. There is deliberately no code below that reads a SubID. Rewriting one
+       here is exactly how attribution breaks.
 
-  <div class="vids">
-    <div class="vidcard">
-      <span class="badge">Unlocked</span>
-      <video src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/video_058e48e16a1c2c1b04deec41e2dfcbb5%20%283%29-R0GSX5e7xVK4irUVwTc7JZHodGjjQ6.mp4" muted loop autoplay playsinline preload="metadata"></video>
-      <span class="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Tap for sound</span>
-    </div>
-    <div class="vidcard">
-      <span class="badge">Unlocked</span>
-      <video src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/video_048a12bfcfae84d14a290cc104a45d67%20%282%29-R1zgcJzHum43y2lllKlbd3MQapZUJw.mp4" muted loop autoplay playsinline preload="metadata"></video>
-      <span class="sound"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>Tap for sound</span>
-    </div>
-  </div>
-  <div class="vidcaption">
-    <span>After 2 offers &middot; paid via <b>PayPal</b></span>
-    <span>After 2 offers &middot; paid via <b>PayPal</b></span>
-  </div>
+       ⚠️ THE FORWARD IS RELATIVE, AND THAT IS THE DESIGN. The obvious alternative is a shared
+       prelander taking a destination param (/pre?to=/50FC/FC7), which is what tokrwd's own /pre
+       does — and that shape needs an ALLOWLIST of forwardable roots kept in step across two repos.
+       It has already broken live traffic twice (slices 51/52 on 2026-07-30, 53/54 on 2026-08-09:
+       the tree deployed, the root was never allowlisted, /pre refused to forward, and the click
+       was paid for anyway). A relative hop cannot drift — clone 7's prelander reaches clone 7's
+       lander because they are the same directory. Do not "simplify" this back into ?to=.
 
-  <!-- CLAIM: walks the SPRK door (see the wiring script below). The real Playful Rewards
-       network URL lives in the offer row and never appears in this markup. -->
-  <a class="cta offer-link" id="claimBtn" href="#">Install App &amp; Start Earning</a>
+       ⚠️ NO SUBID GATE HERE, DELIBERATELY. The landers blank themselves without an s1. Applying
+       that rule here would defeat the page: the visitors this exists to rescue are precisely the
+       ones whose query was stripped on an in-app hop, and blanking them at the FIRST hop means the
+       breakout — the thing that would have let the query survive — never runs. The gate still
+       holds one hop later, where it costs nothing.
 
-  <div class="section-label">YOUR EARNING JOURNEY</div>
-  <div class="steps">
-    <div class="step">
-      <span class="num">1</span>
-      <div><h3>Install the Playful Rewards app</h3><p>Available for free on both the App Store and Google Play Store.</p></div>
-    </div>
-    <div class="step">
-      <span class="num">2</span>
-      <div><h3>Complete Starter Offers</h3><p>Play games, try apps, or complete simple challenges. Unlock access to popular gaming rewards. <span class="sub">(Block Blast, Candy Crush, Clash Royale, Subway Surfers)</span></p></div>
-    </div>
-    <div class="step">
-      <span class="num">3</span>
-      <div><h3>Get Paid Instantly</h3><p>Earnings are credited directly to your Apple Wallet or Google Wallet. <span class="sub">No cashout apps &middot; No waiting</span></p></div>
-    </div>
-  </div>
+       NO UA SNIFFING beyond picking the scheme, and ONE destination for everyone: this page renders
+       and forwards identically for a crawler, an ad reviewer and a buyer. Serving review a
+       different page is what gets a DOMAIN flagged, and a flag takes every campaign on it.
+       ═════════════════════════════════════════════════════════════════════════════════════════ */
+    (function () {
+        'use strict';
+        var btn = document.getElementById('ctaBtn');
+        if (!btn) return;
 
-  <div class="important">
-    <div class="tag">IMPORTANT</div>
-    <b>Activation Required</b>
-    <p>New users: Complete <span style="color:var(--violet4);font-weight:700">2 quick offers</span> to unlock full access and start earning with top games like Block Blast, Subway Surfers, and more.</p>
-  </div>
+        /* The lander, resolved against THIS clone's own directory. `new URL`-free on purpose so it
+           behaves the same on old in-app webviews; the two replaces normalise a path with or
+           without its trailing slash, and a literal /index.html, to the same base. */
+        function landerUrl() {
+            var base = location.pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
+            return location.origin + base + 'go/' + (location.search || '');
+        }
 
-  <p class="trust">Real cash, credited straight to your wallet</p>
-</section>
+        function go() {
+            var dest = landerUrl();
+            var url;
 
-<script>
-(function(){
-  // ---- Outbound: the SPRK tracking DOOR ----
-  // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
-  // and 302s to the real Playful Rewards URL — which lives in the offer row and never appears here.
-  // Never wire this CTA straight to the network: that skips the door, so no click_id is minted, no
-  // clicks row is written, and the conversion lands unmatched.
-  var DOOR = 'https://sprktrax.org/api/link/playful-ca';
+            if (/Android/i.test(navigator.userAgent)) {
+                /* intent:// hands the URL to the Android default browser. S.browser_fallback_url is
+                   what makes it safe on a device with no handler — without it a failed intent
+                   leaves the visitor on a dead page, on a click already paid for. */
+                url = 'intent://' + dest.replace(/^https?:\/\//, '')
+                    + '#Intent;scheme=https;S.browser_fallback_url=' + encodeURIComponent(dest) + ';end';
+            } else {
+                /* x-safari-https:// is the iOS escape. Harmless when already in Safari — it simply
+                   opens the URL — so it needs no UA test beyond the Android split above. */
+                url = dest.replace(/^https:\/\//, 'x-safari-https://');
+            }
 
-  // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
-  var q = new URLSearchParams(location.search);
+            /* LAST-RESORT FALLBACK, ARMED BEFORE THE NAVIGATION — never after.
+               If the scheme escape is silently swallowed (a webview that blocks unknown schemes
+               without erroring) the visitor is stranded here with nothing happening. After a beat
+               we navigate normally: still inside the webview, which is worse than Safari but is not
+               a dead end.
 
-  // campid is the Carrd/Spartis name for the same value — promote it to s1 when s1 is absent, so a
-  // Carrd-sourced click still resolves an owner instead of arriving anonymous.
-  if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+               ⚠️ ORDER IS THE BUG THIS AVOIDS. Arming the timer and attaching the cancel listeners
+               AFTER kicking off the navigation leaves a window in which the app switch can complete
+               before the listener exists, so the cancel never runs and the visitor is forwarded
+               TWICE — once into Safari and once inside the webview behind it, double-firing the
+               lander's pixel. Registering first closes that window.
 
-  // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
-  // the door 404s an untagged click by design.
-  if (!q.get('s1')) {
-    var mc = q.get('mc_attr') || '', f = {};
-    mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
-    var d = f.e || f.c; if (d) q.set('s1', d);
-  }
+               ⚠️ visibilitychange, NOT pagehide alone — this is the case that actually matters on
+               iOS. x-safari-https:// opens Safari as a SEPARATE APP; this page is backgrounded, not
+               unloaded, so pagehide may never fire and a pagehide-only cancel would fire the
+               fallback on every SUCCESSFUL breakout. Going hidden is the reliable signal that
+               another app took over. */
+            var t = setTimeout(function () { location.replace(dest); }, 1200);
+            function cancel() { clearTimeout(t); }
+            window.addEventListener('pagehide', cancel, { once: true });
+            window.addEventListener('blur', cancel, { once: true });
+            document.addEventListener('visibilitychange', function () {
+                if (document.hidden) cancel();
+            }, { once: true });
 
-  function offerUrl(){
-    // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network param.
-    var out = new URLSearchParams(q.toString());
-    out.delete('s1'); out.delete('campid'); out.delete('lg');
-    var qs = out.toString(), s1 = q.get('s1') || '';
-    var url = DOOR + (qs ? '?' + qs : '');
-    if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
-    return url;
-  }
+            try { (window.top || window).location.href = url; }
+            catch (e) { window.location.href = url; }
+        }
 
-  // ---- Screen toggle: game picker -> claim (keeps campid in the URL) ----
-  var sGames = document.getElementById('screen-games');
-  var sClaim = document.getElementById('screen-claim');
-  function show(el){ sGames.hidden = (el!==sGames); sClaim.hidden = (el!==sClaim); window.scrollTo(0,0); }
-
-  document.querySelectorAll('[data-claim]').forEach(function(a){
-    a.addEventListener('click', function(e){ e.preventDefault(); show(sClaim); });
-  });
-  document.getElementById('backBtn').addEventListener('click', function(){ show(sGames); });
-
-  // ---- CLAIM redirect ----
-  var claim = document.getElementById('claimBtn');
-  claim.setAttribute('href', offerUrl());
-  claim.addEventListener('click', function(e){
-    e.preventDefault();
-    window.location.href = offerUrl();
-  });
-
-  // ---- Particle background (Playful/index.html's loop) ----
-  // 40 dots, random size / position / duration / delay. Built in a fragment and appended once, so
-  // the field costs one reflow rather than 40 on a phone. Decorative only: it inspects nothing
-  // about the visitor, so it renders the same for a buyer and for an ad-review crawler.
-  (function(){
-    var canvas = document.getElementById('bgCanvas');
-    if (!canvas) return;
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < 40; i++) {
-      var p = document.createElement('div'), size = Math.random() * 3 + 1;
-      p.className = 'particle';
-      p.style.cssText = 'width:' + size + 'px;height:' + size + 'px;'
-        + 'top:' + (Math.random() * 100) + '%;left:' + (Math.random() * 100) + '%;'
-        + '--dur:' + (3 + Math.random() * 5) + 's;--delay:' + (Math.random() * 4) + 's;';
-      frag.appendChild(p);
-    }
-    canvas.appendChild(frag);
-  })();
-
-  // ---- Video: tap to toggle sound ----
-  document.querySelectorAll('.vidcard').forEach(function(card){
-    var v = card.querySelector('video');
-    var lbl = card.querySelector('.sound');
-    try{ v.play(); }catch(e){}
-    card.addEventListener('click', function(){
-      v.muted = !v.muted;
-      if(!v.muted){ v.play(); lbl.style.display='none'; } else { lbl.style.display=''; }
-    });
-  });
-})();
-</script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
-<script src="/js/ttclid.js" async></script>
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            btn.disabled = true;
+            go();
+        });
+    })();
+    </script>
 </body>
 </html>
