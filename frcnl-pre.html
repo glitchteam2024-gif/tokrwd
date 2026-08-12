@@ -239,13 +239,21 @@
        query byte for byte. There is deliberately no code below that reads a SubID. Rewriting one
        here is exactly how attribution breaks.
 
-       ⚠️ THE FORWARD IS RELATIVE, AND THAT IS THE DESIGN. The obvious alternative is a shared
-       prelander taking a destination param (/pre?to=/50FC/FC7), which is what tokrwd's own /pre
-       does — and that shape needs an ALLOWLIST of forwardable roots kept in step across two repos.
-       It has already broken live traffic twice (slices 51/52 on 2026-07-30, 53/54 on 2026-08-09:
-       the tree deployed, the root was never allowlisted, /pre refused to forward, and the click
-       was paid for anyway). A relative hop cannot drift — clone 7's prelander reaches clone 7's
-       lander because they are the same directory. Do not "simplify" this back into ?to=.
+       ⚠️ THE FORWARD IS DATA IN THIS FILE, AND THAT IS THE DESIGN. It used to be a RELATIVE hop
+       (./go/), back when a prelander and its lander shared a directory. These are flat files
+       now, so the destination is a <meta name="sprk-lander"> written at generation time and
+       read by landerUrl() below — markup, never a constant in the script, so every page still
+       runs a byte-identical script body (_tracking-audit pins that).
+
+       What has NOT changed is what both shapes exist to avoid: a shared prelander taking a
+       destination param (/pre?to=/some/lander), which is what tokrwd's own /pre does. That
+       shape needs an ALLOWLIST of forwardable roots, and it has already broken live traffic
+       twice (slices 51/52 on 2026-07-30, 53/54 on 2026-08-09: the tree deployed, the root was
+       never allowlisted, /pre refused to forward, and the click was paid for anyway — the
+       second ran ~46h). Both times BOTH copies of the list were simply never updated, so
+       "keep one list instead of two" would not have helped either. A destination that ships
+       WITH the page cannot drift out of step with a deploy, and no visitor can set it.
+       Do not "simplify" this back into ?to=.
 
        ⚠️ NO SUBID GATE HERE, DELIBERATELY. The landers blank themselves without an s1. Applying
        that rule here would defeat the page: the visitors this exists to rescue are precisely the
