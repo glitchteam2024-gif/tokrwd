@@ -289,14 +289,23 @@
             q.set('sid', sid);
         }
 
+        /* Slice/clone labels. Read from the markup when the page declares them, falling back to
+           the path for clone directories that do not. Flat pages have ONE path segment, so
+           positional parsing would report clone='' forever — but the fix must not be a constant in
+           this script: _tracking-audit hashes these bodies, and a per-page constant here is what
+           gives 7 geos 7 different "identical" prelanders. Same rule as landerUrl above: per-page
+           values live in the markup, behaviour lives in the script. */
+        var root = document.documentElement;
         var seg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+        var pgSlice = root.getAttribute('data-slice') || seg[0] || '';
+        var pgClone = root.getAttribute('data-geo') || seg[1] || '';
         function beacon(event) {
             try {
                 var b = new Blob([JSON.stringify({
                     event: event, sid: sid,
                     s1: q.get('s1') || '', s2: q.get('s2') || '', s3: q.get('s3') || '',
                     ttclid: q.get('ttclid') || '',
-                    slice: seg[0] || '', clone: seg[1] || '', path: location.pathname
+                    slice: pgSlice, clone: pgClone, path: location.pathname
                 })], { type: 'text/plain' });   /* see the note in lander-beacon.py: text/plain skips
                        the CORS preflight that was blocking every beacon on the first live test */
                 navigator.sendBeacon(BEACON, b);
@@ -309,8 +318,13 @@
            without its trailing slash, and a literal /index.html, to the same base. */
         /* `q`, not location.search, so the sid minted above rides to the lander. */
         function landerUrl() {
-            var base = location.pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
+            var m = document.querySelector('meta[name="sprk-lander"]');
+            var flat = m && m.getAttribute('content');
             var qs = q.toString();
+            if (flat && flat.charAt(0) === '/') {
+                return location.origin + flat + (qs ? '?' + qs : '');
+            }
+            var base = location.pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
             return location.origin + base + 'go/' + (qs ? '?' + qs : '');
         }
 

@@ -899,6 +899,10 @@ export const PRELANDER_ENABLED = true;
  * the fail-open behaviour just means no prelander.
  */
 export const PRELANDER_ALLOWED_ROOTS = [
+  // Flat Freecash pages, 2026-08-12. 50FC/<GEO><N>/ collapsed to one file per geo; the
+  // pages are top-level, so each NAME is its own root. Added to BOTH lists in the same
+  // commit — a lander that deploys without its allowlist entry loses the click, not the hop.
+  'frcusa', 'frcuk', 'frccana', 'frcnl', 'frcde', 'frcat', 'frcjp', 'frcusa-pre', 'frcuk-pre', 'frccana-pre', 'frcnl-pre', 'frcde-pre', 'frcat-pre', 'frcjp-pre',
   '50fc', '50fcii', '50tu', 'ac50', 'acash', 'acsm', 'ah50', 'ashl', 'ashurl', 'as50', 'sasurl', 'af50', 'ak50', 'ap50', 'apay1k',
   // The picker's extra structures (2026-07-30). Without these /pre refuses to forward and the
   // new slices silently lose the prelander — which would make an A/B of structure secretly an
