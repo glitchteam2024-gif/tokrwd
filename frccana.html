@@ -13,7 +13,7 @@
   /* ?lg= geo switch. Was path-digit surgery on /50FC/<GEO><N>/; now a flat-name lookup.
      ?lg= is the ONLY key on purpose — IP or UA keying would serve ad review a different
      page than a buyer, which is what gets a lander blocked. */
-  var PAGES = {"US":"/frcusa","GB":"/frcuk","CA":"/frccana","NL":"/frcnl","DE":"/frcde","AT":"/frcat","JP":"/frcjp"};
+  var PAGES = {"US":"/frcusa.html","GB":"/frcuk.html","CA":"/frccana.html","NL":"/frcnl.html","DE":"/frcde.html","AT":"/frcat.html","JP":"/frcjp.html"};
   var THIS_GEO = "CA";
   var q = new URLSearchParams(location.search);
   var want = (q.get('lg') || '').trim().toUpperCase();

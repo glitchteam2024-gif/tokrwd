@@ -1,87 +1,135 @@
 {
   "version": 2,
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
   "redirects": [
     {
       "source": "/50FC/:clone(US\\d+)/go",
-      "destination": "/frcusa",
-      "permanent": false
+      "destination": "/frcusa.html"
     },
     {
       "source": "/50FC/:clone(US\\d+)",
-      "destination": "/frcusa-pre",
-      "permanent": false
+      "destination": "/frcusa-pre.html"
     },
     {
       "source": "/50FC/:clone(FC\\d+)/go",
-      "destination": "/frcusa",
-      "permanent": false
+      "destination": "/frcusa.html"
     },
     {
       "source": "/50FC/:clone(FC\\d+)",
-      "destination": "/frcusa-pre",
-      "permanent": false
+      "destination": "/frcusa-pre.html"
     },
     {
       "source": "/50FC/:clone(GB\\d+)/go",
-      "destination": "/frcuk",
-      "permanent": false
+      "destination": "/frcuk.html"
     },
     {
       "source": "/50FC/:clone(GB\\d+)",
-      "destination": "/frcuk-pre",
-      "permanent": false
+      "destination": "/frcuk-pre.html"
     },
     {
       "source": "/50FC/:clone(CA\\d+)/go",
-      "destination": "/frccana",
-      "permanent": false
+      "destination": "/frccana.html"
     },
     {
       "source": "/50FC/:clone(CA\\d+)",
-      "destination": "/frccana-pre",
-      "permanent": false
+      "destination": "/frccana-pre.html"
     },
     {
       "source": "/50FC/:clone(NL\\d+)/go",
-      "destination": "/frcnl",
-      "permanent": false
+      "destination": "/frcnl.html"
     },
     {
       "source": "/50FC/:clone(NL\\d+)",
-      "destination": "/frcnl-pre",
-      "permanent": false
+      "destination": "/frcnl-pre.html"
     },
     {
       "source": "/50FC/:clone(DE\\d+)/go",
-      "destination": "/frcde",
-      "permanent": false
+      "destination": "/frcde.html"
     },
     {
       "source": "/50FC/:clone(DE\\d+)",
-      "destination": "/frcde-pre",
-      "permanent": false
+      "destination": "/frcde-pre.html"
     },
     {
       "source": "/50FC/:clone(AT\\d+)/go",
-      "destination": "/frcat",
-      "permanent": false
+      "destination": "/frcat.html"
     },
     {
       "source": "/50FC/:clone(AT\\d+)",
-      "destination": "/frcat-pre",
-      "permanent": false
+      "destination": "/frcat-pre.html"
     },
     {
       "source": "/50FC/:clone(JP\\d+)/go",
-      "destination": "/frcjp",
-      "permanent": false
+      "destination": "/frcjp.html"
     },
     {
       "source": "/50FC/:clone(JP\\d+)",
-      "destination": "/frcjp-pre",
-      "permanent": false
+      "destination": "/frcjp-pre.html"
+    },
+    {
+      "source": "/frcusa",
+      "destination": "/frcusa.html"
+    },
+    {
+      "source": "/frcusa-pre",
+      "destination": "/frcusa-pre.html"
+    },
+    {
+      "source": "/frcuk",
+      "destination": "/frcuk.html"
+    },
+    {
+      "source": "/frcuk-pre",
+      "destination": "/frcuk-pre.html"
+    },
+    {
+      "source": "/frccana",
+      "destination": "/frccana.html"
+    },
+    {
+      "source": "/frccana-pre",
+      "destination": "/frccana-pre.html"
+    },
+    {
+      "source": "/frcnl",
+      "destination": "/frcnl.html"
+    },
+    {
+      "source": "/frcnl-pre",
+      "destination": "/frcnl-pre.html"
+    },
+    {
+      "source": "/frcde",
+      "destination": "/frcde.html"
+    },
+    {
+      "source": "/frcde-pre",
+      "destination": "/frcde-pre.html"
+    },
+    {
+      "source": "/frcat",
+      "destination": "/frcat.html"
+    },
+    {
+      "source": "/frcat-pre",
+      "destination": "/frcat-pre.html"
+    },
+    {
+      "source": "/frcjp",
+      "destination": "/frcjp.html"
+    },
+    {
+      "source": "/frcjp-pre",
+      "destination": "/frcjp-pre.html"
+    },
+    {
+      "source": "/FCTT",
+      "destination": "/FCTT.html"
+    },
+    {
+      "source": "/EOZ",
+      "destination": "/EOZ.html"
     }
   ],
   "rewrites": [
