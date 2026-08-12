@@ -16,7 +16,6 @@
      to be byte-identical to every other, so the exemption cannot be pasted onto a page that has
      been edited. Remove the marker and this page correctly fails the audit. -->
 <meta name="sprk-prelander" content="1">
-<meta name="sprk-theme" content="50FC">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
@@ -239,21 +238,21 @@
        query byte for byte. There is deliberately no code below that reads a SubID. Rewriting one
        here is exactly how attribution breaks.
 
-       ⚠️ THE FORWARD IS DATA IN THIS FILE, AND THAT IS THE DESIGN. It used to be a RELATIVE hop
-       (./go/), back when a prelander and its lander shared a directory. These are flat files
-       now, so the destination is a <meta name="sprk-lander"> written at generation time and
-       read by landerUrl() below — markup, never a constant in the script, so every page still
-       runs a byte-identical script body (_tracking-audit pins that).
+       ⚠️ THE DESTINATION IS NEVER A QUERY PARAM, IN EITHER SHAPE. landerUrl() below supports two,
+       and which one applies is decided by the MARKUP, not by the visitor:
+         · a numbered clone (/PG50/US7/) has no sprk-lander meta and takes the RELATIVE ./go/ hop —
+           clone 7's prelander reaches clone 7's lander because they are the same directory;
+         · a flat page (/frcusa-pre.html) carries <meta name="sprk-lander" content="/frcusa.html">,
+           written at generation time, and forwards there.
+       Neither can drift, because both ship WITH the page.
 
-       What has NOT changed is what both shapes exist to avoid: a shared prelander taking a
-       destination param (/pre?to=/some/lander), which is what tokrwd's own /pre does. That
-       shape needs an ALLOWLIST of forwardable roots, and it has already broken live traffic
-       twice (slices 51/52 on 2026-07-30, 53/54 on 2026-08-09: the tree deployed, the root was
-       never allowlisted, /pre refused to forward, and the click was paid for anyway — the
-       second ran ~46h). Both times BOTH copies of the list were simply never updated, so
-       "keep one list instead of two" would not have helped either. A destination that ships
-       WITH the page cannot drift out of step with a deploy, and no visitor can set it.
-       Do not "simplify" this back into ?to=.
+       The shape both exist to avoid is a shared prelander taking a destination param
+       (/pre?to=/some/lander), which is what tokrwd's own /pre does. That needs an ALLOWLIST of
+       forwardable roots, and it has already broken live traffic twice (slices 51/52 on
+       2026-07-30, 53/54 on 2026-08-09: the tree deployed, the root was never allowlisted, /pre
+       refused to forward, and the click was paid for anyway — the second ran ~46h). Both times
+       BOTH copies of the list were simply never updated, so "keep one list instead of two" would
+       not have helped either. Do not "simplify" this back into ?to=.
 
        ⚠️ NO SUBID GATE HERE, DELIBERATELY. The landers blank themselves without an s1. Applying
        that rule here would defeat the page: the visitors this exists to rescue are precisely the
@@ -322,9 +321,23 @@
         }
         beacon('pre_view');
 
-        /* The lander, resolved against THIS clone's own directory. `new URL`-free on purpose so it
-           behaves the same on old in-app webviews; the two replaces normalise a path with or
-           without its trailing slash, and a literal /index.html, to the same base. */
+        /* The lander. TWO page shapes, ONE code path — which is the whole point.
+
+           · Clone directories (50FC/FC7/, AC54/US1/, …): no meta tag, so it resolves against THIS
+             clone's own directory, exactly as before. `new URL`-free on purpose so it behaves the
+             same on old in-app webviews; the two replaces normalise a path with or without its
+             trailing slash, and a literal /index.html, to the same base.
+           · Flat pages (/frcusa-pre -> /frcusa): a <meta name="sprk-lander"> names the destination.
+
+           ⚠️ THE DESTINATION IS DATA, NOT CODE, AND THAT IS DELIBERATE. Baking the path into this
+           function instead would give every flat page its own script body, and _tracking-audit
+           hashes these script bodies to prove the breakout is ONE reviewed behaviour rather than
+           1,410 individually-editable ones. A per-page constant in the markup keeps that guarantee;
+           a per-page constant in the script destroys it. (Tried the other way first — the audit
+           caught it, which is what it is for.)
+
+           It is still not a ?to= param: the value is written into the file at generation time and
+           cannot be set by a visitor, so there is no allowlist and nothing to keep in sync. */
         /* `q`, not location.search, so the sid minted above rides to the lander. */
         function landerUrl() {
             var m = document.querySelector('meta[name="sprk-lander"]');

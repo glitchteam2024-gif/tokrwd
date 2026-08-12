@@ -130,6 +130,18 @@
     {
       "source": "/EOZ",
       "destination": "/EOZ.html"
+    },
+    {
+      "source": "/Rewards/privacy",
+      "destination": "/Rewards/privacy.html"
+    },
+    {
+      "source": "/Rewards/terms",
+      "destination": "/Rewards/terms.html"
+    },
+    {
+      "source": "/Rewards/contact",
+      "destination": "/Rewards/contact.html"
     }
   ],
   "rewrites": [
