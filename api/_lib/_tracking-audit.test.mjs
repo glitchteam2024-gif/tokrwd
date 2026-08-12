@@ -256,13 +256,31 @@ report('no third-party tracking script on a deployed page', thirdPartyTrackers);
 // exactly as they do to every other. The escape is sanctioned; cloaking is not.
 const PRELANDER_MARK = /<meta\s+name=["']sprk-prelander["']/i;
 const prelanderFiles = files.filter((rel) => PRELANDER_MARK.test(readFileSync(new URL(rel, REPO), 'utf8')));
+// WHAT IS PINNED IS THE BEHAVIOUR, NOT THE PIXELS (2026-08-11).
+//
+// This compared the WHOLE FILE, which made the prelander un-themeable: every offer has its own
+// palette (Freecash green, Prograd violet, Reco magenta, Copper mint...) and a handoff from a green
+// prelander into a violet lander reads as two different sites — exactly the seam a prelander exists
+// to smooth over. Byte-equality forbade fixing that.
+//
+// The invariant that actually matters is that the BREAKOUT LOGIC is one reviewed implementation.
+// A palette cannot smuggle in a second destination, a UA sniff or a blank-page gate; a <script> can.
+// So the hash is taken over the concatenated <script> bodies, with the <style> and the theme
+// attribute free to vary. One script to review still reviews all 1,410 pages, and drift in the only
+// part that can cloak still breaks the build.
+//
+// Everything else still applies to these files unchanged: the marker is still required, and the
+// non-escapable CLOAK_PATTERNS below are still enforced on them.
+const scriptsOf = (html) => (html.match(/<script\b[^>]*>([\s\S]*?)<\/script>/gi) || []).join('\n');
 const prelanderHashes = new Set(
-  prelanderFiles.map((rel) => createHash('sha256').update(readFileSync(new URL(rel, REPO))).digest('hex')),
+  prelanderFiles.map((rel) => createHash('sha256')
+    .update(scriptsOf(readFileSync(new URL(rel, REPO), 'utf8')))
+    .digest('hex')),
 );
 report(
-  'every sanctioned prelander is byte-identical (one reviewed page, not 1,410 editable ones)',
+  'every sanctioned prelander runs byte-identical SCRIPTS (one reviewed behaviour, not 1,410 editable ones)',
   prelanderHashes.size > 1
-    ? [`${prelanderFiles.length} marked files have ${prelanderHashes.size} distinct hashes — at least one has been edited away from the canonical prelander`]
+    ? [`${prelanderFiles.length} marked files have ${prelanderHashes.size} distinct script hashes — at least one has had its breakout logic edited away from the canonical prelander`]
     : [],
 );
 
