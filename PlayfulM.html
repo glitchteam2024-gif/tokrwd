@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0014" />
 <meta name="robots" content="noindex,nofollow" />
-<title>Playful Rewards — Get Paid To Scroll</title>
+<title>Playful Rewards — Get Paid For Screen Time</title>
 <link rel="icon" href="/images/playful-rewards-logo.png" />
 <link rel="apple-touch-icon" href="/images/playful-rewards-logo.png" />
 
@@ -79,15 +79,16 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
 /* ---- brand ---- */
 .brand{display:flex;align-items:center;gap:9px}
 .brand img{width:32px;height:32px;border-radius:9px}
-/* nowrap: at 375px the timer squeezes this and "Playful Rewards" breaks onto a
-   second line, which pushes the whole bar taller than the timer pill. */
-.brand b{font-size:16px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+/* nowrap stops "Playful Rewards" breaking onto a second line and making the bar
+   taller than the timer beside it — but nowrap alone then drives the brand INTO
+   the timer at 375px. 15px + the timer's own shrink is what actually clears it. */
+.brand b{font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
 .badge{display:flex;align-items:center;gap:10px;justify-content:center;width:max-content;margin:0 auto;
   padding:8px 18px 8px 9px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035)}
 
 /* ---- top bar (screen 2) ---- */
 .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 0 4px}
-.timer{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;font-size:12.5px;
+.timer{display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:999px;font-size:12px;white-space:nowrap;flex:0 0 auto;
   border:1px solid rgba(251,191,36,.34);background:rgba(251,191,36,.09);color:var(--gold);white-space:nowrap}
 .timer b{font-variant-numeric:tabular-nums;font-weight:700}
 
@@ -171,8 +172,12 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
 
 #screen-gate{padding-top:30px}
 #screen-gate h1{font-size:44px}
-#screen-main h1{font-size:33px;margin-top:4px}
-@media(max-width:360px){#screen-gate h1{font-size:38px}#screen-main h1{font-size:29px}}
+/* 30px, not 33: at 33 "Get paid for Screen Time" is one character too wide for
+   375px and drops a lone "Time" onto its own line, so the headline reads as three
+   ragged lines with an orphan in the middle. 30px fits it on one line and keeps
+   the accent line beneath, which is the two-line shape the design wants. */
+#screen-main h1{font-size:30px;margin-top:4px}
+@media(max-width:360px){#screen-gate h1{font-size:38px}#screen-main h1{font-size:27px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* Screen toggle. Declared LAST and WITHOUT !important on purpose: the audit
@@ -193,7 +198,7 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
   <section id="screen-gate">
     <div class="badge"><img src="/images/playful-rewards-logo.png" alt="" width="32" height="32"><b>Playful Rewards</b></div>
 
-    <h1 style="margin-top:32px">Get Paid To<span class="accent">Scroll</span></h1>
+    <h1 style="margin-top:32px">Get Paid For<span class="accent">Screen Time</span></h1>
     <p class="sub" id="cHero"></p>
 
     <div class="pill"><span class="dot"></span><span id="cCounter"></span></div>
@@ -225,7 +230,7 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
 
     <div class="pill trustpill" id="cTrustBadge"></div>
 
-    <h1>Get paid to Scroll<span class="accent">&amp; test apps</span></h1>
+    <h1>Get paid for Screen Time<span class="accent">&amp; testing apps</span></h1>
     <p class="sub" id="cSub"></p>
 
     <div class="chips">
@@ -305,8 +310,8 @@ var USE_REFERENCE_CLAIMS = false;
 
 var CLAIMS = {
   hero:       USE_REFERENCE_CLAIMS
-                ? 'Thousands earn real cash daily on their phone &mdash; instant payouts to PayPal, Bank Transfer, Crypto &amp; more.'
-                : 'Scroll apps, play games and complete simple offers. Payouts to PayPal, Bank Transfer, Crypto and more.',
+                ? 'Thousands turn their screen time into real cash daily &mdash; instant payouts to PayPal, Bank Transfer, Crypto &amp; more.'
+                : 'Get paid for the time you already spend on your phone. Payouts to PayPal, Bank Transfer, Crypto and more.',
 
   counter:    USE_REFERENCE_CLAIMS
                 ? '<b>12,863</b> people earning right now'
