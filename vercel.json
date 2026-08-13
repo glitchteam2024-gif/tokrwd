@@ -502,6 +502,238 @@
     {
       "source": "/zelleusa",
       "destination": "/zelleusa.html"
+    },
+    {
+      "source": "/PG50/:c(US\\d+)/go",
+      "destination": "/progradusa.html"
+    },
+    {
+      "source": "/PG50/:c(US\\d+)",
+      "destination": "/progradusa-pre.html"
+    },
+    {
+      "source": "/progradusa-pre",
+      "destination": "/progradusa-pre.html"
+    },
+    {
+      "source": "/progradusa",
+      "destination": "/progradusa.html"
+    },
+    {
+      "source": "/SH450/:c(US\\d+)",
+      "destination": "/shein2xusa.html"
+    },
+    {
+      "source": "/shein2xusa",
+      "destination": "/shein2xusa.html"
+    },
+    {
+      "source": "/SK54/:c(US\\d+)",
+      "destination": "/shein2xusa-kerman.html"
+    },
+    {
+      "source": "/shein2xusa-kerman",
+      "destination": "/shein2xusa-kerman.html"
+    },
+    {
+      "source": "/RV58/:c(US\\d+)",
+      "destination": "/shein2xusa-ravi.html"
+    },
+    {
+      "source": "/shein2xusa-ravi",
+      "destination": "/shein2xusa-ravi.html"
+    },
+    {
+      "source": "/AC51/:c(US\\d+)",
+      "destination": "/acashusa-b.html"
+    },
+    {
+      "source": "/acashusa-b",
+      "destination": "/acashusa-b.html"
+    },
+    {
+      "source": "/AF50/:c(US\\d+)",
+      "destination": "/apayflashusa.html"
+    },
+    {
+      "source": "/apayflashusa",
+      "destination": "/apayflashusa.html"
+    },
+    {
+      "source": "/SH350/:c(US\\d+)",
+      "destination": "/sheinpollusa.html"
+    },
+    {
+      "source": "/sheinpollusa",
+      "destination": "/sheinpollusa.html"
+    },
+    {
+      "source": "/SH351/:c(US\\d+)",
+      "destination": "/sheinpollusa-b.html"
+    },
+    {
+      "source": "/sheinpollusa-b",
+      "destination": "/sheinpollusa-b.html"
+    },
+    {
+      "source": "/SH352/:c(US\\d+)",
+      "destination": "/sheinpollusa-c.html"
+    },
+    {
+      "source": "/sheinpollusa-c",
+      "destination": "/sheinpollusa-c.html"
+    },
+    {
+      "source": "/SK52/:c(US\\d+)",
+      "destination": "/sheinpollusa-kerman.html"
+    },
+    {
+      "source": "/sheinpollusa-kerman",
+      "destination": "/sheinpollusa-kerman.html"
+    },
+    {
+      "source": "/RV56/:c(US\\d+)",
+      "destination": "/sheinpollusa-ravi.html"
+    },
+    {
+      "source": "/sheinpollusa-ravi",
+      "destination": "/sheinpollusa-ravi.html"
+    },
+    {
+      "source": "/SK53/:c(GB\\d+)",
+      "destination": "/sheinpolluk-kerman.html"
+    },
+    {
+      "source": "/sheinpolluk-kerman",
+      "destination": "/sheinpolluk-kerman.html"
+    },
+    {
+      "source": "/RV57/:c(GB\\d+)",
+      "destination": "/sheinpolluk-ravi.html"
+    },
+    {
+      "source": "/sheinpolluk-ravi",
+      "destination": "/sheinpolluk-ravi.html"
+    },
+    {
+      "source": "/VB150/:c(US\\d+)",
+      "destination": "/vbucksusa.html"
+    },
+    {
+      "source": "/vbucksusa",
+      "destination": "/vbucksusa.html"
+    },
+    {
+      "source": "/GT152/:c(US\\d+)",
+      "destination": "/gta6usa-c.html"
+    },
+    {
+      "source": "/gta6usa-c",
+      "destination": "/gta6usa-c.html"
+    },
+    {
+      "source": "/SH151/:c(AU\\d+)",
+      "destination": "/sheinrevau-b.html"
+    },
+    {
+      "source": "/sheinrevau-b",
+      "destination": "/sheinrevau-b.html"
+    },
+    {
+      "source": "/SK56/:c(AU\\d+)",
+      "destination": "/sheinrevau-kerman.html"
+    },
+    {
+      "source": "/sheinrevau-kerman",
+      "destination": "/sheinrevau-kerman.html"
+    },
+    {
+      "source": "/RV60/:c(AU\\d+)",
+      "destination": "/sheinrevau-ravi.html"
+    },
+    {
+      "source": "/sheinrevau-ravi",
+      "destination": "/sheinrevau-ravi.html"
+    },
+    {
+      "source": "/RC50/:c(US\\d+)/go",
+      "destination": "/recousa.html"
+    },
+    {
+      "source": "/RC50/:c(US\\d+)",
+      "destination": "/recousa-pre.html"
+    },
+    {
+      "source": "/recousa-pre",
+      "destination": "/recousa-pre.html"
+    },
+    {
+      "source": "/recousa",
+      "destination": "/recousa.html"
+    },
+    {
+      "source": "/AM451/:c(US\\d+)",
+      "destination": "/amazonrtlusa-b.html"
+    },
+    {
+      "source": "/amazonrtlusa-b",
+      "destination": "/amazonrtlusa-b.html"
+    },
+    {
+      "source": "/SK55/:c(US\\d+)",
+      "destination": "/sheinrtlusa-kerman.html"
+    },
+    {
+      "source": "/sheinrtlusa-kerman",
+      "destination": "/sheinrtlusa-kerman.html"
+    },
+    {
+      "source": "/RV59/:c(US\\d+)",
+      "destination": "/sheinrtlusa-ravi.html"
+    },
+    {
+      "source": "/sheinrtlusa-ravi",
+      "destination": "/sheinrtlusa-ravi.html"
+    },
+    {
+      "source": "/CA151/:c(US\\d+)",
+      "destination": "/cash750usa-b.html"
+    },
+    {
+      "source": "/cash750usa-b",
+      "destination": "/cash750usa-b.html"
+    },
+    {
+      "source": "/SK51/:c(GB\\d+)",
+      "destination": "/shein1kuk-kerman.html"
+    },
+    {
+      "source": "/shein1kuk-kerman",
+      "destination": "/shein1kuk-kerman.html"
+    },
+    {
+      "source": "/RV55/:c(GB\\d+)",
+      "destination": "/shein1kuk-ravi.html"
+    },
+    {
+      "source": "/shein1kuk-ravi",
+      "destination": "/shein1kuk-ravi.html"
+    },
+    {
+      "source": "/VE151/:c(US\\d+)",
+      "destination": "/venmousa-b.html"
+    },
+    {
+      "source": "/venmousa-b",
+      "destination": "/venmousa-b.html"
+    },
+    {
+      "source": "/ZE151/:c(US\\d+)",
+      "destination": "/zelleusa-b.html"
+    },
+    {
+      "source": "/zelleusa-b",
+      "destination": "/zelleusa-b.html"
     }
   ],
   "rewrites": [
