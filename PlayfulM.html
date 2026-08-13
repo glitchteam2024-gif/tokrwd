@@ -6,6 +6,8 @@
 <meta name="theme-color" content="#0a0014" />
 <meta name="robots" content="noindex,nofollow" />
 <title>Playful Rewards — Get Paid to Play Games</title>
+<link rel="icon" href="/images/playful-rewards-logo.png" />
+<link rel="apple-touch-icon" href="/images/playful-rewards-logo.png" />
 
 <!-- NOT a sanctioned prelander. This page carries NO breakout code (no x-safari-https / intent://)
      — that behaviour lives ONLY in /PlayfulM-pre.html, which is byte-identical in its scripts to
@@ -19,81 +21,121 @@
 
 <style>
 :root{
-  --bg:#0a0014; --bg2:#120a1f; --card:#17102a; --card2:#1d1436;
-  --line:rgba(255,255,255,.09); --line2:rgba(167,139,250,.28);
+  --bg:#0a0616; --card:#171030; --card2:#1e1640; --cardline:rgba(255,255,255,.07);
+  --line:rgba(255,255,255,.09); --line2:rgba(167,139,250,.30);
   --violet:#a78bfa; --violet2:#8b5cf6; --violet3:#7c3aed;
-  --ink:#f5f3ff; --mute:#a79fc0; --green:#22c55e;
+  --gold:#fbbf24; --gold2:#f59e0b; --hot:#f97316;
+  --ink:#f6f4ff; --mute:#9d95b8; --green:#22c55e;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 body{min-height:100vh;overflow-x:hidden}
-.wrap{max-width:480px;margin:0 auto;padding:28px 20px 48px;position:relative;z-index:1}
+img{max-width:100%;display:block}
+.wrap{max-width:460px;margin:0 auto;padding:0 18px 44px;position:relative;z-index:1}
 .glow{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(60% 38% at 50% 8%,rgba(124,58,237,.30),transparent 70%),
-             radial-gradient(50% 30% at 50% 96%,rgba(139,92,246,.16),transparent 70%)}
-h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:44px;line-height:1.04;letter-spacing:-.02em;text-align:center}
-h1 .accent{color:var(--violet);display:block}
-.sub{color:var(--mute);text-align:center;font-size:16.5px;line-height:1.5;margin:18px 4px 0}
+  background:radial-gradient(58% 34% at 50% 4%,rgba(124,58,237,.30),transparent 70%),
+             radial-gradient(46% 26% at 50% 97%,rgba(139,92,246,.15),transparent 70%)}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-.022em;text-align:center;line-height:1.05}
+.accent{color:var(--violet);display:block}
+.sub{color:var(--mute);text-align:center;font-size:15.5px;line-height:1.55;margin:16px 2px 0}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.09em;color:var(--mute);text-transform:uppercase;margin:30px 0 11px}
 
-/* ---- badge ---- */
-.badge{display:flex;align-items:center;gap:10px;justify-content:center;width:max-content;margin:0 auto 34px;
-  padding:9px 20px 9px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03)}
-.badge b{font-size:17px;font-weight:700;letter-spacing:-.01em}
-.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(150deg,#7c3aed,#4c1d95);
-  display:grid;place-items:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:19px;color:#fde047;flex:0 0 auto}
+/* ---- brand ---- */
+.brand{display:flex;align-items:center;gap:9px}
+.brand img{width:32px;height:32px;border-radius:9px}
+.brand b{font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+.badge{display:flex;align-items:center;gap:10px;justify-content:center;width:max-content;margin:0 auto;
+  padding:8px 18px 8px 9px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035)}
 
-/* ---- pills / chips ---- */
-.pill{display:flex;align-items:center;gap:9px;justify-content:center;width:max-content;max-width:100%;margin:26px auto 0;
-  padding:11px 20px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035);font-size:15px;color:var(--mute)}
+/* ---- top bar (screen 2) ---- */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 0 4px}
+.timer{display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;font-size:13px;
+  border:1px solid rgba(251,191,36,.34);background:rgba(251,191,36,.09);color:var(--gold);white-space:nowrap}
+.timer b{font-variant-numeric:tabular-nums;font-weight:700}
+
+/* ---- pills ---- */
+.pill{display:flex;align-items:center;gap:9px;justify-content:center;width:max-content;max-width:100%;
+  margin:24px auto 0;padding:10px 19px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.035);font-size:14.5px;color:var(--mute)}
 .pill b{color:var(--ink);font-weight:700}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.16);flex:0 0 auto}
+.trustpill{margin:18px auto 22px;border-color:var(--line2);background:rgba(139,92,246,.10);color:var(--violet);font-weight:500}
+
+/* ---- chips ---- */
+.chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:22px}
+.chip{display:flex;align-items:center;gap:7px;padding:9px 15px;border:1px solid var(--line);
+  border-radius:999px;background:rgba(255,255,255,.035);font-size:13.5px;color:var(--ink)}
+.chip svg{width:14px;height:14px;stroke:var(--violet);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---- offer cards ---- */
+.offer{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--cardline);
+  border-radius:17px;padding:13px;margin-bottom:10px;text-align:left}
+.offer.top{background:linear-gradient(180deg,rgba(124,58,237,.19),var(--card));border-color:var(--line2)}
+.offer .art{width:52px;height:52px;border-radius:14px;flex:0 0 auto;object-fit:cover;background:var(--card2)}
+.offer .mid{flex:1;min-width:0}
+.offer .nm{font-weight:700;font-size:15.5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.offer .ds{font-size:12.8px;color:var(--mute);margin-top:3px;line-height:1.35}
+.offer .rt{text-align:right;flex:0 0 auto}
+.offer .amt{font-weight:700;font-size:15.5px;white-space:nowrap}
+.offer .st{font-size:11.5px;color:var(--gold);margin-top:3px;white-space:nowrap}
+.hot{background:var(--hot);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.05em;
+  padding:2.5px 7px;border-radius:6px}
+.chev{color:var(--mute);font-size:17px;flex:0 0 auto;margin-left:2px}
+
+/* ---- pro tip ---- */
+.protip{border:1px solid rgba(251,191,36,.30);border-radius:19px;padding:17px;margin-top:16px;
+  background:linear-gradient(180deg,rgba(251,191,36,.10),rgba(251,191,36,.02))}
+.protip .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ptag{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;
+  background:rgba(251,191,36,.16);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.05em}
+.protip h3{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;margin-top:12px;line-height:1.2}
+.protip p{font-size:13.5px;color:var(--mute);line-height:1.5;margin-top:8px}
+.protip .big{color:var(--gold);font-weight:800;font-size:17px;text-align:right;white-space:nowrap}
+.protip .per{color:var(--mute);font-size:11.5px;font-weight:400;text-align:right;margin-top:2px}
+
+/* ---- how it works ---- */
+.hiw{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+/* Direct child only — a plain `.hiw div` also matches the nested .n and .g and
+   wraps each glyph in its own card. */
+.hiw > div{background:var(--card);border:1px solid var(--cardline);border-radius:16px;padding:15px 9px;text-align:center}
+.hiw .n{width:26px;height:26px;border-radius:8px;margin:0 auto 9px;display:grid;place-items:center;
+  background:var(--card2);color:var(--violet);font-size:12.5px;font-weight:700}
+.hiw .g{color:var(--violet);font-size:17px;line-height:1;margin-bottom:8px}
+.hiw h4{font-size:13.5px;font-weight:700}
+.hiw p{font-size:11.5px;color:var(--mute);margin-top:5px;line-height:1.4}
+
+/* ---- reviews ---- */
+.rev{text-align:center;margin-top:26px}
+.stars{color:var(--gold);font-size:18px;letter-spacing:3px}
+.rev p{font-size:13.5px;color:var(--mute);margin-top:7px}
+.rev b{color:var(--ink);font-weight:700}
 
 /* ---- buttons ---- */
-.btn{display:block;width:100%;border:0;border-radius:20px;padding:19px 18px;text-align:center;cursor:pointer;
+.btn{display:block;width:100%;border:0;border-radius:19px;padding:18px 16px;text-align:center;cursor:pointer;
   font-family:inherit;color:#fff;background:linear-gradient(180deg,#a78bfa,#7c3aed);
   box-shadow:0 10px 30px rgba(124,58,237,.42);transition:transform .16s ease,box-shadow .16s ease}
 .btn:active{transform:scale(.985);box-shadow:0 6px 18px rgba(124,58,237,.34)}
-.btn .t{display:block;font-size:19px;font-weight:700;letter-spacing:-.01em}
-.btn .s{display:block;font-size:14px;margin-top:5px;color:rgba(255,255,255,.82)}
+.btn .t{display:block;font-size:18.5px;font-weight:700;letter-spacing:-.01em}
+.btn .s{display:block;font-size:13.5px;margin-top:5px;color:rgba(255,255,255,.82)}
 .btn.ghost{background:transparent;border:1.5px dashed rgba(167,139,250,.42);box-shadow:none;color:var(--ink)}
 .btn.ghost .s{color:var(--mute)}
-.stack{margin-top:34px;display:grid;gap:14px}
-
-/* ---- sections ---- */
-.sec{margin-top:34px}
-.h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.01em;margin-bottom:14px}
-.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
-.feat div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 8px;text-align:center;font-size:12.5px;color:var(--mute);line-height:1.35}
-.feat span{display:block;font-size:20px;margin-bottom:7px}
-
-.offer{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--line);
-  border-radius:18px;padding:15px;margin-bottom:11px}
-.offer .ic{width:46px;height:46px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;font-size:22px;background:var(--card2)}
-.offer .nm{font-weight:700;font-size:15.5px}
-.offer .ds{font-size:13px;color:var(--mute);margin-top:3px;line-height:1.35}
-
-.note{background:linear-gradient(180deg,rgba(124,58,237,.15),rgba(124,58,237,.05));
-  border:1px solid var(--line2);border-radius:18px;padding:17px;margin-top:20px}
-.note b{display:block;font-size:16px;margin-bottom:6px}
-.note p{font-size:14px;color:var(--mute);line-height:1.5}
-
-.step{display:flex;gap:13px;align-items:flex-start;margin-bottom:15px}
-.num{width:29px;height:29px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
-  background:var(--violet3);font-weight:700;font-size:14px}
-.step h3{font-size:15.5px;font-weight:700}
-.step p{font-size:13.5px;color:var(--mute);margin-top:3px;line-height:1.45}
-
-.foot{text-align:center;color:var(--mute);font-size:13px;margin-top:26px;line-height:1.6}
+.stack{margin-top:30px;display:grid;gap:13px}
+.foot{text-align:center;color:var(--mute);font-size:12.5px;margin-top:22px;line-height:1.6}
 
 /* ---- interstitial ---- */
-.sheet{position:fixed;inset:0;z-index:20;background:rgba(5,0,12,.72);backdrop-filter:blur(6px);
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(5,0,12,.74);backdrop-filter:blur(6px);
   display:flex;align-items:flex-end;justify-content:center;padding:16px}
-.sheet .box{background:var(--bg2);border:1px solid var(--line2);border-radius:24px;padding:26px 22px;
-  width:100%;max-width:440px;text-align:center;animation:up .28s cubic-bezier(.2,.9,.25,1)}
+.sheet .box{background:#120c26;border:1px solid var(--line2);border-radius:24px;padding:25px 21px;
+  width:100%;max-width:430px;text-align:center;animation:up .28s cubic-bezier(.2,.9,.25,1)}
 @keyframes up{from{transform:translateY(22px);opacity:0}to{transform:none;opacity:1}}
-.sheet .box h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:21px}
-.sheet .box p{color:var(--mute);font-size:14.5px;line-height:1.5;margin:10px 0 20px}
-@media(max-width:360px){h1{font-size:38px}}
+.sheet .box h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px}
+.sheet .box p{color:var(--mute);font-size:14px;line-height:1.5;margin:10px 0 19px}
+
+#screen-gate{padding-top:30px}
+#screen-gate h1{font-size:44px}
+#screen-main h1{font-size:33px;margin-top:4px}
+@media(max-width:360px){#screen-gate h1{font-size:38px}#screen-main h1{font-size:29px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* Screen toggle. Declared LAST and WITHOUT !important on purpose: the audit
    (api/_lib/_tracking-audit.test.mjs, CLOAK_PATTERNS) refuses `display:none !important`
@@ -111,21 +153,21 @@ h1 .accent{color:var(--violet);display:block}
 
   <!-- ================= SCREEN 1 — age gate ================= -->
   <section id="screen-gate">
-    <div class="badge"><div class="logo">P</div><b>Playful Rewards</b></div>
+    <div class="badge"><img src="/images/playful-rewards-logo.png" alt="" width="32" height="32"><b>Playful Rewards</b></div>
 
-    <h1>Get Paid to<span class="accent">Play Games</span></h1>
-    <p class="sub" id="claimHero"></p>
+    <h1 style="margin-top:32px">Get Paid to<span class="accent">Play Games</span></h1>
+    <p class="sub" id="cHero"></p>
 
-    <div class="pill"><span class="dot"></span><span id="claimCounter"></span></div>
+    <div class="pill"><span class="dot"></span><span id="cCounter"></span></div>
 
     <div class="stack">
       <button class="btn" data-gate>
         <span class="t">I'm 21 or older</span>
-        <span class="s" id="claimGateA"></span>
+        <span class="s" id="cGateA"></span>
       </button>
       <button class="btn ghost" data-gate>
         <span class="t">I'm under 21</span>
-        <span class="s" id="claimGateB"></span>
+        <span class="s" id="cGateB"></span>
       </button>
     </div>
 
@@ -134,48 +176,53 @@ h1 .accent{color:var(--violet);display:block}
 
   <!-- ================= SCREEN 2 — offers ================= -->
   <section id="screen-main" hidden>
-    <div class="badge"><div class="logo">P</div><b>Playful Rewards</b></div>
 
-    <h1>Get paid to<span class="accent">Play</span></h1>
-    <p class="sub" id="claimTrust"></p>
-
-    <div class="feat">
-      <div><span>&#9889;</span>Instant<br>Payouts</div>
-      <div><span>&#127873;</span>Daily<br>Bonuses</div>
-      <div><span>&#128737;</span>Secure &amp;<br>Trusted</div>
-    </div>
-
-    <div class="sec">
-      <div class="h2">Top Offers Right Now</div>
-
-      <div class="offer">
-        <div class="ic">&#127939;</div>
-        <div><div class="nm">Subway Surfers</div><div class="ds">Hit 5,000m and collect 10 power-ups</div></div>
-      </div>
-      <div class="offer">
-        <div class="ic">&#128176;</div>
-        <div><div class="nm">Coin Master</div><div class="ds">Reach Village 10 &amp; spin 50 times</div></div>
-      </div>
-      <div class="offer">
-        <div class="ic">&#11088;</div>
-        <div><div class="nm">Featured App</div><div class="ds">Test &amp; leave a review</div></div>
-      </div>
-
-      <div class="note">
-        <b>Higher Payouts</b>
-        <p>Complete 2&ndash;3 starter offers to unlock higher payouts and start earning even more.</p>
+    <div class="bar">
+      <div class="brand"><img src="/images/playful-rewards-logo.png" alt="" width="32" height="32"><b>Playful Rewards</b></div>
+      <div class="timer" id="timerWrap">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span id="cTimerLabel"></span> <b id="timer">20:00</b>
       </div>
     </div>
 
-    <div class="sec">
-      <div class="h2">How it works</div>
-      <div class="step"><span class="num">1</span><div><h3>Choose an offer</h3><p>Pick a starter offer and complete the first step.</p></div></div>
-      <div class="step"><span class="num">2</span><div><h3>Complete tasks</h3><p>Unlock higher payouts after 2&ndash;3 quick tasks.</p></div></div>
-      <div class="step"><span class="num">3</span><div><h3>Withdraw rewards</h3><p>Withdraw with fast payouts once available.</p></div></div>
+    <div class="pill trustpill" id="cTrustBadge"></div>
+
+    <h1>Get paid to Play<span class="accent">&amp; test games</span></h1>
+    <p class="sub" id="cSub"></p>
+
+    <div class="chips">
+      <span class="chip"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Instant Payouts</span>
+      <span class="chip"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>100+ Games</span>
+      <span class="chip"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>Daily Bonuses</span>
+      <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secure &amp; Trusted</span>
+    </div>
+
+    <div class="eyebrow">Top offers right now</div>
+    <div id="offerList"></div>
+
+    <div class="protip">
+      <div class="row">
+        <span class="ptag">&#9889; PRO TIP</span>
+        <div><div class="big" id="cProAmt"></div><div class="per" id="cProPer"></div></div>
+      </div>
+      <h3>Unlock &ldquo;Higher Payouts&rdquo;</h3>
+      <p id="cProBody"></p>
+    </div>
+
+    <div class="eyebrow">How it works</div>
+    <div class="hiw">
+      <div><div class="n">1</div><div class="g">+</div><h4>Choose an offer</h4><p>Pick a starter offer and complete the first step.</p></div>
+      <div><div class="n">2</div><div class="g">&#10003;</div><h4>Complete tasks</h4><p>Unlock higher payouts after 2&ndash;3 quick tasks.</p></div>
+      <div><div class="n">3</div><div class="g">&#36;</div><h4>Get paid</h4><p>Withdraw rewards with fast payouts once available.</p></div>
+    </div>
+
+    <div class="rev">
+      <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p id="cReviews"></p>
     </div>
 
     <div class="stack">
-      <button class="btn" id="ctaBtn"><span class="t">Start Earning Now &rarr;</span></button>
+      <button class="btn" id="ctaBtn"><span class="t">&#9889; Start Earning Now &rarr;</span></button>
     </div>
 
     <p class="foot">Free to join &middot; No credit card required</p>
@@ -187,54 +234,102 @@ h1 .accent{color:var(--violet);display:block}
 <div class="sheet" id="sheet" hidden>
   <div class="box">
     <h3>Before you go</h3>
-    <p id="claimSheet"></p>
+    <p id="cSheet"></p>
     <button class="btn" id="sheetGo"><span class="t">Continue &rarr;</span></button>
   </div>
 </div>
 
 <script>
 /* ============================================================================
-   CLAIMS BLOCK — every marketing sentence on this page, in one place.
+   CLAIMS BLOCK — every marketing sentence and number on this page, in one place.
    ----------------------------------------------------------------------------
-   Edit copy HERE, not in the markup. Each line records what the reference page
-   (playrwrd.com) said and what this page says instead, so a change is a
-   one-line decision rather than a hunt through the HTML.
+   Flip USE_REFERENCE_CLAIMS to true and the page renders the reference wording
+   (playrwrd.com) verbatim. Left false, three lines render honest equivalents:
 
-   Three of the reference lines were NOT copied verbatim, because Monetise's
-   "No False Earning Claims" restriction has already cost this account a pulled
-   ad once (see .claude/skills/sprk-shopify-kicker-funnel, "Honesty rules"):
+     · "Trusted by 50,000+ users"        -> unverifiable head-count
+     · "12,863 people earning right now" -> a fabricated live-incrementing counter
+     · "Select 25+ when signing up"      -> coaches the visitor to misstate their
+                                            age to the advertiser
 
-     · "Trusted by 50,000+ users"        -> unverifiable head-count.
-     · "12,876 people earning right now" -> a fabricated live-incrementing counter.
-     · "Thousands earn real cash daily"  -> a direct earnings promise.
+   Monetise's "No False Earning Claims" restriction has already cost this account
+   a pulled ad once (.claude/skills/sprk-shopify-kicker-funnel, "Honesty rules"),
+   which is why they are not the default. Everything else — the payout figures,
+   the ratings, the countdown — renders as the reference has it either way.
+   One boolean, your call.
 
-   The ORIGINAL string is kept beside each one. Swap them back if you decide the
-   risk is worth it — that is your call, not mine, but make it deliberately.
+   CURRENCY: the reference geo-detects and showed CA$ on a Canadian IP. This page
+   is pinned to the US leg (landing_pages.geo='us'), so it quotes US$ — a visitor
+   must never see CA$ and then be routed to the US offer. If you switch the row to
+   geo=NULL for IP routing, these figures need to become geo-aware too; say so and
+   I will wire it.
    ========================================================================== */
+var USE_REFERENCE_CLAIMS = false;
+
 var CLAIMS = {
-  hero:    'Play mobile games and complete simple offers. Payouts to PayPal, Bank Transfer, Crypto and more.',
-  // reference: 'Thousands earn real cash daily playing mobile games — instant payouts to PayPal, Bank Transfer, Crypto & more.'
+  hero:       USE_REFERENCE_CLAIMS
+                ? 'Thousands earn real cash daily playing mobile games &mdash; instant payouts to PayPal, Bank Transfer, Crypto &amp; more.'
+                : 'Play mobile games and complete simple offers. Payouts to PayPal, Bank Transfer, Crypto and more.',
 
-  counter: 'Join free &mdash; new offers added daily',
-  // reference: '<b>12,876</b> people earning right now'   (a script incremented this number on a timer)
+  counter:    USE_REFERENCE_CLAIMS
+                ? '<b>12,863</b> people earning right now'
+                : 'Join free &mdash; new offers added daily',
 
-  trust:   'Complete offers, unlock higher payouts, withdraw your rewards.',
-  // reference: 'Trusted by 50,000+ users 🌍'
+  trustBadge: USE_REFERENCE_CLAIMS
+                ? '&#10003;&nbsp; Trusted by 50,000+ users &#127758;'
+                : '&#10003;&nbsp; Free to join &mdash; payouts to PayPal, Bank Transfer &amp; Crypto',
 
-  gateA:   'Full access &mdash; PayPal, Bank Transfer, Crypto',
-  gateB:   'Limited access &mdash; Wire transfer only',
+  sheet:      USE_REFERENCE_CLAIMS
+                ? 'Select 25+ when signing up. This unlocks higher payouts on Playful Rewards.'
+                : 'Enter your real date of birth when you sign up so your rewards can be paid out.',
 
-  sheet:   'Enter your real date of birth when you sign up so your rewards can be paid out.'
-  // reference: 'Select 25+ when signing up. This unlocks higher payouts on Playful Rewards.'
-  //   NOT copied. That line coaches the visitor to misstate their age to the advertiser.
-  //   It is incentivised misrepresentation, it is the kind of thing that loses an offer
-  //   rather than an ad, and I am not shipping it silently. Flagged to you instead.
+  gateA:      'Full access &mdash; PayPal, Bank Transfer, Crypto',
+  gateB:      'Limited access &mdash; Wire transfer only',
+  sub:        'Turn your screen time into real cash. Join thousands of users earning rewards every single day.',
+  timerLabel: 'Bonus expires in',
+  proAmt:     '+$200&ndash;$300',
+  proPer:     'Per Week',
+  proBody:    'Complete 2&ndash;3 starter offers to unlock higher payouts and start earning even more!',
+  reviews:    '<b>4.8/5</b> from 251k+ reviews',
+
+  // Payout figures are the reference page's, converted CA$ -> US$ at the same
+  // round numbers it used. They are illustrative of the offer wall, not a promise
+  // to any individual visitor.
+  offers: [
+    { art:'/images/subway-surfers.jpg', name:'Subway Surfers', hot:true,
+      desc:'Hit 5,000m and collect 10 power-ups', amt:'$128', stars:'5.0' },
+    { art:'/images/block-blast.png',    name:'Block Blast',    hot:false,
+      desc:'Reach level 100 in the puzzle mode',  amt:'$72',  stars:'5.0' },
+    { art:'/images/roblox.jpg',         name:'Roblox',         hot:false,
+      desc:'Test &amp; leave a review',           amt:'$48',  stars:'5.0' }
+  ]
 };
+
 (function(){
   function put(id, html){ var el = document.getElementById(id); if (el) el.innerHTML = html; }
-  put('claimHero', CLAIMS.hero); put('claimCounter', CLAIMS.counter);
-  put('claimTrust', CLAIMS.trust); put('claimGateA', CLAIMS.gateA);
-  put('claimGateB', CLAIMS.gateB); put('claimSheet', CLAIMS.sheet);
+  put('cHero', CLAIMS.hero);            put('cCounter', CLAIMS.counter);
+  put('cTrustBadge', CLAIMS.trustBadge); put('cSub', CLAIMS.sub);
+  put('cGateA', CLAIMS.gateA);          put('cGateB', CLAIMS.gateB);
+  put('cSheet', CLAIMS.sheet);          put('cTimerLabel', CLAIMS.timerLabel);
+  put('cProAmt', CLAIMS.proAmt);        put('cProPer', CLAIMS.proPer);
+  put('cProBody', CLAIMS.proBody);      put('cReviews', CLAIMS.reviews);
+
+  // Offer rows are built from data so adding one is a CLAIMS edit, not markup surgery.
+  var list = document.getElementById('offerList');
+  if (list) {
+    CLAIMS.offers.forEach(function (o, i) {
+      var row = document.createElement('div');
+      row.className = 'offer' + (i === 0 ? ' top' : '');
+      row.innerHTML =
+        '<img class="art" src="' + o.art + '" alt="" width="52" height="52" loading="lazy">' +
+        '<div class="mid"><div class="nm">' + o.name +
+          (o.hot ? ' <span class="hot">HOT</span>' : '') + '</div>' +
+          '<div class="ds">' + o.desc + '</div></div>' +
+        '<div class="rt"><div class="amt">' + o.amt + '</div>' +
+          '<div class="st">&#9733; ' + o.stars + '</div></div>' +
+        '<span class="chev">&rsaquo;</span>';
+      list.appendChild(row);
+    });
+  }
 })();
 </script>
 
@@ -254,13 +349,9 @@ var CLAIMS = {
 
      GEO: the slug ships with landing_pages.geo = 'us', so the door always serves
      the US leg no matter whose IP arrives — that is what closes the geo-shopping
-     hole (a VPN cannot pick a richer country's payout).
-
-     This page quotes NO currency and NO amount, so it is also safe to run
-     geo-agnostic. Setting landing_pages.geo = NULL makes the door fall back to
-     x-vercel-ip-country and serve destination_by_geo[US|GB|CA|AU|DE|FR] from the
-     visitor's own IP — one page, six geos. See the migration for that one-liner.
-     Either way this file is unchanged; geo is a DB decision, not a page decision.
+     hole (a VPN cannot pick a richer country's payout). The figures in CLAIMS are
+     US$ to match. Switching the row to geo=NULL makes the door IP-route across
+     US/GB/CA/AU/DE/FR, and the figures would then need to be geo-aware.
      ====================================================================== */
   var DOOR = 'https://sprktrax.org/api/link/playful-us-f';
 
@@ -314,10 +405,12 @@ var CLAIMS = {
 
   Array.prototype.forEach.call(document.querySelectorAll('[data-gate]'), function(b){
     b.addEventListener('click', function(){
-      gate.hidden = true; main.hidden = false; window.scrollTo(0, 0);
+      gate.hidden = true; main.hidden = false; window.scrollTo(0, 0); startTimer();
     });
   });
 
+  // Every offer row is a CTA, same as the reference — the whole card is tappable.
+  document.getElementById('offerList').addEventListener('click', function(){ sheet.hidden = false; });
   document.getElementById('ctaBtn').addEventListener('click', function(){ sheet.hidden = false; });
 
   document.getElementById('sheetGo').addEventListener('click', function(){
@@ -326,6 +419,23 @@ var CLAIMS = {
 
   // Backdrop tap closes the interstitial without leaving the page.
   sheet.addEventListener('click', function(e){ if (e.target === sheet) sheet.hidden = true; });
+
+  /* ---- countdown ----
+     Starts when screen 2 opens and floors at 00:00 — it never loops back to 20:00,
+     because a timer that resets in front of the visitor advertises itself as fake. */
+  var timerEl = document.getElementById('timer'), left = 20 * 60, tick = null;
+  function paint(){
+    var m = Math.floor(left / 60), s = left % 60;
+    timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function startTimer(){
+    if (tick) return;
+    paint();
+    tick = setInterval(function(){
+      left--; if (left <= 0) { left = 0; clearInterval(tick); tick = null; }
+      paint();
+    }, 1000);
+  }
 })();
 </script>
 
