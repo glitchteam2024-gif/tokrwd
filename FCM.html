@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#0a0014" />
+<meta name="theme-color" content="#0a0616" />
 <meta name="robots" content="noindex,nofollow" />
 <title>Freecash — Get Paid For Screen Time</title>
 <link rel="icon" href="/images/freecash-logo.webp" />
 <link rel="apple-touch-icon" href="/images/freecash-logo.webp" />
 
 <!-- NOT a sanctioned prelander. This page carries NO breakout code (no x-safari-https / intent://)
-     — that behaviour lives ONLY in /PlayfulM-pre.html, which is byte-identical in its scripts to
+     — that behaviour lives ONLY in /FCM-pre.html, which is byte-identical in its scripts to
      every other reviewed prelander. tokrwd's api/_lib/_tracking-audit.test.mjs fails the build if
      breakout code appears here, because breakout logic spread across landers is what got this
      domain flagged in the first place. Do not paste any part of the prelander into this file. -->
@@ -37,11 +37,12 @@
                             network postback does — and firing it here would
                             double-count every conversion against the same pixel.
 
-     No `value` is sent on the browser events ON PURPOSE. Playful is a REVSHARE
-     offer with offers.payout NULL, so there is no honest per-click figure to
-     quote; the house Apple pages pass a GEO_VALUE because those are fixed-payout.
-     Inventing one would corrupt value-based optimisation and overstate revenue.
-     The CAPI still sends the REAL value from the conversion row.
+     No `value` is sent on the browser events ON PURPOSE. Freecash is fixed-payout
+     (pricing_mode 'fixed') but the amount is PER GEO, held in offers.payout_by_geo,
+     and offers.payout itself is NULL — the browser cannot know which geo tier a
+     given visitor will settle at, so any figure stamped here would be a guess that
+     corrupts value-based optimisation. The CAPI sends the REAL value off the
+     conversion row, where the geo is already resolved.
      ========================================================================= -->
 <script>
 !function (w, d, t) {
@@ -81,7 +82,9 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
 
 /* ---- brand ---- */
 .brand{display:flex;align-items:center;gap:9px}
-.brand img{width:32px;height:32px;border-radius:9px}
+.brand img{width:32px;height:32px;border-radius:10px}
+/* The gate-screen logo had no radius rule and rendered as a hard square. */
+.badge img{width:32px;height:32px;border-radius:10px}
 /* nowrap stops the brand breaking onto a second line and making the bar
    taller than the timer beside it — but nowrap alone then drives the brand INTO
    the timer at 375px. 15px + the timer's own shrink is what actually clears it. */
@@ -216,11 +219,12 @@ button,.offer,[data-gate]{touch-action:manipulation;-webkit-tap-highlight-color:
 
 #screen-gate{padding-top:30px}
 #screen-gate h1{font-size:44px}
-/* 30px, not 33: at 33 "Get paid for Screen Time" is one character too wide for
-   375px and drops a lone "Time" onto its own line, so the headline reads as three
-   ragged lines with an orphan in the middle. 30px fits it on one line and keeps
-   the accent line beneath, which is the two-line shape the design wants. */
-#screen-main h1{font-size:30px;margin-top:4px}
+/* 30px was a workaround for "Get paid for Screen Time" running onto three ragged
+   lines. That string is gone — the headline is now "Get paid for" over the accent
+   "Screen Time", two short lines — so the cap is no longer needed and the heading
+   goes back up to read at arm's length on a phone. Kept under the gate's 44px so
+   the two screens stay distinguishable. */
+#screen-main h1{font-size:37px;margin-top:4px}
 @media(max-width:360px){#screen-gate h1{font-size:38px}#screen-main h1{font-size:27px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -274,7 +278,7 @@ button,.offer,[data-gate]{touch-action:manipulation;-webkit-tap-highlight-color:
 
     <div class="pill trustpill" id="cTrustBadge"></div>
 
-    <h1>Get paid for Screen Time<span class="accent">&amp; testing apps</span></h1>
+    <h1>Get paid for<span class="accent">Screen Time</span></h1>
     <p class="sub" id="cSub"></p>
 
     <div class="chips">
@@ -388,9 +392,9 @@ var CLAIMS = {
   // round numbers it used. They are illustrative of the offer wall, not a promise
   // to any individual visitor.
   offers: [
-    { art:'/images/subway-surfers.jpg', name:'Subway Surfers', hot:true,
+    { art:'/images/locked-red.svg'  , name:'Subway Surfers', hot:true,
       desc:'Hit 5,000m and collect 10 power-ups', amt:'$128', stars:'5.0' },
-    { art:'/images/block-blast.png',    name:'Block Blast',    hot:false,
+    { art:'/images/locked-red.svg',   name:'Block Blast',    hot:false,
       desc:'Reach level 100 in the puzzle mode',  amt:'$72',  stars:'5.0' },
     { art:'/images/roblox.jpg',         name:'Roblox',         hot:false,
       desc:'Test &amp; leave a review',           amt:'$48',  stars:'5.0' }
@@ -500,9 +504,10 @@ var CLAIMS = {
   /* Shared shape for every browser event. content_id is not optional in practice:
      without it the live SDK logs "[TikTok Pixel] - Missing 'content_id' parameter",
      and it is what lets TikTok group these events as one product rather than as
-     anonymous hits. Deliberately NO `value` — Playful is revshare with
-     offers.payout NULL, so any figure here would be invented. The CAPI still
-     reports the real value from the conversion row. */
+     anonymous hits. Deliberately NO `value` — Freecash is fixed-payout but PER
+     GEO (offers.payout_by_geo; offers.payout itself is NULL), and the browser
+     cannot know which tier a visitor lands in, so any figure here would be a
+     guess. The CAPI reports the real value off the conversion row. */
   function PIXEL_CONTENT(name){
     return { content_id: 'freecash-us', content_type: 'product', content_name: name };
   }

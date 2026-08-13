@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52" width="52" height="52" role="img" aria-label="Locked">
+  <!-- Locked-offer tile. Sized 52x52 to match .offer .art exactly, so it drops in
+       where a game icon was without any layout shift. Red reads as "blocked", not
+       as an error state, against the page's greens. -->
+  <defs>
+    <linearGradient id="lkbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a1216"/>
+      <stop offset="1" stop-color="#240b0e"/>
+    </linearGradient>
+    <linearGradient id="lkbody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2545b"/>
+      <stop offset="1" stop-color="#d92d38"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="52" height="52" rx="14" fill="url(#lkbg)"/>
+  <rect x="0.5" y="0.5" width="51" height="51" rx="13.5" fill="none" stroke="#7f1d22" stroke-opacity=".55"/>
+
+  <!-- Chain, running corner to corner BEHIND the padlock. Drawn as separate links
+       rather than one stroke so it reads as a chain at 52px instead of a smudge. -->
+  <g fill="none" stroke="#8c2b31" stroke-width="3.1" stroke-linecap="round" opacity=".85">
+    <ellipse cx="10.5" cy="41.5" rx="4.6" ry="3.1" transform="rotate(-45 10.5 41.5)"/>
+    <ellipse cx="17.5" cy="34.5" rx="4.6" ry="3.1" transform="rotate(-45 17.5 34.5)"/>
+    <ellipse cx="34.5" cy="17.5" rx="4.6" ry="3.1" transform="rotate(-45 34.5 17.5)"/>
+    <ellipse cx="41.5" cy="10.5" rx="4.6" ry="3.1" transform="rotate(-45 41.5 10.5)"/>
+  </g>
+
+  <!-- Shackle. Stroked arc, closed at the bottom by the body below it. -->
+  <path d="M19.6 24.2v-4.6a6.4 6.4 0 0 1 12.8 0v4.6"
+        fill="none" stroke="#f2545b" stroke-width="3.4" stroke-linecap="round"/>
+
+  <!-- Body -->
+  <rect x="15.4" y="23.6" width="21.2" height="15.8" rx="4.2" fill="url(#lkbody)"/>
+  <circle cx="26" cy="30.2" r="2.5" fill="#3d0f13"/>
+  <rect x="24.9" y="31.4" width="2.2" height="4.6" rx="1.1" fill="#3d0f13"/>
+</svg>
