@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0014" />
 <meta name="robots" content="noindex,nofollow" />
-<title>Playful Rewards — Get Paid to Play Games</title>
+<title>Playful Rewards — Get Paid To Scroll</title>
 <link rel="icon" href="/images/playful-rewards-logo.png" />
 <link rel="apple-touch-icon" href="/images/playful-rewards-logo.png" />
 
@@ -79,13 +79,15 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
 /* ---- brand ---- */
 .brand{display:flex;align-items:center;gap:9px}
 .brand img{width:32px;height:32px;border-radius:9px}
-.brand b{font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+/* nowrap: at 375px the timer squeezes this and "Playful Rewards" breaks onto a
+   second line, which pushes the whole bar taller than the timer pill. */
+.brand b{font-size:16px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
 .badge{display:flex;align-items:center;gap:10px;justify-content:center;width:max-content;margin:0 auto;
   padding:8px 18px 8px 9px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035)}
 
 /* ---- top bar (screen 2) ---- */
 .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 0 4px}
-.timer{display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:999px;font-size:13px;
+.timer{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;font-size:12.5px;
   border:1px solid rgba(251,191,36,.34);background:rgba(251,191,36,.09);color:var(--gold);white-space:nowrap}
 .timer b{font-variant-numeric:tabular-nums;font-weight:700}
 
@@ -191,7 +193,7 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
   <section id="screen-gate">
     <div class="badge"><img src="/images/playful-rewards-logo.png" alt="" width="32" height="32"><b>Playful Rewards</b></div>
 
-    <h1 style="margin-top:32px">Get Paid to<span class="accent">Play Games</span></h1>
+    <h1 style="margin-top:32px">Get Paid To<span class="accent">Scroll</span></h1>
     <p class="sub" id="cHero"></p>
 
     <div class="pill"><span class="dot"></span><span id="cCounter"></span></div>
@@ -223,7 +225,7 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
 
     <div class="pill trustpill" id="cTrustBadge"></div>
 
-    <h1>Get paid to Play<span class="accent">&amp; test games</span></h1>
+    <h1>Get paid to Scroll<span class="accent">&amp; test apps</span></h1>
     <p class="sub" id="cSub"></p>
 
     <div class="chips">
@@ -258,7 +260,7 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
     </div>
 
     <div class="stack">
-      <button class="btn" id="ctaBtn"><span class="t">&#9889; Start Earning Now &rarr;</span></button>
+      <button class="btn" id="ctaBtn"><span class="t" id="cCta"></span></button>
     </div>
 
     <p class="foot">Free to join &middot; No credit card required</p>
@@ -303,8 +305,8 @@ var USE_REFERENCE_CLAIMS = false;
 
 var CLAIMS = {
   hero:       USE_REFERENCE_CLAIMS
-                ? 'Thousands earn real cash daily playing mobile games &mdash; instant payouts to PayPal, Bank Transfer, Crypto &amp; more.'
-                : 'Play mobile games and complete simple offers. Payouts to PayPal, Bank Transfer, Crypto and more.',
+                ? 'Thousands earn real cash daily on their phone &mdash; instant payouts to PayPal, Bank Transfer, Crypto &amp; more.'
+                : 'Scroll apps, play games and complete simple offers. Payouts to PayPal, Bank Transfer, Crypto and more.',
 
   counter:    USE_REFERENCE_CLAIMS
                 ? '<b>12,863</b> people earning right now'
@@ -321,6 +323,7 @@ var CLAIMS = {
   gateA:      'Full access &mdash; PayPal, Bank Transfer, Crypto',
   gateB:      'Limited access &mdash; Wire transfer only',
   sub:        'Turn your screen time into real cash. Join thousands of users earning rewards every single day.',
+  cta:        '&#9889; Start Earning On TikTok &rarr;',
   timerLabel: 'Bonus expires in',
   proAmt:     '+$200&ndash;$300',
   proPer:     'Per Week',
@@ -331,8 +334,16 @@ var CLAIMS = {
   // round numbers it used. They are illustrative of the offer wall, not a promise
   // to any individual visitor.
   offers: [
-    { art:'/images/subway-surfers.jpg', name:'Subway Surfers', hot:true,
-      desc:'Hit 5,000m and collect 10 power-ups', amt:'$128', stars:'5.0' },
+    // ⚠️ TIKTOK LOGO + NAME AS A PAID OFFER — Migi's call, 2026-08-13, taken against
+    // a written objection. This lander is the destination of a TikTok ad, so ad
+    // review sees TikTok's own mark presented as something that pays the visitor.
+    // That reads as endorsement, and TikTok's trademark policy is the usual reason
+    // an otherwise-fine ad gets rejected. It is the same "TIKTOK x <BRAND> lockup"
+    // objection already recorded against the Apple pages in
+    // .claude/skills/sprk-shopify-kicker-funnel. Swapping art/name back to a game
+    // is a one-line change if review pushes back.
+    { art:'/images/tiktok-icon-free-png.png', name:'TikTok', hot:true,
+      desc:'Scroll and watch videos in the app', amt:'$128', stars:'5.0' },
     { art:'/images/block-blast.png',    name:'Block Blast',    hot:false,
       desc:'Reach level 100 in the puzzle mode',  amt:'$72',  stars:'5.0' },
     { art:'/images/roblox.jpg',         name:'Roblox',         hot:false,
@@ -348,6 +359,7 @@ var CLAIMS = {
   put('cSheet', CLAIMS.sheet);          put('cTimerLabel', CLAIMS.timerLabel);
   put('cProAmt', CLAIMS.proAmt);        put('cProPer', CLAIMS.proPer);
   put('cProBody', CLAIMS.proBody);      put('cReviews', CLAIMS.reviews);
+  put('cCta', CLAIMS.cta);
 
   // Offer rows are built from data so adding one is a CLAIMS edit, not markup surgery.
   var list = document.getElementById('offerList');
