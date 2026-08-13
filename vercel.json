@@ -142,6 +142,366 @@
     {
       "source": "/Rewards/contact",
       "destination": "/Rewards/contact.html"
+    },
+    {
+      "source": "/AC50/:c(US\\d+)",
+      "destination": "/acashusa.html"
+    },
+    {
+      "source": "/acashusa",
+      "destination": "/acashusa.html"
+    },
+    {
+      "source": "/AC54/:c(US\\d+)",
+      "destination": "/acashusa-e.html"
+    },
+    {
+      "source": "/acashusa-e",
+      "destination": "/acashusa-e.html"
+    },
+    {
+      "source": "/AF51/:c(US\\d+)",
+      "destination": "/apayflashusa-b.html"
+    },
+    {
+      "source": "/apayflashusa-b",
+      "destination": "/apayflashusa-b.html"
+    },
+    {
+      "source": "/AH50/:c(US\\d+)",
+      "destination": "/apay750usa-ashlyn.html"
+    },
+    {
+      "source": "/apay750usa-ashlyn",
+      "destination": "/apay750usa-ashlyn.html"
+    },
+    {
+      "source": "/AK50/:c(AU\\d+)",
+      "destination": "/apay1kau.html"
+    },
+    {
+      "source": "/apay1kau",
+      "destination": "/apay1kau.html"
+    },
+    {
+      "source": "/AK50/:c(CA\\d+)",
+      "destination": "/apay1kcana.html"
+    },
+    {
+      "source": "/apay1kcana",
+      "destination": "/apay1kcana.html"
+    },
+    {
+      "source": "/AK50/:c(GB\\d+)",
+      "destination": "/apay1kuk.html"
+    },
+    {
+      "source": "/apay1kuk",
+      "destination": "/apay1kuk.html"
+    },
+    {
+      "source": "/AK51/:c(AU\\d+)",
+      "destination": "/apay1kau-b.html"
+    },
+    {
+      "source": "/apay1kau-b",
+      "destination": "/apay1kau-b.html"
+    },
+    {
+      "source": "/AK51/:c(CA\\d+)",
+      "destination": "/apay1kcana-b.html"
+    },
+    {
+      "source": "/apay1kcana-b",
+      "destination": "/apay1kcana-b.html"
+    },
+    {
+      "source": "/AK51/:c(GB\\d+)",
+      "destination": "/apay1kuk-b.html"
+    },
+    {
+      "source": "/apay1kuk-b",
+      "destination": "/apay1kuk-b.html"
+    },
+    {
+      "source": "/AP50/:c(US\\d+)",
+      "destination": "/apay750usa.html"
+    },
+    {
+      "source": "/apay750usa",
+      "destination": "/apay750usa.html"
+    },
+    {
+      "source": "/AP51/:c(US\\d+)",
+      "destination": "/apay750usa-b.html"
+    },
+    {
+      "source": "/apay750usa-b",
+      "destination": "/apay750usa-b.html"
+    },
+    {
+      "source": "/AP52/:c(US\\d+)",
+      "destination": "/apay750usa-c.html"
+    },
+    {
+      "source": "/apay750usa-c",
+      "destination": "/apay750usa-c.html"
+    },
+    {
+      "source": "/AS50/:c(US\\d+)",
+      "destination": "/acashusa-sammy.html"
+    },
+    {
+      "source": "/acashusa-sammy",
+      "destination": "/acashusa-sammy.html"
+    },
+    {
+      "source": "/CA150/:c(US\\d+)",
+      "destination": "/cash750usa.html"
+    },
+    {
+      "source": "/cash750usa",
+      "destination": "/cash750usa.html"
+    },
+    {
+      "source": "/CR50/:c(CR\\d+)/go",
+      "destination": "/copperusa.html"
+    },
+    {
+      "source": "/CR50/:c(CR\\d+)",
+      "destination": "/copperusa-pre.html"
+    },
+    {
+      "source": "/copperusa-pre",
+      "destination": "/copperusa-pre.html"
+    },
+    {
+      "source": "/copperusa",
+      "destination": "/copperusa.html"
+    },
+    {
+      "source": "/DO150/:c(GB\\d+)",
+      "destination": "/doordashuk.html"
+    },
+    {
+      "source": "/doordashuk",
+      "destination": "/doordashuk.html"
+    },
+    {
+      "source": "/DO250/:c(CA\\d+)",
+      "destination": "/doordashcana.html"
+    },
+    {
+      "source": "/doordashcana",
+      "destination": "/doordashcana.html"
+    },
+    {
+      "source": "/GT150/:c(US\\d+)",
+      "destination": "/gta6usa.html"
+    },
+    {
+      "source": "/gta6usa",
+      "destination": "/gta6usa.html"
+    },
+    {
+      "source": "/GT250/:c(CA\\d+)",
+      "destination": "/gta6cana.html"
+    },
+    {
+      "source": "/gta6cana",
+      "destination": "/gta6cana.html"
+    },
+    {
+      "source": "/KM50/:c(US\\d+)",
+      "destination": "/apay750usa-kerman.html"
+    },
+    {
+      "source": "/apay750usa-kerman",
+      "destination": "/apay750usa-kerman.html"
+    },
+    {
+      "source": "/PR50/:c(AU\\d+)/go",
+      "destination": "/playfulau.html"
+    },
+    {
+      "source": "/PR50/:c(AU\\d+)",
+      "destination": "/playfulau-pre.html"
+    },
+    {
+      "source": "/playfulau-pre",
+      "destination": "/playfulau-pre.html"
+    },
+    {
+      "source": "/playfulau",
+      "destination": "/playfulau.html"
+    },
+    {
+      "source": "/PR50/:c(CA\\d+)/go",
+      "destination": "/playfulcana.html"
+    },
+    {
+      "source": "/PR50/:c(CA\\d+)",
+      "destination": "/playfulcana-pre.html"
+    },
+    {
+      "source": "/playfulcana-pre",
+      "destination": "/playfulcana-pre.html"
+    },
+    {
+      "source": "/playfulcana",
+      "destination": "/playfulcana.html"
+    },
+    {
+      "source": "/PR50/:c(GB\\d+)/go",
+      "destination": "/playfuluk.html"
+    },
+    {
+      "source": "/PR50/:c(GB\\d+)",
+      "destination": "/playfuluk-pre.html"
+    },
+    {
+      "source": "/playfuluk-pre",
+      "destination": "/playfuluk-pre.html"
+    },
+    {
+      "source": "/playfuluk",
+      "destination": "/playfuluk.html"
+    },
+    {
+      "source": "/PR50/:c(US\\d+)/go",
+      "destination": "/playfulusa.html"
+    },
+    {
+      "source": "/PR50/:c(US\\d+)",
+      "destination": "/playfulusa-pre.html"
+    },
+    {
+      "source": "/playfulusa-pre",
+      "destination": "/playfulusa-pre.html"
+    },
+    {
+      "source": "/playfulusa",
+      "destination": "/playfulusa.html"
+    },
+    {
+      "source": "/RV50/:c(US\\d+)",
+      "destination": "/playfulusa-ravi.html"
+    },
+    {
+      "source": "/playfulusa-ravi",
+      "destination": "/playfulusa-ravi.html"
+    },
+    {
+      "source": "/RV54/:c(US\\d+)",
+      "destination": "/shein1kusa-ravi.html"
+    },
+    {
+      "source": "/shein1kusa-ravi",
+      "destination": "/shein1kusa-ravi.html"
+    },
+    {
+      "source": "/RV61/:c(US\\d+)",
+      "destination": "/frcusa-ravi.html"
+    },
+    {
+      "source": "/frcusa-ravi",
+      "destination": "/frcusa-ravi.html"
+    },
+    {
+      "source": "/SB50/:c(US\\d+)",
+      "destination": "/shein1kusa.html"
+    },
+    {
+      "source": "/shein1kusa",
+      "destination": "/shein1kusa.html"
+    },
+    {
+      "source": "/SB51/:c(US\\d+)",
+      "destination": "/shein1kusa-b.html"
+    },
+    {
+      "source": "/shein1kusa-b",
+      "destination": "/shein1kusa-b.html"
+    },
+    {
+      "source": "/SB52/:c(US\\d+)",
+      "destination": "/shein1kusa-c.html"
+    },
+    {
+      "source": "/shein1kusa-c",
+      "destination": "/shein1kusa-c.html"
+    },
+    {
+      "source": "/SH451/:c(US\\d+)",
+      "destination": "/shein2xusa-b.html"
+    },
+    {
+      "source": "/shein2xusa-b",
+      "destination": "/shein2xusa-b.html"
+    },
+    {
+      "source": "/SH650/:c(US\\d+)",
+      "destination": "/sheinrtlusa.html"
+    },
+    {
+      "source": "/sheinrtlusa",
+      "destination": "/sheinrtlusa.html"
+    },
+    {
+      "source": "/SH651/:c(US\\d+)",
+      "destination": "/sheinrtlusa-b.html"
+    },
+    {
+      "source": "/sheinrtlusa-b",
+      "destination": "/sheinrtlusa-b.html"
+    },
+    {
+      "source": "/SK50/:c(US\\d+)",
+      "destination": "/shein1kusa-kerman.html"
+    },
+    {
+      "source": "/shein1kusa-kerman",
+      "destination": "/shein1kusa-kerman.html"
+    },
+    {
+      "source": "/VB151/:c(US\\d+)",
+      "destination": "/vbucksusa-b.html"
+    },
+    {
+      "source": "/vbucksusa-b",
+      "destination": "/vbucksusa-b.html"
+    },
+    {
+      "source": "/VB350/:c(CA\\d+)",
+      "destination": "/vbuckscana.html"
+    },
+    {
+      "source": "/vbuckscana",
+      "destination": "/vbuckscana.html"
+    },
+    {
+      "source": "/VE150/:c(US\\d+)",
+      "destination": "/venmousa.html"
+    },
+    {
+      "source": "/venmousa",
+      "destination": "/venmousa.html"
+    },
+    {
+      "source": "/WA350/:c(US\\d+)",
+      "destination": "/walmartb2susa.html"
+    },
+    {
+      "source": "/walmartb2susa",
+      "destination": "/walmartb2susa.html"
+    },
+    {
+      "source": "/ZE150/:c(US\\d+)",
+      "destination": "/zelleusa.html"
+    },
+    {
+      "source": "/zelleusa",
+      "destination": "/zelleusa.html"
     }
   ],
   "rewrites": [

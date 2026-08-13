@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#080a09">
+<meta name="robots" content="noindex,nofollow">
+<title>Open in Browser</title>
+
+<!--
+  /fcpre — the FREECASH prelander. Migi's "Open in Browser" design (supplied 2026-08-10) driven by
+  the SAME js/breakout.js that runs /pre, so the two pages behave IDENTICALLY. This file contains
+  no breakout logic of its own: it supplies the markup contract and loads the sanctioned script.
+  That is deliberate — api/_lib/_tracking-audit.test.mjs limits the scheme patterns to
+  BREAKOUT_OK = { 'pre/index.html', 'js/breakout.js' }, and inlining any of it here would fail the
+  build. One mechanism, one file, two skins.
+
+  THE MARKUP CONTRACT breakout.js binds to (js/breakout.js ~line 280):
+      #preCard   the card it reveals/updates
+      #preOpen   THE PRIMARY CONTROL — must be an <a>, see the note on it below
+      #preStay   the "tap is never lost" fallback (rule 5)
+      #preNote   status line it writes into
+      #preCopy   optional; /pre dropped it and breakout.js guards with `if (copy)`, so it is
+                 omitted here too — matching /pre exactly, per Migi.
+
+  USAGE:  https://www.tokrwd.co/fcpre?to=/mgfrcsh&s1=<your code>
+  `mgfrcsh` is already in breakout.js ALLOWED_ROOTS (and PRELANDER_ALLOWED_ROOTS in the SPRK repo),
+  so no allowlist change was needed. A `to=` outside that list is refused by design — that refusal
+  is what stops this page becoming an open redirect.
+
+  ⚠️ FONTS ARE THE SYSTEM STACK, NOT INTER — matching /pre, on purpose. The supplied design pulled
+     Inter 400..900 from Google Fonts: measured 2026-08-10 that is ~236 KB of woff2 (latin subset
+     alone) plus a 12.5 KB render-BLOCKING stylesheet, across two extra origins each needing their
+     own DNS + TLS handshake. /pre is 5.9 KB on the wire in total. This is the one page whose whole
+     job is to paint before the thumb moves; a prelander that waits on fonts.gstatic.com loses taps
+     it already paid for. -apple-system is SF Pro on iPhone, which is a near-match for Inter.
+-->
+
+<style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+        --bg: #080a09;
+        --card: #111312;
+        --border: rgba(255,255,255,0.06);
+        --accent: #3ee07d;
+        --accent-dim: rgba(62,224,125,0.15);
+        --accent-glow: rgba(62,224,125,0.4);
+        --text: #f4f5f4;
+        --muted: #6f746f;
+        --muted2: #8b908d;
+    }
+
+    html, body {
+        height: 100%;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 28px 24px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Background glow — matches the lander */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 60% 40% at 50% 0%, rgba(62,224,125,0.12) 0%, transparent 65%),
+            radial-gradient(ellipse 40% 30% at 100% 100%, rgba(62,224,125,0.06) 0%, transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        animation: fadeUp .5s ease both;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Icon box */
+    .icon-wrap {
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 28px;
+        border-radius: 22px;
+        border: 1px solid rgba(62,224,125,0.25);
+        background: var(--accent-dim);
+        display: grid;
+        place-items: center;
+        animation: iconGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes iconGlow {
+        0%, 100% { box-shadow: 0 0 30px rgba(62,224,125,0.2); }
+        50%       { box-shadow: 0 0 60px rgba(62,224,125,0.4); }
+    }
+
+    .icon-wrap svg {
+        width: 36px;
+        height: 36px;
+        color: var(--accent);
+        stroke-width: 2.5;
+    }
+
+    h1 {
+        font-size: 48px;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -1.5px;
+        margin-bottom: 12px;
+        color: var(--text);
+    }
+
+    h1 .hl { color: var(--accent); }
+
+    .sub {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--muted2);
+        line-height: 1.55;
+        margin-bottom: 36px;
+    }
+
+    /* CTA — an <a>, styled exactly like the supplied <button>. */
+    .cta {
+        display: block;
+        width: 100%;
+        background: var(--accent);
+        color: #062012;
+        font-family: inherit;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 18px 24px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 20px;
+        transition: transform 0.1s ease;
+        animation: ctaPulse 2.5s ease-in-out infinite;
+    }
+
+    .cta:active { transform: scale(0.97); }
+
+    @keyframes ctaPulse {
+        0%, 100% { box-shadow: 0 0 40px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
+        50%       { box-shadow: 0 0 70px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
+    }
+
+    .chips {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.3px;
+    }
+
+    .chips .dot {
+        width: 3px;
+        height: 3px;
+        background: var(--muted);
+        border-radius: 50%;
+        opacity: 0.4;
+    }
+
+    /* ── The "a tap is never lost" fallbacks (breakout.js rule 5) ──────────────────────────────
+       Treatment copied from /pre: a muted secondary link plus a status line, both quiet until the
+       2s post-tap watchdog has something to say. Not hidden — a display:none fallback that fails
+       to un-hide strands the visitor with no visible way out. */
+    .later { margin-top: 22px; }
+
+    .secondary {
+        color: var(--muted2);
+        font-size: 13.5px;
+        font-weight: 700;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255,255,255,.14);
+        padding-bottom: 2px;
+    }
+
+    .note {
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.6;
+        margin-top: 20px;
+        min-height: 1em;   /* reserve the line so writing into it never shifts the layout */
+    }
+
+    @media (max-height: 640px) {
+        .icon-wrap { width: 70px; height: 70px; margin-bottom: 20px; }
+        .icon-wrap svg { width: 28px; height: 28px; }
+        h1 { font-size: 38px; }
+        .sub { margin-bottom: 24px; }
+        .later { margin-top: 16px; }
+        .note { margin-top: 14px; }
+    }
+
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        body { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+    }
+</style>
+</head>
+<body>
+
+<main class="wrap" id="preCard">
+    <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17L17 7"></path>
+            <path d="M7 7h10v10"></path>
+        </svg>
+    </div>
+
+    <h1>Open in <span class="hl">Browser</span></h1>
+    <p class="sub">Tap Continue to open this page in your browser for the full experience.</p>
+
+    <!-- #preOpen IS AN <a>, NOT A <button> — the supplied design used a button; this is the one
+         structural change and it is load-bearing, for the same three reasons /pre gives:
+           · href carries the real destination, so it works with JS off and a crawler reading this
+             page sees the SAME lander a buyer gets (that is what keeps this page not-cloaking)
+           · the tap supplies USER ACTIVATION, and iOS honours a custom scheme far more readily
+             from a real gesture than from a programmatic navigation it never asked for
+           · breakout.js writes into its href; a <button> has none to write to
+         It is styled to look exactly like the button that was supplied. -->
+    <a class="cta" id="preOpen" href="#" rel="noopener" aria-label="Open in my browser">Continue</a>
+
+    <div class="chips">
+        <span>Safari</span>
+        <span class="dot"></span>
+        <span>Chrome</span>
+        <span class="dot"></span>
+        <span>Secure</span>
+    </div>
+
+    <div class="later" id="later">
+        <a class="secondary" id="preStay" href="#">Continue here</a>
+    </div>
+
+    <p class="note" id="preNote"></p>
+</main>
+
+<!-- ttclid FIRST, and deliberately NOT async — identical to /pre. It writes the _ttclid cookie
+     synchronously at parse time, and breakout.js on the next line can navigate away within
+     milliseconds; an async tag loses that race. Loading it here banks the click id one hop earlier
+     than the lander, so a hop that strips the query is still recoverable (error-log #048). -->
+<script src="/js/ttclid.js"></script>
+<script src="/js/breakout.js"></script>
+</body>
+</html>
