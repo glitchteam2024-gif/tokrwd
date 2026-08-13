@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en-CA" data-geo="CA">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#050505">
+  <title>DoorDash Credit Offer — Canada</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="-1">
+  <link rel="preconnect" href="https://sprktrax.org" crossorigin>
+  <link rel="dns-prefetch" href="https://sprktrax.org">
+  <link rel="preconnect" href="https://analytics.tiktok.com" crossorigin>
+
+  <!-- ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR. Runs FIRST, in the head: before the pixel fires,
+       before the body paints, and before the CTA is wired. Ordering is load-bearing — running this
+       late double-counted the TikTok PageView and left a window where a fast tap fired the CTA on
+       the WRONG geo's door. This lander is CA-only, so the list is a single entry and the block is
+       a no-op today; it stays so a GB/US sibling can be added without re-deriving the contract.
+       NOT CLOAKING: keyed on an explicit query param, never the user agent, identical for crawlers. -->
+  <script>
+  (function(){
+    var GEOS = ["CA"], THIS_GEO = "CA";
+    var q = new URLSearchParams(location.search);
+    var want = (q.get('lg') || '').trim().toUpperCase();
+    if (want === 'UK') want = 'GB';
+    if (!want || want === THIS_GEO || GEOS.indexOf(want) === -1) return;
+    var re = new RegExp('(^|/)' + THIS_GEO + '([0-9]*)(/index[.]html|/)?$');
+    var next = location.pathname.replace(re, function (_m, pre, idx, tail) { return pre + want + idx + (tail || ''); });
+    if (next === location.pathname) return;
+    q.set('lg', want);
+    location.replace(next + '?' + q.toString() + location.hash);
+  })();
+  </script>
+
+  <script id="offer-config">
+  /* This page IS one geo — CA, rendered in en-CA with its figures baked into the markup.
+     There is deliberately NO runtime geo detection, no language switcher and no cookie: the geo is
+     decided by WHICH PAGE the ad points at, and the click door routes on landing_pages.geo for that
+     same lander. One fact drives both, so the page cannot promise one country's offer and hand the
+     visitor another's. ||-guarded so a server-side injection still wins if one is ever added.
+     __DOOR_URL__ is the SPRK click door. It is NEVER the network URL — the door mints the click_id
+     and stamps the subid wire (Everflow: sub1=<SPK>, click_id -> offers.clickid_slot). */
+  window.__DOOR_URL__ = window.__DOOR_URL__ || "https://sprktrax.org/api/link/doordash-2-ca-kerman";
+  window.__STATS__    = window.__STATS__ || null;
+  </script>
+
+  <style>
+    :root {
+      --red: #ff3008;
+      --red-deep: #b61600;
+      --black: #050505;
+      --ink: #111111;
+      --paper: #f4f3ef;
+      --white: #ffffff;
+      --muted: #bcbab5;
+      --line: rgba(255,255,255,.15);
+      --display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+      --body: Arial, Helvetica, sans-serif;
+      --ease: cubic-bezier(.16, 1, .3, 1);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--black); }
+    body { margin: 0; overflow-x: hidden; color: var(--white); background: var(--black); font-family: var(--body); }
+    button, input { font: inherit; }
+    a { color: inherit; }
+    a, button, [role="button"] { touch-action: manipulation; -webkit-tap-highlight-color: rgba(0,0,0,.08); cursor: pointer; }
+    ::selection { color: var(--white); background: var(--red); }
+
+    .campaign-strip {
+      min-height: 48px;
+      padding: 0 clamp(18px, 3vw, 46px);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 24px;
+      color: var(--white);
+      background: var(--red);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .campaign-strip .season { justify-self: center; }
+    .availability { justify-self: end; display: inline-flex; align-items: center; gap: 9px; }
+    .pulse-dot { position: relative; width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--white); }
+    .pulse-dot::after {
+      content: "";
+      position: absolute;
+      inset: -5px;
+      border: 1px solid rgba(255,255,255,.75);
+      border-radius: inherit;
+      animation: pulse 1.8s ease-out infinite;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 720px;
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(480px, 1.08fr);
+      border-bottom: 1px solid var(--line);
+      isolation: isolate;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 78% 45%, rgba(255,48,8,.24), transparent 30%),
+        linear-gradient(120deg, #050505 0 58%, #120200 100%);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: .35;
+      background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 100% 88px;
+      mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+    }
+    .hero-copy {
+      padding: clamp(72px, 8vw, 124px) clamp(24px, 6vw, 88px);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .eyebrow { max-width: 30ch; margin: 0 0 24px; color: var(--red); font-size: 12px; font-weight: 900; letter-spacing: .2em; line-height: 1.5; text-transform: uppercase; text-wrap: balance; }
+    .hero h1 {
+      max-width: 700px;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(72px, 8vw, 124px);
+      font-weight: 900;
+      line-height: .91;
+      letter-spacing: -.025em;
+      text-transform: uppercase;
+      text-wrap: balance;
+    }
+    .hero h1 .headline-line { display: block; white-space: nowrap; }
+    .hero h1 .headline-accent { margin-top: .08em; color: var(--red); }
+    .hero-summary { max-width: 550px; margin: 30px 0 0; color: #deddd9; font-size: clamp(17px, 1.35vw, 21px); line-height: 1.55; text-wrap: pretty; }
+    .hero-actions { margin-top: 34px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+    .cta {
+      min-height: 58px;
+      padding: 0 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      border: 0;
+      color: var(--white);
+      background: var(--red);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+      transition: transform .2s var(--ease), background .2s ease;
+    }
+    .cta::after { content: "\2192"; font-size: 22px; }
+    .cta:hover { background: #ff5332; transform: translateY(-3px); }
+    .cta:active { transform: scale(.98); }
+    .cta:focus-visible, summary:focus-visible, input:focus-visible, button:focus-visible { outline: 3px solid var(--white); outline-offset: 4px; }
+    .cta[aria-busy="true"] { opacity: .7; pointer-events: none; }
+    .micro-constraint { display: inline-flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .micro-constraint .pulse-dot { width: 7px; height: 7px; background: var(--red); }
+    .micro-constraint .pulse-dot::after { border-color: var(--red); }
+
+    .hero-art {
+      position: relative;
+      min-height: 610px;
+      display: grid;
+      place-items: center;
+      padding: clamp(30px, 5vw, 72px);
+      border-left: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .speed-line { position: absolute; right: -10%; width: 78%; height: 1px; background: linear-gradient(90deg, transparent, var(--red), transparent); transform: rotate(-11deg); opacity: .55; }
+    .speed-line:nth-child(1) { top: 24%; }
+    .speed-line:nth-child(2) { top: 33%; right: -3%; }
+    .speed-line:nth-child(3) { bottom: 25%; right: -15%; }
+
+    /* Display card — self-contained. The original comp pointed at
+       ../assets/doordash-display-card-750x421.png, which does not exist in this repo; a 404'd hero
+       image on a paid-traffic lander is a dead first impression. This is the same typographic
+       wordmark treatment doordashcana.html already ships, so there is no external asset to break
+       and nothing extra to deploy. Swap in real art later by replacing .display-card's contents. */
+    .display-card {
+      position: relative;
+      width: min(750px, 100%);
+      aspect-ratio: 750 / 421;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.2);
+      background:
+        radial-gradient(circle at 26% 22%, rgba(255,48,8,.42), transparent 58%),
+        radial-gradient(circle at 82% 84%, rgba(182,22,0,.5), transparent 62%),
+        linear-gradient(140deg, #1a0400 0%, #070707 62%, #200500 100%);
+      box-shadow: 0 36px 100px rgba(255,48,8,.22), 0 12px 30px rgba(0,0,0,.7);
+      transform: perspective(1100px) rotateY(-6deg) rotateX(2deg);
+      animation: card-in 1s var(--ease) both;
+      overflow: hidden;
+    }
+    .display-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .5;
+      background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 100% 34px;
+    }
+    .display-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, rgba(255,255,255,.14), transparent 24% 76%, rgba(255,48,8,.12)); pointer-events: none; }
+    .card-inner { position: relative; z-index: 1; padding: 6%; text-align: center; }
+    .card-mark { font-family: var(--display); font-size: clamp(44px, 8.5vw, 104px); line-height: .9; letter-spacing: -.03em; text-transform: uppercase; }
+    .card-mark em { font-style: normal; color: var(--red); }
+    .card-amount { margin-top: .5em; font-family: var(--display); font-size: clamp(30px, 5.5vw, 66px); line-height: 1; letter-spacing: -.02em; color: var(--red); }
+    .card-rule { width: 74px; height: 3px; margin: 5% auto 0; background: var(--red); }
+    .card-note { margin-top: 4%; color: var(--muted); font-size: clamp(10px, 1.15vw, 13px); font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+
+    .route { color: var(--ink); background: var(--paper); }
+    .route-head {
+      padding: clamp(58px, 7vw, 110px) clamp(20px, 6vw, 88px) 42px;
+      display: grid;
+      grid-template-columns: 1fr minmax(280px, 520px);
+      align-items: end;
+      gap: 48px;
+    }
+    .section-kicker { margin: 0 0 13px; color: var(--red); font-size: 12px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; }
+    .route h2, .disclosure h2, .final h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(56px, 6.4vw, 96px);
+      font-weight: 900;
+      line-height: .93;
+      letter-spacing: -.018em;
+      text-transform: uppercase;
+      text-wrap: balance;
+    }
+    .route-intro { margin: 0; font-size: clamp(16px, 1.4vw, 20px); line-height: 1.55; text-wrap: pretty; }
+    .steps { border-top: 1px solid #c9c7c1; }
+    .step {
+      min-height: 180px;
+      padding: 30px clamp(20px, 6vw, 88px);
+      display: grid;
+      grid-template-columns: 112px minmax(240px, .8fr) minmax(280px, 1fr);
+      align-items: center;
+      gap: 32px;
+      border-bottom: 1px solid #c9c7c1;
+    }
+    .step-number { color: var(--red); font-family: var(--display); font-size: 72px; line-height: 1; }
+    .step h3 { margin: 0; font-family: var(--display); font-size: clamp(36px, 4vw, 60px); line-height: .95; text-transform: uppercase; }
+    .step p { max-width: 610px; margin: 0; color: #4b4a46; font-size: 17px; line-height: 1.55; }
+
+    .disclosure {
+      padding: clamp(64px, 8vw, 120px) clamp(20px, 6vw, 88px);
+      display: grid;
+      grid-template-columns: minmax(280px, .78fr) minmax(420px, 1.22fr);
+      gap: clamp(48px, 8vw, 120px);
+      color: var(--white);
+      background: var(--red);
+    }
+    .disclosure .section-kicker { color: var(--white); }
+    .disclosure-copy { align-self: end; }
+    .disclosure-copy > p { max-width: 620px; margin: 28px 0 0; font-size: 18px; line-height: 1.55; }
+    .facts { margin: 0; border-top: 1px solid rgba(255,255,255,.5); }
+    .fact { padding: 25px 0; display: grid; grid-template-columns: 170px 1fr; gap: 30px; border-bottom: 1px solid rgba(255,255,255,.5); }
+    .fact dt { font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .fact dd { margin: 0; font-size: 17px; line-height: 1.45; }
+
+    .faq-section { padding: clamp(64px, 8vw, 120px) clamp(20px, 6vw, 88px); background: var(--black); }
+    .faq-head { max-width: 680px; margin-bottom: 48px; }
+    .faq-head h2 { margin: 0; font-family: var(--display); font-size: clamp(54px, 6.4vw, 94px); line-height: .93; letter-spacing: -.018em; text-wrap: balance; text-transform: uppercase; }
+    .faq { display: grid; gap: 12px; }
+    details { border: 1px solid #2a2a2a; background: #101010; }
+    details[open] { border-color: var(--red); }
+    summary { min-height: 72px; padding: 18px 20px 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; font-weight: 800; cursor: pointer; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; width: 38px; height: 38px; flex: 0 0 auto; display: grid; place-items: center; color: var(--white); background: var(--red); font-size: 26px; transition: transform .2s ease; }
+    details[open] summary::after { transform: rotate(45deg); }
+    details p { max-width: 780px; margin: 0; padding: 0 80px 24px 24px; color: var(--muted); line-height: 1.6; }
+
+    .final {
+      padding: clamp(60px, 8vw, 108px) clamp(20px, 6vw, 88px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 48px;
+      color: var(--white);
+      background: var(--red);
+    }
+    .final .cta { flex: 0 0 auto; color: var(--black); background: var(--white); }
+    .final .cta:hover { background: #f0eee8; }
+    footer { padding: 28px clamp(20px, 6vw, 88px) 34px; display: flex; justify-content: space-between; gap: 30px; color: #8f8d88; background: var(--black); font-size: 11px; line-height: 1.5; }
+    footer p { max-width: 720px; margin: 0; }
+
+    .mobile-claim { display: none; }
+
+    @keyframes pulse { 0% { opacity: .9; transform: scale(.55); } 75%, 100% { opacity: 0; transform: scale(1.45); } }
+    @keyframes card-in { from { opacity: 0; transform: perspective(1100px) rotateY(-14deg) rotateX(6deg) translateX(70px); } to { opacity: 1; transform: perspective(1100px) rotateY(-6deg) rotateX(2deg); } }
+
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-copy { padding-bottom: 42px; }
+      .hero-art { min-height: auto; padding-top: 18px; border-top: 1px solid var(--line); border-left: 0; }
+      .display-card { transform: none; }
+      .route-head { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 80px 1fr; }
+      .step p { grid-column: 2; }
+      .disclosure { grid-template-columns: 1fr; }
+      .final { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 640px) {
+      body { padding-bottom: 76px; }
+      .campaign-strip { min-height: 44px; grid-template-columns: 1fr auto; padding: 0 14px; font-size: 9px; letter-spacing: .09em; }
+      .campaign-strip .season { display: none; }
+      .hero { min-height: auto; }
+      .hero-copy { padding: 64px 18px 34px; }
+      .hero h1 { font-size: clamp(58px, 17vw, 72px); line-height: .92; }
+      .hero-summary { margin-top: 24px; font-size: 16px; }
+      .hero-actions { width: 100%; }
+      .hero-actions .cta { width: 100%; }
+      .micro-constraint { width: 100%; justify-content: center; }
+      .hero-art { padding: 28px 14px 54px; }
+      .route-head { padding: 64px 18px 32px; gap: 24px; }
+      .route h2, .disclosure h2, .final h2 { font-size: 54px; line-height: .94; }
+      .step { min-height: 0; padding: 28px 18px; grid-template-columns: 48px 1fr; gap: 18px; }
+      .step-number { font-size: 46px; }
+      .step h3 { font-size: 34px; }
+      .step p { grid-column: 2; font-size: 15px; }
+      .disclosure { padding: 64px 18px; gap: 42px; }
+      .fact { grid-template-columns: 1fr; gap: 8px; }
+      .faq-section { padding: 64px 14px; }
+      .faq-head { margin-left: 4px; }
+      details p { padding-right: 24px; }
+      .final { padding: 62px 18px 76px; }
+      footer { padding: 24px 18px 30px; flex-direction: column; }
+      .mobile-claim {
+        position: fixed;
+        z-index: 20;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        min-height: 76px;
+        padding: 10px 12px;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom));
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 12px;
+        color: var(--white);
+        background: rgba(5,5,5,.96);
+        border-top: 1px solid #333;
+      }
+      .mobile-claim strong { display: block; font-family: var(--display); font-size: 23px; line-height: 1; text-transform: uppercase; }
+      .mobile-claim small { display: flex; align-items: center; gap: 7px; margin-top: 5px; color: var(--muted); font-size: 10px; }
+      .mobile-claim .cta { min-height: 50px; padding: 0 17px; font-size: 12px; }
+      .mobile-claim .cta::after { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+
+  <script>
+  !function (w, d, t) {
+    w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+    ttq.load('D6CF3ABC77U56TVAPJPG');
+    ttq.page();
+  }(window, document, 'ttq');
+  </script>
+</head>
+<body>
+  <header class="campaign-strip">
+    <span>DoorDash credit offer</span>
+    <span class="season">Canada</span>
+    <span class="availability"><i class="pulse-dot" aria-hidden="true"></i>Limited spots remain</span>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Canada &middot; Qualifying offer &middot; Terms apply</p>
+        <h1 id="hero-title"><span class="headline-line">Dash into</span><span class="headline-line headline-accent">$500 credit.</span></h1>
+        <p class="hero-summary">Start with a valid email, complete 3&ndash;5 recommended deals, and become eligible to unlock up to <strong>$500 CAD</strong> in DoorDash credit.</p>
+        <div class="hero-actions">
+          <a class="cta js-cta" href="#" data-cta="hero">See my offers</a>
+          <span class="micro-constraint"><i class="pulse-dot" aria-hidden="true"></i>Limited spots remain &middot; No card needed to start</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-label="DoorDash credit offer display card">
+        <i class="speed-line" aria-hidden="true"></i><i class="speed-line" aria-hidden="true"></i><i class="speed-line" aria-hidden="true"></i>
+        <figure class="display-card">
+          <div class="card-inner">
+            <div class="card-mark">Door<em>Dash</em></div>
+            <div class="card-amount">$500 CAD</div>
+            <div class="card-rule" aria-hidden="true"></div>
+            <div class="card-note">Credit offer &middot; Canada</div>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <section class="route" aria-labelledby="route-title">
+      <div class="route-head">
+        <div><p class="section-kicker">The qualification route</p><h2 id="route-title">Three steps.<br>Zero mystery.</h2></div>
+        <p class="route-intro">The requirements come before the action. Review the exchange, decide if it works for you, then start&mdash;no credit card is needed to begin.</p>
+      </div>
+      <div class="steps">
+        <article class="step"><span class="step-number">01</span><h3>Enter your email</h3><p>Use a valid email address to begin and view the recommended deals available to you in Canada.</p></article>
+        <article class="step"><span class="step-number">02</span><h3>Complete 3&ndash;5 deals</h3><p>Finish the required recommended offers. Each deal has its own eligibility rules, timing, and terms&mdash;review them before participating.</p></article>
+        <article class="step"><span class="step-number">03</span><h3>Unlock the credit</h3><p>Completing the stated requirements makes you eligible to unlock up to $500 CAD in DoorDash credit, subject to offer terms and availability.</p></article>
+      </div>
+    </section>
+
+    <section class="disclosure" aria-labelledby="disclosure-title">
+      <div class="disclosure-copy">
+        <p class="section-kicker">Know before you start</p>
+        <h2 id="disclosure-title">The deal,<br>in plain sight.</h2>
+        <p>This is a qualification-based promotion, not instant credit and not cash. You must complete the required recommended deals to become eligible.</p>
+      </div>
+      <dl class="facts">
+        <div class="fact"><dt>Credit</dt><dd>Up to $500 CAD in DoorDash credit; not a cash payout.</dd></div>
+        <div class="fact"><dt>Requirement</dt><dd>Complete 3&ndash;5 recommended deals after entering a valid email.</dd></div>
+        <div class="fact"><dt>To begin</dt><dd>No credit card is needed to start. Individual offers may have separate requirements.</dd></div>
+        <div class="fact"><dt>Where</dt><dd>Open to residents of Canada. Amounts shown are in Canadian dollars.</dd></div>
+        <div class="fact"><dt>Availability</dt><dd>Participation and qualifying offers are subject to availability and their own terms.</dd></div>
+      </dl>
+    </section>
+
+    <section class="faq-section" aria-labelledby="faq-title">
+      <div class="faq-head"><p class="section-kicker">Quick answers</p><h2 id="faq-title">Before you dash.</h2></div>
+      <div class="faq">
+        <details><summary>What do I actually get?</summary><p>Eligible participants can unlock up to $500 CAD in DoorDash credit after completing the stated qualification requirements. It is not a cash payment.</p></details>
+        <details><summary>What do I have to do?</summary><p>Enter a valid email, then complete 3&ndash;5 recommended deals. Review every deal&rsquo;s requirements before you take part.</p></details>
+        <details><summary>Do I need a credit card?</summary><p>No credit card is needed to start. Some individual recommended offers may have their own payment or eligibility terms, which should be reviewed separately.</p></details>
+        <details><summary>Is this available in Canada?</summary><p>Yes &mdash; this page is for participants in Canada, and all amounts shown are in Canadian dollars. Individual recommended deals may have their own regional eligibility rules.</p></details>
+        <details><summary>Why are spots limited?</summary><p>Offer availability can change. The page does not use a countdown or claim a specific remaining quantity; participation remains subject to availability.</p></details>
+      </div>
+    </section>
+
+    <section class="final" aria-label="Start the offer flow">
+      <h2>Ready to see<br>your offers?</h2>
+      <a class="cta js-cta" href="#" data-cta="final">See my offers</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>Offer requirements and availability apply. Review the terms of every qualifying offer before participating. Amounts are shown in Canadian dollars (CAD). This promotion is not affiliated with, endorsed by, or sponsored by DoorDash.</p>
+  </footer>
+
+  <div class="mobile-claim">
+    <div><strong>Up to $500 CAD credit</strong><small><i class="pulse-dot" aria-hidden="true"></i>Limited spots remain</small></div>
+    <a class="cta js-cta" href="#" data-cta="sticky">Start</a>
+  </div>
+
+<script>
+(function(){
+'use strict';
+
+/* bfcache bust */
+window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
+if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
+
+var DOOR      = window.__DOOR_URL__ || 'https://sprktrax.org/api/link/doordash-2-ca-kerman';
+/* Amounts are baked into the markup at build time — nothing to substitute at runtime. */
+var GEO_VALUE = 500;
+
+/* ------------------------------------------------------------------
+   FORWARD EVERY INCOMING PARAM to the door — the tokrwd lander contract.
+   Inbound the launcher sets s1=<SPK> (the attribution key), s2=<publisher>,
+   s3=<ad account>, s4, ttclid. The door re-stamps outbound; on this Everflow
+   (Fluent) offer a resolved code leaves as sub1=<SPK> with the click_id in
+   offers.clickid_slot. An earlier draft of the CA page whitelisted only
+   utm_campaign/ttclid/s1, which silently dropped s3 — the ad-account leg —
+   on every click.
+
+   s1 is the AFFILIATE'S SPARK CODE and nothing else. Never overwrite s1 with
+   a campaign name — that is what breaks attribution.
+   ------------------------------------------------------------------ */
+var q = new URLSearchParams(location.search);
+
+/* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not
+   pass it directly. If neither field exists s1 stays EMPTY — never fabricated. */
+if (!q.get('s1')) {
+  var mc = q.get('mc_attr') || '', f = {};
+  mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+  var d = f.e || f.c; if (d) q.set('s1', d);
+}
+
+/* Referrer rescue for a stripped query (in-app browsers drop params on some hops). */
+if ((!q.get('s1') || !q.get('utm_campaign')) && document.referrer) {
+  try {
+    var r = new URLSearchParams(new URL(document.referrer).search);
+    ['s1','s2','s3','s4','utm_campaign','campaign','ttclid','lg'].forEach(function(k){
+      if (!q.get(k) && r.get(k)) q.set(k, r.get(k));
+    });
+  } catch(e) {}
+}
+
+/* Drop unsubstituted TikTok macros rather than forwarding the literal placeholder. */
+var tt = q.get('ttclid') || '';
+if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
+
+var s1       = q.get('s1') || '';
+var campaign = q.get('utm_campaign') || q.get('campaign') || '';
+var ttclid   = q.get('ttclid') || '';
+
+/* NO UA SNIFFING, deliberately. A lander that behaves differently for a crawler is what gets the
+   whole domain flagged and every campaign on it blocked. Attribution does not need a gate here:
+   the door 404s any click with no s1 (api/link/[slug].js). */
+
+/* Door URL: every param rides, with s1 placed LAST (ad automations append to the
+   tail). The door 404s a click with no s1 — by design, that is the real gate. */
+function buildDoorUrl() {
+  var out = new URLSearchParams(q.toString());
+  out.delete('s1');
+  out.delete('lg');   // routes the lander only — the door/network never sees it
+  var qs = out.toString();
+  var url = DOOR + (qs ? '?' + qs : '');
+  if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+  return url;
+}
+var target = buildDoorUrl();
+
+if (window.ttq) {
+  try { ttq.track('ViewContent', { content_name: 'DoorDash CA Landing', value: GEO_VALUE, currency: 'CAD' }); } catch(e) {}
+}
+
+/* Every CTA on the page shares one handler. The original comp had three href="#" stubs
+   (hero, final, sticky) — all three are wired, so no CTA is a dead end. */
+var ctas = [].slice.call(document.querySelectorAll('.js-cta'));
+var clicking = false, hasTouched = false;
+
+ctas.forEach(function(el){ el.setAttribute('href', target); });
+
+function handleCta(e, el) {
+  e.preventDefault();
+  if (clicking) return;
+  clicking = true;
+  ctas.forEach(function(n){ n.setAttribute('aria-busy', 'true'); });
+  el.textContent = 'Loading...';
+  if (window.ttq) {
+    try { ttq.track('ClickButton', { content_name: 'DoorDash CA CTA', value: GEO_VALUE, currency: 'CAD' }); } catch(e) {}
+  }
+  location.replace(target);
+}
+ctas.forEach(function(el){
+  el.addEventListener('touchend', function(e){ hasTouched = true; handleCta(e, el); }, {passive:false});
+  el.addEventListener('click',    function(e){ if (!hasTouched) handleCta(e, el); });
+});
+
+if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1) {
+  console.log('[doordash-2-ca-kerman debug]', {
+    geo: document.documentElement.getAttribute('data-geo') || '(unknown)',
+    s1: s1 || '(none - door will 404)',
+    campaign: campaign || '(none)',
+    ttclid: ttclid || '(none)',
+    ctas: ctas.length,
+    target: target
+  });
+}
+})();
+</script>
+<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
+     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+<script src="/js/ttclid.js" async></script>
+</body>
+</html>

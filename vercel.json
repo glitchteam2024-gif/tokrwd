@@ -296,6 +296,14 @@
       "destination": "/doordashcana.html"
     },
     {
+      "source": "/DK50/:c(CA\\d+)",
+      "destination": "/doordashca-kerman.html"
+    },
+    {
+      "source": "/doordashca-kerman",
+      "destination": "/doordashca-kerman.html"
+    },
+    {
       "source": "/GT150/:c(US\\d+)",
       "destination": "/gta6usa.html"
     },
