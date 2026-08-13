@@ -5,7 +5,7 @@
 <meta name="sprk-lander" content="/FCM.html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#171030">
+<meta name="theme-color" content="#062012">
 <title>Open in Browser</title>
 <meta name="robots" content="noindex,nofollow">
 <!-- THE SANCTION MARKER. tokrwd's api/_lib/_tracking-audit.test.mjs fails the build on breakout
@@ -26,12 +26,12 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-        --bg: #171030;
+        --bg: #062012;
         --card: #111312;
         --border: rgba(255,255,255,0.06);
-        --accent: #8b5cf6;
-        --accent-dim: rgba(139,92,246,0.15);
-        --accent-glow: rgba(139,92,246,0.4);
+        --accent: #3ee07d;
+        --accent-dim: rgba(62,224,125,0.15);
+        --accent-glow: rgba(62,224,125,0.4);
         --text: #f4f5f4;
         --muted: #6f746f;
         --muted2: #8b908d;
@@ -63,8 +63,8 @@
         position: fixed;
         inset: 0;
         background:
-            radial-gradient(ellipse 60% 40% at 50% 0%, rgba(139,92,246,0.12) 0%, transparent 65%),
-            radial-gradient(ellipse 40% 30% at 100% 100%, rgba(139,92,246,0.06) 0%, transparent 60%);
+            radial-gradient(ellipse 60% 40% at 50% 0%, rgba(62,224,125,0.12) 0%, transparent 65%),
+            radial-gradient(ellipse 40% 30% at 100% 100%, rgba(62,224,125,0.06) 0%, transparent 60%);
         pointer-events: none;
         z-index: 0;
     }
@@ -89,7 +89,7 @@
         height: 88px;
         margin: 0 auto 28px;
         border-radius: 22px;
-        border: 1px solid rgba(139,92,246,0.25);
+        border: 1px solid rgba(62,224,125,0.25);
         background: var(--accent-dim);
         display: grid;
         place-items: center;
@@ -97,8 +97,8 @@
     }
 
     @keyframes iconGlow {
-        0%, 100% { box-shadow: 0 0 30px rgba(139,92,246,0.2); }
-        50%       { box-shadow: 0 0 60px rgba(139,92,246,0.4); }
+        0%, 100% { box-shadow: 0 0 30px rgba(62,224,125,0.2); }
+        50%       { box-shadow: 0 0 60px rgba(62,224,125,0.4); }
     }
 
     .icon-wrap svg {
