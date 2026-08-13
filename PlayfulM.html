@@ -15,6 +15,42 @@
      breakout code appears here, because breakout logic spread across landers is what got this
      domain flagged in the first place. Do not paste any part of the prelander into this file. -->
 
+<!-- ============================================================================
+     TikTok pixel — D9R5S3BC77UA78AD3M10
+     ----------------------------------------------------------------------------
+     THIS ID MUST MATCH THE CAPI. api/_lib/tiktok-event.js pins
+     TIKTOK_PIXEL_ID = 'D9R5S3BC77UA78AD3M10' and sends every server-side
+     conversion to it as event_source_id. If this page loaded a different pixel
+     (the 16,642-page default D6CF3ABC77U56TVAPJPG, say) the browser events and
+     the server conversions would land on two separate pixels, TikTok could not
+     stitch them, and a campaign optimising on the browser pixel would never see
+     a single conversion — a silent failure that reads as "CAPI is broken".
+     Change one, change the other.
+
+     WHAT THIS PAGE FIRES, AND WHAT IT DELIBERATELY DOES NOT:
+       page()               on load
+       ViewContent          when the offer screen opens
+       ClickButton          on the outbound tap
+       CompleteRegistration NEVER from the browser. That is the CAPI's event
+                            (tiktok-event.js:157, event_id = conversions.id).
+                            The browser cannot know a conversion happened — the
+                            network postback does — and firing it here would
+                            double-count every conversion against the same pixel.
+
+     No `value` is sent on the browser events ON PURPOSE. Playful is a REVSHARE
+     offer with offers.payout NULL, so there is no honest per-click figure to
+     quote; the house Apple pages pass a GEO_VALUE because those are fixed-payout.
+     Inventing one would corrupt value-based optimisation and overstate revenue.
+     The CAPI still sends the REAL value from the conversion row.
+     ========================================================================= -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D9R5S3BC77UA78AD3M10');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet" />
@@ -403,9 +439,32 @@ var CLAIMS = {
   var main  = document.getElementById('screen-main');
   var sheet = document.getElementById('sheet');
 
+  /* Shared shape for every browser event. content_id is not optional in practice:
+     without it the live SDK logs "[TikTok Pixel] - Missing 'content_id' parameter",
+     and it is what lets TikTok group these events as one product rather than as
+     anonymous hits. Deliberately NO `value` — Playful is revshare with
+     offers.payout NULL, so any figure here would be invented. The CAPI still
+     reports the real value from the conversion row. */
+  function PIXEL_CONTENT(name){
+    return { content_id: 'playful-rewards-us', content_type: 'product', content_name: name };
+  }
+
+  // ViewContent fires ONCE, when the offer screen actually opens — not on load.
+  // The age gate is the first paint; treating that as "content viewed" would
+  // report a view for everyone who bounced off the gate without seeing an offer.
+  var viewFired = false;
+  function fireViewContent(){
+    if (viewFired) return;
+    viewFired = true;
+    if (window.ttq) {
+      try { ttq.track('ViewContent', PIXEL_CONTENT('Playful Rewards US Landing')); } catch (e) {}
+    }
+  }
+
   Array.prototype.forEach.call(document.querySelectorAll('[data-gate]'), function(b){
     b.addEventListener('click', function(){
-      gate.hidden = true; main.hidden = false; window.scrollTo(0, 0); startTimer();
+      gate.hidden = true; main.hidden = false; window.scrollTo(0, 0);
+      startTimer(); fireViewContent();
     });
   });
 
@@ -413,7 +472,17 @@ var CLAIMS = {
   document.getElementById('offerList').addEventListener('click', function(){ sheet.hidden = false; });
   document.getElementById('ctaBtn').addEventListener('click', function(){ sheet.hidden = false; });
 
+  // ClickButton fires on the ONE tap that actually leaves for the door, and is
+  // guarded so a double-tap cannot report two clicks for one visitor. The pixel
+  // call is wrapped and non-blocking: analytics must never be able to throw on
+  // the path to the offer, or a pixel error costs a paid click.
+  var leaving = false;
   document.getElementById('sheetGo').addEventListener('click', function(){
+    if (leaving) return;
+    leaving = true;
+    if (window.ttq) {
+      try { ttq.track('ClickButton', PIXEL_CONTENT('Playful Rewards US CTA')); } catch (e) {}
+    }
     window.location.href = offerUrl();
   });
 
