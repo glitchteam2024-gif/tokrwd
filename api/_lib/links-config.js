@@ -943,6 +943,11 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
+  // The owner scaler Playful Rewards page, 2026-08-12. Flat pair: /PlayfulM-pre.html breaks the
+  // in-app webview, then forwards to /PlayfulM.html via its sprk-lander meta. cleanPath lowercases
+  // the root and does NOT strip the extension, so the entry carries .html — same as fctt.html.
+  // Added to BOTH lists in this commit; _links-config.test.mjs fails the build if they drift.
+  'playfulm.html', 'playfulm-pre.html',
   'shrtl', 'sr50',
   'sp50', 'tsup',
   'tu', 'uber', 'ue50', 'trt',
