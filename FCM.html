@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0014" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Freecash — Get Paid For Screen Time</title>
+<link rel="icon" href="/images/freecash-logo.webp" />
+<link rel="apple-touch-icon" href="/images/freecash-logo.webp" />
+
+<!-- NOT a sanctioned prelander. This page carries NO breakout code (no x-safari-https / intent://)
+     — that behaviour lives ONLY in /PlayfulM-pre.html, which is byte-identical in its scripts to
+     every other reviewed prelander. tokrwd's api/_lib/_tracking-audit.test.mjs fails the build if
+     breakout code appears here, because breakout logic spread across landers is what got this
+     domain flagged in the first place. Do not paste any part of the prelander into this file. -->
+
+<!-- ============================================================================
+     TikTok pixel — D9R5S3BC77UA78AD3M10
+     ----------------------------------------------------------------------------
+     THIS ID MUST MATCH THE CAPI. api/_lib/tiktok-event.js pins
+     TIKTOK_PIXEL_ID = 'D9R5S3BC77UA78AD3M10' and sends every server-side
+     conversion to it as event_source_id. If this page loaded a different pixel
+     (the 16,642-page default D6CF3ABC77U56TVAPJPG, say) the browser events and
+     the server conversions would land on two separate pixels, TikTok could not
+     stitch them, and a campaign optimising on the browser pixel would never see
+     a single conversion — a silent failure that reads as "CAPI is broken".
+     Change one, change the other.
+
+     WHAT THIS PAGE FIRES, AND WHAT IT DELIBERATELY DOES NOT:
+       page()               on load
+       ViewContent          when the offer screen opens
+       ClickButton          on the outbound tap
+       CompleteRegistration NEVER from the browser. That is the CAPI's event
+                            (tiktok-event.js:157, event_id = conversions.id).
+                            The browser cannot know a conversion happened — the
+                            network postback does — and firing it here would
+                            double-count every conversion against the same pixel.
+
+     No `value` is sent on the browser events ON PURPOSE. Playful is a REVSHARE
+     offer with offers.payout NULL, so there is no honest per-click figure to
+     quote; the house Apple pages pass a GEO_VALUE because those are fixed-payout.
+     Inventing one would corrupt value-based optimisation and overstate revenue.
+     The CAPI still sends the REAL value from the conversion row.
+     ========================================================================= -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D9R5S3BC77UA78AD3M10');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --bg:#0a0616; --card:#062012; --card2:#0a3d20; --cardline:rgba(255,255,255,.07);
+  --line:rgba(255,255,255,.09); --line2:rgba(84,239,146,.30);
+  --violet:#54ef92; --violet2:#3ee07d; --violet3:#1aa85c;
+  --gold:#fbbf24; --gold2:#f59e0b; --hot:#f97316;
+  --ink:#f4f5f4; --mute:#8b908d; --green:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden}
+img{max-width:100%;display:block}
+.wrap{max-width:460px;margin:0 auto;padding:0 18px 44px;position:relative;z-index:1}
+.glow{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(58% 34% at 50% 4%,rgba(26,168,92,.30),transparent 70%),
+             radial-gradient(46% 26% at 50% 97%,rgba(62,224,125,.15),transparent 70%)}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-.022em;text-align:center;line-height:1.05}
+.accent{color:var(--violet);display:block}
+.sub{color:var(--mute);text-align:center;font-size:15.5px;line-height:1.55;margin:16px 2px 0}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.09em;color:var(--mute);text-transform:uppercase;margin:30px 0 11px}
+
+/* ---- brand ---- */
+.brand{display:flex;align-items:center;gap:9px}
+.brand img{width:32px;height:32px;border-radius:9px}
+/* nowrap stops the brand breaking onto a second line and making the bar
+   taller than the timer beside it — but nowrap alone then drives the brand INTO
+   the timer at 375px. 15px + the timer's own shrink is what actually clears it. */
+.brand b{font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.badge{display:flex;align-items:center;gap:10px;justify-content:center;width:max-content;margin:0 auto;
+  padding:8px 18px 8px 9px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.035)}
+
+/* ---- top bar (screen 2) ---- */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 0 4px}
+.timer{display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:999px;font-size:12px;white-space:nowrap;flex:0 0 auto;
+  border:1px solid rgba(251,191,36,.34);background:rgba(251,191,36,.09);color:var(--gold);white-space:nowrap}
+.timer b{font-variant-numeric:tabular-nums;font-weight:700}
+
+/* ---- pills ---- */
+.pill{display:flex;align-items:center;gap:9px;justify-content:center;width:max-content;max-width:100%;
+  margin:24px auto 0;padding:10px 19px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.035);font-size:14.5px;color:var(--mute)}
+.pill b{color:var(--ink);font-weight:700}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.16);flex:0 0 auto}
+.trustpill{margin:18px auto 22px;border-color:var(--line2);background:rgba(62,224,125,.10);color:var(--violet);font-weight:500}
+
+/* ---- chips ---- */
+.chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:22px}
+.chip{display:flex;align-items:center;gap:7px;padding:9px 15px;border:1px solid var(--line);
+  border-radius:999px;background:rgba(255,255,255,.035);font-size:13.5px;color:var(--ink)}
+.chip svg{width:14px;height:14px;stroke:var(--violet);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---- offer cards ---- */
+.offer{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--cardline);
+  border-radius:17px;padding:13px;margin-bottom:10px;text-align:left}
+.offer.top{background:linear-gradient(180deg,rgba(26,168,92,.19),var(--card));border-color:var(--line2)}
+.offer .art{width:52px;height:52px;border-radius:14px;flex:0 0 auto;object-fit:cover;background:var(--card2)}
+.offer .mid{flex:1;min-width:0}
+.offer .nm{font-weight:700;font-size:15.5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.offer .ds{font-size:12.8px;color:var(--mute);margin-top:3px;line-height:1.35}
+.offer .rt{text-align:right;flex:0 0 auto}
+.offer .amt{font-weight:700;font-size:15.5px;white-space:nowrap}
+.offer .st{font-size:11.5px;color:var(--gold);margin-top:3px;white-space:nowrap}
+.hot{background:var(--hot);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.05em;
+  padding:2.5px 7px;border-radius:6px}
+.chev{color:var(--mute);font-size:17px;flex:0 0 auto;margin-left:2px}
+
+/* ---- pro tip ---- */
+.protip{border:1px solid rgba(251,191,36,.30);border-radius:19px;padding:17px;margin-top:16px;
+  background:linear-gradient(180deg,rgba(251,191,36,.10),rgba(251,191,36,.02))}
+.protip .row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ptag{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;
+  background:rgba(251,191,36,.16);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.05em}
+.protip h3{font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;margin-top:12px;line-height:1.2}
+.protip p{font-size:13.5px;color:var(--mute);line-height:1.5;margin-top:8px}
+.protip .big{color:var(--gold);font-weight:800;font-size:17px;text-align:right;white-space:nowrap}
+.protip .per{color:var(--mute);font-size:11.5px;font-weight:400;text-align:right;margin-top:2px}
+
+/* ---- how it works ---- */
+.hiw{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+/* Direct child only — a plain `.hiw div` also matches the nested .n and .g and
+   wraps each glyph in its own card. */
+.hiw > div{background:var(--card);border:1px solid var(--cardline);border-radius:16px;padding:15px 9px;text-align:center}
+.hiw .n{width:26px;height:26px;border-radius:8px;margin:0 auto 9px;display:grid;place-items:center;
+  background:var(--card2);color:var(--violet);font-size:12.5px;font-weight:700}
+.hiw .g{color:var(--violet);font-size:17px;line-height:1;margin-bottom:8px}
+.hiw h4{font-size:13.5px;font-weight:700}
+.hiw p{font-size:11.5px;color:var(--mute);margin-top:5px;line-height:1.4}
+
+/* ---- reviews ---- */
+.rev{text-align:center;margin-top:26px}
+.stars{color:var(--gold);font-size:18px;letter-spacing:3px}
+.rev p{font-size:13.5px;color:var(--mute);margin-top:7px}
+.rev b{color:var(--ink);font-weight:700}
+
+/* ---- buttons ---- */
+.btn{display:block;width:100%;border:0;border-radius:19px;padding:18px 16px;text-align:center;cursor:pointer;
+  font-family:inherit;color:#fff;background:linear-gradient(180deg,#54ef92,#1aa85c);
+  box-shadow:0 10px 30px rgba(26,168,92,.42);transition:transform .16s ease,box-shadow .16s ease}
+.btn:active{transform:scale(.985);box-shadow:0 6px 18px rgba(26,168,92,.34)}
+.btn .t{display:block;font-size:18.5px;font-weight:700;letter-spacing:-.01em}
+.btn .s{display:block;font-size:13.5px;margin-top:5px;color:rgba(255,255,255,.82)}
+.btn.ghost{background:transparent;border:1.5px dashed rgba(84,239,146,.42);box-shadow:none;color:var(--ink)}
+.btn.ghost .s{color:var(--mute)}
+.stack{margin-top:30px;display:grid;gap:13px}
+.foot{text-align:center;color:var(--mute);font-size:12.5px;margin-top:22px;line-height:1.6}
+
+/* ---- interstitial ---- */
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,10,6,.74);backdrop-filter:blur(6px);
+  display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.sheet .box{background:#120c26;border:1px solid var(--line2);border-radius:24px;padding:25px 21px;
+  width:100%;max-width:430px;text-align:center;animation:up .28s cubic-bezier(.2,.9,.25,1)}
+@keyframes up{from{transform:translateY(22px);opacity:0}to{transform:none;opacity:1}}
+.sheet .box h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:20px}
+.sheet .box p{color:var(--mute);font-size:14px;line-height:1.5;margin:10px 0 19px}
+
+#screen-gate{padding-top:30px}
+#screen-gate h1{font-size:44px}
+/* 30px, not 33: at 33 "Get paid for Screen Time" is one character too wide for
+   375px and drops a lone "Time" onto its own line, so the headline reads as three
+   ragged lines with an orphan in the middle. 30px fits it on one line and keeps
+   the accent line beneath, which is the two-line shape the design wants. */
+#screen-main h1{font-size:30px;margin-top:4px}
+@media(max-width:360px){#screen-gate h1{font-size:38px}#screen-main h1{font-size:27px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Screen toggle. Declared LAST and WITHOUT !important on purpose: the audit
+   (api/_lib/_tracking-audit.test.mjs, CLOAK_PATTERNS) refuses `display:none !important`
+   anywhere outside a sanctioned prelander, because that is the shape of a blank-page
+   cloak gate. Source order alone beats .sheet{display:flex}; the explicit .sheet[hidden]
+   rule wins on specificity too, so neither needs the flag. */
+[hidden]{display:none}
+.sheet[hidden]{display:none}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<div class="wrap">
+
+  <!-- ================= SCREEN 1 — age gate ================= -->
+  <section id="screen-gate">
+    <div class="badge"><img src="/images/freecash-logo.webp" alt="" width="32" height="32"><b>Freecash</b></div>
+
+    <h1 style="margin-top:32px">Get Paid For<span class="accent">Screen Time</span></h1>
+    <p class="sub" id="cHero"></p>
+
+    <div class="pill"><span class="dot"></span><span id="cCounter"></span></div>
+
+    <div class="stack">
+      <button class="btn" data-gate>
+        <span class="t">I'm 21 or older</span>
+        <span class="s" id="cGateA"></span>
+      </button>
+      <button class="btn ghost" data-gate>
+        <span class="t">I'm under 21</span>
+        <span class="s" id="cGateB"></span>
+      </button>
+    </div>
+
+    <p class="foot">Free to join &middot; No credit card required</p>
+  </section>
+
+  <!-- ================= SCREEN 2 — offers ================= -->
+  <section id="screen-main" hidden>
+
+    <div class="bar">
+      <div class="brand"><img src="/images/freecash-logo.webp" alt="" width="32" height="32"><b>Freecash</b></div>
+      <div class="timer" id="timerWrap">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span id="cTimerLabel"></span> <b id="timer">20:00</b>
+      </div>
+    </div>
+
+    <div class="pill trustpill" id="cTrustBadge"></div>
+
+    <h1>Get paid for Screen Time<span class="accent">&amp; testing apps</span></h1>
+    <p class="sub" id="cSub"></p>
+
+    <div class="chips">
+      <span class="chip"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Instant Payouts</span>
+      <span class="chip"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>100+ Games</span>
+      <span class="chip"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>Daily Bonuses</span>
+      <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Secure &amp; Trusted</span>
+    </div>
+
+    <div class="eyebrow">Top offers right now</div>
+    <div id="offerList"></div>
+
+    <div class="protip">
+      <div class="row">
+        <span class="ptag">&#9889; PRO TIP</span>
+        <div><div class="big" id="cProAmt"></div><div class="per" id="cProPer"></div></div>
+      </div>
+      <h3>Unlock &ldquo;Higher Payouts&rdquo;</h3>
+      <p id="cProBody"></p>
+    </div>
+
+    <div class="eyebrow">How it works</div>
+    <div class="hiw">
+      <div><div class="n">1</div><div class="g">+</div><h4>Choose an offer</h4><p>Pick a starter offer and complete the first step.</p></div>
+      <div><div class="n">2</div><div class="g">&#10003;</div><h4>Complete tasks</h4><p>Unlock higher payouts after 2&ndash;3 quick tasks.</p></div>
+      <div><div class="n">3</div><div class="g">&#36;</div><h4>Get paid</h4><p>Withdraw rewards with fast payouts once available.</p></div>
+    </div>
+
+    <div class="rev">
+      <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p id="cReviews"></p>
+    </div>
+
+    <div class="stack">
+      <button class="btn" id="ctaBtn"><span class="t" id="cCta"></span></button>
+    </div>
+
+    <p class="foot">Free to join &middot; No credit card required</p>
+  </section>
+
+</div>
+
+<!-- ================= interstitial ================= -->
+<div class="sheet" id="sheet" hidden>
+  <div class="box">
+    <h3>Before you go</h3>
+    <p id="cSheet"></p>
+    <button class="btn" id="sheetGo"><span class="t">Continue &rarr;</span></button>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   CLAIMS BLOCK — every marketing sentence and number on this page, in one place.
+   ----------------------------------------------------------------------------
+   Flip USE_REFERENCE_CLAIMS to true and the page renders the reference wording
+   (playrwrd.com) verbatim. Left false, three lines render honest equivalents:
+
+     · "Trusted by 50,000+ users"        -> unverifiable head-count
+     · "12,863 people earning right now" -> a fabricated live-incrementing counter
+     · "Select 25+ when signing up"      -> coaches the visitor to misstate their
+                                            age to the advertiser
+
+   Monetise's "No False Earning Claims" restriction has already cost this account
+   a pulled ad once (.claude/skills/sprk-shopify-kicker-funnel, "Honesty rules"),
+   which is why they are not the default. Everything else — the payout figures,
+   the ratings, the countdown — renders as the reference has it either way.
+   One boolean, your call.
+
+   CURRENCY: the reference geo-detects and showed CA$ on a Canadian IP. This page
+   is pinned to the US leg (landing_pages.geo='us'), so it quotes US$ — a visitor
+   must never see CA$ and then be routed to the US offer. If you switch the row to
+   geo=NULL for IP routing, these figures need to become geo-aware too; say so and
+   I will wire it.
+   ========================================================================== */
+var USE_REFERENCE_CLAIMS = false;
+
+var CLAIMS = {
+  hero:       USE_REFERENCE_CLAIMS
+                ? 'Thousands turn their screen time into real cash daily &mdash; instant payouts to PayPal, Bank Transfer, Crypto &amp; more.'
+                : 'Get paid for the time you already spend on your phone. Payouts to PayPal, Bank Transfer, Crypto and more.',
+
+  counter:    USE_REFERENCE_CLAIMS
+                ? '<b>12,863</b> people earning right now'
+                : 'Join free &mdash; new offers added daily',
+
+  trustBadge: USE_REFERENCE_CLAIMS
+                ? '&#10003;&nbsp; Trusted by 50,000+ users &#127758;'
+                : '&#10003;&nbsp; Free to join &mdash; payouts to PayPal, Bank Transfer &amp; Crypto',
+
+  sheet:      USE_REFERENCE_CLAIMS
+                ? 'Select 25+ when signing up. This unlocks higher payouts on Freecash.'
+                : 'Enter your real date of birth when you sign up so your rewards can be paid out.',
+
+  gateA:      'Full access &mdash; PayPal, Bank Transfer, Crypto',
+  gateB:      'Limited access &mdash; Wire transfer only',
+  sub:        'Turn your screen time into real cash. Join thousands of users earning rewards every single day.',
+  cta:        '&#9889; Start Earning On TikTok &rarr;',
+  timerLabel: 'Bonus expires in',
+  proAmt:     '+$200&ndash;$300',
+  proPer:     'Per Week',
+  proBody:    'Complete 2&ndash;3 starter offers to unlock higher payouts and start earning even more!',
+  reviews:    '<b>4.8/5</b> from 251k+ reviews',
+
+  // Payout figures are the reference page's, converted CA$ -> US$ at the same
+  // round numbers it used. They are illustrative of the offer wall, not a promise
+  // to any individual visitor.
+  offers: [
+    // ⚠️ TIKTOK LOGO + NAME AS A PAID OFFER — Migi's call, 2026-08-13, taken against
+    // a written objection. This lander is the destination of a TikTok ad, so ad
+    // review sees TikTok's own mark presented as something that pays the visitor.
+    // That reads as endorsement, and TikTok's trademark policy is the usual reason
+    // an otherwise-fine ad gets rejected. It is the same "TIKTOK x <BRAND> lockup"
+    // objection already recorded against the Apple pages in
+    // .claude/skills/sprk-shopify-kicker-funnel. Swapping art/name back to a game
+    // is a one-line change if review pushes back.
+    { art:'/images/tiktok-icon-free-png.png', name:'TikTok', hot:true,
+      desc:'Scroll and watch videos in the app', amt:'$128', stars:'5.0' },
+    { art:'/images/block-blast.png',    name:'Block Blast',    hot:false,
+      desc:'Reach level 100 in the puzzle mode',  amt:'$72',  stars:'5.0' },
+    { art:'/images/roblox.jpg',         name:'Roblox',         hot:false,
+      desc:'Test &amp; leave a review',           amt:'$48',  stars:'5.0' }
+  ]
+};
+
+(function(){
+  function put(id, html){ var el = document.getElementById(id); if (el) el.innerHTML = html; }
+  put('cHero', CLAIMS.hero);            put('cCounter', CLAIMS.counter);
+  put('cTrustBadge', CLAIMS.trustBadge); put('cSub', CLAIMS.sub);
+  put('cGateA', CLAIMS.gateA);          put('cGateB', CLAIMS.gateB);
+  put('cSheet', CLAIMS.sheet);          put('cTimerLabel', CLAIMS.timerLabel);
+  put('cProAmt', CLAIMS.proAmt);        put('cProPer', CLAIMS.proPer);
+  put('cProBody', CLAIMS.proBody);      put('cReviews', CLAIMS.reviews);
+  put('cCta', CLAIMS.cta);
+
+  // Offer rows are built from data so adding one is a CLAIMS edit, not markup surgery.
+  var list = document.getElementById('offerList');
+  if (list) {
+    CLAIMS.offers.forEach(function (o, i) {
+      var row = document.createElement('div');
+      row.className = 'offer' + (i === 0 ? ' top' : '');
+      row.innerHTML =
+        '<img class="art" src="' + o.art + '" alt="" width="52" height="52" loading="lazy">' +
+        '<div class="mid"><div class="nm">' + o.name +
+          (o.hot ? ' <span class="hot">HOT</span>' : '') + '</div>' +
+          '<div class="ds">' + o.desc + '</div></div>' +
+        '<div class="rt"><div class="amt">' + o.amt + '</div>' +
+          '<div class="st">&#9733; ' + o.stars + '</div></div>' +
+        '<span class="chev">&rsaquo;</span>';
+      list.appendChild(row);
+    });
+  }
+})();
+</script>
+
+<script>
+(function(){
+  /* ==========================================================================
+     Outbound: the SPRK tracking DOOR — the ONLY hop off this page.
+     --------------------------------------------------------------------------
+     The door mints the click_id, freezes the owner at click time, stamps the
+     outbound subid wire and 302s to the real Freecash URL — which lives
+     in the offer row (destination_by_geo) and never appears in this file.
+
+     NEVER wire a CTA straight to the network. That skips the door, so no
+     click_id is minted, no clicks row is written, and the conversion lands
+     unmatched. That is exactly the defect the reference page shipped with:
+     playrwrd.com links direct to fkn8s74mztrk.com and never reads ttclid at all.
+
+     GEO: the slug ships with landing_pages.geo = 'us', so the door always serves
+     the US leg no matter whose IP arrives — that is what closes the geo-shopping
+     hole (a VPN cannot pick a richer country's payout). The figures in CLAIMS are
+     US$ to match. Switching the row to geo=NULL makes the door IP-route across
+     US/GB/CA/AU/DE/FR, and the figures would then need to be geo-aware.
+     ====================================================================== */
+  var DOOR = 'https://sprktrax.org/api/link/freecash-us-f';
+
+  // Carry EVERY incoming param through (s1 tracking code, s3 ad account, ttclid, ...).
+  var q = new URLSearchParams(location.search);
+
+  // campid is the Carrd/Spartis name for the same value — promote it to s1 when s1 is
+  // absent, so a click from those sources still resolves an owner instead of arriving
+  // anonymous (the door 404s an untagged click by design).
+  if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+
+  // mc_attr fallback (e=<code> .. c=<code>). If neither exists s1 stays EMPTY — it is
+  // never fabricated.
+  if (!q.get('s1')) {
+    var mc = q.get('mc_attr') || '', f = {};
+    mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+    var d = f.e || f.c; if (d) q.set('s1', d);
+  }
+
+  // ttclid: drop an unsubstituted macro FIRST, then refill from the first-party cookie
+  // that /js/ttclid.js banks. Order matters — refilling before the drop would clear the
+  // good value. Without this an in-app hop that strips the query reaches the door with
+  // no click id at all, and TikTok gets no conversion signal back.
+  var BAD = /CLICK_ID|__CLICKID__|[{}\[\]#%]/i;
+  var tt = (q.get('ttclid') || '').trim();
+  if (tt && BAD.test(tt)) { q.delete('ttclid'); tt = ''; }
+  if (!tt) {
+    try {
+      var m = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
+      var c = m ? decodeURIComponent(m[1]).trim() : '';
+      if (c && !BAD.test(c)) q.set('ttclid', c);
+    } catch (e) {}
+  }
+
+  function offerUrl(){
+    // s1 LAST — ad automations append to the tail, and a first-match tracker reading an
+    // earlier empty s1 would lose attribution. campid/lg are lander-side aliases, not
+    // network params, so they do not ride out.
+    var out = new URLSearchParams(q.toString());
+    out.delete('s1'); out.delete('campid'); out.delete('lg');
+    var qs = out.toString(), s1 = q.get('s1') || '';
+    var url = DOOR + (qs ? '?' + qs : '');
+    if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+    return url;
+  }
+
+  /* ---- screens ---- */
+  var gate  = document.getElementById('screen-gate');
+  var main  = document.getElementById('screen-main');
+  var sheet = document.getElementById('sheet');
+
+  /* Shared shape for every browser event. content_id is not optional in practice:
+     without it the live SDK logs "[TikTok Pixel] - Missing 'content_id' parameter",
+     and it is what lets TikTok group these events as one product rather than as
+     anonymous hits. Deliberately NO `value` — Playful is revshare with
+     offers.payout NULL, so any figure here would be invented. The CAPI still
+     reports the real value from the conversion row. */
+  function PIXEL_CONTENT(name){
+    return { content_id: 'freecash-us', content_type: 'product', content_name: name };
+  }
+
+  // ViewContent fires ONCE, when the offer screen actually opens — not on load.
+  // The age gate is the first paint; treating that as "content viewed" would
+  // report a view for everyone who bounced off the gate without seeing an offer.
+  var viewFired = false;
+  function fireViewContent(){
+    if (viewFired) return;
+    viewFired = true;
+    if (window.ttq) {
+      try { ttq.track('ViewContent', PIXEL_CONTENT('Freecash US Landing')); } catch (e) {}
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-gate]'), function(b){
+    b.addEventListener('click', function(){
+      gate.hidden = true; main.hidden = false; window.scrollTo(0, 0);
+      startTimer(); fireViewContent();
+    });
+  });
+
+  // Every offer row is a CTA, same as the reference — the whole card is tappable.
+  document.getElementById('offerList').addEventListener('click', function(){ sheet.hidden = false; });
+  document.getElementById('ctaBtn').addEventListener('click', function(){ sheet.hidden = false; });
+
+  // ClickButton fires on the ONE tap that actually leaves for the door, and is
+  // guarded so a double-tap cannot report two clicks for one visitor. The pixel
+  // call is wrapped and non-blocking: analytics must never be able to throw on
+  // the path to the offer, or a pixel error costs a paid click.
+  var leaving = false;
+  document.getElementById('sheetGo').addEventListener('click', function(){
+    if (leaving) return;
+    leaving = true;
+    if (window.ttq) {
+      try { ttq.track('ClickButton', PIXEL_CONTENT('Freecash US CTA')); } catch (e) {}
+    }
+    window.location.href = offerUrl();
+  });
+
+  // Backdrop tap closes the interstitial without leaving the page.
+  sheet.addEventListener('click', function(e){ if (e.target === sheet) sheet.hidden = true; });
+
+  /* ---- countdown ----
+     Starts when screen 2 opens and floors at 00:00 — it never loops back to 20:00,
+     because a timer that resets in front of the visitor advertises itself as fake. */
+  var timerEl = document.getElementById('timer'), left = 20 * 60, tick = null;
+  function paint(){
+    var m = Math.floor(left / 60), s = left % 60;
+    timerEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  }
+  function startTimer(){
+    if (tick) return;
+    paint();
+    tick = setInterval(function(){
+      left--; if (left <= 0) { left = 0; clearInterval(tick); tick = null; }
+      paint();
+    }, 1000);
+  }
+})();
+</script>
+
+<!-- Shared ttclid backfill: banks the TikTok click id in a first-party _ttclid cookie so it
+     survives an in-app hop that strips the query string. Read back by the door script above. -->
+<script src="/js/ttclid.js" async></script>
+</body>
+</html>

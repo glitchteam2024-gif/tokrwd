@@ -948,6 +948,9 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // the root and does NOT strip the extension, so the entry carries .html — same as fctt.html.
   // Added to BOTH lists in this commit; _links-config.test.mjs fails the build if they drift.
   'playfulm.html', 'playfulm-pre.html',
+  // Owner scaler FREECASH pair, 2026-08-13 — door freecash-us-f, not playful-us-f.
+  // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
+  'fcm.html', 'fcm-pre.html',
   'shrtl', 'sr50',
   'sp50', 'tsup',
   'tu', 'uber', 'ue50', 'trt',

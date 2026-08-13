@@ -107,6 +107,11 @@
     // the root and does NOT strip the extension, so the entry carries .html — same as fctt.html.
     // MUST stay in sync with PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
     'playfulm.html', 'playfulm-pre.html',
+    // The owner scaler FREECASH page, 2026-08-13. Same flat pair shape as PlayfulM
+    // above (/FCM-pre.html breaks the webview, forwards to /FCM.html), but a
+    // DIFFERENT OFFER: its door is freecash-us-f, not playful-us-f. Kept as its own
+    // pair rather than repointing PlayfulM so the Playful funnel stays runnable.
+    'fcm.html', 'fcm-pre.html',
     'shrtl', 'sr50',
     'sp50', 'tsup',
     'tu', 'uber', 'ue50', 'trt'
