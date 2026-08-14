@@ -493,8 +493,28 @@ var CLAIMS = {
     // network params, so they do not ride out.
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('campid'); out.delete('lg');
-    var qs = out.toString(), s1 = q.get('s1') || '';
+    var s1 = q.get('s1') || '';
+
+    /* GiftClick's "Traffic sources" report does NOT read sub1. Every click was
+       filing under "No source" even though the door was correctly sending
+       sub1=SCALED5 / SCALED6 / SCALED7 (all registered, all active — verified),
+       which made per-creative performance unreadable on their side.
+
+       So the creative code also rides as source_id AND aff_sub. Both are sent on
+       purpose: giftclick forwards arbitrary params (verified against the live
+       door), and only one of these is its real source dimension — source_id is
+       the Everflow standard, aff_sub the HasOffers-era name. Sending both means
+       whichever it reads populates and the other is ignored, rather than costing
+       a round-trip of blind ad spend to find out. Drop the loser once the
+       dashboard names it.
+
+       NOT sent: `source`. The door drops it — it is reserved upstream, so it
+       never reaches the network and would be dead weight here. */
+    if (s1) { out.set('source_id', s1); out.set('aff_sub', s1); }
+
+    var qs = out.toString();
     var url = DOOR + (qs ? '?' + qs : '');
+    // s1 LAST, per the note above.
     if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
     return url;
   }
