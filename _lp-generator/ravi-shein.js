@@ -101,25 +101,25 @@ const SOURCE_AMOUNT = '$750';
  * destination_by_geo carrying exactly the one geo named here.
  */
 const VARIANTS = [
-  { key: 'USB2S', geo: 'US', family: 'RV54', vanity: 'ravshurl', amount: '$1,000',
+  { key: 'USB2S', geo: 'US', flat: 'shein1kusa-ravi', vanity: 'ravshurl', amount: '$1,000',
     slug: 'shein-b2s-us-ravi',                    offerId: '7018d82b-f19d-4759-9910-de9e837774e5',
     offer: 'Rewards US - Shein $1000 Back to School' },
-  { key: 'GBB2S', geo: 'GB', family: 'RV55', vanity: null,       amount: '£1,000',
+  { key: 'GBB2S', geo: 'GB', flat: 'shein1kuk-ravi', vanity: null,       amount: '£1,000',
     slug: 'shein-b2s-gb-ravi',                    offerId: '01a705a9-c479-4bec-aaed-bd0b038bc4d7',
     offer: 'Rewards UK - Shein £1000 Back to School' },
-  { key: 'USFP',  geo: 'US', family: 'RV56', vanity: null,       amount: '$750',
+  { key: 'USFP',  geo: 'US', flat: 'sheinpollusa-ravi', vanity: null,       amount: '$750',
     slug: 'flash-poll-shein-2-us-ravi',           offerId: '4b430587-1cbc-4542-82d9-0ef0c5d61d7c',
     offer: 'Rewards US - Flash Poll - Shein $750' },
-  { key: 'GBFP',  geo: 'GB', family: 'RV57', vanity: null,       amount: '£750',
+  { key: 'GBFP',  geo: 'GB', flat: 'sheinpolluk-ravi', vanity: null,       amount: '£750',
     slug: 'flash-poll-shein-gb-ravi',             offerId: 'b4efc3f5-491e-485e-aad8-f57145d6d4d9',
     offer: 'Rewards UK - Flash Poll - Shein £750' },
-  { key: 'US2X',  geo: 'US', family: 'RV58', vanity: null,       amount: '$750',
+  { key: 'US2X',  geo: 'US', flat: 'shein2xusa-ravi', vanity: null,       amount: '$750',
     slug: '2x-rewards-shein-bonus-us-ravi',       offerId: 'f56469f1-12a1-4a6b-a8c2-81dfa9359075',
     offer: 'Rewards US - 2x Rewards - Shein $750 Bonus' },
-  { key: 'USRT',  geo: 'US', family: 'RV59', vanity: null,       amount: '$750',
+  { key: 'USRT',  geo: 'US', flat: 'sheinrtlusa-ravi', vanity: null,       amount: '$750',
     slug: 'retail-style-shein-us-ravi',           offerId: '597d4dc9-a13f-4a0e-9acc-15dd4b6ca628',
     offer: 'Rewards US - Retail Style - Shein $750' },
-  { key: 'AUPR',  geo: 'AU', family: 'RV60', vanity: null,       amount: '$750',
+  { key: 'AUPR',  geo: 'AU', flat: 'sheinrevau-ravi', vanity: null,       amount: '$750',
     slug: 'product-reviewer-shein-bonus-au-ravi', offerId: '209e39e1-02b5-4102-ad2c-600468ed4fc8',
     offer: 'Rewards AU - Product Reviewer Shein Bonus $750' },
 ];
@@ -360,9 +360,9 @@ function page(v) {
 
   // ── 7. Social preview + favicon — the page builder's default card was still on it ───────────
   h = sub(h, '<meta property="og:image" content="https://bolt.new/static/og_default.png">',
-             `<meta property="og:image" content="https://www.tokrwd.co${OG_IMAGE}">`);
+             `<meta property="og:image" content="${OG_IMAGE}">`);
   h = sub(h, '<meta name="twitter:image" content="https://bolt.new/static/og_default.png">',
-             `<meta name="twitter:image" content="https://www.tokrwd.co${OG_IMAGE}">`
+             `<meta name="twitter:image" content="${OG_IMAGE}">`
              + `\n    <link rel="icon" href="${OG_IMAGE}">`
              + `\n    <link rel="apple-touch-icon" href="${OG_IMAGE}">`);
 
@@ -499,7 +499,7 @@ const repoRoot = path.join(__dirname, '..');
 
 // Two variants must never share a folder, a key or a slug — a collision would silently overwrite
 // one page with another, and the only symptom would be an offer serving another offer's figure.
-for (const f of ['key', 'family', 'slug', 'offerId']) {
+for (const f of ['key', 'flat', 'slug', 'offerId']) {
   const seen = VARIANTS.map((v) => v[f]);
   const dupes = seen.filter((x, i) => seen.indexOf(x) !== i);
   if (dupes.length) throw new Error(`VARIANTS: duplicate ${f}: ${[...new Set(dupes)].join(', ')}`);
@@ -523,50 +523,41 @@ console.log('\n  Ravi (AffID 25) · Shein · every English-geo Shein offer we se
 for (const v of VARIANTS) {
   const html = page(v);
 
-  fs.mkdirSync(path.join(repoRoot, CANON_DIR, v.key), { recursive: true });
-  fs.writeFileSync(path.join(repoRoot, CANON_DIR, v.key, 'index.html'), html);
+  // FLAT OUTPUT. `9763a57 feat(landers): flatten all 40 live groups to flat .html files` replaced
+  // every numbered clone folder with ONE file per page, so the RV54..RV60 slices this generator
+  // used to emit no longer exist and must not be recreated — re-running the old shape resurrects
+  // 218 dead files the flattening deliberately deleted.
+  fs.writeFileSync(path.join(repoRoot, v.flat + '.html'), html);
   let n = 1;
 
+  // The canonical dir is still deployed and still 200s, so it is kept in step with the flat page.
+  fs.mkdirSync(path.join(repoRoot, CANON_DIR, v.key), { recursive: true });
+  fs.writeFileSync(path.join(repoRoot, CANON_DIR, v.key, 'index.html'), html);
+  n++;
+
   // Vanity path — a plain COPY, never a redirect: a redirect adds a hop and bounces the query
-  // string through a rewrite where s1 can be lost. Only the flagship gets one: a vanity path
-  // carries no slot number, so it is ONE shared URL with none of the numbered fan-out's anti-flag
-  // property, and resolveAffiliateOfferLinks serves the numbered clone anyway.
+  // string through a rewrite where s1 can be lost. Only the flagship gets one.
   if (v.vanity) {
     fs.mkdirSync(path.join(repoRoot, v.vanity), { recursive: true });
     fs.writeFileSync(path.join(repoRoot, v.vanity, 'index.html'), html);
     n++;
   }
 
-  for (let i = 1; i <= CLONES; i++) {
-    const d = path.join(repoRoot, v.family, v.geo + i);
-    fs.mkdirSync(d, { recursive: true });
-    fs.writeFileSync(path.join(d, 'index.html'), html);
-    n++;
-  }
-
-  // Prune, so the tree is a pure function of --clones rather than the union of every past run.
-  // Scoped to this family's own <GEO><n> name shape, so it can never reach another offer's folders.
-  const famRoot = path.join(repoRoot, v.family);
-  for (const name of fs.readdirSync(famRoot)) {
-    const m = /^([A-Z]{2})([0-9]+)$/.exec(name);
-    if (m && (m[1] !== v.geo || Number(m[2]) > CLONES || Number(m[2]) < 1)) {
-      fs.rmSync(path.join(famRoot, name), { recursive: true, force: true });
-    }
-  }
-
   totalFiles += n;
   built.push({ v, html, n });
   console.log(
-    `  ${v.geo}  ${(CANON_DIR + '/' + v.key).padEnd(12)}`
-    + ` + ${(v.family + '/' + v.geo + '1..' + v.geo + CLONES).padEnd(18)}`
+    `  ${v.geo}  ${(v.flat + '.html').padEnd(24)}`
+    + ` + ${(CANON_DIR + '/' + v.key).padEnd(12)}`
     + (v.vanity ? ' + /' + v.vanity : '').padEnd(12)
     + `  ${v.amount.padEnd(7)}  ->  ${v.slug}`
   );
 }
-console.log(`\n  ${VARIANTS.length} offers · ${totalFiles} files · ${CLONES} clones each\n`);
+console.log(`\n  ${VARIANTS.length} offers · ${totalFiles} files (flat pages + canonical dir + vanity)\n`);
 
 console.log('  ROOTS (must be in PRELANDER_ALLOWED_ROOTS *and* ALLOWED_ROOTS):');
-console.log('    ' + [CANON_DIR, ...VARIANTS.map((v) => v.family), ...VARIANTS.filter((v) => v.vanity).map((v) => v.vanity)]
+// A flat page is top-level, so each FILENAME is its own root and carries its .html extension —
+// cleanPath lowercases the root and does not strip the extension. Same shape as fctt.html.
+console.log('    ' + [CANON_DIR, ...VARIANTS.map((v) => v.flat + '.html'), ...VARIANTS.filter((v) => v.vanity).map((v) => v.vanity)]
   .map((r) => r.toLowerCase()).join(', ') + '\n');
 
 console.log('  ⚠️  THERE IS NO CANADIAN SHEIN OFFER. All seven Shein offers sell exactly one geo');

@@ -192,7 +192,7 @@ const WIRE_ALL_CTAS = false;
  *   currency presentation only, and currently identical everywhere on purpose. See the header.
  */
 const VARIANTS = [
-  { key: 'US', geo: 'US', family: 'RV61', vanity: 'ravfcurl', currency: '$', slug: 'freecash-us-ravi' },
+  { key: 'US', geo: 'US', flat: 'frcusa-ravi', vanity: 'ravfcurl', currency: '$', slug: 'freecash-us-ravi' },
   { key: 'CA', geo: 'CA', family: 'RV62', vanity: null,       currency: '$', slug: 'freecash-ca-ravi' },
   { key: 'GB', geo: 'GB', family: 'RV63', vanity: null,       currency: '$', slug: 'freecash-gb-ravi' },
 ];
@@ -678,7 +678,7 @@ const repoRoot = path.join(__dirname, '..');
 
 // Two variants must never share a folder or a slug — a collision would silently overwrite one
 // page with another, and the only symptom would be a geo serving another country's offer.
-for (const f of ['key', 'family', 'slug']) {
+for (const f of ['key', 'slug']) {
   const seen = VARIANTS.map((v) => v[f]);
   const dupes = seen.filter((x, i) => seen.indexOf(x) !== i);
   if (dupes.length) throw new Error(`VARIANTS: duplicate ${f}: ${[...new Set(dupes)].join(', ')}`);
@@ -714,20 +714,30 @@ for (const v of VARIANTS) {
     n++;
   }
 
-  for (let i = 1; i <= CLONES; i++) {
-    const d = path.join(repoRoot, v.family, v.geo + i);
-    fs.mkdirSync(d, { recursive: true });
-    fs.writeFileSync(path.join(d, 'index.html'), html);
+  // MIXED SHAPE, deliberately. Commit 9763a57 flattened only the LIVE groups, so the RV61 slice is
+  // now a single .html file while its siblings are still real folders that still serve 200.
+  // Emitting the wrong one is silently destructive in BOTH directions: a resurrected folder
+  // SHADOWS the vercel.json redirect that replaced it, and a flat file written for a still-
+  // foldered geo is an orphan nothing routes to. So each variant declares its own shape.
+  if (v.flat) {
+    fs.writeFileSync(path.join(repoRoot, v.flat + '.html'), html);
     n++;
-  }
+  } else {
+    for (let i = 1; i <= CLONES; i++) {
+      const d = path.join(repoRoot, v.family, v.geo + i);
+      fs.mkdirSync(d, { recursive: true });
+      fs.writeFileSync(path.join(d, 'index.html'), html);
+      n++;
+    }
 
-  // Prune, so the tree is a pure function of --clones rather than the union of every past run.
-  // Scoped to this family's own <GEO><n> name shape, so it can never reach another offer's folders.
-  const famRoot = path.join(repoRoot, v.family);
-  for (const name of fs.readdirSync(famRoot)) {
-    const m = /^([A-Z]{2})([0-9]+)$/.exec(name);
-    if (m && (m[1] !== v.geo || Number(m[2]) > CLONES || Number(m[2]) < 1)) {
-      fs.rmSync(path.join(famRoot, name), { recursive: true, force: true });
+    // Prune, so the tree is a pure function of --clones rather than the union of every past run.
+    // Scoped to this family's own <GEO><n> shape, so it can never reach another offer's folders.
+    const famRoot = path.join(repoRoot, v.family);
+    for (const name of fs.readdirSync(famRoot)) {
+      const m = /^([A-Z]{2})([0-9]+)$/.exec(name);
+      if (m && (m[1] !== v.geo || Number(m[2]) > CLONES || Number(m[2]) < 1)) {
+        fs.rmSync(path.join(famRoot, name), { recursive: true, force: true });
+      }
     }
   }
 
@@ -735,7 +745,7 @@ for (const v of VARIANTS) {
   built.push({ v, html, n });
   console.log(
     `  ${v.geo}  ${(CANON_DIR + '/' + v.key).padEnd(10)}`
-    + ` + ${(v.family + '/' + v.geo + '1..' + v.geo + CLONES).padEnd(18)}`
+    + ` + ${(v.flat ? v.flat + '.html' : v.family + '/' + v.geo + '1..' + v.geo + CLONES).padEnd(22)}`
     + (v.vanity ? ' + /' + v.vanity : '').padEnd(12)
     + `  ->  ${v.slug}`
   );
@@ -743,7 +753,7 @@ for (const v of VARIANTS) {
 console.log(`\n  ${VARIANTS.length} geos · ${totalFiles} files · ${CLONES} clones each\n`);
 
 console.log('  ROOTS (must be in PRELANDER_ALLOWED_ROOTS *and* ALLOWED_ROOTS):');
-console.log('    ' + [CANON_DIR, ...VARIANTS.map((v) => v.family), ...VARIANTS.filter((v) => v.vanity).map((v) => v.vanity)]
+console.log('    ' + [CANON_DIR, ...VARIANTS.map((v) => v.flat ? v.flat + '.html' : v.family), ...VARIANTS.filter((v) => v.vanity).map((v) => v.vanity)]
   .map((r) => r.toLowerCase()).join(', ') + '\n');
 
 console.log('  ⚠️  ONE OFFER, THREE GEOS — only ONE assignment may be active at a time.');

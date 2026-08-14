@@ -49,6 +49,11 @@ const SOURCE = fs.readFileSync(path.join(__dirname, 'sammy-acash-source.html'), 
 
 const CANON_DIR = 'ACSM';          // ACSM/US/index.html
 const FAMILY    = 'AS50';          // AS50/US1..US100 — one clone per affiliate slot
+/* FLAT OUTPUT. Commit 9763a57 flattened every live clone family to ONE .html file, so the AS50
+   slice this used to emit no longer exists on disk — it survives only as a redirect in
+   vercel.json. Re-emitting the folders would recreate ~100 dead files, and a real file SHADOWS a
+   redirect, so the resurrected copies would start serving instead of the flat page. */
+const FLAT_PAGE = 'acashusa-sammy';
 const GEO       = 'US';
 const VANITY    = 'sasurl';        // /sasurl — Sammy's memorable link, same bytes
 
@@ -212,20 +217,7 @@ fs.writeFileSync(path.join(repoRoot, CANON_DIR, GEO, 'index.html'), html);
 fs.mkdirSync(path.join(repoRoot, VANITY), { recursive: true });
 fs.writeFileSync(path.join(repoRoot, VANITY, 'index.html'), html);
 
-for (let n = 1; n <= CLONES; n++) {
-  const d = path.join(repoRoot, FAMILY, GEO + n);
-  fs.mkdirSync(d, { recursive: true });
-  fs.writeFileSync(path.join(d, 'index.html'), html);   // one buffer -> one md5 across the family
-}
-
-// Prune clones this config no longer emits, so the tree is a pure function of --clones.
-const famRoot = path.join(repoRoot, FAMILY);
-for (const name of fs.readdirSync(famRoot)) {
-  const m = /^([A-Z]{2})([0-9]+)$/.exec(name);
-  if (m && (m[1] !== GEO || Number(m[2]) > CLONES || Number(m[2]) < 1)) {
-    fs.rmSync(path.join(famRoot, name), { recursive: true, force: true });
-  }
-}
+fs.writeFileSync(path.join(repoRoot, FLAT_PAGE + '.html'), html);
 
 console.log(`${CANON_DIR}/${GEO} + /${VANITY} + ${FAMILY}/${GEO}1..${GEO}${CLONES}   door=${DOOR_SLUG}   (${CLONES + 2} files, Sammy's supplied design)`);
 console.log(`\n  ⚠️  UNVERIFIED CLAIMS LEFT IN SAMMY'S COPY — his design, Migi's call, not edited here.`);

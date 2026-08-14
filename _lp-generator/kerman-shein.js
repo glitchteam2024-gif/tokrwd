@@ -99,25 +99,25 @@ const CANON_DIR = 'SHKM';
  *            enforce_assignment=false, and each has destination_by_geo[<GEO>] set.
  */
 const VARIANTS = [
-  { key: 'US',    geo: 'US', family: 'SK50', vanity: 'shkrurl', amount: '$1,000', campaign: 'Back to School',
+  { key: 'US',    geo: 'US', flat: 'shein1kusa-kerman', vanity: 'shkrurl', amount: '$1,000', campaign: 'Back to School',
     slug: 'shein-b2s-us-kerman',                   offerId: '7018d82b-f19d-4759-9910-de9e837774e5',
     offer: 'Rewards US - Shein $1000 Back to School' },
-  { key: 'GBB2S', geo: 'GB', family: 'SK51', vanity: null,      amount: '£1,000', campaign: 'Back to School',
+  { key: 'GBB2S', geo: 'GB', flat: 'shein1kuk-kerman', vanity: null,      amount: '£1,000', campaign: 'Back to School',
     slug: 'shein-b2s-gb-kerman',                   offerId: '01a705a9-c479-4bec-aaed-bd0b038bc4d7',
     offer: 'Rewards UK - Shein £1000 Back to School' },
-  { key: 'USFP',  geo: 'US', family: 'SK52', vanity: null,      amount: '$750',   campaign: 'Shein Reward',
+  { key: 'USFP',  geo: 'US', flat: 'sheinpollusa-kerman', vanity: null,      amount: '$750',   campaign: 'Shein Reward',
     slug: 'flash-poll-shein-2-us-kerman',          offerId: '4b430587-1cbc-4542-82d9-0ef0c5d61d7c',
     offer: 'Rewards US - Flash Poll - Shein $750' },
-  { key: 'GBFP',  geo: 'GB', family: 'SK53', vanity: null,      amount: '£750',   campaign: 'Shein Reward',
+  { key: 'GBFP',  geo: 'GB', flat: 'sheinpolluk-kerman', vanity: null,      amount: '£750',   campaign: 'Shein Reward',
     slug: 'flash-poll-shein-gb-kerman',            offerId: 'b4efc3f5-491e-485e-aad8-f57145d6d4d9',
     offer: 'Rewards UK - Flash Poll - Shein £750' },
-  { key: 'US2X',  geo: 'US', family: 'SK54', vanity: null,      amount: '$750',   campaign: 'Shein Reward',
+  { key: 'US2X',  geo: 'US', flat: 'shein2xusa-kerman', vanity: null,      amount: '$750',   campaign: 'Shein Reward',
     slug: '2x-rewards-shein-bonus-us-kerman',      offerId: 'f56469f1-12a1-4a6b-a8c2-81dfa9359075',
     offer: 'Rewards US - 2x Rewards - Shein $750 Bonus' },
-  { key: 'USRT',  geo: 'US', family: 'SK55', vanity: null,      amount: '$750',   campaign: 'Shein Reward',
+  { key: 'USRT',  geo: 'US', flat: 'sheinrtlusa-kerman', vanity: null,      amount: '$750',   campaign: 'Shein Reward',
     slug: 'retail-style-shein-us-kerman',          offerId: '597d4dc9-a13f-4a0e-9acc-15dd4b6ca628',
     offer: 'Rewards US - Retail Style - Shein $750' },
-  { key: 'AUPR',  geo: 'AU', family: 'SK56', vanity: null,      amount: '$750',   campaign: 'Shein Reward',
+  { key: 'AUPR',  geo: 'AU', flat: 'sheinrevau-kerman', vanity: null,      amount: '$750',   campaign: 'Shein Reward',
     slug: 'product-reviewer-shein-bonus-au-kerman', offerId: '209e39e1-02b5-4102-ad2c-600468ed4fc8',
     offer: 'Rewards AU - Product Reviewer Shein Bonus $750' },
 ];
@@ -409,7 +409,7 @@ const repoRoot = path.join(__dirname, '..');
 
 // Two variants must never share a folder or a slug — a collision would silently overwrite one
 // page with another and the only symptom would be the wrong reward amount on a live offer.
-for (const f of ['key', 'family', 'slug']) {
+for (const f of ['key', 'flat', 'slug']) {
   const seen = VARIANTS.map((v) => v[f]);
   const dupes = seen.filter((x, i) => seen.indexOf(x) !== i);
   if (dupes.length) throw new Error(`VARIANTS: duplicate ${f}: ${[...new Set(dupes)].join(', ')}`);
@@ -420,6 +420,12 @@ const built = [];
 
 for (const v of VARIANTS) {
   const html = page(v);
+
+  // FLAT OUTPUT. Commit 9763a57 flattened every live clone family to ONE .html file, so the
+  // SK50..SK56 slices this used to emit no longer exist on disk. Re-emitting them would recreate
+  // 707 dead files that now only exist as redirects in vercel.json, and a real file SHADOWS a
+  // redirect — so the resurrected copies would start serving instead of the flat pages.
+  fs.writeFileSync(path.join(repoRoot, v.flat + '.html'), html);
 
   fs.mkdirSync(path.join(repoRoot, CANON_DIR, v.key), { recursive: true });
   fs.writeFileSync(path.join(repoRoot, CANON_DIR, v.key, 'index.html'), html);
@@ -435,26 +441,12 @@ for (const v of VARIANTS) {
     n_files++;
   }
 
-  for (let n = 1; n <= CLONES; n++) {
-    const d = path.join(repoRoot, v.family, v.geo + n);
-    fs.mkdirSync(d, { recursive: true });
-    fs.writeFileSync(path.join(d, 'index.html'), html);
-    n_files++;
-  }
-  // Prune, so the tree is a pure function of --clones rather than the union of every past run.
-  const famRoot = path.join(repoRoot, v.family);
-  for (const name of fs.readdirSync(famRoot)) {
-    const m = /^([A-Z]{2})([0-9]+)$/.exec(name);
-    if (m && (m[1] !== v.geo || Number(m[2]) > CLONES || Number(m[2]) < 1)) {
-      fs.rmSync(path.join(famRoot, name), { recursive: true, force: true });
-    }
-  }
 
   totalFiles += n_files;
   built.push({ v, html, n_files });
   console.log(
     `  ${v.amount.padEnd(7)} ${CANON_DIR}/${v.key.padEnd(5)}`
-    + ` + ${(v.family + '/' + v.geo + '1..' + v.geo + CLONES).padEnd(20)}`
+    + ` + ${(v.flat + '.html').padEnd(26)}`
     + `${v.vanity ? ' + /' + v.vanity : ''.padEnd(11)}  ->  ${v.slug}`
   );
 }
@@ -463,7 +455,7 @@ console.log(`\n  ${VARIANTS.length} offers · ${totalFiles} files\n`);
 // Every root that has to be registered in BOTH allowlists, printed so the list cannot drift
 // silently when a variant is added.
 console.log('  ROOTS (must be in PRELANDER_ALLOWED_ROOTS *and* ALLOWED_ROOTS):');
-console.log('    ' + [CANON_DIR, ...VARIANTS.map((v) => v.family), ...VARIANTS.filter((v) => v.vanity).map((v) => v.vanity)]
+console.log('    ' + [CANON_DIR, ...VARIANTS.map((v) => v.flat + '.html'), ...VARIANTS.filter((v) => v.vanity).map((v) => v.vanity)]
   .map((r) => r.toLowerCase()).join(', ') + '\n');
 
 const html = built[0].html;   // the concern print is copy-level, identical across variants
