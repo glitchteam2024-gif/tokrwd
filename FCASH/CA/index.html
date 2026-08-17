@@ -315,7 +315,17 @@
 
     document.querySelectorAll('a.offer-link, a.store-combo').forEach(function(a){
       a.setAttribute('href', url);          // fallback if the click handler is blocked
-      a.addEventListener('click', openTip); // intercept -> show the tip first
+      /* NO CLICK INTERCEPT (2026-08-17). This used to be:
+           a.addEventListener('click', openTip)
+         openTip() calls e.preventDefault(), so the FIRST tap on the CTA did not go to the
+         offer at all -- it opened the quick-tip overlay, and the visitor had to find and tap
+         'Got it' to actually leave. That is the reported 'they click the button and nothing
+         happens'. Every visitor who tapped once and stopped was a paid click thrown away.
+         The href is already the finished offer URL (set on the line above), so the anchor now
+         navigates natively on the first tap -- which also works with JS half-loaded, and lets
+         long-press / open-in-new-tab behave the way a link should.
+         The overlay markup stays in the page but is never opened; tipGo still carries the same
+         URL, so anything already linking to it is unaffected. Do not re-bind this. */
     });
     document.getElementById('tipClose').addEventListener('click', closeTip);
     overlay.addEventListener('click', function(e){ if (e.target === overlay) closeTip(); });

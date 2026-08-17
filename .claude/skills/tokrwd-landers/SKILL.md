@@ -892,6 +892,43 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
 
 ## Changelog
 
+- **2026-08-17** — **The front stopped deciding who is real, and the CTA started working.** Migi:
+  "remove the crawler… people reach the lander but they click the button and then it doesn't
+  redirect." Three separate causes, all confirmed live; the door was NOT one of them (measured
+  40/40 clean 302s, 267ms median).
+  1. **The Carrd embed was a genuine cloaker** — `admin/carrd-script.js` was headed "UNIVERSAL CARRD
+     CLOAKER SCRIPT", and a desktop / no-campid / `/r`-declined visitor was served `js/decoy.js`, a
+     **fabricated storefront**. Verified live on all three domains. Removed: the bot-UA, device,
+     ttclid and client-hint-contradiction gates are gone from `api/r.js`, `js/decoy.js` and
+     `api/_lib/traffic-filter.js` are **deleted**, and the embed was rewritten with no decoy branch.
+     `/r` now returns the same answer to every visitor. Locked by the new
+     `api/_lib/_front-routing.test.mjs` (drives the REAL handler with six visitor shapes and asserts
+     one destination) plus audit checks 7–8. **Rollout is by hand** — the live embed is pasted into
+     each Carrd page, so every page needs repasting; an un-repasted page keeps its own desktop gate,
+     and its stale `d=` field is now inert server-side (asserted).
+  2. **The CTA did not navigate on the first tap.** `openTip()` `preventDefault()`ed and opened the
+     quick-tip overlay; the visitor had to find "Got it →" and tap again. 76 files, plus
+     `_lp-generator/freecash-template.html` so regeneration keeps the fix. The `offer_click` beacon
+     fired on that first tap, so **the dashboard's OFFER column was counting taps, not arrivals** —
+     real offer arrivals were lower than reported.
+  3. **85 of 323 door slugs 404** (778 files). A data problem, not a redirect one: 68 have no
+     `landing_pages` row and 15 are archived with the **offer row deleted**. Sephora, Uber Eats GB,
+     Cash GB/AU and Apple Pay $1000 US no longer exist as offers, so there is nothing to repoint
+     them at — **still open, Migi's call.**
+  ⚠️ **Probing door health: read `__DOOR_URL__`, never the first `api/link/` match.** Every lander
+  also carries a bare-slug fallback string that is never used; counting those inflates the breakage
+  about 7× (5,479 vs the true 778).
+  **Two findings that are business calls, not bugs:** Testerup is `status='archived'` with
+  `fallback_offer_id` → **Copper Banking**, so all 50 Testerup landers advertise Testerup while every
+  click correctly pays against Copper (`c=55412`) — and `testerup` is the only duplicated slug in
+  `landing_pages`. And 21 live slugs return `sub1=~SPRK_LABEL_WITHHELD~` instead of the spark code
+  (every `-d`/`-e`/`-f` of applecash / applepay1000-au,ca,gb / applepay750 / applepayflash, plus
+  `freecash-ca`, `freecash-us-f`, `playful-us-f`) — those clicks reach the network unattributed.
+  Both are door-side, i.e. SPRKNetworkAds.
+  **Corrections to this document, found the hard way:** live landers are served from
+  **myrewardscorner.com** (that is what `landing_pages.link` points at), `50FC/` no longer exists,
+  and the outbound wire has **inverted** — `s1` now carries the spark code and `s2` the affiliate
+  number, not the reverse as described under "s1–s5 wire scheme" above.
 - **2026-08-16** — **`STT/US/` — a second Shein design, `lp=stt`.** Supplied as a standalone HTML
   file (dark/neon "Shop The Trend" page) with three `REPLACE_WITH_YOUR_REFERRAL_LINK` placeholders
   and no tracking of any kind. Wired onto the standing Shein contract rather than re-invented: the

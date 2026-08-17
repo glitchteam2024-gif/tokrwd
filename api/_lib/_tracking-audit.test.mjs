@@ -71,7 +71,6 @@ const SKIP_FILES = new Set([
   'api/_lib/links-config.js',      // the one place a network host belongs
   'api/_lib/_tracking-audit.test.mjs',
   'api/_lib/_links-config.test.mjs',
-  'api/_lib/_traffic-filter.test.mjs',  // its fixtures ARE in-app user agents, by definition
   'api/_lib/_prelander-page.test.mjs',  // ditto — it asserts ON the breakout patterns
   'api/_lib/_partner-links.test.mjs',   // its fixtures are partner destinations, i.e. network URLs
   'api/_lib/_partner-store.test.mjs',   // ditto — it drives the real handlers with them
@@ -316,6 +315,46 @@ for (const rel of files) {
   }
 }
 report('cloaking/breakout code appears only in the sanctioned prelander files', cloaking);
+
+// ── 7. The front must not decide who is real, and the decoy must stay dead ────
+//
+// Removed 2026-08-17. /r used to answer {} for a visitor it disliked — desktop, no
+// ttclid, a bot-ish user-agent, or a client-hint contradiction — and the Carrd embed
+// then rendered js/decoy.js, a FABRICATED E-COMMERCE STORE, in place of the funnel.
+// An ad reviewer saw a different website from the buyer. That is cloaking in the
+// plainest sense, and it is what gets a domain flagged by TikTok ad review and by
+// Safari/Chrome deceptive-site protection — a domain-level flag, so it takes every
+// campaign down at once.
+//
+// This check exists because the gates are cheap to re-add and each one looks locally
+// reasonable ("just block the obvious bots"). The invariant is not "block less". It
+// is that /r returns the SAME KIND OF ANSWER to everyone, so nothing downstream can
+// serve a reviewer a different page. Attribution does not need a gate here: the door
+// 404s any click whose s1 is not a valid spark code, which fails closed at the hop
+// where money is actually involved.
+//
+// If a genuine anti-fraud need appears, it belongs AFTER the click is attributed —
+// in the door or in postback scoring — never in front of the page render.
+const frontGate = [];
+const decoyRefs = [];
+for (const rel of files) {
+  const raw = readFileSync(new URL(rel, REPO), 'utf8');
+  const src = stripComments(raw);
+  // The decoy must not come back, under any name, on any deployed page.
+  if (/\bdecoy\.js\b/.test(src)) decoyRefs.push(`${rel}: references decoy.js`);
+  if (rel !== 'api/r.js') continue;
+  if (/user-?agent/i.test(src) && /\breturn\b[^;]*\{\s*\}/.test(src)) {
+    frontGate.push(`${rel}: appears to reject a visitor on user-agent`);
+  }
+  for (const [re, what] of [
+    [/BOT_UA_PATTERNS|\bisBot\s*\(/, 'a bot user-agent gate'],
+    [/traffic-filter|evaluateRequest/, 'the UA/client-hint contradiction gate'],
+    [/hasTtclid|!\s*hasTtclid/, 'a ttclid requirement'],
+    [/device\s*===\s*['"](d|t|desktop|tablet)['"]/, 'a device-class gate'],
+  ]) if (re.test(src)) frontGate.push(`${rel}: ${what} is back`);
+}
+report('js/decoy.js is gone and nothing references it', decoyRefs);
+report('/r does not gate the visitor on user-agent, device or ttclid', frontGate);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
