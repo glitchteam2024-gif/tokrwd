@@ -7,14 +7,15 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
-<link rel="preconnect" href="https://sprktrax.org" crossorigin>
-<link rel="dns-prefetch" href="https://sprktrax.org">
+<link rel="preconnect" href="https://www.fkn8s74mztrk.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.fkn8s74mztrk.com">
 <link rel="preconnect" href="https://analytics.tiktok.com" crossorigin>
 
 <!-- ============================================================
      Injected server-side by /functions/undefined/_middleware.js
-     __DOOR_URL__   the SPRK click door for this offer. NOT the network URL.
-                    The door mints the click_id and stamps the subid wire.
+     __DOOR_URL__   the NETWORK offer link for this page (2026-08-17: the sprktrax door was
+                    removed from the funnel). Nothing mints a click_id any more, so the
+                    builder below stamps a unique s5 per click — see the note on it.
      __GEO_AMOUNT__ display string for this visitor's geo
      __GEO_VALUE__  numeric value for pixel events
      __STATS__      social-proof strings. See NOTES.md before shipping these.
@@ -46,7 +47,7 @@
    decided by WHICH PAGE the ad points at, and the click door routes on landing_pages.geo for that
    same lander. One fact drives both, so the page cannot promise one country's offer and hand the
    visitor another's. ||-guarded so a server-side injection still wins if one is ever added. */
-window.__DOOR_URL__ = window.__DOOR_URL__ || "https://sprktrax.org/api/link/fast-food-reviewer-mcdonalds-2-au-b";
+window.__DOOR_URL__ = window.__DOOR_URL__ || "https://www.fkn8s74mztrk.com/F2R45HNR/GX4C8C9R/";
 window.__STATS__    = window.__STATS__ || null;
 </script>
 
@@ -144,7 +145,7 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
 if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
 
-var DOOR       = window.__DOOR_URL__   || 'https://sprktrax.org/api/link/fast-food-reviewer-mcdonalds-2';
+var DOOR       = window.__DOOR_URL__   || 'https://www.fkn8s74mztrk.com/F2R45HNR/GX4C8C9R/';
 /* Amounts are baked into the markup at build time — nothing to substitute at runtime. */
 var GEO_VALUE = 100;
 
@@ -218,8 +219,38 @@ function buildDoorUrl() {
   out.delete('s1');
   out.delete('lg');   // routes the lander only — the door/network never sees it
   var qs = out.toString();
-  var url = DOOR + (qs ? '?' + qs : '');
-  if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+  /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
+     There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
+     get away with are now load-bearing:
+       1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
+          URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
+          rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
+       2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
+          on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
+          120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
+          collapse into one payment. It resolves to nothing; uniqueness is its whole job.
+       3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
+          different s1 first. Built here rather than by a follow-up line, so it cannot be appended
+          twice. */
+  var url = (function () {
+    var _o = new URLSearchParams(qs);
+    /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
+       query (the simpler builders never split it out). Take whichever actually has it. */
+    var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
+    _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
+    if (!_o.get('s5')) {
+      var _t;
+      try { _t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { _t = ''; }
+      if (!_t) _t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+      _o.set('s5', _t.slice(0, 22));
+    }
+    try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
+    var _q = _o.toString();
+    var _u = DOOR + (_q ? (DOOR.indexOf('?') > -1 ? '&' : '?') + _q : '');
+    if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_s1);
+    return _u;
+  })();
+  /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
   return url;
 }
 var target = buildDoorUrl();

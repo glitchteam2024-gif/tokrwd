@@ -892,6 +892,45 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
 
 ## Changelog
 
+- **2026-08-17 (2)** — **THE DOOR IS GONE FROM THE LANDERS.** Migi: "make sure every single landing
+  page redirects with a actual link instead of calling a API at the end." 6,937 files migrated to
+  `SPRK-DIRECT-OFFER v2` — the CTA now goes STRAIGHT to the network. Destinations were taken from
+  **what the live door actually returned** (a 302 probe of all 323 slugs), not reconstructed from
+  the DB, so behaviour is unchanged apart from the missing hop; the DB agreed with production on
+  235/235 where both had an answer.
+  ⚠️ **The trap that would have killed every click, and why a plain URL swap is wrong.** The old
+  builder was `DOOR + (qs ? '?' + qs : '')`. A door URL carries no query so a hardcoded `?` was
+  right; every network URL already has one (`?a=26648&c=55504`, or an Everflow path), so a naive
+  swap yields TWO `?` and the network silently drops s1/s2/s3/ttclid. Six builder variants existed
+  across the tree (`var`/`let`/`const`, `url`/`offerUrl`/`target`, sourced from `qs` or
+  `q.toString()`); all were normalised to one self-contained IIFE that is separator-aware, mints a
+  **unique per-click s5**, and appends **s1 last, exactly once** — the old follow-up
+  `if (s1) url += …` line had to be DELETED or s1 shipped twice.
+  **The unique s5 is load-bearing, not decoration.** The door used to mint the click id. Nothing
+  does now, and Monetise returns a real txid on only ~1.2%% of conversions, so `api/postback.js`
+  dedups on `(network, spark, sub2..sub5)` within 120s while s1/s2/s3 are CONSTANT per creative.
+  Without a unique s5 two genuine leads collapse into one payment.
+  **Repointed on the way past** (dead slug → live offer, geo-for-geo): `shein-us` →
+  `retail-style-shein-us`, `shein-gb` → `flash-poll-shein-gb`, `shein-au` →
+  `product-reviewer-shein-bonus-au`, `shein-retail-us` → `retail-style-shein-us`, `cash-us` →
+  `rewarded-discovery-cash-us`, `freecash-us` → `freecash`.
+  **619 files could NOT be migrated and still call the door**, because their offer no longer exists
+  and there is no link to point them at: applepay1000-us/-b/-c (303), sephora ×4 geos (124),
+  cash-gb/au (62), playful-rewards-cash-us-b/-c (62), shein-ca (31), ubereats-gb (31), plus bare
+  canonicals. `_direct-offer.test.mjs` prints them on every run. **Retiring or re-branding them is
+  Migi's call — it cannot be fixed in code.**
+  ⚠️ **Testerup now hardcodes COPPER's campaign (`c=55412`), and that is not a typo.** Testerup is
+  `status='archived'` with `fallback_offer_id` → Copper Banking, so the door was already sending
+  every Testerup click to Copper; the migration froze that in the page. The lander copy still says
+  Testerup, and un-archiving the offer will no longer change where the traffic goes. DECIDE.
+  Tests: new `_direct-offer.test.mjs` runs the SHIPPED builder out of all 6,923 migrated landers and
+  asserts one `?`, s1 once/last/correct, a unique s5 per build, s2/s3/ttclid surviving, and that
+  `lg`/`campid` never reach the network. Audit **check 1 was rewritten**: the pinned
+  `OFFER_LINKS_BY_SLICE` table cannot scale to 161 (slice, geo) groups, so the primary assertion is
+  now *"every clone of a (slice, geo) carries the SAME destination"* — which needs no table and is
+  exactly what a bad copy-paste breaks — with the pinned campaign ids kept as a second check for the
+  slices we know. `traceOfferChain` gained a **direct** branch so the admin panel stops claiming a
+  door rewrite that no longer happens, and `OFFERS[].match` now names the network URL.
 - **2026-08-17** — **The front stopped deciding who is real, and the CTA started working.** Migi:
   "remove the crawler… people reach the lander but they click the button and then it doesn't
   redirect." Three separate causes, all confirmed live; the door was NOT one of them (measured

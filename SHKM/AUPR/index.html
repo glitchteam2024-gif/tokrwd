@@ -515,7 +515,7 @@
     <section class="final-claim" id="claim">
       <div class="shell">
         <h2>Ready to see your qualifying offers?</h2>
-        <a class="cta" href="https://sprktrax.org/api/link/product-reviewer-shein-bonus-au-kerman" id="claim-button">See my offers</a>
+        <a class="cta" href="https://www.fkn8s74mztrk.com/F2R45HNR/GXTJ7KK2/" id="claim-button">See my offers</a>
       </div>
     </section>
   </main>
@@ -536,7 +536,7 @@
     // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
     // and 302s to the real Shein URL — which lives in the offer row and never appears in this
     // page's source.
-    const DOOR = "https://sprktrax.org/api/link/product-reviewer-shein-bonus-au-kerman";
+    const DOOR = "https://www.fkn8s74mztrk.com/F2R45HNR/GXTJ7KK2/";
 
     // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
     const q = new URLSearchParams(location.search);
@@ -558,8 +558,38 @@
       const out = new URLSearchParams(q.toString());
       out.delete('s1'); out.delete('campid'); out.delete('lg');
       const qs = out.toString(), s1 = q.get('s1') || '';
-      let url = DOOR + (qs ? '?' + qs : '');
-      if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+      /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
+         There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
+         get away with are now load-bearing:
+           1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
+              URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
+              rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
+           2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
+              on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
+              120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
+              collapse into one payment. It resolves to nothing; uniqueness is its whole job.
+           3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
+              different s1 first. Built here rather than by a follow-up line, so it cannot be appended
+              twice. */
+      let url = (function () {
+        var _o = new URLSearchParams(qs);
+        /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
+           query (the simpler builders never split it out). Take whichever actually has it. */
+        var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
+        _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
+        if (!_o.get('s5')) {
+          var _t;
+          try { _t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { _t = ''; }
+          if (!_t) _t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+          _o.set('s5', _t.slice(0, 22));
+        }
+        try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
+        var _q = _o.toString();
+        var _u = DOOR + (_q ? (DOOR.indexOf('?') > -1 ? '&' : '?') + _q : '');
+        if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_s1);
+        return _u;
+      })();
+      /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
       return url;
     }
 

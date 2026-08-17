@@ -400,10 +400,15 @@ const LANDER_HOST_SET = (() => {
  * and a page disagree.
  */
 export const OFFERS = {
-  freecash:       { label: 'Freecash',             match: 'sprktrax.org/api/link/freecash' },
-  testerup:       { label: 'Testerup',             match: 'sprktrax.org/api/link/testerup' },
-  copper:         { label: 'Copper',               match: 'sprktrax.org/api/link/copper' },
-  gravypass:      { label: 'Gravypass',            match: 'sprktrax.org/api/link/gravypass' },
+  freecash:       { label: 'Freecash',             match: 'https://montrk5.co.uk/?a=26648&c=55504' },
+  // ⚠️ c=55412 is COPPER's campaign, and that is not a typo. The Testerup offer is
+  // status='archived' with fallback_offer_id -> Copper Banking, so the door was already
+  // sending every Testerup click to Copper; the 2026-08-17 direct migration froze that
+  // behaviour into the page. The lander copy still says Testerup. DECIDE: re-point the
+  // TU/CLTU/50TU landers at a live offer, or re-brand them as Copper.
+  testerup:       { label: 'Testerup',             match: 'https://montrk.co.uk/?a=26648&c=55412' },
+  copper:         { label: 'Copper',               match: 'https://montrk.co.uk/?a=26648&c=55412' },
+  gravypass:      { label: 'Gravypass',            match: 'https://montrk2.co.uk/?a=26648&c=56278' },
   'freecash-uk':  { label: 'Freecash UK',          match: '/c/frrcsh-uk-off' },
   'freecash-ca':  { label: 'Freecash CA',          match: '/c/frrcsh-ca-off' },
   'testerup-mon': { label: 'Testerup (Monetise)',  match: '/c/testerup-us-mon-off' },
@@ -414,7 +419,7 @@ export const OFFERS = {
   // SHEIN/ + SH50/ house family (~120 pages) still points at them and is inert for that
   // reason — worth fixing separately, but it is not this lander's problem. Probe before
   // trusting any door slug: 302-with-s1 and 404-without is alive; 404-both is gone.
-  'shein-retail-us': { label: 'Retail Style Shein $750 (US)', match: 'sprktrax.org/api/link/retail-style-shein-us' },
+  'shein-retail-us': { label: 'Retail Style Shein $750 (US)', match: 'https://www.fkn8s74mztrk.com/F2R45HNR/H3J9L2H2/' },
   // Named for the OFFER, not for one person: /ESGP is shared by every partner in
   // PARTNER_LINKS that points at it, each on their own affiliate link. The label
   // shows up beside the lander in the admin pickers, where "(Edwin)" would read as
@@ -426,7 +431,7 @@ export const OFFERS = {
   // serves the US page. The other five geos are reached through the PR50/<GEO>n pools that SPRK
   // assigns, exactly like Freecash's FCASH/* pages — they are deliberately not `lp=`-routable, so
   // no public offer key can aim traffic at the wrong language.
-  playful:        { label: 'Playful Rewards',      match: 'sprktrax.org/api/link/playful-us' },
+  playful:        { label: 'Playful Rewards',      match: 'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/' },
 };
 
 /**
@@ -1675,6 +1680,30 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
 
   // A door-routed offer: the door re-stamps subids itself, so what the affiliate
   // ends up seeing is decided there, not here. Say so instead of inventing it.
+  // A DIRECT offer: since 2026-08-17 the lander links to the network itself, so there is no
+  // hop between the page and the network to describe. Built to mirror the lander's own builder
+  // exactly — extras first, s1 LAST — because the whole point of this panel is telling a scaler
+  // the truth about what their click carries. If the lander's order ever changes, change it here
+  // in the same commit.
+  if (/^https?:\/\//i.test(match)) {
+    const extraParts = Object.entries(carry)
+      .filter(([, v]) => v)
+      .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v));
+    let url = match + (extraParts.length ? (match.includes('?') ? '&' : '?') + extraParts.join('&') : '');
+    if (code) url += (url.includes('?') ? '&' : '?') + 's1=' + encodeURIComponent(code);
+    hops.push({ step: 'Their network', url });
+    return {
+      ok: true, offer, offer_label: label, mode: 'direct', slug: null, hops,
+      forward_param: 's1',
+      tracks_as: code
+        ? `s1=${code} — the page sends it straight to the network, unchanged. No door rewrites it ` +
+          'any more, so this is exactly the value that lands in their reports. A unique s5 rides ' +
+          'alongside it purely to stop two genuine leads deduping into one payment.'
+        : 's1 — empty, because no tracking code was given. The click still converts, but it ' +
+          'attributes to nobody.',
+    };
+  }
+
   const doorMatch = match.match(/^sprktrax\.org\/api\/link\/([a-z0-9-]+)$/i);
   if (doorMatch) {
     const doorUrl = new URL(`${DOOR_BASE}/${doorMatch[1]}`);

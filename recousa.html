@@ -7,14 +7,15 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
-<link rel="preconnect" href="https://sprktrax.org" crossorigin>
-<link rel="dns-prefetch" href="https://sprktrax.org">
+<link rel="preconnect" href="https://monetisetrk2.co.uk" crossorigin>
+<link rel="dns-prefetch" href="https://monetisetrk2.co.uk">
 <link rel="preconnect" href="https://analytics.tiktok.com" crossorigin>
 
 <!-- ============================================================
      Injected server-side by /functions/undefined/_middleware.js
-     __DOOR_URL__   the SPRK click door for this offer. NOT the network URL.
-                    The door mints the click_id and stamps the subid wire.
+     __DOOR_URL__   the NETWORK offer link for this page (2026-08-17: the sprktrax door was
+                    removed from the funnel). Nothing mints a click_id any more, so the
+                    builder below stamps a unique s5 per click — see the note on it.
      __GEO_AMOUNT__ display string for this visitor's geo
      __GEO_VALUE__  numeric value for pixel events
      __STATS__      social-proof strings. See NOTES.md before shipping these.
@@ -46,7 +47,7 @@
    decided by WHICH PAGE the ad points at, and the click door routes on landing_pages.geo for that
    same lander. One fact drives both, so the page cannot promise one country's offer and hand the
    visitor another's. ||-guarded so a server-side injection still wins if one is ever added. */
-window.__DOOR_URL__ = window.__DOOR_URL__ || "https://sprktrax.org/api/link/reco-social-us";
+window.__DOOR_URL__ = window.__DOOR_URL__ || "https://monetisetrk2.co.uk/?a=26648&c=56065";
 window.__STATS__    = window.__STATS__ || null;
 </script>
 
@@ -149,7 +150,7 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
 if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
 
-var OFFER_URL       = window.__DOOR_URL__   || 'https://sprktrax.org/api/link/reco-social-us';
+var OFFER_URL       = window.__DOOR_URL__   || 'https://monetisetrk2.co.uk/?a=26648&c=56065';
 /* SPRK-DIRECT-OFFER v1 */
   /* Build the network URL. Reads the query directly, so it does not care which local the lander
      happened to keep it in.
