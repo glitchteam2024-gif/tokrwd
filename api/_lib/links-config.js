@@ -407,6 +407,10 @@ export const OFFERS = {
   'freecash-uk':  { label: 'Freecash UK',          match: '/c/frrcsh-uk-off' },
   'freecash-ca':  { label: 'Freecash CA',          match: '/c/frrcsh-ca-off' },
   'testerup-mon': { label: 'Testerup (Monetise)',  match: '/c/testerup-us-mon-off' },
+  // Shein $750, US. Per-geo by design: the door routes on landing_pages.geo for the
+  // lander that fired it, so GB/CA/AU each need their own slug and their own page —
+  // a shared slug collapses every geo onto one row carrying one geo.
+  'shein-us':     { label: 'Shein $750 (US)',       match: 'sprktrax.org/api/link/shein-us' },
   // Named for the OFFER, not for one person: /ESGP is shared by every partner in
   // PARTNER_LINKS that points at it, each on their own affiliate link. The label
   // shows up beside the lander in the admin pickers, where "(Edwin)" would read as
@@ -482,6 +486,23 @@ export const OVERRIDE_LANDERS = {
     path: '/PLAY',
     offer: 'playful',
     owner: 'SPRK house — Playful Rewards (alias of `play`, same page)',
+  },
+  // A SECOND Shein $750 US design, deliberately unlike SHEIN/US: dark, editorial, "Shop
+  // The Trend" brandmark rather than the SHEIN wordmark. Override-only so it can be
+  // split-tested against the standing SHEIN/SH50 pool without touching any of those
+  // clones, and backed out by dropping `lp=stt` from the ad link — no deploy.
+  //
+  // Still a FOLDER lander (/STT/US) rather than a flat root .html: the flattening of
+  // 2026-08-12 collapsed the numbered CLONE pools, while the canonical per-geo pages
+  // (SHEIN/US/index.html and the rest) are folders still. This is a canonical page with
+  // no clone pool, so it takes the canonical shape.
+  //
+  // Folder is STT (the page's own brandmark) precisely because it is NOT the SHEIN page;
+  // naming it SHEIN-anything would invite someone to `cp` over it.
+  stt: {
+    path: '/STT/US',
+    offer: 'shein-us',
+    owner: 'house — Shein $750 US, alternate design (split-test vs /SHEIN/US)',
   },
 };
 
@@ -952,7 +973,9 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'fcm.html', 'fcm-pre.html',
   'shrtl', 'sr50',
-  'sp50', 'tsup',
+  // STT/US — a second Shein $750 US design, override-only via lp=stt. Canonical page,
+  // no clone pool, so it stays a folder lander like SHEIN/US.
+  'sp50', 'stt', 'tsup',
   'tu', 'uber', 'ue50', 'trt',
 ];
 

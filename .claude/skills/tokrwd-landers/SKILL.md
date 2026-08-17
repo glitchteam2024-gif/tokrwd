@@ -75,11 +75,22 @@ network must be able to route traffic onto it. They are registered in `OVERRIDE_
 |-----------|---------|-------------------------------------------------|-----------------------------------|------------------------------------|
 | `lp=trt`  | `trt/`  | `appflowconnect.com/c/testerup-us-mon-off`       | montrk `a=26648 c=56132`          | Trae / TenX — scaler (aff #2)      |
 | `lp=esgp` | `ESGP/` | `/c/esgp-off` (relative → `www.tokrwd.co`)       | `phef6trk.com/213T8QJ/32BB7QT/`   | Edwin — scaler, own affiliate link |
+| `lp=stt`  | `STT/US/` | `sprktrax.org/api/link/shein-us` (Path A, door) | Shein $750 US                    | **house** — alternate Shein design |
 
 `ESGP` is also bound to `laboedomegan.carrd.co` by host (see `CARRD_ROUTES` below), so Edwin's ad links
 need no `lp=` on them.
 
-These use `mode:'direct'` on purpose: the payout is the scaler's, so the click must **not** walk the
+**`stt` is the one override lander that is NOT a scaler's** (added 2026-08-16). It is a second,
+visually distinct Shein design — dark/editorial, "Shop The Trend" brandmark instead of the SHEIN
+wordmark — kept override-only so it can be split-tested against the standing `SHEIN/US` + `SH50`
+pool without touching those 120 clones, and backed out by dropping `lp=stt` from the ad link with
+no deploy. It walks the **door** (`mode` is irrelevant — there is no `/c/` hop), so it has full SPRK
+attribution exactly like `SHEIN/US`; the scaler reasoning below does not apply to it. Folder is
+`STT` after the page's own brandmark, deliberately not `SHEIN`-anything, so nobody `cp`s the
+generated Shein page over it. It is a HAND-BUILT page — `_lp-generator/build.js` must never learn
+about it, for the same reason Freecash is not in `BRANDS`.
+
+The scaler entries use `mode:'direct'` on purpose: the payout is the scaler's, so the click must **not** walk the
 SPRK door (which would resolve it to a SPRK affiliate and credit the conversion inside our network).
 No clicks row and no click_id on this path, by design — they settle by invoice, and `sub1` carries the
 spark code only so their reported volume can be reconciled against our traffic.
@@ -881,6 +892,20 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
 
 ## Changelog
 
+- **2026-08-16** — **`STT/US/` — a second Shein design, `lp=stt`.** Supplied as a standalone HTML
+  file (dark/neon "Shop The Trend" page) with three `REPLACE_WITH_YOUR_REFERRAL_LINK` placeholders
+  and no tracking of any kind. Wired onto the standing Shein contract rather than re-invented: the
+  `shein-us` door, whole-query forwarding with `s1` last, `mc_attr` fallback, referrer rescue,
+  TikTok macro scrub, the `D6CF3ABC77U56TVAPJPG` pixel and `/js/ttclid.js` — all lifted from
+  `SHEIN/US/index.html` so the two designs are comparable on identical wiring. New `OFFERS` key
+  `shein-us` (the first Shein entry in that table — the generated pages were never offer-bound
+  because nothing routed to them by alias). Fixed on intake: all three CTAs hardcoded a referral
+  placeholder (they are now `href="#"`, built at runtime, so a pre-JS tap cannot fire a param-less
+  door hit the door then 404s), and four `favicon*` files were referenced that do not exist in the
+  repo — dropped rather than stubbed, since every lander here ships without one.
+  ⚠️ **Left as the author wrote it, flagged not fixed:** step 3 says the $750 is *"Applied
+  automatically to your account for your first order"*, where `SHEIN/US` discloses *"Complete 3-5
+  recommended deals … to unlock the full $750"*. Those describe different offers. Migi's call.
 - **2026-07-21** — Removed the in-app-breakout prelander. All 150 numbered folders (50FC/50TU/CR50)
   became byte-identical copies of the canonical `/FC` `/TU` `/CB` landers. One prelander per brand
   archived, unwired, in `justincase/` (+ restore loops in `justincase/README.md`).

@@ -113,7 +113,8 @@
     // pair rather than repointing PlayfulM so the Playful funnel stays runnable.
     'fcm.html', 'fcm-pre.html',
     'shrtl', 'sr50',
-    'sp50', 'tsup',
+    // STT/US — a second Shein $750 US design, override-only via lp=stt.
+    'sp50', 'stt', 'tsup',
     'tu', 'uber', 'ue50', 'trt'
   ];
 
