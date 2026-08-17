@@ -407,10 +407,14 @@ export const OFFERS = {
   'freecash-uk':  { label: 'Freecash UK',          match: '/c/frrcsh-uk-off' },
   'freecash-ca':  { label: 'Freecash CA',          match: '/c/frrcsh-ca-off' },
   'testerup-mon': { label: 'Testerup (Monetise)',  match: '/c/testerup-us-mon-off' },
-  // Shein $750, US. Per-geo by design: the door routes on landing_pages.geo for the
-  // lander that fired it, so GB/CA/AU each need their own slug and their own page —
-  // a shared slug collapses every geo onto one row carrying one geo.
-  'shein-us':     { label: 'Shein $750 (US)',       match: 'sprktrax.org/api/link/shein-us' },
+  // Retail Style Shein $750, US — the offer /STT/US fires.
+  //
+  // ⚠️ NOT `shein-us`. That slug, plus `shein` and `shein-gb`, are RETIRED: they 404 at the
+  // door even with a valid s1, which means no landing_pages row matches them. The entire
+  // SHEIN/ + SH50/ house family (~120 pages) still points at them and is inert for that
+  // reason — worth fixing separately, but it is not this lander's problem. Probe before
+  // trusting any door slug: 302-with-s1 and 404-without is alive; 404-both is gone.
+  'shein-retail-us': { label: 'Retail Style Shein $750 (US)', match: 'sprktrax.org/api/link/retail-style-shein-us' },
   // Named for the OFFER, not for one person: /ESGP is shared by every partner in
   // PARTNER_LINKS that points at it, each on their own affiliate link. The label
   // shows up beside the lander in the admin pickers, where "(Edwin)" would read as
@@ -487,22 +491,24 @@ export const OVERRIDE_LANDERS = {
     offer: 'playful',
     owner: 'SPRK house — Playful Rewards (alias of `play`, same page)',
   },
-  // A SECOND Shein $750 US design, deliberately unlike SHEIN/US: dark, editorial, "Shop
-  // The Trend" brandmark rather than the SHEIN wordmark. Override-only so it can be
-  // split-tested against the standing SHEIN/SH50 pool without touching any of those
-  // clones, and backed out by dropping `lp=stt` from the ad link — no deploy.
+  // An operator-supplied Shein design: dark, editorial, "Shop The Trend" brandmark rather
+  // than the SHEIN wordmark. Override-only, so nothing reaches it without `lp=stt` on the
+  // ad link and it is backed out by removing that param — no deploy.
+  //
+  // It fires Retail Style Shein, NOT the retired $750 Shein offer the SHEIN/ + SH50/ pages
+  // still point at. It is deliberately NOT comparable to those: they fire a dead door, so
+  // an A/B against them would read as this page converting infinitely better.
   //
   // Still a FOLDER lander (/STT/US) rather than a flat root .html: the flattening of
-  // 2026-08-12 collapsed the numbered CLONE pools, while the canonical per-geo pages
-  // (SHEIN/US/index.html and the rest) are folders still. This is a canonical page with
-  // no clone pool, so it takes the canonical shape.
+  // 2026-08-12 collapsed the numbered CLONE pools, while the canonical per-geo pages are
+  // folders still. This is a canonical page with no clone pool, so it takes that shape.
   //
   // Folder is STT (the page's own brandmark) precisely because it is NOT the SHEIN page;
   // naming it SHEIN-anything would invite someone to `cp` over it.
   stt: {
     path: '/STT/US',
-    offer: 'shein-us',
-    owner: 'house — Shein $750 US, alternate design (split-test vs /SHEIN/US)',
+    offer: 'shein-retail-us',
+    owner: 'house — Retail Style Shein $750 US, alternate design',
   },
 };
 
