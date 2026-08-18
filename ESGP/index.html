@@ -122,15 +122,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 <div class="lp-wrap">
   <div class="bg-glow"></div>
   <div class="container">
-    <!-- The Gravy Pass mark. NOT /images/gravy-logo.png — that file is misnamed: it holds the
-         TESTERUP logo (trt/index.html uses the same file, correctly, with alt="Testerup"), so
-         pointing this page at it put a competitor's brand under a "Gravy Pass" label. Local
-         asset, not the gstatic thumbnail the page originally hotlinked: that is a Google
+    <!-- The Gravy Pass mark. THIRD attempt, and the first one that is actually Gravy Pass —
+         so check the PICTURE, never the filename, before changing this line:
+           · /images/gravy-logo.png     is TESTERUP's mark (trt/ and 50TU/ use it correctly).
+           · /images/freecash-mark-green-on-dark.png (was misnamed freecash-mark-green-on-dark.png) is FREECASH's — the same S-glyph as
+             /images/freecash-logo.webp, recoloured green-on-dark. It shipped here for weeks
+             under alt="Gravy Pass" because the filename read as authoritative.
+           · /images/gravypass-mark.png is the real one: the gold coin-pot, confirmed against
+             the advertiser's own site (gravypass.com/assets/logo.png + their favicon).
+         Local asset, not the gstatic thumbnail the page originally hotlinked: that is a Google
          image-cache URL which expires, and this page otherwise loads zero remote resources. -->
     <div class="logo-row anim">
       <img src="/images/tiktok-icon-free-png.png" alt="TikTok" />
       <span>x</span>
-      <img src="/images/gravypass-logo.png" alt="Gravy Pass" />
+      <img src="/images/gravypass-mark.png" alt="Gravy Pass" />
     </div>
 
     <!-- QUALIFY VIEW -->
