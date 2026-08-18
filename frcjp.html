@@ -296,14 +296,25 @@
   // Build the offer URL (click id -> Everflow sub1, plus ttclid for TikTok CAPI),
   // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
-    // Through the SPRK door (Migi, 2026-08-12). The door mints the click_id, writes the clicks
-    // row, freezes ttclid for the CAPI forward, and picks the destination from THIS page's
-    // landing_pages.geo — not the visitor's IP, which is spoofable and would let traffic shop
-    // into a higher-paying geo. It is also the only place a cap, a revoke or a payout-lock can
-    // still stop a click; a static page cannot hold any of those.
-    // The wire is built by __sprkOffer below and forwards
-    // everything it was given. Forwards EVERYTHING the ad link carried: s1=<SPK> (per-creative
-    // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
+    // STRAIGHT TO THE NETWORK (Migi, 2026-08-17). This used to go through the SPRK door, and the
+    // comment here used to describe what the door did for us. It no longer runs, so the list is
+    // now a list of what we GAVE UP — kept deliberately, because every line of it is a real
+    // capability that silently stopped existing rather than started erroring:
+    //   · click_id minting and the clicks row — gone. Attribution now rides on s1 (the spark
+    //     code) plus the unique s5 minted below, and matching leans on what the network echoes
+    //     back to /postback.
+    //   · conversion caps, revokes and payout-locks — gone. A static page cannot hold any of
+    //     those, so an offer that needs stopping must now be stopped at the network.
+    //   · the ttclid freeze for the TikTok CAPI forward — gone, and this is the one with teeth.
+    //     `conversions` reaches ttclid by joining click_id -> clicks.ttclid, and there is no
+    //     clicks row any more. ttclid IS still forwarded to the network in the URL below, so the
+    //     fix is for /postback to read it back from the network rather than from the click row.
+    //     Until that lands, CAPI events from this page have no ttclid to attribute with.
+    // Geo is unchanged and still safe: it is baked into THIS page rather than sniffed from the
+    // visitor's IP, so traffic still cannot shop into a higher-paying geo.
+    // The wire is built by __sprkOffer below and forwards EVERYTHING the ad link carried:
+    // s1=<SPK> (per-creative spark id), s2=<publisher_code> (per-affiliate source), ttclid,
+    // etc. — nothing dropped, with s1 placed last.
     var OFFER_URL = 'https://montrk5.co.uk/?a=26648&c=55510';
 /* SPRK-DIRECT-OFFER v1 */
   /* Build the network URL. Reads the query directly, so it does not care which local the lander
