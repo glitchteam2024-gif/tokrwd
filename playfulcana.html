@@ -331,9 +331,15 @@
     try { t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { t = ''; }
     if (!t) t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
     t = t.slice(0, 22);
-    ['2','3'].forEach(function(n){ var v = p.get('s'+n); if (v && !p.get('sub'+n)) p.set('sub'+n, v); p.delete('s'+n); });
-    if (!p.get('sub5')) p.set('sub5', t);
-    try { window.__SPRK_S5 = p.get('sub5'); } catch (e) {}
+    /* SPRK-SUBID-NS v3 */
+    /* sub2 = the click token (clickid_slot / Fluent's cid={sub2}); sub4 = the affiliate id,
+       which must never sit in sub2 — it is constant per creative and would leave the 120s
+       dedup unable to tell two genuine leads apart. */
+    if (p.get('s3') && !p.get('sub3')) p.set('sub3', p.get('s3'));
+    if (p.get('s2') && !p.get('sub4')) p.set('sub4', p.get('s2'));
+    ['1','2','3','4','5'].forEach(function(n){ p.delete('s'+n); });
+    if (!p.get('sub2')) p.set('sub2', t);
+    try { window.__SPRK_S5 = p.get('sub2'); } catch (e) {}
     var qs = p.toString();
     var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');
     if (s1) url += (url.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(s1);
