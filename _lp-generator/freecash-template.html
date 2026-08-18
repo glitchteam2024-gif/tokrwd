@@ -284,6 +284,22 @@
     // Route through the SPRK tracking door (mints the click_id + logs the click), which cloaks
     // -> the FreeCash offer. Forward EVERYTHING the FCx lander passed: s1=<SPK> (per-creative
     // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
+    /* ⚠️⚠️ STOP — THIS LINE IS OUT OF DATE AND WILL UN-MIGRATE THE LIVE LANDERS. ⚠️⚠️
+       On 2026-08-17 the sprktrax door was removed from the funnel: all 6,937 deployed landers
+       now point straight at the network (Monetise / Everflow), built by a separator-aware
+       builder that also mints the unique per-click s5. This TEMPLATE was not updated, because
+       the network URL differs per offer AND per geo and this file has no way to know which.
+
+       So running this generator as-is will overwrite live landers with a door URL that:
+         · 404s for every retired offer, and
+         · for the rest, re-introduces the hop Migi asked to remove.
+
+       Before regenerating, teach the generator the per-geo network URL (offers.destination_by_geo
+       in Supabase is the source of truth; the shipped landers carry the resolved value) and swap
+       the two lines below for the SPRK-DIRECT-OFFER v2 builder used in the deployed pages.
+       Do NOT simply string-replace the door for a network URL: the old builder hardcodes '?' and
+       every network URL already has one, so you get two '?' and s1/s2/s3/ttclid vanish silently.
+       api/_lib/_direct-offer.test.mjs pins the correct shape. */
     var DOOR = 'https://sprktrax.org/api/link/freecash';
     var q = new URLSearchParams(location.search);
     if (!q.get('s1')) {

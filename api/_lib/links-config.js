@@ -931,6 +931,12 @@ export const PRELANDER_ENABLED = true;
  * the fail-open behaviour just means no prelander.
  */
 export const PRELANDER_ALLOWED_ROOTS = [
+  // RETIRED 2026-08-17: seph/sp50 (Sephora, all 4 geos), uber/ue50 (Uber Eats GB). Their
+  // offer rows were DELETED from the network, so there was no link left to point them at —
+  // the CTA had been 404ing at the door. Files removed in the same commit. ak50/ak51 are
+  // deliberately NOT retired here: only their US trees were dead, and /AK50/:c(AU|CA|GB)
+  // still rewrite to live flat pages, so pulling those roots would cost those geos the
+  // prelander (fail-open — the click lands, the in-app escape silently stops firing).
   // Flat Freecash pages, 2026-08-12. 50FC/<GEO><N>/ collapsed to one file per geo; the
   // pages are top-level, so each NAME is its own root. Added to BOTH lists in the same
   // commit — a lander that deploys without its allowlist entry loses the click, not the hop.
@@ -974,7 +980,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'ravfc', 'rv61', 'rv62', 'rv63', 'ravfcurl',
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
-  'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
+  'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'sh50', 'shb2s', 'shein',
   // The owner scaler Playful Rewards page, 2026-08-12. Flat pair: /PlayfulM-pre.html breaks the
   // in-app webview, then forwards to /PlayfulM.html via its sprk-lander meta. cleanPath lowercases
   // the root and does NOT strip the extension, so the entry carries .html — same as fctt.html.
@@ -986,8 +992,8 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'shrtl', 'sr50',
   // STT/US — a second Shein $750 US design, override-only via lp=stt. Canonical page,
   // no clone pool, so it stays a folder lander like SHEIN/US.
-  'sp50', 'stt', 'tsup',
-  'tu', 'uber', 'ue50', 'trt',
+  'stt', 'tsup',
+  'tu', 'trt',
 ];
 
 const PRELANDER_ROOT_SET = new Set(PRELANDER_ALLOWED_ROOTS);

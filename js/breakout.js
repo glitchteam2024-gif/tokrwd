@@ -101,7 +101,7 @@
     'ravfc', 'rv61', 'rv62', 'rv63', 'ravfcurl',
     'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
     'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
-    'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
+    'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'sh50', 'shb2s', 'shein',
     // The owner scaler Playful Rewards page, 2026-08-12. Flat pair: /PlayfulM-pre.html breaks the
     // in-app webview, then forwards to /PlayfulM.html via its sprk-lander meta. cleanPath lowercases
     // the root and does NOT strip the extension, so the entry carries .html — same as fctt.html.
@@ -114,8 +114,8 @@
     'fcm.html', 'fcm-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
-    'sp50', 'stt', 'tsup',
-    'tu', 'uber', 'ue50', 'trt'
+    'stt', 'tsup',
+    'tu', 'trt'
   ];
 
   /** Never forwardable, whatever the allowlist says. Belt to the allowlist's braces. */
