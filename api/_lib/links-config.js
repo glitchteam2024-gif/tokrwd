@@ -408,7 +408,7 @@ export const OFFERS = {
   // TU/CLTU/50TU landers at a live offer, or re-brand them as Copper.
   testerup:       { label: 'Testerup',             match: 'https://montrk.co.uk/?a=26648&c=55412' },
   copper:         { label: 'Copper',               match: 'https://montrk.co.uk/?a=26648&c=55412' },
-  gravypass:      { label: 'Gravypass',            match: 'https://montrk2.co.uk/?a=26648&c=56278' },
+  gravypass:      { label: 'Gravypass',            match: 'https://monetisetrk2.co.uk/?a=26648&c=56278' },
   'freecash-uk':  { label: 'Freecash UK',          match: '/c/frrcsh-uk-off' },
   'freecash-ca':  { label: 'Freecash CA',          match: '/c/frrcsh-ca-off' },
   'testerup-mon': { label: 'Testerup (Monetise)',  match: '/c/testerup-us-mon-off' },
