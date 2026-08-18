@@ -387,9 +387,22 @@ function buildDoorUrl() {
       _o.set('s5', _t.slice(0, 22));
     }
     try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
+    /* SPRK-SUBID-NS v3 */
+    /* Everflow (Fluent / GiftClick) reads sub1..sub5 and DISCARDS every s* name. Rewrite the
+       stamped slots into the namespace the network actually reads, then delete the s* originals
+       so the wire carries ONE spelling of each value.
+         sub2 = the click token, because these offers declare clickid_slot='sub2' and Fluent's
+                postback maps cid={sub2}. The affiliate id must NOT sit here -- it would overwrite
+                the only per-click value on the wire and collapse two leads into one payment.
+         sub4 = the affiliate id (inert at the postback, kept for Fluent's reporting).
+       slot 1 is carried by _s1 and appended LAST, as sub1 -- see the append below. */
+    if (_o.get('s5')) _o.set('sub2', _o.get('s5'));
+    if (_o.get('s3') && !_o.get('sub3')) _o.set('sub3', _o.get('s3'));
+    if (_o.get('s2') && !_o.get('sub4')) _o.set('sub4', _o.get('s2'));
+    ['1', '2', '3', '4', '5'].forEach(function (n) { _o.delete('s' + n); });
     var _q = _o.toString();
     var _u = DOOR + (_q ? (DOOR.indexOf('?') > -1 ? '&' : '?') + _q : '');
-    if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_s1);
+    if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_s1);
     return _u;
   })();
   /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
