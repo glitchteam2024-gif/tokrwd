@@ -338,7 +338,8 @@
     if (p.get('s3') && !p.get('sub3')) p.set('sub3', p.get('s3'));
     if (p.get('s2') && !p.get('sub4')) p.set('sub4', p.get('s2'));
     ['1','2','3','4','5'].forEach(function(n){ p.delete('s'+n); });
-    if (!p.get('sub2')) p.set('sub2', t);
+    /* SPRK-S1-ONLY v4 */
+    if (!(/_/.test(s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(s1)) && !p.get('sub2')) p.set('sub2', t);
     try { window.__SPRK_S5 = p.get('sub2'); } catch (e) {}
     var qs = p.toString();
     var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');

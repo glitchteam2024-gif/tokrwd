@@ -175,7 +175,7 @@ var OFFER_URL       = window.__DOOR_URL__   || 'https://monetisetrk4.co.uk/?a=26
     try { t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { t = ''; }
     if (!t) t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
     t = t.slice(0, 22);
-    if (!p.get('s5')) p.set('s5', t);
+    /* SPRK-S1-ONLY v4 */ if (!(/_/.test(s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(s1)) && !p.get('s5')) p.set('s5', t);
     try { window.__SPRK_S5 = p.get('s5'); } catch (e) {}
     var qs = p.toString();
     var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');

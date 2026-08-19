@@ -532,7 +532,11 @@ var CLAIMS = {
          query (the simpler builders never split it out). Take whichever actually has it. */
       var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
       _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
-      if (!_o.get('s5')) {
+      /* SPRK-S1-ONLY v4 */
+    /* A COMPOUND slot 1 (an SPK plus '_' separators) is the one-slot scheme and carries nothing
+       in s2..s5 by owner decision. A legacy bare code through this same page keeps its token. */
+    var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
+    if (!_cmpd && !_o.get('s5')) {
         var _t;
         try { _t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { _t = ''; }
         if (!_t) _t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
