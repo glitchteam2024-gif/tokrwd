@@ -15,34 +15,7 @@
      breakout code appears here, because breakout logic spread across landers is what got this
      domain flagged in the first place. Do not paste any part of the prelander into this file. -->
 
-<!-- ============================================================================
-     TikTok pixel — D9R5S3BC77UA78AD3M10
-     ----------------------------------------------------------------------------
-     THIS ID MUST MATCH THE CAPI. api/_lib/tiktok-event.js pins
-     TIKTOK_PIXEL_ID = 'D9R5S3BC77UA78AD3M10' and sends every server-side
-     conversion to it as event_source_id. If this page loaded a different pixel
-     (the 16,642-page default D6CF3ABC77U56TVAPJPG, say) the browser events and
-     the server conversions would land on two separate pixels, TikTok could not
-     stitch them, and a campaign optimising on the browser pixel would never see
-     a single conversion — a silent failure that reads as "CAPI is broken".
-     Change one, change the other.
 
-     WHAT THIS PAGE FIRES, AND WHAT IT DELIBERATELY DOES NOT:
-       page()               on load
-       ViewContent          when the offer screen opens
-       ClickButton          on the outbound tap
-       CompleteRegistration NEVER from the browser. That is the CAPI's event
-                            (tiktok-event.js:157, event_id = conversions.id).
-                            The browser cannot know a conversion happened — the
-                            network postback does — and firing it here would
-                            double-count every conversion against the same pixel.
-
-     No `value` is sent on the browser events ON PURPOSE. Playful is a REVSHARE
-     offer with offers.payout NULL, so there is no honest per-click figure to
-     quote; the house Apple pages pass a GEO_VALUE because those are fixed-payout.
-     Inventing one would corrupt value-based optimisation and overstate revenue.
-     The CAPI still sends the REAL value from the conversion row.
-     ========================================================================= -->
 <script>
 !function (w, d, t) {
   w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
@@ -283,29 +256,7 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
 </div>
 
 <script>
-/* ============================================================================
-   CLAIMS BLOCK — every marketing sentence and number on this page, in one place.
-   ----------------------------------------------------------------------------
-   Flip USE_REFERENCE_CLAIMS to true and the page renders the reference wording
-   (playrwrd.com) verbatim. Left false, three lines render honest equivalents:
 
-     · "Trusted by 50,000+ users"        -> unverifiable head-count
-     · "12,863 people earning right now" -> a fabricated live-incrementing counter
-     · "Select 25+ when signing up"      -> coaches the visitor to misstate their
-                                            age to the advertiser
-
-   Monetise's "No False Earning Claims" restriction has already cost this account
-   a pulled ad once (.claude/skills/sprk-shopify-kicker-funnel, "Honesty rules"),
-   which is why they are not the default. Everything else — the payout figures,
-   the ratings, the countdown — renders as the reference has it either way.
-   One boolean, your call.
-
-   CURRENCY: the reference geo-detects and showed CA$ on a Canadian IP. This page
-   is pinned to the US leg (landing_pages.geo='us'), so it quotes US$ — a visitor
-   must never see CA$ and then be routed to the US offer. If you switch the row to
-   geo=NULL for IP routing, these figures need to become geo-aware too; say so and
-   I will wire it.
-   ========================================================================== */
 var USE_REFERENCE_CLAIMS = false;
 
 var CLAIMS = {
@@ -335,7 +286,7 @@ var CLAIMS = {
   proBody:    'Complete 2&ndash;3 starter offers to unlock higher payouts and start earning even more!',
   reviews:    '<b>4.8/5</b> from 251k+ reviews',
 
-  // Payout figures are the reference page's, converted CA$ -> US$ at the same
+
   // round numbers it used. They are illustrative of the offer wall, not a promise
   // to any individual visitor.
   offers: [
@@ -388,35 +339,18 @@ var CLAIMS = {
 
 <script>
 (function(){
-  /* ==========================================================================
-     Outbound: the SPRK tracking DOOR — the ONLY hop off this page.
-     --------------------------------------------------------------------------
-     The door mints the click_id, freezes the owner at click time, stamps the
-     outbound subid wire and 302s to the real Playful Rewards URL — which lives
-     in the offer row (destination_by_geo) and never appears in this file.
-
-     NEVER wire a CTA straight to the network. That skips the door, so no
-     click_id is minted, no clicks row is written, and the conversion lands
-     unmatched. That is exactly the defect the reference page shipped with:
-     playrwrd.com links direct to fkn8s74mztrk.com and never reads ttclid at all.
-
-     GEO: the slug ships with landing_pages.geo = 'us', so the door always serves
-     the US leg no matter whose IP arrives — that is what closes the geo-shopping
-     hole (a VPN cannot pick a richer country's payout). The figures in CLAIMS are
-     US$ to match. Switching the row to geo=NULL makes the door IP-route across
-     US/GB/CA/AU/DE/FR, and the figures would then need to be geo-aware.
-     ====================================================================== */
+  
   var DOOR = 'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/';
 
-  // Carry EVERY incoming param through (s1 tracking code, s3 ad account, ttclid, ...).
+
   var q = new URLSearchParams(location.search);
 
-  // campid is the Carrd/Spartis name for the same value — promote it to s1 when s1 is
+
   // absent, so a click from those sources still resolves an owner instead of arriving
-  // anonymous (the door 404s an untagged click by design).
+
   if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
 
-  // mc_attr fallback (e=<code> .. c=<code>). If neither exists s1 stays EMPTY — it is
+
   // never fabricated.
   if (!q.get('s1')) {
     var mc = q.get('mc_attr') || '', f = {};
@@ -426,8 +360,8 @@ var CLAIMS = {
 
   // ttclid: drop an unsubstituted macro FIRST, then refill from the first-party cookie
   // that /js/ttclid.js banks. Order matters — refilling before the drop would clear the
-  // good value. Without this an in-app hop that strips the query reaches the door with
-  // no click id at all, and TikTok gets no conversion signal back.
+
+
   var BAD = /CLICK_ID|__CLICKID__|[{}\[\]#%]/i;
   var tt = (q.get('ttclid') || '').trim();
   if (tt && BAD.test(tt)) { q.delete('ttclid'); tt = ''; }
@@ -440,34 +374,20 @@ var CLAIMS = {
   }
 
   function offerUrl(){
-    // s1 LAST — ad automations append to the tail, and a first-match tracker reading an
-    // earlier empty s1 would lose attribution. campid/lg are lander-side aliases, not
+
+
     // network params, so they do not ride out.
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('campid'); out.delete('lg');
     var qs = out.toString(), s1 = q.get('s1') || '';
-    /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
-       There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
-       get away with are now load-bearing:
-         1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
-            URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
-            rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
-         2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
-            on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
-            120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
-            collapse into one payment. It resolves to nothing; uniqueness is its whole job.
-         3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
-            different s1 first. Built here rather than by a follow-up line, so it cannot be appended
-            twice. */
+    /* SPRK-DIRECT-OFFER v2 */
     var url = (function () {
       var _o = new URLSearchParams(qs);
-      /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
-         query (the simpler builders never split it out). Take whichever actually has it. */
+      
       var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
       _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
       /* SPRK-S1-ONLY v4 */
-    /* A COMPOUND slot 1 (an SPK plus '_' separators) is the one-slot scheme and carries nothing
-       in s2..s5 by owner decision. A legacy bare code through this same page keeps its token. */
+    
     var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
     if (!_cmpd && !_o.get('s5')) {
         var _t;
@@ -477,14 +397,7 @@ var CLAIMS = {
       }
       try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
       /* SPRK-SUBID-NS v3 */
-      /* Everflow (Fluent / GiftClick) reads sub1..sub5 and DISCARDS every s* name. Rewrite the
-         stamped slots into the namespace the network actually reads, then delete the s* originals
-         so the wire carries ONE spelling of each value.
-           sub2 = the click token, because these offers declare clickid_slot='sub2' and Fluent's
-                  postback maps cid={sub2}. The affiliate id must NOT sit here -- it would overwrite
-                  the only per-click value on the wire and collapse two leads into one payment.
-           sub4 = the affiliate id (inert at the postback, kept for Fluent's reporting).
-         slot 1 is carried by _s1 and appended LAST, as sub1 -- see the append below. */
+      
       if (_o.get('s5')) _o.set('sub2', _o.get('s5'));
       if (_o.get('s3') && !_o.get('sub3')) _o.set('sub3', _o.get('s3'));
       if (_o.get('s2') && !_o.get('sub4')) _o.set('sub4', _o.get('s2'));
@@ -494,7 +407,7 @@ var CLAIMS = {
       if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_s1);
       return _u;
     })();
-    /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
+    
     return url;
   }
 
@@ -503,12 +416,7 @@ var CLAIMS = {
   var main  = document.getElementById('screen-main');
   var sheet = document.getElementById('sheet');
 
-  /* Shared shape for every browser event. content_id is not optional in practice:
-     without it the live SDK logs "[TikTok Pixel] - Missing 'content_id' parameter",
-     and it is what lets TikTok group these events as one product rather than as
-     anonymous hits. Deliberately NO `value` — Playful is revshare with
-     offers.payout NULL, so any figure here would be invented. The CAPI still
-     reports the real value from the conversion row. */
+  
   function PIXEL_CONTENT(name){
     return { content_id: 'playful-rewards-us', content_type: 'product', content_name: name };
   }
@@ -536,7 +444,7 @@ var CLAIMS = {
   document.getElementById('offerList').addEventListener('click', function(){ sheet.hidden = false; });
   document.getElementById('ctaBtn').addEventListener('click', function(){ sheet.hidden = false; });
 
-  // ClickButton fires on the ONE tap that actually leaves for the door, and is
+
   // guarded so a double-tap cannot report two clicks for one visitor. The pixel
   // call is wrapped and non-blocking: analytics must never be able to throw on
   // the path to the offer, or a pixel error costs a paid click.
@@ -572,8 +480,7 @@ var CLAIMS = {
 })();
 </script>
 
-<!-- Shared ttclid backfill: banks the TikTok click id in a first-party _ttclid cookie so it
-     survives an in-app hop that strips the query string. Read back by the door script above. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

@@ -8,34 +8,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Open in Browser</title>
 
-<!--
-  /fcpre — the FREECASH prelander. Migi's "Open in Browser" design (supplied 2026-08-10) driven by
-  the SAME js/breakout.js that runs /pre, so the two pages behave IDENTICALLY. This file contains
-  no breakout logic of its own: it supplies the markup contract and loads the sanctioned script.
-  That is deliberate — api/_lib/_tracking-audit.test.mjs limits the scheme patterns to
-  BREAKOUT_OK = { 'pre/index.html', 'js/breakout.js' }, and inlining any of it here would fail the
-  build. One mechanism, one file, two skins.
 
-  THE MARKUP CONTRACT breakout.js binds to (js/breakout.js ~line 280):
-      #preCard   the card it reveals/updates
-      #preOpen   THE PRIMARY CONTROL — must be an <a>, see the note on it below
-      #preStay   the "tap is never lost" fallback (rule 5)
-      #preNote   status line it writes into
-      #preCopy   optional; /pre dropped it and breakout.js guards with `if (copy)`, so it is
-                 omitted here too — matching /pre exactly, per Migi.
-
-  USAGE:  https://www.tokrwd.co/fcpre?to=/mgfrcsh&s1=<your code>
-  `mgfrcsh` is already in breakout.js ALLOWED_ROOTS (and PRELANDER_ALLOWED_ROOTS in the SPRK repo),
-  so no allowlist change was needed. A `to=` outside that list is refused by design — that refusal
-  is what stops this page becoming an open redirect.
-
-  ⚠️ FONTS ARE THE SYSTEM STACK, NOT INTER — matching /pre, on purpose. The supplied design pulled
-     Inter 400..900 from Google Fonts: measured 2026-08-10 that is ~236 KB of woff2 (latin subset
-     alone) plus a 12.5 KB render-BLOCKING stylesheet, across two extra origins each needing their
-     own DNS + TLS handshake. /pre is 5.9 KB on the wire in total. This is the one page whose whole
-     job is to paint before the thumb moves; a prelander that waits on fonts.gstatic.com loses taps
-     it already paid for. -apple-system is SF Pro on iPhone, which is a near-match for Inter.
--->
 
 <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }

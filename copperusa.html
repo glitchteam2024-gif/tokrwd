@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
-     every visitor, including TikTok's crawler. Ad review flags landers that behave differently
-     for a crawler than for a user, and a flagged lander gets blocked outright. Attribution does
-     not need a gate — the door 404s any untagged click (api/link/[slug].js: `if (!spk) return 404`). -->
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Copper — Smart banking &amp; rewards</title>
 <link rel="icon" type="image/png" href="/images/copper-logo.png" />
@@ -244,8 +241,7 @@
   <footer class="sticky">
     <div class="wrap">
       <div class="avail"><span class="dot"></span>Available now on iOS and Android</div>
-      <!-- one link, two separate-looking boxes. NOTE: no offer URL in the markup — the inline offer
-           script below builds it at runtime (points at the Monetise tracker, s1 carried over). -->
+      
       <a class="store-combo offer-link" href="#">
         <span class="btn btn-play">
           <svg width="22" height="24" viewBox="0 0 24 26" fill="none"><path d="M2 2.2C1.6 2.5 1.4 3 1.4 3.7v18.6c0 .7.2 1.2.6 1.5L12.6 13 2 2.2z" fill="#fff"/><path d="M16.3 9.3 4.1 2.3 3.6 2 12.6 13l3.7-3.7z" fill="#fff"/><path d="M16.3 16.7 12.6 13l3.7 3.7 4-2.3c.7-.4.7-1.4 0-1.8l-4-2.3-3.7 3.7 3.7 3.7z" fill="#fff"/></svg>
@@ -300,33 +296,17 @@
   })();
 </script>
 
-<!-- Copper offer wiring — builds the offer link at runtime (kept OUT of the markup) and routes
-     through the SPRK tracking OFFER_URL, carrying every incoming param (esp. ?s1=<SPK> + ttclid) over so
-     attribution lands. The real Monetise URL lives in the offer row (api/link/[slug].js), NEVER in
-     this lander's source. Same door pattern as the Testerup 50TU/TU1 lander. -->
+
 <script>
 (function () {
   'use strict';
 
-  // The SPRK tracking OFFER_URL (slug 'copper'). The door records the first-party click, mints the
-  // canonical click_id (rides the offer's clickid_slot, default s5), stamps the per-affiliate label,
+
+
   // then 302s to the Copper offer's hidden destination — the real network URL lives in the offer row.
   var OFFER_URL = 'https://montrk.co.uk/?a=26648&c=55412';
 /* SPRK-DIRECT-OFFER v1 */
-  /* Build the network URL. Reads the query directly, so it does not care which local the lander
-     happened to keep it in.
-       - s1 (the SPK) is placed LAST: ad automations append to the tail, and a first-match tracker
-         must not meet a different s1 first.
-       - lg / campid are lander-side routing aliases and never reach the network.
-       - s5 is a UNIQUE-PER-CLICK anti-duplicate token. Monetise sends a real txid on 1.2% of
-         conversions (17/1439, measured over 30 days), so with no click token api/postback.js dedups
-         on (network, spark, sub2..sub5) inside 120s -- and s1/s2/s3 are CONSTANT per creative. A
-         unique s5 is the only thing keeping two genuine leads from collapsing into one payment. It
-         resolves to nothing; uniqueness is its whole job, so a collision costs one dedup, never
-         attribution.
-       - the separator is derived from the base, because every Monetise link already carries
-         ?a=&c= while the Everflow ones are a bare path. Hardcoding '?' is what produced two '?'
-         in one URL (and silently dropped ttclid) in the funnel this family was adapted from. */
+  
   function __sprkOffer(base) {
     var p = new URLSearchParams(location.search);
     p.delete('lg'); p.delete('campid'); p.delete('sid');
@@ -381,10 +361,10 @@
 
 
 
-  // Carry every incoming param (esp. ?s1=<SPK>, set per-creative by the launcher) through to the door.
+
   var q = new URLSearchParams(location.search);
   if (!q.get('s1')) {
-    // Fallback: derive s1 from mc_attr (e=<spark> .. c=<code>) if it wasn't passed directly.
+
     var mc = q.get('mc_attr') || '', f = {};
     mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
     var d = f.e || f.c; if (d) q.set('s1', d);
@@ -437,8 +417,7 @@
 })();
 </script>
 
-<!-- TikTok ttclid passthrough — captures click ID and appends it to the sprktrax.org door link
-     (sprktrax.org is in ttclid.js's tracker allowlist), so the door forwards it into the postback. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

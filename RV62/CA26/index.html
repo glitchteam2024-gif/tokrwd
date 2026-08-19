@@ -122,13 +122,7 @@
     html { -webkit-text-size-adjust: 100%; }
 
     @media (max-width: 720px) {
-      /* Tap targets. Apple HIG and Material both publish 44px. MEASURED on the emitted page at
-         320/360/375/390/412/430 — these are the only two controls that came back under the bar,
-         so they are the only two touched. Everything else (the hero CTA, the claim anchor, the
-         sticky bar, the payout chips, the FAQ rows) already cleared 44px on his own layout.
-
-         His header nav and "Sign Up Free" are display:none below md/sm, so they are NOT styled here:
-         a rule for them would never match and would only read as though something was wrong. */
+      
 
       /* Footer legal links shipped ~16px tall. These are exactly the links an ad reviewer taps,
          and they are now real destinations rather than dead fragments. 15px/10px lands them at 46x43+. */
@@ -414,7 +408,7 @@
     // === Lucide init ===
     function refreshIcons() { lucide.createIcons(); }
 
-    // === Live payout counter ===
+
     let payout = 48200;
     const payoutEl = document.getElementById('payoutAmount');
     setInterval(function () {
@@ -481,10 +475,7 @@
       methodLabel.textContent = 'Paid via ' + method.label + ' \u00B7 no fees, instant withdrawal';
     }
 
-    /* His "Claim Your Starting Chest" handler was removed by _lp-generator/ravi-freecash.js.
-       It set the label to a claimed-and-emailed state and navigated nowhere — the page had no
-       outbound path of any kind. The button is now a real anchor at the SPRK tracking door;
-       see the wiring script at the foot of <body>. Nothing else read claimText/claimIcon. */
+    
 
     updateCalculator();
 
@@ -600,21 +591,21 @@
     refreshIcons();
   </script>
   <script>
-    // ---- Outbound: the SPRK tracking DOOR ----
+
     // The supplied page had NO outbound path at all — every CTA was an in-page fragment and the
-    // one converting control was a button that rewrote its own label and stopped. The door mints
-    // the click_id, freezes the owner at click time, stamps the outbound subid wire and 302s to
+
+
     // the real Freecash URL, which lives in the offer row and never appears in this page's source.
     var DOOR = "https://montrk5.co.uk/?a=26648&c=55506";
 
-    // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
+
     var q = new URLSearchParams(location.search);
 
-    // campid is the Carrd/Spartis name for the same value — promote it when s1 is absent.
+
     if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
 
-    // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never
-    // fabricated; the door 404s an untagged click by design, and that is the real attribution gate.
+
+
     if (!q.get('s1')) {
       var mc = q.get('mc_attr') || '', f = {};
       mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -622,33 +613,19 @@
     }
 
     function offerUrl() {
-      // s1 LAST — ad automations append to the tail. campid is a lander-side alias and lg routes
+
       // the lander; neither belongs in what the network sees.
       var out = new URLSearchParams(q.toString());
       out.delete('s1'); out.delete('campid'); out.delete('lg');
       var qs = out.toString(), s1 = q.get('s1') || '';
-      /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
-         There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
-         get away with are now load-bearing:
-           1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
-              URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
-              rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
-           2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
-              on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
-              120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
-              collapse into one payment. It resolves to nothing; uniqueness is its whole job.
-           3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
-              different s1 first. Built here rather than by a follow-up line, so it cannot be appended
-              twice. */
+      /* SPRK-DIRECT-OFFER v2 */
       var url = (function () {
         var _o = new URLSearchParams(qs);
-        /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
-           query (the simpler builders never split it out). Take whichever actually has it. */
+        
         var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
         _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
         /* SPRK-S1-ONLY v4 */
-    /* A COMPOUND slot 1 (an SPK plus '_' separators) is the one-slot scheme and carries nothing
-       in s2..s5 by owner decision. A legacy bare code through this same page keeps its token. */
+    
     var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
     if (!_cmpd && !_o.get('s5')) {
           var _t;
@@ -662,7 +639,7 @@
         if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_s1);
         return _u;
       })();
-      /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
+      
       return url;
     }
 
@@ -674,8 +651,7 @@
       if (el) el.setAttribute('href', offerUrl());
     });
   </script>
-  <!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-       anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+  
   <script src="/js/ttclid.js" async></script>
 </body>
 </html>

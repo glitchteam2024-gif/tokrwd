@@ -2,10 +2,7 @@
 <html lang="de" data-geo="AT">
 <head>
 <meta charset="UTF-8" />
-<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
-     every visitor, including TikTok's crawler. Ad review flags landers that behave differently
-     for a crawler than for a user, and a flagged lander gets blocked outright. Attribution does
-     not need a gate — the door (api/link/[slug].js) 404s any click without a valid spark code. -->
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Spielen und Geld verdienen</title>
 <script>
@@ -293,44 +290,31 @@
     }, 3800);
   })();
 
-  // Build the offer URL (click id -> Everflow sub1, plus ttclid for TikTok CAPI),
+
   // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
     // STRAIGHT TO THE NETWORK (Migi, 2026-08-17). This used to go through the SPRK door, and the
-    // comment here used to describe what the door did for us. It no longer runs, so the list is
+
     // now a list of what we GAVE UP — kept deliberately, because every line of it is a real
     // capability that silently stopped existing rather than started erroring:
-    //   · click_id minting and the clicks row — gone. Attribution now rides on s1 (the spark
-    //     code) plus the unique s5 minted below, and matching leans on what the network echoes
-    //     back to /postback.
-    //   · conversion caps, revokes and payout-locks — gone. A static page cannot hold any of
+
+
+
+
     //     those, so an offer that needs stopping must now be stopped at the network.
     //   · the ttclid freeze for the TikTok CAPI forward — gone, and this is the one with teeth.
-    //     `conversions` reaches ttclid by joining click_id -> clicks.ttclid, and there is no
+
     //     clicks row any more. ttclid IS still forwarded to the network in the URL below, so the
-    //     fix is for /postback to read it back from the network rather than from the click row.
+
     //     Until that lands, CAPI events from this page have no ttclid to attribute with.
     // Geo is unchanged and still safe: it is baked into THIS page rather than sniffed from the
     // visitor's IP, so traffic still cannot shop into a higher-paying geo.
-    // The wire is built by __sprkOffer below and forwards EVERYTHING the ad link carried:
-    // s1=<SPK> (per-creative spark id), s2=<publisher_code> (per-affiliate source), ttclid,
-    // etc. — nothing dropped, with s1 placed last.
+
+
+
     var OFFER_URL = 'https://montrk5.co.uk/?a=26648&c=55513';
 /* SPRK-DIRECT-OFFER v1 */
-  /* Build the network URL. Reads the query directly, so it does not care which local the lander
-     happened to keep it in.
-       - s1 (the SPK) is placed LAST: ad automations append to the tail, and a first-match tracker
-         must not meet a different s1 first.
-       - lg / campid are lander-side routing aliases and never reach the network.
-       - s5 is a UNIQUE-PER-CLICK anti-duplicate token. Monetise sends a real txid on 1.2% of
-         conversions (17/1439, measured over 30 days), so with no click token api/postback.js dedups
-         on (network, spark, sub2..sub5) inside 120s -- and s1/s2/s3 are CONSTANT per creative. A
-         unique s5 is the only thing keeping two genuine leads from collapsing into one payment. It
-         resolves to nothing; uniqueness is its whole job, so a collision costs one dedup, never
-         attribution.
-       - the separator is derived from the base, because every Monetise link already carries
-         ?a=&c= while the Everflow ones are a bare path. Hardcoding '?' is what produced two '?'
-         in one URL (and silently dropped ttclid) in the funnel this family was adapted from. */
+  
   function __sprkOffer(base) {
     var p = new URLSearchParams(location.search);
     p.delete('lg'); p.delete('campid'); p.delete('sid');
@@ -417,9 +401,7 @@
   })();
 </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"49739f916f3d48e0a3f0cfdd73f6adce","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<!-- TikTok ttclid passthrough — captures the click ID and appends it to the sprktrax.org door link
-     (sprktrax.org is in ttclid.js's tracker allowlist), so the door forwards it into the postback.
-     Matches the /TU and /CB landers. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

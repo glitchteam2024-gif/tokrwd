@@ -11,21 +11,8 @@
 <link rel="dns-prefetch" href="https://www.fkn8s74mztrk.com">
 <link rel="preconnect" href="https://analytics.tiktok.com" crossorigin>
 
-<!-- ============================================================
-     Injected server-side by /functions/undefined/_middleware.js
-     __DOOR_URL__   the NETWORK offer link for this page (2026-08-17: the sprktrax door was
-                    removed from the funnel). Nothing mints a click_id any more, so the
-                    builder below stamps a unique s5 per click — see the note on it.
-     __GEO_AMOUNT__ display string for this visitor's geo
-     __GEO_VALUE__  numeric value for pixel events
-     __STATS__      social-proof strings. See NOTES.md before shipping these.
-     ============================================================ -->
-<!-- ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR. Runs FIRST, in the head: before the pixel fires,
-     before the body paints, and before the CTA is wired. Ordering is load-bearing — running this
-     late double-counted the TikTok PageView (one on the page being left, one on the page being
-     entered) and left a window where a fast tap fired the CTA on the WRONG geo's door.
-     Keeps the clone index (/SH50/US7?lg=GB -> /SH50/GB7) so the URL footprint stays spread.
-     NOT CLOAKING: keyed on an explicit query param, never the user agent, identical for crawlers. -->
+
+
 <script>
 (function(){
   var GEOS = ["US"], THIS_GEO = "US";
@@ -52,8 +39,7 @@ window.__STATS__    = window.__STATS__ || null;
 </script>
 
 <style>
-/* Hallmark · macrostructure: Marquee Hero · genre: modern-minimal · theme: ON1_US brand tokens
- * pre-emit critique: P4 H5 E4 S4 R5 V4 · tracking contract: unchanged from slice 50 */
+
 *{margin:0;padding:0;box-sizing:border-box}
 body,html{background:#fff;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;overflow-x:hidden;min-height:100vh;color:#14161a;-webkit-font-smoothing:antialiased}
 a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.08);cursor:pointer}
@@ -93,9 +79,7 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 .mq{background:#14161a;color:#fff;margin:-1.1rem -1rem 1.4rem;padding:3rem 1.4rem 2.3rem;text-align:left}
 .mq-tag{font-size:.63rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.55;margin-bottom:1.4rem}
 .mq-amt{font-size:5rem;font-weight:900;line-height:.88;letter-spacing:-.05em;overflow-wrap:anywhere}
-/* THE NO-FIGURE HERO. B is amount-led; a brand that quotes no sum (Prograd — Monetise's "No False
-   Earning Claims" restriction) would otherwise render an empty ink block. Words need a smaller size,
-   looser tracking and a measure that a 5rem numeral does not. */
+
 .mq-lede{font-size:2.6rem;font-weight:900;line-height:1.02;letter-spacing:-.035em;max-width:11ch;overflow-wrap:anywhere}
 .mq-sub{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.45;margin-top:.9rem;opacity:.62;max-width:17rem}
 .mq-mech{margin-top:2rem;text-align:left}
@@ -164,23 +148,11 @@ var GEO_VALUE = 500;
   bar.hidden = false;
 })();
 
-/* ------------------------------------------------------------------
-   FORWARD EVERY INCOMING PARAM to the door — the tokrwd lander contract.
-   Inbound the launcher sets s1=<SPK> (the attribution key), s2=<publisher>,
-   s3=<ad account>, s4, ttclid. The door re-stamps outbound (s1 -> bare
-   affiliate id, s2 -> SPK, s3 forwarded, s4 -> offer name, click_id -> s5).
-   An earlier draft of this page whitelisted only utm_campaign/ttclid/s1,
-   which silently dropped s3 — the ad-account leg — on every click.
 
-   s1 is the AFFILIATE'S SPARK CODE and nothing else. Ricky (Monetise,
-   2026-07-16): "pass your S1 values to look like affiliate IDs". Never
-   overwrite s1 with a campaign name — that is what breaks attribution.
-   ------------------------------------------------------------------ */
 var q = new URLSearchParams(location.search);
 
 
-/* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not
-   pass it directly. If neither field exists s1 stays EMPTY — never fabricated. */
+
 if (!q.get('s1')) {
   var mc = q.get('mc_attr') || '', f = {};
   mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -205,42 +177,22 @@ var s1 = q.get('s1') || '';
 var campaign = q.get('utm_campaign') || q.get('campaign') || '';
 var ttclid = q.get('ttclid') || '';
 
-/* NO UA SNIFFING, deliberately. The earlier draft classified the visitor as a bot and
-   suppressed utm_campaign/ttclid for them. Once the door URL forwards the whole query
-   string that branch stopped affecting routing, leaving a bot regex sitting in the page
-   doing nothing — and a lander that appears to behave differently for a crawler is what
-   gets the whole domain flagged and every campaign on it blocked. Attribution does not
-   need a gate here: the door 404s any click with no s1 (api/link/[slug].js). */
 
-/* Door URL: every param rides, with s1 placed LAST (ad automations append to the
-   tail). The door 404s a click with no s1 — by design, that is the real gate. */
+
+
 function buildDoorUrl() {
   var out = new URLSearchParams(q.toString());
   out.delete('s1');
   out.delete('lg');   // routes the lander only — the door/network never sees it
   var qs = out.toString();
-  /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
-     There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
-     get away with are now load-bearing:
-       1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
-          URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
-          rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
-       2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
-          on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
-          120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
-          collapse into one payment. It resolves to nothing; uniqueness is its whole job.
-       3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
-          different s1 first. Built here rather than by a follow-up line, so it cannot be appended
-          twice. */
+  /* SPRK-DIRECT-OFFER v2 */
   var url = (function () {
     var _o = new URLSearchParams(qs);
-    /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
-       query (the simpler builders never split it out). Take whichever actually has it. */
+    
     var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
     _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
     /* SPRK-S1-ONLY v4 */
-    /* A COMPOUND slot 1 (an SPK plus '_' separators) is the one-slot scheme and carries nothing
-       in s2..s5 by owner decision. A legacy bare code through this same page keeps its token. */
+    
     var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
     if (!_cmpd && !_o.get('s5')) {
       var _t;
@@ -250,14 +202,7 @@ function buildDoorUrl() {
     }
     try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
     /* SPRK-SUBID-NS v3 */
-    /* Everflow (Fluent / GiftClick) reads sub1..sub5 and DISCARDS every s* name. Rewrite the
-       stamped slots into the namespace the network actually reads, then delete the s* originals
-       so the wire carries ONE spelling of each value.
-         sub2 = the click token, because these offers declare clickid_slot='sub2' and Fluent's
-                postback maps cid={sub2}. The affiliate id must NOT sit here -- it would overwrite
-                the only per-click value on the wire and collapse two leads into one payment.
-         sub4 = the affiliate id (inert at the postback, kept for Fluent's reporting).
-       slot 1 is carried by _s1 and appended LAST, as sub1 -- see the append below. */
+    
     if (_o.get('s5')) _o.set('sub2', _o.get('s5'));
     if (_o.get('s3') && !_o.get('sub3')) _o.set('sub3', _o.get('s3'));
     if (_o.get('s2') && !_o.get('sub4')) _o.set('sub4', _o.get('s2'));
@@ -267,7 +212,7 @@ function buildDoorUrl() {
     if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_s1);
     return _u;
   })();
-  /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
+  
   return url;
 }
 var target = buildDoorUrl();
@@ -303,8 +248,7 @@ if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1
 }
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

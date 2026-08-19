@@ -221,69 +221,13 @@
     </div>
 
     <script>
-    /* ═══ THE PRELANDER ═══════════════════════════════════════════════════════════════════════
-       ONE canonical file, installed byte-identically into every clone of every slice by
-       landers/prelander/install.py (SPRKNetworkAds). Do NOT hand-edit a deployed copy — edit this
-       source and re-install, or the copies drift and only one of them is the page you tested.
-
-       WHAT IT DOES. Hands the visitor to a real browser, then forwards to the lander at ./go with
-       the query intact. It is a transport hop, not a sales page.
-
-       WHY. TikTok opens links in its own in-app webview, where the reward-offer signup and
-       app-install flows are degraded and Apple Pay does not offer itself at all — so the offer the
-       ad promises is not reachable on the page the ad opens.
-
-       ⚠️ IT DERIVES NOTHING AND REWRITES NOTHING. The ad link is stamped at launch with
-       s1=<SPK> (the creative) and s2=<affiliate id> — see launchSubidStamps in
-       api/_lib/subid.js — and this page's ONLY job on the tracking side is to forward the whole
-       query byte for byte. There is deliberately no code below that reads a SubID. Rewriting one
-       here is exactly how attribution breaks.
-
-       ⚠️ THE DESTINATION IS NEVER A QUERY PARAM, IN EITHER SHAPE. landerUrl() below supports two,
-       and which one applies is decided by the MARKUP, not by the visitor:
-         · a numbered clone (/PG50/US7/) has no sprk-lander meta and takes the RELATIVE ./go/ hop —
-           clone 7's prelander reaches clone 7's lander because they are the same directory;
-         · a flat page (/frcusa-pre.html) carries <meta name="sprk-lander" content="/frcusa.html">,
-           written at generation time, and forwards there.
-       Neither can drift, because both ship WITH the page.
-
-       The shape both exist to avoid is a shared prelander taking a destination param
-       (/pre?to=/some/lander), which is what tokrwd's own /pre does. That needs an ALLOWLIST of
-       forwardable roots, and it has already broken live traffic twice (slices 51/52 on
-       2026-07-30, 53/54 on 2026-08-09: the tree deployed, the root was never allowlisted, /pre
-       refused to forward, and the click was paid for anyway — the second ran ~46h). Both times
-       BOTH copies of the list were simply never updated, so "keep one list instead of two" would
-       not have helped either. Do not "simplify" this back into ?to=.
-
-       ⚠️ NO SUBID GATE HERE, DELIBERATELY. The landers blank themselves without an s1. Applying
-       that rule here would defeat the page: the visitors this exists to rescue are precisely the
-       ones whose query was stripped on an in-app hop, and blanking them at the FIRST hop means the
-       breakout — the thing that would have let the query survive — never runs. The gate still
-       holds one hop later, where it costs nothing.
-
-       NO UA SNIFFING beyond picking the scheme, and ONE destination for everyone: this page renders
-       and forwards identically for a crawler, an ad reviewer and a buyer. Serving review a
-       different page is what gets a DOMAIN flagged, and a flag takes every campaign on it.
-       ═════════════════════════════════════════════════════════════════════════════════════════ */
+    
     (function () {
         'use strict';
         var btn = document.getElementById('ctaBtn');
         if (!btn) return;
 
-        /* ── THE FUNNEL BEACON ────────────────────────────────────────────────────────────────
-           Removing the door removed the only place SPRK saw a click. These four events are the
-           whole first-party funnel: pre_view -> pre_tap -> lp_view -> offer_click, plus pre_rescue
-           when the scheme escape is swallowed and the watchdog has to step in.
-
-           sendBeacon, never fetch: the browser sends it asynchronously and keeps it alive across
-           the page unloading, so it cannot delay the tap or be cancelled by the navigation that
-           immediately follows it. Every call is wrapped — analytics must never be able to throw on
-           the path to the offer.
-
-           NO UA SNIFFING HERE, deliberately. Whether this is an in-app webview is classified
-           SERVER-SIDE by /api/funnel-beacon from the request's own User-Agent. Putting that test in
-           the page would trip tokrwd's _tracking-audit, and rightly: a page that can tell it is
-           being reviewed is a page that can behave differently for a reviewer. */
+        
         var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
         var q = new URLSearchParams(location.search);
 

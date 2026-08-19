@@ -286,38 +286,23 @@
 
 <script>
 (function(){
-  // ---- Outbound: the SPRK tracking DOOR ----
-  // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
+
+
   // and 302s to the real Playful Rewards URL — which lives in the offer row and never appears here.
-  // Never wire this CTA straight to the network: that skips the door, so no click_id is minted, no
-  // clicks row is written, and the conversion lands unmatched.
-    /* ⚠️⚠️ STOP — THIS LINE IS OUT OF DATE AND WILL UN-MIGRATE THE LIVE LANDERS. ⚠️⚠️
-       On 2026-08-17 the sprktrax door was removed from the funnel: all 6,937 deployed landers
-       now point straight at the network (Monetise / Everflow), built by a separator-aware
-       builder that also mints the unique per-click s5. This TEMPLATE was not updated, because
-       the network URL differs per offer AND per geo and this file has no way to know which.
 
-       So running this generator as-is will overwrite live landers with a door URL that:
-         · 404s for every retired offer, and
-         · for the rest, re-introduces the hop Migi asked to remove.
 
-       Before regenerating, teach the generator the per-geo network URL (offers.destination_by_geo
-       in Supabase is the source of truth; the shipped landers carry the resolved value) and swap
-       the two lines below for the SPRK-DIRECT-OFFER v2 builder used in the deployed pages.
-       Do NOT simply string-replace the door for a network URL: the old builder hardcodes '?' and
-       every network URL already has one, so you get two '?' and s1/s2/s3/ttclid vanish silently.
-       api/_lib/_direct-offer.test.mjs pins the correct shape. */
+    
   var DOOR = 'https://sprktrax.org/api/link/playful';
 
-  // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
+
   var q = new URLSearchParams(location.search);
 
-  // campid is the Carrd/Spartis name for the same value — promote it to s1 when s1 is absent, so a
+
   // Carrd-sourced click still resolves an owner instead of arriving anonymous.
   if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
 
-  // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
-  // the door 404s an untagged click by design.
+
+
   if (!q.get('s1')) {
     var mc = q.get('mc_attr') || '', f = {};
     mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -325,7 +310,7 @@
   }
 
   function offerUrl(){
-    // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network param.
+
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('campid');
     var qs = out.toString(), s1 = q.get('s1') || '';
@@ -383,8 +368,7 @@
   });
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

@@ -8,8 +8,7 @@
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for every
-     visitor, including ad-review crawlers. Attribution rides the query string to the door untouched. -->
+
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a140f;--card:#0f1d16;--border:rgba(34,197,94,.45);--accent:#22c55e;--accent-light:#4ade80;--text:#fff;--muted:#9ca3af}
@@ -92,26 +91,13 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
 </div>
 
 <script>
-// CTA wiring — every game card routes through the SPRK tracking door (mints click_id, logs the click,
-// cloaks -> the Gravypass offer). Forward EVERYTHING the ad/prelander passed: s1=<SPK>, s2=<publisher_code>,
+
+
 // ttclid, etc. — nothing dropped. Same door pattern as the FreeCash landers, slug = gravypass.
 (function(){
   var DOOR = 'https://monetisetrk2.co.uk/?a=26648&c=56278';
 /* SPRK-DIRECT-OFFER v1 */
-  /* Build the network URL. Reads the query directly, so it does not care which local the lander
-     happened to keep it in.
-       - s1 (the SPK) is placed LAST: ad automations append to the tail, and a first-match tracker
-         must not meet a different s1 first.
-       - lg / campid are lander-side routing aliases and never reach the network.
-       - s5 is a UNIQUE-PER-CLICK anti-duplicate token. Monetise sends a real txid on 1.2% of
-         conversions (17/1439, measured over 30 days), so with no click token api/postback.js dedups
-         on (network, spark, sub2..sub5) inside 120s -- and s1/s2/s3 are CONSTANT per creative. A
-         unique s5 is the only thing keeping two genuine leads from collapsing into one payment. It
-         resolves to nothing; uniqueness is its whole job, so a collision costs one dedup, never
-         attribution.
-       - the separator is derived from the base, because every Monetise link already carries
-         ?a=&c= while the Everflow ones are a bare path. Hardcoding '?' is what produced two '?'
-         in one URL (and silently dropped ttclid) in the funnel this family was adapted from. */
+  
   function __sprkOffer(base) {
     var p = new URLSearchParams(location.search);
     p.delete('lg'); p.delete('campid'); p.delete('sid');

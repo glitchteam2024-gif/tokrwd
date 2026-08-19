@@ -12,32 +12,10 @@
 <link rel="dns-prefetch" href="https://www.fkn8s74mztrk.com">
 <link rel="preconnect" href="https://analytics.tiktok.com" crossorigin>
 
-<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
-     every visitor, including TikTok's crawler. A lander that behaves differently for a reviewer
-     is what gets the whole domain flagged and every campaign on it blocked. Attribution does not
-     need a gate here — the door (api/link/[slug].js) 404s any click without a valid spark code.
 
-     The in-app-browser escape lives in /pre, in front of this page, and nowhere else. See
-     .claude/skills/tokrwd-landers. -->
 
 <script id="offer-config">
-/* This page IS one geo — US, with its figure ($750) baked into the markup. There is deliberately
-   NO runtime geo detection, no language switcher and no cookie: the geo is decided by WHICH PAGE
-   the ad points at, and the click door routes on landing_pages.geo for that same lander. One fact
-   drives both, so the page cannot promise one country's offer and hand the visitor another's.
 
-   ⚠️ The door is `retail-style-shein-us`, NOT `shein-us`. `shein-us` (and `shein`, and `shein-gb`)
-   are RETIRED — they 404 at the door even with a valid s1, i.e. no landing_pages row matches them.
-   The whole SHEIN/ + SH50/ house family still points at them and is inert for that reason. This
-   page was wired to `shein-us` on 2026-08-16 by copying SHEIN/US, and repointed on 2026-08-17.
-   Verify with `curl -sI https://sprktrax.org/api/link/<slug>?s1=SPK-TEST-0000` — a LIVE door is
-   302 with s1 and 404 without. Both-404 means the row is gone.
-
-   Retail Style Shein pays $750, which is why the markup needed no copy change. Any future
-   repoint must re-check that: the figure appears 7 times and a door that pays a different
-   amount makes every one of them a false claim on a money path.
-
-   ||-guarded so a server-side injection still wins if one is ever added. */
 window.__DOOR_URL__ = window.__DOOR_URL__ || "https://www.fkn8s74mztrk.com/F2R45HNR/H3J9L2H2/";
 </script>
 
@@ -341,9 +319,7 @@ window.__DOOR_URL__ = window.__DOOR_URL__ || "https://www.fkn8s74mztrk.com/F2R45
   <div class="amount">$750</div>
   <div class="amount-sub">Credit added <b>after you create your account</b></div>
 
-  <!-- href stays "#" on every CTA: the offer script below builds the real door URL at runtime,
-       carrying every param (s1/s2/s3/s4/ttclid). A hardcoded href would let a pre-JS tap fire a
-       param-less door hit, which the door 404s — a paid click lost. -->
+  
   <a href="#" class="cta" id="mainCta">Claim My $750</a>
   <span class="cta-sub">No credit card needed · Takes under a minute</span>
 </section>
@@ -403,24 +379,10 @@ if (window.performance && performance.navigation && performance.navigation.type 
 var DOOR      = window.__DOOR_URL__ || 'https://www.fkn8s74mztrk.com/F2R45HNR/H3J9L2H2/';
 var GEO_VALUE = 750;
 
-/* ------------------------------------------------------------------
-   FORWARD EVERY INCOMING PARAM to the door — the tokrwd lander contract.
-   Inbound /r sets s1=<SPK> (the attribution key), s2=<publisher>, s3=<ad
-   account>, s4, ttclid. The door re-stamps outbound (s1 -> bare affiliate
-   id, s2 -> SPK, s3 forwarded, s4 -> offer name, click_id -> s5).
 
-   Forward the WHOLE query string, never a whitelist: an earlier draft of the
-   SHEIN page whitelisted utm_campaign/ttclid/s1 and silently dropped s3 — the
-   ad-account leg — on every click.
-
-   s1 is the AFFILIATE'S SPARK CODE and nothing else. Never overwrite it with a
-   campaign name; that is what breaks attribution.
-   ------------------------------------------------------------------ */
 var q = new URLSearchParams(location.search);
 
-/* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not pass it
-   directly. If neither field exists s1 stays EMPTY — never fabricated. An untagged visit
-   is SUPPOSED to fail at the door. */
+
 if (!q.get('s1')) {
   var mc = q.get('mc_attr') || '', f = {};
   mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -443,37 +405,22 @@ if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.i
 
 var s1 = q.get('s1') || '';
 
-/* NO UA SNIFFING, deliberately. A lander that appears to behave differently for a crawler is
-   what gets the whole domain flagged. The door 404s a click with no s1 — that is the real gate. */
 
-/* Door URL: every param rides, with s1 placed LAST (ad automations append to the tail). */
+
+
 function buildDoorUrl() {
   var out = new URLSearchParams(q.toString());
   out.delete('s1');
   out.delete('lg');   // routes the lander only — the door/network never sees it
   var qs = out.toString();
-  /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
-     There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
-     get away with are now load-bearing:
-       1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
-          URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
-          rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
-       2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
-          on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
-          120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
-          collapse into one payment. It resolves to nothing; uniqueness is its whole job.
-       3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
-          different s1 first. Built here rather than by a follow-up line, so it cannot be appended
-          twice. */
+  /* SPRK-DIRECT-OFFER v2 */
   var url = (function () {
     var _o = new URLSearchParams(qs);
-    /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
-       query (the simpler builders never split it out). Take whichever actually has it. */
+    
     var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
     _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
     /* SPRK-S1-ONLY v4 */
-    /* A COMPOUND slot 1 (an SPK plus '_' separators) is the one-slot scheme and carries nothing
-       in s2..s5 by owner decision. A legacy bare code through this same page keeps its token. */
+    
     var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
     if (!_cmpd && !_o.get('s5')) {
       var _t;
@@ -483,14 +430,7 @@ function buildDoorUrl() {
     }
     try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
     /* SPRK-SUBID-NS v3 */
-    /* Everflow (Fluent / GiftClick) reads sub1..sub5 and DISCARDS every s* name. Rewrite the
-       stamped slots into the namespace the network actually reads, then delete the s* originals
-       so the wire carries ONE spelling of each value.
-         sub2 = the click token, because these offers declare clickid_slot='sub2' and Fluent's
-                postback maps cid={sub2}. The affiliate id must NOT sit here -- it would overwrite
-                the only per-click value on the wire and collapse two leads into one payment.
-         sub4 = the affiliate id (inert at the postback, kept for Fluent's reporting).
-       slot 1 is carried by _s1 and appended LAST, as sub1 -- see the append below. */
+    
     if (_o.get('s5')) _o.set('sub2', _o.get('s5'));
     if (_o.get('s3') && !_o.get('sub3')) _o.set('sub3', _o.get('s3'));
     if (_o.get('s2') && !_o.get('sub4')) _o.set('sub4', _o.get('s2'));
@@ -500,7 +440,7 @@ function buildDoorUrl() {
     if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_s1);
     return _u;
   })();
-  /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
+  
   return url;
 }
 var target = buildDoorUrl();
@@ -546,8 +486,7 @@ if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1
 }
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

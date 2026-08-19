@@ -11,12 +11,7 @@
 <link rel="preconnect" href="https://www.fkn8s74mztrk.com" crossorigin>
 <link rel="dns-prefetch" href="https://www.fkn8s74mztrk.com">
 
-<!-- ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR. Runs FIRST, in the head: before the pixel fires,
-     before the body paints, and before the CTA is wired. Ordering is load-bearing — running this
-     late double-counted the TikTok PageView (one on the page being left, one on the page being
-     entered) and left a window where a fast tap fired the CTA on the WRONG geo's door.
-     Keeps the clone index (/AK50/GB7?lg=AU -> /AK50/AU7) so the URL footprint stays spread.
-     NOT CLOAKING: keyed on an explicit query param, never the user agent, identical for crawlers. -->
+
 <script>
 (function(){
   var GEOS = ["GB","CA","AU"], THIS_GEO = "GB";
@@ -32,22 +27,7 @@
 })();
 </script>
 
-<!-- THE TTCLID GATE IS GONE (owner, 2026-08-10). It used to bounce any visitor without a usable
-     ttclid to /safe before first paint. Three reasons it came out, and the owner made the call:
 
-       1. IT BLOCKED REAL BUYERS. Measured against production the day it shipped: 8 of 369 clicks
-          in 24h arrived with no usable ttclid — 4 empty, 4 an unsubstituted macro. That is 2.2%
-          of paid traffic turned away at the door, and they are disproportionately the in-app
-          visitors whose query got stripped on a hop, i.e. exactly who the funnel is built for.
-       2. IT WAS THE ONE CLOAKING-SHAPED THING LEFT. ttclid exists only on a real ad click, so
-          gating on it served ad review a different page from buyers. js/breakout.js in tokrwd
-          spells out why that is the pattern that gets a domain flagged.
-       3. IT BOUGHT NOTHING FOR ATTRIBUTION. ttclid is still CAPTURED — the query carries it to the
-          door, api/link/[slug].js writes it to clicks.ttclid, and api/postback.js reads it back for
-          the Events API forward. Recording never depended on refusing anybody entry.
-
-     Clicks now reach the offer whether or not TikTok gave them a click id. /safe still exists and
-     still carries its pixel; nothing routes to it from here any more. -->
 
 <script id="offer-config">
 /* This page IS one geo — GB, with its own figures baked into the markup. There is deliberately
@@ -61,13 +41,7 @@ window.__STATS__    = window.__STATS__ || null;
 
 
 <style>
-/* Hallmark · macrostructure: Bento Grid · tone: utilitarian · anchor hue: neutral grey
- * pre-emit critique: P5 H5 E4 S5 R5 V5
- * genre: modern-minimal · theme: custom (graphite, from images/offers/FL222093.webp)
- * offer: FL222093 applepay1000-gb-e · geo: GB · slice: AK54
- * nav/footer archetypes: N/A — single-screen lander, one CTA, no nav and no footer.
- * fonts: system stack, zero webfonts (paid-traffic performance; see tokens.css).
- */
+
 :root{
   /* ── Type ─────────────────────────────────────────────────────────────── */
   --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -111,7 +85,7 @@ window.__STATS__    = window.__STATS__ || null;
   --radius-pill: 980px;
   --rule-hair:  1px;
 
-  /* Alpha-only, used inside mask-image. Tokenised so no raw colour literal ships (gate 48). */
+  
   --mask-solid: rgb(0 0 0);
   --color-paper:    oklch(21% 0.004 250);
   --color-paper-2:  oklch(26% 0.005 250);
@@ -265,20 +239,7 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
 .amt-sub{display:block;font-size:var(--text-lg);font-weight:700;line-height:1.2;
   letter-spacing:-.02em;color:var(--color-ink-2);margin-top:var(--space-sm)}
 
-/* ── Material, not decoration ────────────────────────────────────────────────
-   The page was a flat grey field: every surface sat on exactly the same plane, which is what made
-   it read as unfinished rather than restrained. Three cheap, static passes fix it, and NONE of
-   them is a colour — graphite's accent is deliberately white so the CTA reads as an Apple control,
-   and a hue here would compete with it.
 
-   1. An ambient wash from the top edge. Light entering the frame, NOT a spotlight parked behind
-      the headline — a centred radial bloom behind hero type is the tell this palette would
-      otherwise trip.
-   2. A 1px top highlight on every dark block, from the --sheen token the graphite palette already
-      declares. This is what makes a surface look lit from above instead of cut out of paper.
-   3. Elevation under the primary control only. A white button on a dark page has no edge to catch
-      light, so its depth has to come from the shadow it casts. Restricted to the ONE control that
-      matters; putting it on everything would flatten the hierarchy again. */
 body{background-image:radial-gradient(130% 70% at 50% -10%, var(--sheen), transparent 62%);
   background-repeat:no-repeat;background-attachment:fixed}
 .choice-2,.tile,.panel{box-shadow:inset 0 1px 0 var(--sheen)}
@@ -425,9 +386,7 @@ body{background-image:radial-gradient(130% 70% at 50% -10%, var(--sheen), transp
 <div class="stats" id="statsBar" hidden></div>
 
 <script>
-/* Screen swap. Both choices advance — see the AGE GATE note in build.py; this is a commitment
-   device, not an age check. Nothing here navigates: #ctaBtn on screen B is wired by the shared
-   tail and is the only thing that leaves the page, so the door still mints every click. */
+
 (function(){
   var a = document.getElementById('screenA'), b = document.getElementById('screenB');
   var going = false;
@@ -452,11 +411,7 @@ body{background-image:radial-gradient(130% 70% at 50% -10%, var(--sheen), transp
   document.getElementById('gateA').addEventListener('click', advance);
   document.getElementById('gateB').addEventListener('click', advance);
 
-  /* The second CTA is a REMOTE for the first, never a second door. The shared tail wires #ctaBtn
-     alone — it owns buildDoorUrl(), the loading label and the double-tap guard — so forwarding the
-     tap keeps exactly ONE place that navigates and ONE place that can mint a click. Building a
-     second href here would be a second copy of the door URL, i.e. the drift this family already
-     refuses everywhere else. The disabled probe stops a tap landing after the first one armed. */
+  
   var cta2 = document.getElementById('ctaBtn2');
   if (cta2) cta2.addEventListener('click', function(){
     var main = document.getElementById('ctaBtn');
@@ -496,21 +451,10 @@ var GEO_VALUE = 1000;
   bar.hidden = false;
 })();
 
-/* ------------------------------------------------------------------
-   FORWARD EVERY INCOMING PARAM to the door — the tokrwd lander contract.
-   Inbound the launcher sets s1=<SPK> (the attribution key), s2=<publisher>,
-   s3=<ad account>, s4, ttclid. The door re-stamps outbound (s1 -> bare
-   affiliate id, s2 -> SPK, s3 forwarded, s4 -> offer name, click_id -> s5).
-   An earlier draft whitelisted only utm_campaign/ttclid/s1, which silently
-   dropped s3 — the ad-account leg — on every click.
 
-   s1 is the AFFILIATE'S SPARK CODE and nothing else. Never overwrite it with
-   a campaign name — that is what breaks attribution.
-   ------------------------------------------------------------------ */
 var q = new URLSearchParams(location.search);
 
-/* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not
-   pass it directly. If neither field exists s1 stays EMPTY — never fabricated. */
+
 if (!q.get('s1')) {
   var mc = q.get('mc_attr') || '', f = {};
   mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -531,16 +475,7 @@ if ((!q.get('s1') || !q.get('utm_campaign')) && document.referrer) {
 var tt = q.get('ttclid') || '';
 if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
 
-/* COOKIE FALLBACK for a ttclid the query lost. /js/ttclid.js banks the click id in a first-party
-   _ttclid cookie on the first page that sees it — but its own rewriter only ever tags <a href>
-   anchors, and the CTA on every one of these landers is a <button> that calls location.replace().
-   So on THIS family the cookie was written and then never read: the door URL is built from `q`
-   alone, and a query stripped on an in-app-browser hop reached the door with no click id at all.
-   Reading it here is what closes that.
-   Runs AFTER the macro drop above, so an unsubstituted placeholder is cleared first and then
-   genuinely refilled rather than left in place. The value is re-validated against the SAME rules
-   api/_lib/tiktok-event.js usableTtclid() applies — a cookie is attacker-writable, and a garbage
-   value promoted here would be indistinguishable downstream from a real click id. */
+
 if (!q.get('ttclid')) {
   try {
     var ck = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
@@ -553,39 +488,22 @@ var s1 = q.get('s1') || '';
 var campaign = q.get('utm_campaign') || q.get('campaign') || '';
 var ttclid = q.get('ttclid') || '';
 
-/* NO UA SNIFFING, deliberately. A lander that appears to behave differently for a crawler is what
-   gets the whole domain flagged and every campaign on it blocked. Attribution does not need a gate
-   here: the door 404s any click with no s1 (api/link/[slug].js). */
 
-/* Door URL: every param rides, with s1 placed LAST (ad automations append to the
-   tail). The door 404s a click with no s1 — by design, that is the real gate. */
+
+
 function buildDoorUrl() {
   var out = new URLSearchParams(q.toString());
   out.delete('s1');
   out.delete('lg');   // routes the lander only — the door/network never sees it
   var qs = out.toString();
-  /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
-     There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
-     get away with are now load-bearing:
-       1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
-          URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
-          rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
-       2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
-          on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
-          120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
-          collapse into one payment. It resolves to nothing; uniqueness is its whole job.
-       3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
-          different s1 first. Built here rather than by a follow-up line, so it cannot be appended
-          twice. */
+  /* SPRK-DIRECT-OFFER v2 */
   var url = (function () {
     var _o = new URLSearchParams(qs);
-    /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
-       query (the simpler builders never split it out). Take whichever actually has it. */
+    
     var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
     _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
     /* SPRK-S1-ONLY v4 */
-    /* A COMPOUND slot 1 (an SPK plus '_' separators) is the one-slot scheme and carries nothing
-       in s2..s5 by owner decision. A legacy bare code through this same page keeps its token. */
+    
     var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
     if (!_cmpd && !_o.get('s5')) {
       var _t;
@@ -595,14 +513,7 @@ function buildDoorUrl() {
     }
     try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
     /* SPRK-SUBID-NS v3 */
-    /* Everflow (Fluent / GiftClick) reads sub1..sub5 and DISCARDS every s* name. Rewrite the
-       stamped slots into the namespace the network actually reads, then delete the s* originals
-       so the wire carries ONE spelling of each value.
-         sub2 = the click token, because these offers declare clickid_slot='sub2' and Fluent's
-                postback maps cid={sub2}. The affiliate id must NOT sit here -- it would overwrite
-                the only per-click value on the wire and collapse two leads into one payment.
-         sub4 = the affiliate id (inert at the postback, kept for Fluent's reporting).
-       slot 1 is carried by _s1 and appended LAST, as sub1 -- see the append below. */
+    
     if (_o.get('s5')) _o.set('sub2', _o.get('s5'));
     if (_o.get('s3') && !_o.get('sub3')) _o.set('sub3', _o.get('s3'));
     if (_o.get('s2') && !_o.get('sub4')) _o.set('sub4', _o.get('s2'));
@@ -612,7 +523,7 @@ function buildDoorUrl() {
     if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_s1);
     return _u;
   })();
-  /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
+  
   return url;
 }
 var target = buildDoorUrl();
@@ -637,10 +548,7 @@ function handleCta(e) {
   ctaBtn.setAttribute('disabled', 'disabled');
   if (window.ttq) {
     try { ttq.track('ClickButton', { content_name: 'Apple Pay GB CTA', value: GEO_VALUE }); } catch(e) {}
-    /* CtaNoS1 — they did everything right and the click is still about to die: the door 404s any
-       hit with no s1, by design. A non-zero count here means the AD LINK is mis-built (?s1= empty,
-       or the launcher never appended it), not that the page failed. Cheapest possible catch for a
-       failure mode that otherwise looks like "traffic that just did not convert". */
+    
     if (!s1) { try { ttq.track('CtaNoS1', { content_name: 'Apple Pay GB cta without s1' }); } catch(e) {} }
   }
   location.replace(target);
@@ -659,8 +567,7 @@ if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1
 }
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

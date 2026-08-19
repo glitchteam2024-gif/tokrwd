@@ -2,10 +2,7 @@
 <html lang="en" data-geo="GB">
 <head>
 <meta charset="UTF-8" />
-<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
-     every visitor, including TikTok's crawler. Ad review flags landers that behave differently
-     for a crawler than for a user, and a flagged lander gets blocked outright. Attribution does
-     not need a gate — the door (api/link/[slug].js) 404s any click without a valid spark code. -->
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Get paid to play</title>
 <script>
@@ -292,12 +289,12 @@
     }, 3800);
   })();
 
-  // Build the offer URL (click id -> Everflow sub1, plus ttclid for TikTok CAPI),
+
   // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
-    // Route through the SPRK tracking door (mints the click_id + logs the click), which cloaks
-    // -> the FreeCash offer. Forward EVERYTHING the FCx lander passed: s1=<SPK> (per-creative
-    // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
+
+
+
     var DOOR = 'https://montrk5.co.uk/?a=26648&c=55503';
     var q = new URLSearchParams(location.search);
     if (!q.get('s1')) {
@@ -305,28 +302,14 @@
       mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
       var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — untagged visit stays untagged; door 404s it (matches TU/CB)
     }
-    /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
-       There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
-       get away with are now load-bearing:
-         1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
-            URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
-            rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
-         2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
-            on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
-            120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
-            collapse into one payment. It resolves to nothing; uniqueness is its whole job.
-         3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
-            different s1 first. Built here rather than by a follow-up line, so it cannot be appended
-            twice. */
+    /* SPRK-DIRECT-OFFER v2 */
     var url = (function () {
       var _o = new URLSearchParams(q.toString());
-      /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
-         query (the simpler builders never split it out). Take whichever actually has it. */
+      
       var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
       _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
       /* SPRK-S1-ONLY v4 */
-    /* A COMPOUND slot 1 (an SPK plus '_' separators) is the one-slot scheme and carries nothing
-       in s2..s5 by owner decision. A legacy bare code through this same page keeps its token. */
+    
     var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
     if (!_cmpd && !_o.get('s5')) {
         var _t;
@@ -366,9 +349,7 @@
   })();
 </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"49739f916f3d48e0a3f0cfdd73f6adce","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<!-- TikTok ttclid passthrough — captures the click ID and appends it to the sprktrax.org door link
-     (sprktrax.org is in ttclid.js's tracker allowlist), so the door forwards it into the postback.
-     Matches the /TU and /CB landers. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

@@ -39,20 +39,7 @@ window.__trk = function (name, props) {
   gates the click. The landers load Poppins themselves, so this is the only page in
   the funnel that renders in the system stack, and it is on screen for about a second.
 -->
-<!--
-  /pre — the prelander. One page, in front of every landing page.
 
-  ad → Carrd → /r → THIS PAGE → lander → door → offer
-
-  /r picks the lander (lp= / campaign / o= / CARRD_ROUTES / default) and wraps it:
-      https://www.tokrwd.co/pre?s1=SPK-…&ttclid=…&s3=…&to=/CLFC
-  `to` is a PATH on this site and nothing else — see cleanPath() in /js/breakout.js.
-
-  Everything visible below renders for every visitor, identically, including ad
-  review. Nothing here is hidden, gated or swapped based on who is asking; the
-  only thing the user agent decides is whether the visitor's browser can be opened
-  by an OS scheme. See the header comment in /js/breakout.js for the full rules.
--->
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
 

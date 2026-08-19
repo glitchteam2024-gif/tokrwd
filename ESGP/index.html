@@ -6,19 +6,7 @@
 <meta name="description" content="Add your Gravy Pass and start earning from your screentime." />
 <title>Start Earning — Gravy Pass</title>
 
-<!-- ESGP — Edwin's scaler lander. Reached ONLY by `lp=esgp` on an ad link (see
-     OVERRIDE_LANDERS in api/_lib/links-config.js). It is not in LANDER_URLS and has no
-     `o=` key, so no affiliate can route traffic here — that is deliberate: this page is
-     for self-managed scalers only.
 
-     Outbound goes through OUR redirector, /c/esgp-off, never straight to the network.
-     The real destination lives in OFFER_LINKS, so the affiliate URL is never in this
-     page's source and can be changed without a lander edit.
-
-     NO in-app-breakout script, NO UA sniffing, NO blank-page gate — deliberately. A page
-     that behaves differently for ad review than for a real user gets the WHOLE domain
-     flagged and blocked, not just this page. See .claude/skills/tokrwd-landers
-     (NO-CLOAKING rule). Do not re-add any of it. -->
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -220,12 +208,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
 <script>
 (function () {
-  /**
-   * OUR redirector, not the network. /c/esgp-off resolves the real affiliate URL from
-   * OFFER_LINKS server-side and forwards the sub-ID, so the destination is never in this
-   * page's source and can be repointed without touching the lander. Relative on purpose:
-   * this page is served from tokrwd.co, which is where /c/:slug lives.
-   */
+  
   var OFFER_DOOR = "/c/esgp-off";
   var STATE_KEY = "esgp_state_v1";
   var TASK_INTERVAL_MS = 10 * 60 * 1000;
@@ -250,13 +233,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
   var PARAMS = new URLSearchParams(window.location.search);
 
-  /* ── persisted state ───────────────────────────────────────────────────────
-   * One JSON blob instead of a loose key per value, so the attribution and the
-   * activation timestamp are read and written together and cannot half-survive.
-   * Every access is wrapped: localStorage THROWS on access in Safari Private
-   * Browsing and with third-party storage blocked, and an uncaught throw here
-   * would take the CTA wiring below down with it — a dead button on paid traffic.
-   */
+  
   function loadState() {
     try {
       var parsed = JSON.parse(window.localStorage.getItem(STATE_KEY) || "{}");
@@ -272,20 +249,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
   var STATE = loadState();
 
-  /* ── attribution ───────────────────────────────────────────────────────────
-   * /r puts the spark code on this page as s1; campid/sub1 are also accepted so a
-   * hand-built test link works.
-   *
-   * The values are PERSISTED on arrival because this page's own copy sends the
-   * visitor away to Apple Wallet and tells them to come back — and that return
-   * trip carries no query string. Reading location.search alone therefore loses
-   * attribution on exactly the second click, the one the instructions view exists
-   * to produce, and those conversions reach the network with no sub-ID at all.
-   *
-   * This RESTORES what this browser genuinely arrived with. It never invents one:
-   * a fabricated sub-ID credits somebody else's account, which is strictly worse
-   * than landing in `unmatched` where it is visible and fixable.
-   */
+  
   var SUBID_ALIASES = ["s1", "campid", "sub1"];
   var EXTRA_PARAMS = ["ttclid", "s3"];
 
@@ -302,24 +266,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   }
 
   // Only overwrite a stored value when THIS visit carries one, so a bare return
-  // visit cannot blank out the attribution captured on the way in.
-  /**
-   * How long a stored sub-ID may still be replayed on a query-less visit.
-   *
-   * It exists for the Apple Wallet round trip, which takes minutes — and it has to
-   * EXPIRE, because localStorage is per ORIGIN, not per person. This page is shared
-   * by more than one partner, and /c/ now picks the outbound affiliate link from the
-   * sub-ID: without a bound, a device that walked one partner's funnel and later
-   * opened this page bare would replay that code and send the click, and the payout,
-   * to the wrong person.
-   */
-  /**
-   * Deliberately much longer than the page's own unlock timer
-   * (TASKS_PER_REWARD x TASK_INTERVAL_MS = 30 minutes). The instructions view tells
-   * the visitor to complete three tasks and come back, so a 30-minute window would
-   * expire attribution at exactly the moment the funnel is designed to pay — the
-   * second click. Six hours still bounds the cross-partner replay to one sitting.
-   */
+
+  
+  
   var SUB_TTL_MS = 6 * 60 * 60 * 1000;
 
   (function captureAttribution() {
@@ -327,10 +276,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     var sub = urlSubId();
     if (sub && STATE.sub !== sub) { STATE.sub = sub; dirty = true; }
     // Stamped only when THIS visit carried a sub-ID, so the window measures how long
-    // ago attribution actually arrived rather than when any state was last touched.
+
     if (sub) { STATE.ts = Date.now(); dirty = true; }
     // Backfill for a device that stored a sub-ID before this timestamp existed.
-    // Without it, everyone mid-funnel at deploy time loses attribution on their very
+
     // next bare visit — the return tap this whole persistence exists to serve.
     if (!sub && STATE.sub && !STATE.ts) { STATE.ts = Date.now(); dirty = true; }
     EXTRA_PARAMS.forEach(function (k) {
@@ -400,7 +349,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   }
 
   // Static markup, no interpolation — safe as a literal and not worth building
-  // node by node in the SVG namespace.
+
   var WARN_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none">' +
     '<circle cx="12" cy="12" r="9" stroke="hsl(0,80%,65%)" stroke-width="2"/>' +
     '<path d="M12 7v5M12 15.5h.01" stroke="hsl(0,80%,65%)" stroke-width="2" stroke-linecap="round"/></svg>';

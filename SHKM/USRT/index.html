@@ -531,21 +531,21 @@
   </div>
 
   <script>
-    // ---- Outbound: the SPRK tracking DOOR ----
+
     // Replaced the supplied demo handler, which cancelled the only converting click on the page.
-    // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
+
     // and 302s to the real Shein URL — which lives in the offer row and never appears in this
     // page's source.
     const DOOR = "https://www.fkn8s74mztrk.com/F2R45HNR/H3J9L2H2/";
 
-    // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
+
     const q = new URLSearchParams(location.search);
 
-    // campid is the Carrd/Spartis name for the same value — promote it when s1 is absent.
+
     if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
 
-    // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
-    // the door 404s an untagged click by design, and that is the real attribution gate.
+
+
     if (!q.get('s1')) {
       const mc = q.get('mc_attr') || '', f = {};
       mc.split('..').forEach((kv) => { const i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -553,33 +553,19 @@
     }
 
     function offerUrl() {
-      // s1 LAST — ad automations append to the tail. campid is a lander-side alias, lg routes the
+
       // lander; neither belongs in what the network sees.
       const out = new URLSearchParams(q.toString());
       out.delete('s1'); out.delete('campid'); out.delete('lg');
       const qs = out.toString(), s1 = q.get('s1') || '';
-      /* SPRK-DIRECT-OFFER v2 (2026-08-17) — the CTA goes STRAIGHT to the network.
-         There is no sprktrax door hop left to absorb our mistakes, so three things this line used to
-         get away with are now load-bearing:
-           1. SEPARATOR. A door URL carries no query, so the old hardcoded '?' was right. Every network
-              URL already has one ('?a=26648&c=55504', or an Everflow path), so a second '?' makes the
-              rest of the string invisible — s1, s2, s3 and ttclid vanish and the click pays nobody.
-           2. UNIQUE s5. The door minted a per-click id; nothing does now. Monetise returns a real txid
-              on ~1.2%% of conversions, so api/postback.js dedups on (network, spark, sub2..sub5) inside
-              120s — and s1/s2/s3 are CONSTANT per creative. Without a unique s5 two genuine leads
-              collapse into one payment. It resolves to nothing; uniqueness is its whole job.
-           3. s1 LAST. Ad automations append to the tail, and a first-match tracker must not meet a
-              different s1 first. Built here rather than by a follow-up line, so it cannot be appended
-              twice. */
+      /* SPRK-DIRECT-OFFER v2 */
       let url = (function () {
         var _o = new URLSearchParams(qs);
-        /* s1 may live in a sibling var (the door-era builders hoisted it out) or still be in the
-           query (the simpler builders never split it out). Take whichever actually has it. */
+        
         var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
         _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
         /* SPRK-S1-ONLY v4 */
-    /* A COMPOUND slot 1 (an SPK plus '_' separators) is the one-slot scheme and carries nothing
-       in s2..s5 by owner decision. A legacy bare code through this same page keeps its token. */
+    
     var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
     if (!_cmpd && !_o.get('s5')) {
           var _t;
@@ -589,14 +575,7 @@
         }
         try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
         /* SPRK-SUBID-NS v3 */
-        /* Everflow (Fluent / GiftClick) reads sub1..sub5 and DISCARDS every s* name. Rewrite the
-           stamped slots into the namespace the network actually reads, then delete the s* originals
-           so the wire carries ONE spelling of each value.
-             sub2 = the click token, because these offers declare clickid_slot='sub2' and Fluent's
-                    postback maps cid={sub2}. The affiliate id must NOT sit here -- it would overwrite
-                    the only per-click value on the wire and collapse two leads into one payment.
-             sub4 = the affiliate id (inert at the postback, kept for Fluent's reporting).
-           slot 1 is carried by _s1 and appended LAST, as sub1 -- see the append below. */
+        
         if (_o.get('s5')) _o.set('sub2', _o.get('s5'));
         if (_o.get('s3') && !_o.get('sub3')) _o.set('sub3', _o.get('s3'));
         if (_o.get('s2') && !_o.get('sub4')) _o.set('sub4', _o.get('s2'));
@@ -606,7 +585,7 @@
         if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_s1);
         return _u;
       })();
-      /* s1 is appended inside the builder above (last, exactly once) — do not re-append here. */
+      
       return url;
     }
 
@@ -634,8 +613,7 @@
     document.addEventListener('visibilitychange', syncDocumentVisibility);
     syncDocumentVisibility();
   </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
+
 <script src="/js/ttclid.js" async></script>
 </body>
 </html>

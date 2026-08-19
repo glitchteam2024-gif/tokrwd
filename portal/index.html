@@ -1,20 +1,5 @@
 <!DOCTYPE html>
-<!--
-  The PARTNER portal. A different audience from /admin, and deliberately a separate
-  page: a partner should never see the operator's dashboard, the other partners, or
-  anything they cannot act on.
 
-  It is one static file with no build step and no server of its own, so it can be
-  deployed as its own Vercel project (Root Directory = portal) and still work — it
-  calls the tokrwd deploy's /api/partner cross-origin, authorised by the access code
-  rather than by the origin it was loaded from.
-
-  What a partner can do here: register the Carrd pages they run, set the affiliate
-  link their own clicks end on, and copy the script and links those pages need.
-  What they cannot do: change which landing page they run, or their tracking code —
-  those two decide routing and attribution, they can collide with other partners,
-  and they stay the operator's in /admin.
--->
 <html lang="en">
 <head>
 <meta charset="utf-8" />

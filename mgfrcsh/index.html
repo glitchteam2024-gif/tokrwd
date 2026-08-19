@@ -6,39 +6,7 @@
 <title>Get paid to play</title>
 <meta name="robots" content="noindex,nofollow" />
 
-<!--
-  MIGI'S FREECASH **CA** LANDER — design supplied by Migi 2026-08-10, replacing the previous
-  /mgfrcsh markup. Layout, copy and the 21+ Quick Tip interstitial are his, kept as written.
 
-  ⚠️⚠️ THIS PAGE LINKS **DIRECT TO THE NETWORK**, NOT THROUGH THE SPRK DOOR. ⚠️⚠️
-  Owner decision (Migi, 2026-08-10), taken with the trade-off stated and re-confirmed. The previous
-  version of this file pointed #ctaBtn at https://sprktrax.org/api/link/freecash-ca. It no longer
-  does. What that costs, so nobody "fixes" it back without knowing it was deliberate:
-
-    · NO clicks row and NO click_id is minted. `landers/apple/build.py` STRUCTURE E note 1 names
-      this shape "bypass failure mode C", and .claude/skills/sprk-money-integrity/SKILL.md logs a
-      live instance: 198 clicks and $60 reached the network without touching a door, invisible.
-    · The scaler->passthrough fix (SPRKNetworkAds d5115ab, error-log #052) lives INSIDE the door,
-      so it does not run for this traffic. Whatever ?s1= arrives is what the network sees.
-    · The affiliate dashboard's click/EPC layer reads the door's `clicks` table, so this traffic
-      does not appear there.
-
-  WHAT STILL WORKS, and why the money is not at risk: api/postback.js resolves an owner by
-  click_id FIRST and then by EXACT spk_code. Migi's labels (YSL-M2-2, YSL-M3-2, YSL-M1-2, YSL-M2,
-  YSL-M3) are all registered, active spark_codes owned by miguelamaya8085@gmail.com — verified
-  2026-08-10 — so a conversion carrying one of them still attributes to him with no click_id.
-  ⚠️ That is the ONLY thing holding attribution up here. An UNREGISTERED label on this page's
-  ?s1= produces an `unmatched` conversion. Register a new label BEFORE running traffic on it.
-
-  THE CAMPAIGN: ?a=26648&c=55506 is Freecash **CA** (offers.destination_by_geo->>'CA'). The design
-  Migi supplied carried ?a=26648&c=55504 on montrk3 — that is the **US** campaign, and it is not
-  used here because this lander is the CA one. montrk3 and montrk5 were previously followed to the
-  same final destination (pp4a.adj.st) and are interchangeable hosts for this network; the host
-  stored in destination_by_geo (montrk5) is the one used.
-
-  ⚠️ DO NOT "fix" a geo problem by editing offers.destination_url — that column is the FALLBACK
-  shared by every Freecash geo (us, at, ca, de, gb, jp, nl hang off one offer row).
--->
 
 <!-- TikTok pixel — same id as every other lander in this funnel. Carried over from the previous
      /mgfrcsh: without it this page is a hole in the funnel while /pre and the Apple family report. -->
@@ -269,8 +237,7 @@
   <footer class="sticky">
     <div class="wrap">
       <div class="avail"><span class="dot"></span>Available now on iOS and Android</div>
-      <!-- one link, two separate-looking boxes. href stays "#" — the offer script below builds the
-           real Monetise offer URL at runtime and carries the inbound SubID into s1. -->
+      
       <a class="store-combo offer-link" id="ctaBtn" href="#">
         <span class="btn btn-play">
           <svg width="22" height="24" viewBox="0 0 24 26" fill="none"><path d="M2 2.2C1.6 2.5 1.4 3 1.4 3.7v18.6c0 .7.2 1.2.6 1.5L12.6 13 2 2.2z" fill="#0a3d20"/><path d="M16.3 9.3 4.1 2.3 3.6 2 12.6 13l3.7-3.7z" fill="#0a3d20"/><path d="M16.3 16.7 12.6 13l3.7 3.7 4-2.3c.7-.4.7-1.4 0-1.8l-4-2.3-3.7 3.7 3.7 3.7z" fill="#0a3d20"/></svg>
@@ -324,20 +291,13 @@
     }, 3800);
   })();
 
-  /* ── Tracking ──────────────────────────────────────────────────────────────────────────────
-     DIRECT-TO-NETWORK by owner decision — see the banner comment in <head> for what that costs
-     and why the money still attributes. The house param contract is kept even though the door is
-     not in the chain: forward EVERY inbound param, put s1 LAST (ad automations append to the end),
-     and drop an unsubstituted TikTok macro rather than shipping the literal.
-
-     ?a=26648&c=55506 = Freecash CA. The design supplied carried c=55504 (US) — changed, because
-     this is the CA lander. */
+  
   (function(){
     var OFFER_BASE = 'https://montrk5.co.uk/?a=26648&c=55506';
 
     var q = new URLSearchParams(location.search);
 
-    /* SubID: accept the whole chain the prelanders may have forwarded, normalise onto s1. */
+    
     var s1 = q.get('s1') || q.get('sub1') || q.get('campid') || q.get('s2') || q.get('cid') || q.get('c') || '';
 
     /* ttclid hygiene — carried over from the previous /mgfrcsh, do not drop it.
@@ -358,10 +318,7 @@
       } catch (e) {}
     }
 
-    /* Everything else rides through; s1 is appended LAST. `lg` is the geo selector and is ours.
-       `a` and `c` are dropped because OFFER_BASE ALREADY CARRIES THEM — letting an inbound copy
-       through would put two `a=` (or two `c=`) on one URL, and a first-match tracker reads the
-       wrong one. Same duplicate-key failure the Gravypass migration documents for a doubled s1. */
+    
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('sub1'); out.delete('campid'); out.delete('lg'); out.delete('cid');
     out.delete('a'); out.delete('c');
@@ -394,9 +351,7 @@
 
     try { if (window.ttq) ttq.track('LanderView', { content_name: 'freecash CA lander reached' }); } catch (e) {}
 
-    /* NO s1 = THIS CLICK IS UNATTRIBUTABLE. There is no door in this chain to 404 it, so the visitor
-       reaches the offer and any conversion comes back with an empty SubID and lands `unmatched`.
-       That failure is silent by nature, so it is made loud in all three places it can be. */
+    
     if (!s1) {
       try { if (window.ttq) ttq.track('CtaNoS1', { content_name: 'freecash CA cta without s1' }); } catch (e) {}
       console.warn('[mgfrcsh] NO ?s1= ON THIS URL — the offer will still open, but the conversion ' +
