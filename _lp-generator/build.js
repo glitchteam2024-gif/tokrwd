@@ -7,6 +7,7 @@
  * amount → stats → 3 steps → CTA → trust), with the tracking wired through the
  * SPRK door instead of straight to the network. See NOTES.md for why.
  */
+require('./_guard.js')('build.js');
 const fs = require('fs');
 const path = require('path');
 

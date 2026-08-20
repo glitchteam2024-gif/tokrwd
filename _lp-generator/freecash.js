@@ -22,6 +22,7 @@
  * Every replacement below is ASSERTED. If the approved template is ever edited so a source string no
  * longer matches, this throws instead of silently emitting an English page into a Japanese slot.
  */
+require('./_guard.js')('freecash.js');
 const fs = require('fs');
 const path = require('path');
 

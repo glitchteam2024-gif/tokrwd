@@ -68,6 +68,7 @@
  */
 
 'use strict';
+require('./_guard.js')('ravi-shein.js');
 
 const fs = require('fs');
 const path = require('path');

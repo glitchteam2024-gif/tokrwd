@@ -32,6 +32,7 @@
  * Every replacement is ASSERTED — if /trt is edited so a source string stops matching, this throws
  * rather than silently shipping a lander whose CTA still bypasses the door.
  */
+require('./_guard.js')('testerup.js');
 const fs = require('fs');
 const path = require('path');
 

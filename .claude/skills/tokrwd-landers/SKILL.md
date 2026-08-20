@@ -19,12 +19,16 @@ network live in the separate **SPRKNetworkAds** repo. For the spark-code mint ru
 wire scheme see the `sprk-new-offer` skill; for "affiliate's conversions look wrong" see
 `sprk-affiliate-conv-debug`.
 
-## The funnel (current, since 2026-07-21)
+## The funnel (current, since 2026-08-20)
 
-    ad ( ?s1=<SPK>&s2=<pub>&s3=<adacct>&s4=&ttclid= )  ->  /r  ->  /pre  ->  lander  ->  door  ->  offer
+    ad ( ?s1=<SPK>&… )  ->  /r  ->  /pre  ->  lander  ->  offer
+
+**The door is gone from this path.** There is no `sprktrax.org` hop in any deployed lander. The
+lander resolves `s1` and links STRAIGHT to the network, carrying that one parameter and nothing
+else — see "The outbound wire" below, which is the load-bearing section of this file now.
 
 **No cloaking.** The lander renders the SAME markup for every visitor (including ad-review
-crawlers) and forwards the whole query string to its door untouched.
+crawlers).
 
 **One prelander, in front of everything (added 2026-07-27 — Migi asked; TikTok's in-app webview
 was failing on real devices).** `/pre` hands the visitor to their real browser before the offer
@@ -34,7 +38,11 @@ prelander per brand existed until 2026-07-21 and was removed for cloaking; the t
 those pages cloaking (`looksLikeReview()` → a different page for reviewers) is deliberately absent
 from this one.
 
-## Offer → door → canonical file → copies
+## Offer → destination → canonical file → copies
+
+⚠️ The "Door / destination" column below is HISTORICAL for the door hop — every deployed lander
+now names a network URL directly in `window.__OFFER_LINK__` / `var OFFER_LINK`. The folder→offer
+pairings are still accurate.
 
 Every numbered folder is a **byte-identical copy** of its offer's ONE canonical lander. Edit the
 canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` serves `/FC` from
@@ -838,50 +846,177 @@ Still open (business calls, in `EXCEPTIONS`): `api/affrkr.js` → `affrkr.com`, 
 `trendhavenn.com`, and `EOZ.html`'s `vmry7.ttrk.io` script. All three pages are live but orphaned —
 nothing in the repo links to them.
 
-## s1–s5 wire scheme (what tracks)
+## The outbound wire: ONE param, and the name is the network's, not ours (2026-08-20)
 
-- **Inbound to the lander:** `s1 = <SPK>` (opaque `SPK-XXXX-XXXX` spark code, THE attribution key) ·
-  `s2 = <publisher>` · `s3 = <ad account>` (or campaign id for self-launched TikTok) · `s4` empty ·
-  `ttclid` empty-or-set. The lander forwards ALL of them unchanged.
-- **Outbound (door re-stamp, Path A):** `s1 = <affId>` — the **pure affiliate number, no `aff`
-  prefix** (changed 2026-07-23; was `aff<N>` before) · `s2 = <SPK>` · `s3 = ad account` · `s4 = offer
-  name` · click_id in `offers.clickid_slot` (default `s5`).
-- The door **404s any click whose s1 isn't a valid SPK** — so an untagged/blank visit fails closed.
-  That is why removing the blank-page gate does NOT weaken attribution: the door is the real gate.
+⚠️ **This section replaces the old "s1–s5 wire scheme". The door is gone from the landers, and so
+is everything the door needed.** Migi's instruction, verbatim: *"moving forward it only ever carrys
+the s1 and then the link, and make sure it carrys the s1 from the prelander."*
 
-Full detail + the mint rules live in `sprk-new-offer`. Seeing a bare affiliate number (e.g. `26`) in
-the network's s1 column is CORRECT — don't "fix" it back to SPK.
+- **Inbound to the lander:** whatever the ad link carries — `s1`, plus possibly `s2`/`s3`/`s4`/
+  `ttclid`/`lg`/`campid`/`mc_attr`. The lander READS this to resolve `s1` and forwards none of it.
+- **Outbound to the network: the base offer URL plus exactly one parameter, carrying the SPK CODE
+  — not the whole wire.** Slot 1 arrives compound (`<username>_<affId>_<SPK>_<GEO>_<campaign>`);
+  `ac2992a` decided only the code leaves, because the code identifies the creative and the creative
+  identifies the affiliate. A 50-char underscore-laden value risks truncation at the network, and
+  the affiliate's username has no business in a third party's logs.
+
+      https://montrk5.co.uk/?a=26648&c=55504&s1=SPK-05BD-7BF1        <- CAKE / Monetise
+      https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/?sub1=SPK-…     <- Everflow family
+
+⚠️ **`s1` and `sub1` are the SAME field in two dialects, and you cannot pick one globally.** An
+Everflow endpoint reads `sub1..sub5` and silently discards anything called `s1` — that is the bug
+`a252f6f` / `b948895` fixed across 6,465 landers. Forcing the literal name `s1` everywhere would
+zero out attribution on the 6,471 Everflow landers; forcing `sub1` would do the same to the 1,258
+CAKE ones. **The name follows the destination.** See `sprk-network-postback-wiring`.
+
+- **s1 is resolved, never fabricated.** Order: `?s1=` → `?sub1=` → the `mc_attr` fallback
+  (`e=` / `c=`) → a referrer rescue for in-app browsers that strip the query. If none of them
+  yields a value the CTA is **just the offer link, with no parameter at all** — an untagged visit
+  attributes to nobody rather than to a made-up code.
+- **Then the SPK is extracted:** `(String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i)||[''])[0].toUpperCase() || _s1`.
+  Two details are load-bearing and both are tested:
+  **`/i`** — a lowercasing ad platform would otherwise match nothing and ship the entire wire;
+  **`|| _s1`** — a value with NO code in it goes out verbatim, because a scaler's free-form label
+  (`TRAE_spark97_US`) IS their attribution key and blanking it would pay them nothing.
+- **The prelander adds nothing.** It forwards its whole query to the lander, so `s1` survives the
+  hop; the lander then reduces it to the one param. It no longer mints a `sid`.
+
+### What was removed, and what that costs (say these out loud)
+
+| Removed | Consequence — do not rediscover it |
+|---|---|
+| the minted `s5` per-click token | The postback dedups on `(network, spark, sub2..sub5)` in a 120s window when the network returns no real txid. With s5 gone, **two genuine conversions on the same creative inside 120s can collapse into one payment.** The fix belongs on the postback side (`api/postback.js` in SPRKNetworkAds), not by putting a param back on the lander. |
+| `ttclid` forwarding + `js/ttclid.js` | TikTok CAPI has no click id to attribute with, so match quality drops. The TikTok **pixel** (`ttq`) is untouched and still fires. |
+| ~~the funnel beacon~~ — **KEPT**, Migi confirmed 2026-08-20 | `ac2992a` had just expanded it (40 → 78 landers) on purpose: **BEACON FIRST, THEN STRIP.** It records the FULL wire before the strip, so geo/campaign/affiliate stay recoverable on our side. It is a same-origin `sendBeacon` to our own server, not a param on the offer URL, so it does not violate "only the s1 and the link". The prelander's `sid` stays with it — that is what makes the four events one story. |
+| `s2` (publisher), `s3` (ad account), `s4` | The network no longer receives these legs at all. |
+| the Cloudflare Insights beacon (71 pages) | Third-party analytics that rode in with a copied page. |
+| the `?debug=1` console block (7,312 pages) | It printed s1, the campaign, the ttclid and the finished target URL. |
+
+## Generators are QUARANTINED (2026-08-20)
+
+Every script in `_lp-generator/` now calls `_guard.js` and **refuses to run**. This is deliberate:
+they are how the door kept coming back. Running one today silently does three things —
+
+1. emits `https://sprktrax.org/api/link/<slug>` as the CTA destination, overwriting a live network URL;
+2. emits the old wiring that forwards the whole query and mints an `s5`;
+3. **recreates the 619 landers retired in `49c065b`** (verified: a single `--clones 1` run wrote 58
+   directories back, `50FC/` among them).
+
+They also cannot be fixed by editing a template: the per-brand, per-geo NETWORK URL they should emit
+is not in that folder. `build.js` knows only a `doorSlug`; the real destinations live in the deployed
+pages (`window.__OFFER_LINK__`) and in the offer rows. **Reviving a generator means giving it that
+table first.** `lander-check.js` is NOT guarded — it only verifies.
+
+Override deliberately with `SPRK_ALLOW_DOOR_REGEN=1`, and read the diff.
+
+## Bugs the s1-only review caught — the checks that found them (2026-08-20)
+
+A source diff of 8,500 files hides everything. These were all found AFTER the change looked done,
+and every one was invisible to `git diff` and to a passing test suite. Re-run these before shipping
+any sweep across the estate.
+
+1. **702 landers had a DEAD CTA.** The `buildDoorUrl()` replacement hardcoded `OFFER_LINK`, but
+   those pages declare `var OFFER_URL` — so the CTA threw `ReferenceError` on load. Found by
+   executing pages in a real browser with an injected `window.onerror`, NOT by the test suite:
+   the harness supplied `OFFER_LINK` as a `new Function` parameter and so masked it.
+   → `_offer-link.test.mjs` now asserts the builder's base identifier is **declared on the page**.
+   Verified to bite: rename that one declaration back and the suite fails.
+2. **`_tracking-audit.test.mjs` had gone blind and passed vacuously.** Its `OUTBOUND_RE` matched
+   only `__DOOR_URL__` / `var DOOR`; after the rename it matched nothing, every lander hit
+   `if (!m) continue`, and the per-slice/geo destination check inspected **zero** pages while
+   reporting PASS. → it now counts what it inspected and fails under 5,000.
+3. **`NETWORK_HOST_RE` never contained `fkn8s74mztrk`** (Everflow), so that same check had been
+   skipping the 6,471-lander Everflow estate since the Everflow migration — pre-existing, not
+   caused by this work. Added; it now covers 7,440 landers and they agree.
+4. **`js/tsup-offer.js` and `Rewards/index.html` leaked `s3`**, and both built their base as
+   `'…?s1='` so an untagged visit shipped a **blank `s1=`** — which a network records as a real
+   but empty sub-id, not as "no sub-id". Both fixed.
+5. **`js/tsup-offer.js` still had the click intercept** removed everywhere else on 2026-08-17 —
+   the first tap opened the overlay instead of the offer. It was missed in that sweep and had been
+   eating the first tap on `/TSUP` ever since.
+6. **`api/{reco,copper,affrkr,redirect}.js` all appended `s3`** to the network URL. `/api/reco` is
+   live (every `RS50` clone forwards to `/RS/` which hits it).
+7. **6 `*-ravi.html` files got an unterminated block comment** — a prose-stripping regex ate the
+   closing `*/`. Caught by parsing every inline `<script>` with `node:vm`.
+
+The three checks worth keeping, in order of what they caught:
+
+```bash
+# 1. parse every inline <script> in every changed page (strip HTML comments first —
+#    a comment quoting "<script src>" otherwise reads as an unterminated block)
+# 2. execute the shipped builder in every lander
+node api/_lib/_offer-link.test.mjs
+# 3. load one page per DISTINCT SHAPE in a browser with an injected window.onerror.
+#    ~151 shapes cover ~8,500 files; srcdoc + a <base> tag lets you inject the collector
+#    before the page's own scripts run, which a plain src= iframe cannot.
+```
+
+⚠️ **Never run a generator to "test" it.** One `--clones 1` run during this review repainted 421
+live pages with the door and recreated 58 retired directories. That is what `_guard.js` now prevents.
+
+⚠️ **The browser caches `/js/*.js` across page reloads and query changes.** A fix to
+`js/tsup-offer.js` kept showing the old URL until the server was restarted on a different port.
+
+## Vocabulary: there is no "door" in a lander any more
+
+Renamed across every deployed page, so a grep for the door finds nothing that still exists:
+
+    window.__DOOR_URL__  ->  window.__OFFER_LINK__
+    var DOOR             ->  var OFFER_LINK
+    buildDoorUrl()       ->  buildOfferUrl()
+    __sprkOffer()        ->  __offerUrl()          (702 dead copies deleted outright)
 
 ## Verify before you ship (do this every time)
 
-Source diffs lie about runtime behavior. Prove it in a browser:
+Source diffs lie about runtime behavior. **First run the executable guard**, which runs the SHIPPED
+builder out of every deployed page:
 
 ```bash
-cd <repo> && python3 -m http.server 8899 &     # serve statically
+node api/_lib/_offer-link.test.mjs
 ```
 
-Load each edited lander with a full query, e.g. `http://localhost:8899/50FC/FC1/index.html?s1=SPK-TEST-0001&s2=pub9&s3=acct7&s4=&ttclid=`, then check in the page:
-- the CTA / `a.offer-link` / `a.door` / `#tipGo` href is the correct door URL carrying **every**
-  param (this catches the classic "gate removed but wiring guard left → dead `#` CTA" bug),
-- no cloaking script remains (`x-safari`, `intent://`, `__SUBID_OK`, `document.write`),
-- images load (no 404 from the deeper folder path),
-- a BARE visit (no query) does not fabricate an `s1` (no `s1=mc`).
+It asserts, for all ~7,700 landers: exactly one `?`, exactly ONE parameter added, named `s1` or
+`sub1` to match the destination, carrying the code unmodified, nothing leaked (s2/s3/s4/s5/sub2-5/
+ttclid/lg/campid/sid/mc_attr), an untagged visit appending nothing, and no page pointing at
+sprktrax. It replaced `_direct-offer.test.mjs`, which pinned the old s5/s2/s3 contract and had been
+failing on `main` since the Everflow migration.
 
-The prelander sits in front now, so also load it and confirm the whole chain:
-`http://localhost:8899/pre/index.html?s1=SPK-TEST-0001&s3=acct7&ttclid=TT1&to=%2F50FC%2FFC1` —
-a desktop browser must land on the lander with `s1`/`ttclid`/`s3` intact, **no `to=` on the door
-URL**, and `&preview=1` must render the card without navigating (that is the admin iframe path).
-
-Run the suite. All four must be green — the last two are the prelander's:
+Then prove it in a real browser anyway:
 
 ```bash
-for t in _links-config _tracking-audit _traffic-filter _prelander-page; do node "api/_lib/$t.test.mjs" | tail -1; done
+cd <repo> && python3 -m http.server 8899 &
 ```
 
-The old repo-wide clean grep is now **check 6 of `_tracking-audit.test.mjs`**, which strips comments
-first (so `js/safe.js` saying it avoids `document.write` no longer reads as using it) and allows the
-scheme patterns only in `pre/index.html` + `js/breakout.js`. Run the test rather than the grep — the
-grep flagged those two sanctioned files and every comment mentioning the patterns.
+- lander: `http://localhost:8899/frcusa.html?s1=SPK-TEST-0001&s2=pub9&s3=acct7&ttclid=TT1&lg=US&campid=X&sid=zz`
+  → `a.offer-link` / `#tipGo` href must be **base + one param**, nothing else.
+- bare visit `http://localhost:8899/frcusa.html` → href is the bare offer link, **no `?` at all**.
+- prelander: `http://localhost:8899/frcusa-pre.html?s1=SPK-TEST-0001&s2=pub9&ttclid=TT1`, tap
+  Continue → lands on the lander with `s1` intact and **no `sid` added**.
+- `performance.getEntriesByType('resource')` must show **no** `sprknetwork.ad`, `funnel-beacon`,
+  `cloudflareinsights` or `ttclid.js` request. The TikTok pixel SHOULD still be there.
+
+⚠️ **Never click a CTA on a live lander during verification** — the destination is a real tracker
+and it registers a real click. Read the `href`; do not follow it.
+
+Run the suite:
+
+```bash
+for t in _links-config _tracking-audit _prelander-page _front-routing _partner-links _partner-store _partner-portal _offer-link; do
+  printf '%-18s ' "$t"; node "api/_lib/$t.test.mjs" | tail -1
+done
+```
+
+⚠️ **`_prelander-page.test.mjs` fails 8/62 on `main` and has since before this work** — it drives
+`js/breakout.js` against the old `?to=` design, while the flat prelanders now name their lander in a
+`<meta name="sprk-lander">`. Pre-existing; do not attribute it to a lander change. Everything else
+must be green.
+
+⚠️ **`git clean -fd` will delete new untracked test files** — `git add` them first. Learned the
+hard way here: it removed `_offer-link.test.mjs` and `_guard.js` mid-session.
+
+The old repo-wide clean grep is **check 6 of `_tracking-audit.test.mjs`**, which strips comments
+first and allows the scheme patterns only in `pre/index.html` + `js/breakout.js`. Run the test
+rather than the grep.
 
 ## Deploy / push mechanics
 
@@ -891,6 +1026,22 @@ HEAD:main` from a worktree branch avoids a checkout. `.vercelignore` keeps `just
 off the live domain (note: `justincase/` is also untracked, so it wouldn't deploy regardless).
 
 ## Changelog
+
+- **2026-08-20** — **s1-only, rebuilt on top of `ac2992a`.** That commit ("the network gets the
+  code, SPRK keeps the wire") landed mid-session and overlapped: it extracts the SPK from the
+  compound wire and it EXPANDED the funnel beacon. Both were adopted — the extraction now runs on
+  all 7,728 landers rather than its original 86, and the beacon stays (Migi confirmed). The rest: Migi: *"remove anything that had to do with the sprkdoor … make it
+  so moving forward it only ever carrys the s1 and then the link."* Rewrote the CTA builder in
+  **7,725 landers** to emit the offer link plus ONE param (`sub1` on 6,471 Everflow pages, `s1` on
+  1,258 CAKE pages), deleted the funnel beacon from 796 landers and 797 prelanders, dropped the
+  minted `s5`, the `sub2/sub3/sub4` namespacing, `ttclid` forwarding, `js/ttclid.js` (deleted), the
+  Cloudflare Insights beacon (71 pages), the `?debug=1` console dump (7,312 pages) and 702 dead
+  `__offerUrl` copies. Renamed the door vocabulary out of every page. Quarantined all 11 generators
+  behind `_guard.js`. New `api/_lib/_offer-link.test.mjs` executes the shipped builder in 7,728
+  landers; `_direct-offer.test.mjs` deleted as superseded. `_links-config.test.mjs`'s `doorsIn()`
+  taught the new identifier names. See "The outbound wire" above for what the removals cost —
+  **the s5/postback-dedup one is the expensive one.** A full review before the push then found and
+  fixed 7 more defects, 2 of them pre-existing — see "Bugs the s1-only review caught".
 
 - **2026-08-17 (2)** — **THE DOOR IS GONE FROM THE LANDERS.** Migi: "make sure every single landing
   page redirects with a actual link instead of calling a API at the end." 6,937 files migrated to

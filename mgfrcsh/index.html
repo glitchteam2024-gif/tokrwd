@@ -300,30 +300,15 @@
     
     var s1 = q.get('s1') || q.get('sub1') || q.get('campid') || q.get('s2') || q.get('cid') || q.get('c') || '';
 
-    /* ttclid hygiene — carried over from the previous /mgfrcsh, do not drop it.
-       An unsubstituted macro is worse than nothing: it is indistinguishable downstream from a real
-       click id. Same rules api/_lib/tiktok-event.js usableTtclid() applies. */
-    var tt = q.get('ttclid') || '';
-    if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
-
-    /* COOKIE FALLBACK for a ttclid the query lost (error-log #048). /js/ttclid.js banks the click
-       id in a first-party _ttclid cookie, but its own rewriter only tags <a href> anchors that
-       already point at a tracker — and this page BUILDS that href in JS afterwards, so the cookie
-       was written and never read. Re-validated here because a cookie is attacker-writable. */
-    if (!q.get('ttclid')) {
-      try {
-        var ck = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
-        var ckv = ck ? decodeURIComponent(ck[1]) : '';
-        if (ckv && !/[{}\[\]#%]/.test(ckv) && !/CLICK_ID|__CLICKID__/i.test(ckv)) q.set('ttclid', ckv);
-      } catch (e) {}
-    }
-
-    
-    var out = new URLSearchParams(q.toString());
-    out.delete('s1'); out.delete('sub1'); out.delete('campid'); out.delete('lg'); out.delete('cid');
-    out.delete('a'); out.delete('c');
-    var qs = out.toString();
-    var OFFER = OFFER_BASE + (qs ? '&' + qs : '') + '&s1=' + encodeURIComponent(s1);
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    var OFFER = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
+      if (!_send1) return OFFER_BASE;
+      return OFFER_BASE + (OFFER_BASE.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+    })();
 
     var overlay = document.getElementById('tipOverlay');
     document.getElementById('tipGo').href = OFFER; // "Got it" goes to the offer
@@ -356,26 +341,9 @@
       try { if (window.ttq) ttq.track('CtaNoS1', { content_name: 'freecash CA cta without s1' }); } catch (e) {}
       console.warn('[mgfrcsh] NO ?s1= ON THIS URL — the offer will still open, but the conversion ' +
                    'cannot be attributed and will land unmatched. Add ?s1=<your registered spark code>.');
-      if (location.search.indexOf('debug=1') > -1) {
-        var warn = document.createElement('p');
-        warn.className = 'dbg';
-        warn.textContent = 'debug: no ?s1= on this URL — conversions will land unmatched. Append ?s1=<spark code>.';
-        var card = document.querySelector('.wrap');
-        if (card) card.appendChild(warn);
-      }
     }
 
-    if (location.search.indexOf('debug=1') > -1) {
-      console.log('[mgfrcsh debug]', {
-        s1: s1 || '(none — conversions will be unmatched)',
-        ttclid: q.get('ttclid') || '(none)',
-        mode: 'DIRECT to network (no SPRK door)',
-        target: OFFER
-      });
-    }
   })();
 </script>
-<!-- Banks ttclid in the _ttclid cookie so the fallback above has something to read. -->
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

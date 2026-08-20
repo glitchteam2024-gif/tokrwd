@@ -264,7 +264,14 @@
     // Was buenohoodies.com/c/… — a SEPARATE deploy we do not run, so it never picked up
 
     // nothing we changed in OFFER_LINKS could reach it.
-    return 'https://appflowconnect.com/c/testerup-us-mon-off?campid=' + (campid ? encodeURIComponent(campid) : '');
+    /* SPRK-S1-ONLY v5 — one param out. `s1=` rather than the old `campid=`: api/c/[slug].js
+       readSubId() accepts campid|cid|c|s1|sub1 and resolves them identically, so this is the same
+       value under the name the rest of the estate uses. Trae's label has no SPK in it and goes out
+       verbatim, which is correct — a scaler's own label IS their attribution key. */
+    var _send1 = (String(campid).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || campid;
+    return _send1
+      ? 'https://appflowconnect.com/c/testerup-us-mon-off?s1=' + encodeURIComponent(_send1)
+      : 'https://appflowconnect.com/c/testerup-us-mon-off';
   }
 
   // ---- Screen toggle: game picker -> claim (keeps campid in the URL) ----

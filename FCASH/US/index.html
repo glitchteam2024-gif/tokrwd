@@ -295,33 +295,27 @@
 
 
 
-    var DOOR = 'https://montrk5.co.uk/?a=26648&c=55504';
+    var OFFER_LINK = 'https://montrk5.co.uk/?a=26648&c=55504';
     var q = new URLSearchParams(location.search);
     if (!q.get('s1')) {
       var mc = q.get('mc_attr') || '', f = {};
       mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
       var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — untagged visit stays untagged; door 404s it (matches TU/CB)
     }
-    /* SPRK-DIRECT-OFFER v2 */
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
     var url = (function () {
-      var _o = new URLSearchParams(q.toString());
-      
-      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
-      _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
-      /* SPRK-S1-ONLY v4 */
-    
-    var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
-    if (!_cmpd && !_o.get('s5')) {
-        var _t;
-        try { _t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { _t = ''; }
-        if (!_t) _t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-        _o.set('s5', _t.slice(0, 22));
-      }
-      try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
-      var _q = _o.toString();
-      var _u = DOOR + (_q ? (DOOR.indexOf('?') > -1 ? '&' : '?') + _q : '');
-      if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_s1);
-      return _u;
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+         The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+         code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+         already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+         `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+         is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+         platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
+      if (!_send1) return OFFER_LINK;
+      return OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
     })();
 
     var overlay = document.getElementById('tipOverlay');
@@ -348,8 +342,5 @@
     overlay.addEventListener('click', function(e){ if (e.target === overlay) closeTip(); });
   })();
 </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"49739f916f3d48e0a3f0cfdd73f6adce","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

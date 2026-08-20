@@ -340,7 +340,7 @@ var CLAIMS = {
 <script>
 (function(){
   
-  var DOOR = 'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/';
+  var OFFER_LINK = 'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/';
 
 
   var q = new URLSearchParams(location.search);
@@ -358,8 +358,6 @@ var CLAIMS = {
     var d = f.e || f.c; if (d) q.set('s1', d);
   }
 
-  // ttclid: drop an unsubstituted macro FIRST, then refill from the first-party cookie
-  // that /js/ttclid.js banks. Order matters — refilling before the drop would clear the
 
 
   var BAD = /CLICK_ID|__CLICKID__|[{}\[\]#%]/i;
@@ -380,42 +378,20 @@ var CLAIMS = {
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('campid'); out.delete('lg');
     var qs = out.toString(), s1 = q.get('s1') || '';
-    /* SPRK-DIRECT-OFFER v2 */
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
     var url = (function () {
-      var _o = new URLSearchParams(qs);
-      
-      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
-      _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
-      /* SPRK-S1-ONLY v4 */
-    
-    var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
-    if (!_cmpd && !_o.get('s5')) {
-        var _t;
-        try { _t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { _t = ''; }
-        if (!_t) _t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-        _o.set('s5', _t.slice(0, 22));
-      }
-      try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
-      /* SPRK-SUBID-NS v3 */
-      
-      if (_o.get('s5')) _o.set('sub2', _o.get('s5'));
-      if (_o.get('s3') && !_o.get('sub3')) _o.set('sub3', _o.get('s3'));
-      if (_o.get('s2') && !_o.get('sub4')) _o.set('sub4', _o.get('s2'));
-      ['1', '2', '3', '4', '5'].forEach(function (n) { _o.delete('s' + n); });
-      var _q = _o.toString();
-      var _u = DOOR + (_q ? (DOOR.indexOf('?') > -1 ? '&' : '?') + _q : '');
-      /* SPRK-SEND-SPK-ONLY v1 — the network receives the CODE, never the whole wire.
-       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>. Only the SPK leaves: it is the
-       whole handshake, because the code identifies the creative and the creative identifies the
-       affiliate. Everything else is SPRK's and stays here — the funnel beacon above already
-       recorded the full value, so geo, campaign and affiliate remain recoverable on our side.
-       Two reasons this is safer than sending the lot: a short clean code cannot be truncated or
-       rejected by a network, and the affiliate's username never appears in a third party's logs.
-       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form
-       label is their attribution key, and blanking it would pay them nothing. */
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+         The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+         code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+         already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+         `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+         is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+         platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
       var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
-      if (_send1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
-      return _u;
+      if (!_send1) return OFFER_LINK;
+      return OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
     })();
     
     return url;
@@ -527,6 +503,5 @@ var CLAIMS = {
 </script>
 
 
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

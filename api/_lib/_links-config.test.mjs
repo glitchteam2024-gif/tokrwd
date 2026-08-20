@@ -324,16 +324,18 @@ eq('a prototype key is not treated as a campaign mapping',
 const REPO = new URL('../../', import.meta.url);
 
 function doorsIn(html) {
-  // Every way a lander names its destination: the Path A `var DOOR` line, a
-  // sprktrax door URL, or a /c/<slug> offer link on any of our cloaker domains.
+  // Every way a lander names its destination: the OFFER_LINK line, a legacy sprktrax door URL,
+  // or a /c/<slug> offer link on one of our own domains.
   const found = new Set();
   for (const m of html.matchAll(/sprktrax\.org\/api\/link\/([a-z0-9-]+)/gi)) found.add(`sprktrax.org/api/link/${m[1].toLowerCase()}`);
   for (const m of html.matchAll(/\/c\/([a-z0-9-]+)/gi)) found.add(`/c/${m[1].toLowerCase()}`);
   // Since 2026-08-17 a lander names its destination as the NETWORK URL itself — the door hop is
   // gone. Read it from the one line that decides it rather than from any network URL on the page,
   // so a preconnect hint or a comment cannot be mistaken for the offer link.
-  for (const m of html.matchAll(/window\.__DOOR_URL__\s*=\s*window\.__DOOR_URL__\s*\|\|\s*"([^"]+)"/gi)) found.add(m[1].toLowerCase());
-  for (const m of html.matchAll(/(?:var|let|const)\s+DOOR\s*=\s*(?:window\.__DOOR_URL__\s*\|\|\s*)?['"]([^'"]+)['"]/gi)) found.add(m[1].toLowerCase());
+  // The identifiers were renamed off the door vocabulary on 2026-08-20 (DOOR -> OFFER_LINK);
+  // the old spellings stay matched so an unconverted page is still read, not silently skipped.
+  for (const m of html.matchAll(/window\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\s*=\s*window\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\s*\|\|\s*"([^"]+)"/gi)) found.add(m[1].toLowerCase());
+  for (const m of html.matchAll(/(?:var|let|const)\s+(?:DOOR|OFFER_LINK|OFFER_URL|OFFER_BASE)\s*=\s*(?:window\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\s*\|\|\s*)?['"]([^'"]+)['"]/gi)) found.add(m[1].toLowerCase());
   return found;
 }
 

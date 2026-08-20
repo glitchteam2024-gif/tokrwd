@@ -56,7 +56,10 @@ const OUR_TRACKING_HOSTS = new Set([
 // Matched against a parsed HOSTNAME, not against raw text: `https://www.trendhavenn.com`
 // slipped past an earlier text-anchored version of this check because of the `www.`,
 // which is precisely the kind of miss that makes an audit worse than no audit.
-const NETWORK_HOST_RE = /^(?:.*\.)?(?:monetisetrk\d*|montrk\d*|phef6trk|affrkr|trendhavenn|buenohoodies)\.(?:co\.uk|com)$/i;
+// ⚠️ `fkn8s74mztrk` (Everflow) was missing here until 2026-08-20, so the destination checks below
+// silently skipped the 6,471 landers that point at it — the largest slice of the estate — even
+// though OFFER_LINKS_BY_SLICE already pinned Everflow path segments for PR50/PC50.
+const NETWORK_HOST_RE = /^(?:.*\.)?(?:monetisetrk\d*|montrk\d*|phef6trk|fkn8s74mztrk|affrkr|trendhavenn|buenohoodies)\.(?:co\.uk|com)$/i;
 
 // Files that legitimately contain network hosts or archived cloaking, and never deploy.
 //
@@ -147,9 +150,11 @@ const OFFER_LINKS_BY_SLICE = {
 };
 
 /** The outbound offer link a lander actually ships. */
+// The door vocabulary was renamed to OFFER_LINK on 2026-08-20. Both spellings stay matched: a
+// page that has not been converted must still be READ by this check, not silently skipped.
 const OUTBOUND_RE = new RegExp(
-  'window\\.__DOOR_URL__\\s*=\\s*window\\.__DOOR_URL__\\s*\\|\\|\\s*"([^"]+)"' +
-  '|(?:var|let|const)\\s+DOOR\\s*=\\s*(?:window\\.__DOOR_URL__\\s*\\|\\|\\s*)?[\'"]([^\'"]+)[\'"]');
+  'window\\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\\s*=\\s*window\\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\\s*\\|\\|\\s*"([^"]+)"' +
+  '|(?:var|let|const)\\s+(?:DOOR|OFFER_LINK|OFFER_URL|OFFER_BASE)\\s*=\\s*(?:window\\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\\s*\\|\\|\\s*)?[\'"]([^\'"]+)[\'"]');
 
 // Clone shapes seen in the tree: SLICE/GEO<n>/index.html, the same with a /go/ hop, SLICE/GEO/
 // (the per-geo canonical), and SLICE/index.html (the slice root — a real deployed lander, so it is
@@ -162,6 +167,7 @@ const SHAPES = [
 ];
 
 const groups = new Map();          // "SLICE\u0000GEO" -> Map(destination -> [files])
+let inspected = 0;                 // landers whose destination line was actually readable
 const offenders = [];
 for (const rel of files) {
   const src = readFileSync(new URL(rel, REPO), 'utf8');
@@ -178,6 +184,7 @@ for (const rel of files) {
 
   const m = OUTBOUND_RE.exec(src);
   if (!m) continue;
+  inspected++;
   const dest = m[1] || m[2];
   if (dest.includes('sprktrax.org')) continue;   // still on the door; check 4 and _direct-offer own that
 
@@ -205,6 +212,13 @@ for (const [key, byDest] of groups) {
     if (!dest.includes(want)) offenders.push(`${slice}/${geo}: expected ${want}, got ${dest} (${fs.length} files)`);
   }
 }
+// ⚠️ This check reads the destination out of ONE line. When that line was renamed
+// (__DOOR_URL__ -> __OFFER_LINK__) the regex stopped matching and every lander fell through the
+// `if (!m) continue` above — the check passed while inspecting nothing. Assert the coverage so a
+// future rename fails loudly instead of going quietly blind.
+console.log(`   (destination line read in ${inspected} landers)`);
+report('the destination check actually inspected the estate',
+       inspected > 5000 ? [] : [`_tracking-audit: only ${inspected} landers had a readable destination line — OUTBOUND_RE has gone blind`]);
 report('every lander links to the offer link for its own slice and geo', offenders);
 
 // ── 2. Every /c/ offer link on a lander is on one of OUR hosts ────────────────

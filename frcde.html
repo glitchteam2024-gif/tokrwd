@@ -293,53 +293,21 @@
 
   // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
-    // STRAIGHT TO THE NETWORK (Migi, 2026-08-17). This used to go through the SPRK door, and the
-
-    // now a list of what we GAVE UP — kept deliberately, because every line of it is a real
-    // capability that silently stopped existing rather than started erroring:
-
-
-
-
-    //     those, so an offer that needs stopping must now be stopped at the network.
-    //   · the ttclid freeze for the TikTok CAPI forward — gone, and this is the one with teeth.
-
-    //     clicks row any more. ttclid IS still forwarded to the network in the URL below, so the
-
-    //     Until that lands, CAPI events from this page have no ttclid to attribute with.
-    // Geo is unchanged and still safe: it is baked into THIS page rather than sniffed from the
-    // visitor's IP, so traffic still cannot shop into a higher-paying geo.
-
-
-
     var OFFER_URL = 'https://montrk5.co.uk/?a=26648&c=55520';
-/* SPRK-DIRECT-OFFER v1 */
-  
-  function __sprkOffer(base) {
-    var p = new URLSearchParams(location.search);
-    p.delete('lg'); p.delete('campid'); p.delete('sid');
-    var s1 = p.get('s1') || p.get('sub1') || '';
-    p.delete('s1'); p.delete('sub1');
-    var t;
-    try { t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { t = ''; }
-    if (!t) t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-    t = t.slice(0, 22);
-    /* SPRK-S1-ONLY v4 */ if (!(/_/.test(s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(s1)) && !p.get('s5')) p.set('s5', t);
-    try { window.__SPRK_S5 = p.get('s5'); } catch (e) {}
-    var qs = p.toString();
-    var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');
-    /* SPRK-SEND-SPK-ONLY v1 — the network receives the CODE, never the whole wire.
-       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>. Only the SPK leaves: it is the
-       whole handshake, because the code identifies the creative and the creative identifies the
-       affiliate. Everything else is SPRK's and stays here — the funnel beacon above already
-       recorded the full value, so geo, campaign and affiliate remain recoverable on our side.
-       Two reasons this is safer than sending the lot: a short clean code cannot be truncated or
-       rejected by a network, and the affiliate's username never appears in a third party's logs.
-       `|| s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form
-       label is their attribution key, and blanking it would pay them nothing. */
-      var _send1 = (String(s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || s1;
-      if (_send1) url += (url.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
-    return url;
+/* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+  function __offerUrl(base) {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || '';
+    /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+       code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+       already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+       is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+       platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
+    if (!_send1) return base;
+    return base + (base.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
   }
   /* SPRK-FUNNEL-BEACON v2 */
   /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
@@ -384,7 +352,7 @@
       mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
       var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — an untagged visit stays untagged and simply attributes to nobody
     }
-    q.delete('lg'); var url = __sprkOffer(OFFER_URL);
+    q.delete('lg'); var url = __offerUrl(OFFER_URL);
 
     var overlay = document.getElementById('tipOverlay');
     document.getElementById('tipGo').href = url; // "Got it" goes to the offer
@@ -410,8 +378,5 @@
     overlay.addEventListener('click', function(e){ if (e.target === overlay) closeTip(); });
   })();
 </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"49739f916f3d48e0a3f0cfdd73f6adce","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

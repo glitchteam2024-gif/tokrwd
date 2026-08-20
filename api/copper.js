@@ -12,14 +12,10 @@ export default function handler(req, res) {
   // Pull the tracking sub-id from the incoming click.
   const sub = (first(req.query.campid) || first(req.query.s1) || first(req.query.sub_id) || first(req.query.s2) || '').toString();
 
-  // Forward ONLY s3 (the TikTok ad account the SPRK launcher stamps on every ad link) so the
-  // downstream bridge can carry the per-account breakdown onward. s2/s4/s5 are not forwarded:
-  // this hop bridges to the sprktrax door, which re-stamps s1/s2/s4 and injects the click_id
-  // itself (a forwarded s4 would suppress its authoritative offer-name stamp).
-  const s3v = (first(req.query.s3) || '').toString();
-  const extra = s3v ? '&s3=' + encodeURIComponent(s3v) : '';
-
-  const dest = OFFER_BASE + encodeURIComponent(sub) + extra;
+  /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else.
+     s3 used to ride along here for a per-ad-account breakdown; it does not any more. An empty
+     code appends NOTHING rather than shipping a blank sub-id the network would record as real. */
+  const dest = sub ? OFFER_BASE + encodeURIComponent(sub) : OFFER_BASE.replace(/[?&][a-z0-9_]+=$/i, '');
 
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');

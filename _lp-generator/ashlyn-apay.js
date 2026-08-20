@@ -34,6 +34,7 @@
  *   grep -nE "location\\.href|location\\.replace|window\\.open|sprktrax|api/link|href=" file.html
  * and treat '#', 'javascript:void(0)' and example.com as the same finding: no outbound path.
  */
+require('./_guard.js')('ashlyn-apay.js');
 const fs = require('fs');
 const path = require('path');
 

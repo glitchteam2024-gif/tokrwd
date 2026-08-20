@@ -13,9 +13,7 @@
 <script id="offer-config">
 /* This page IS one geo — CA — with its figures baked into the markup. No runtime geo
    detection, no language switcher, no cookie: the geo is decided by WHICH PAGE the ad points at.
-   __OFFER_URL__ is the network offer URL. Since 2026-08-11 (tokrwd 316c1b6, Migi's call) landers
-   link STRAIGHT to the network — the sprktrax door hop is gone, so nothing mints a click id for
-   us and the builder below mints its own token. */
+   __OFFER_URL__ is the network offer URL: landers link straight to it. */
 window.__OFFER_URL__ = window.__OFFER_URL__ || "https://www.fkn8s74mztrk.com/F2R45HNR/H2KP8J1L/";
 window.__STATS__     = window.__STATS__ || null;
 </script>
@@ -269,7 +267,7 @@ window.__STATS__     = window.__STATS__ || null;
 window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
 if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
 
-var DOOR      = window.__OFFER_URL__ || "https://www.fkn8s74mztrk.com/F2R45HNR/H2KP8J1L/";
+var OFFER_LINK      = window.__OFFER_URL__ || "https://www.fkn8s74mztrk.com/F2R45HNR/H2KP8J1L/";
 var GEO_VALUE = 1000;
 var CURRENCY  = "CAD";
 
@@ -283,71 +281,32 @@ if (!q.get('s1')) {
 }
 
 /* Referrer rescue for a stripped query (in-app browsers drop params on some hops). */
-if ((!q.get('s1') || !q.get('utm_campaign')) && document.referrer) {
+if (!q.get('s1') && document.referrer) {
   try {
     var r = new URLSearchParams(new URL(document.referrer).search);
-    ['s1','s2','s3','s4','utm_campaign','campaign','ttclid','lg'].forEach(function(k){
-      if (!q.get(k) && r.get(k)) q.set(k, r.get(k));
-    });
+    var _r = r.get('s1') || r.get('sub1');
+    if (_r) q.set('s1', _r);
   } catch(e) {}
 }
 
-/* Drop unsubstituted TikTok macros rather than forwarding the literal placeholder. */
-var tt = q.get('ttclid') || '';
-if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
 
 var s1 = q.get('s1') || '';
 
-/* Builder copied verbatim from the shipped apay750usa.html so this page cannot drift from the
-   estate: SPRK-DIRECT-OFFER v2 + SPRK-S1-ONLY v4 + SPRK-SUBID-NS v3. Exactly one '?', sub1 once
-   and last, its own per-click token in s5 -> sub2 (nothing mints a click id now that the door hop
-   is gone), and lg/campid never reach the network. */
-function buildDoorUrl() {
-  var out = new URLSearchParams(q.toString());
-  out.delete('s1');
-  out.delete('lg');   // routes the lander only — the network never sees it
-  var qs = out.toString();
-  /* SPRK-DIRECT-OFFER v2 */
-  var url = (function () {
-    var _o = new URLSearchParams(qs);
-
-    var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : (_o.get('s1') || '');
-    _o.delete('s1'); _o.delete('lg'); _o.delete('campid');
-    /* SPRK-S1-ONLY v4 */
-
-    var _cmpd = /_/.test(_s1) && /SPK-[0-9A-F]{4}-[0-9A-F]{4}/i.test(_s1);
-    if (!_cmpd && !_o.get('s5')) {
-      var _t;
-      try { _t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { _t = ''; }
-      if (!_t) _t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-      _o.set('s5', _t.slice(0, 22));
-    }
-    try { window.__SPRK_S5 = _o.get('s5'); } catch (e) {}
-    /* SPRK-SUBID-NS v3 */
-
-    if (_o.get('s5')) _o.set('sub2', _o.get('s5'));
-    if (_o.get('s3') && !_o.get('sub3')) _o.set('sub3', _o.get('s3'));
-    if (_o.get('s2') && !_o.get('sub4')) _o.set('sub4', _o.get('s2'));
-    ['1', '2', '3', '4', '5'].forEach(function (n) { _o.delete('s' + n); });
-    var _q = _o.toString();
-    var _u = DOOR + (_q ? (DOOR.indexOf('?') > -1 ? '&' : '?') + _q : '');
-    /* SPRK-SEND-SPK-ONLY v1 — the network receives the CODE, never the whole wire.
-       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>. Only the SPK leaves: it is the
-       whole handshake, because the code identifies the creative and the creative identifies the
-       affiliate. Everything else is SPRK's and stays here — the funnel beacon above already
-       recorded the full value, so geo, campaign and affiliate remain recoverable on our side.
-       Two reasons this is safer than sending the lot: a short clean code cannot be truncated or
-       rejected by a network, and the affiliate's username never appears in a third party's logs.
-       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form
-       label is their attribution key, and blanking it would pay them nothing. */
-      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
-      if (_send1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
-    return _u;
-  })();
-
-  return url;
+function buildOfferUrl() {
+  var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+  if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+  /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+     The wire is <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the code
+     identifies the creative and the creative identifies the affiliate. The funnel beacon has
+     already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+     `|| _s1` keeps a code-less value going out verbatim — a scaler's own free-form label IS
+     their attribution key and blanking it would pay them nothing. Case-insensitive, because a
+     lowercasing ad platform would otherwise match nothing and ship the entire wire. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
+  if (!_send1) return OFFER_LINK;
+  return OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
 }
-var target = buildDoorUrl();
+var target = buildOfferUrl();
 
 if (window.ttq) { try { ttq.track('ViewContent', { content_name: 'Rewards CA - Apple Pay $1000', value: GEO_VALUE, currency: CURRENCY }); } catch(e) {} }
 
@@ -500,11 +459,7 @@ renderFaq();
 renderQuestion('Which Apple product will you get first?', products, 1);
 updateProgress();
 
-if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1) {
-  console.log('[applepay1000-ca-ravi debug]', { geo: 'CA', s1: s1 || '(none)', target: target });
-}
 })();
 </script>
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>
