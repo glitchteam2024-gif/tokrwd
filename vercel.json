@@ -376,6 +376,22 @@
       "destination": "/apay1kuk-ravi.html"
     },
     {
+      "source": "/RV70/:c(US\\d+)/go",
+      "destination": "/gravypassusa-ravi.html"
+    },
+    {
+      "source": "/RV70/:c(US\\d+)",
+      "destination": "/gravypassusa-ravi-pre.html"
+    },
+    {
+      "source": "/gravypassusa-ravi-pre",
+      "destination": "/gravypassusa-ravi-pre.html"
+    },
+    {
+      "source": "/gravypassusa-ravi",
+      "destination": "/gravypassusa-ravi.html"
+    },
+    {
       "source": "/PR50/:c(AU\\d+)/go",
       "destination": "/playfulau.html"
     },
