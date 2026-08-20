@@ -328,6 +328,54 @@
       "destination": "/apay750usa-kerman.html"
     },
     {
+      "source": "/RV64/:c(US\\d+)",
+      "destination": "/apay750usa-ravi.html"
+    },
+    {
+      "source": "/apay750usa-ravi",
+      "destination": "/apay750usa-ravi.html"
+    },
+    {
+      "source": "/RV65/:c(US\\d+)",
+      "destination": "/apayflashusa-ravi.html"
+    },
+    {
+      "source": "/apayflashusa-ravi",
+      "destination": "/apayflashusa-ravi.html"
+    },
+    {
+      "source": "/RV66/:c(US\\d+)",
+      "destination": "/acashusa-ravi.html"
+    },
+    {
+      "source": "/acashusa-ravi",
+      "destination": "/acashusa-ravi.html"
+    },
+    {
+      "source": "/RV67/:c(CA\\d+)",
+      "destination": "/apay1kcana-ravi.html"
+    },
+    {
+      "source": "/apay1kcana-ravi",
+      "destination": "/apay1kcana-ravi.html"
+    },
+    {
+      "source": "/RV68/:c(AU\\d+)",
+      "destination": "/apay1kau-ravi.html"
+    },
+    {
+      "source": "/apay1kau-ravi",
+      "destination": "/apay1kau-ravi.html"
+    },
+    {
+      "source": "/RV69/:c(GB\\d+)",
+      "destination": "/apay1kuk-ravi.html"
+    },
+    {
+      "source": "/apay1kuk-ravi",
+      "destination": "/apay1kuk-ravi.html"
+    },
+    {
       "source": "/PR50/:c(AU\\d+)/go",
       "destination": "/playfulau.html"
     },
