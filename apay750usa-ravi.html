@@ -331,7 +331,17 @@ function buildDoorUrl() {
     ['1', '2', '3', '4', '5'].forEach(function (n) { _o.delete('s' + n); });
     var _q = _o.toString();
     var _u = DOOR + (_q ? (DOOR.indexOf('?') > -1 ? '&' : '?') + _q : '');
-    if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_s1);
+    /* SPRK-SEND-SPK-ONLY v1 — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>. Only the SPK leaves: it is the
+       whole handshake, because the code identifies the creative and the creative identifies the
+       affiliate. Everything else is SPRK's and stays here — the funnel beacon above already
+       recorded the full value, so geo, campaign and affiliate remain recoverable on our side.
+       Two reasons this is safer than sending the lot: a short clean code cannot be truncated or
+       rejected by a network, and the affiliate's username never appears in a third party's logs.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form
+       label is their attribution key, and blanking it would pay them nothing. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
+      if (_send1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
     return _u;
   })();
 

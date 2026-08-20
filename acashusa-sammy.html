@@ -610,7 +610,17 @@
       ['1', '2', '3', '4', '5'].forEach(function (n) { _o.delete('s' + n); });
       var _q = _o.toString();
       var _u = DOOR + (_q ? (DOOR.indexOf('?') > -1 ? '&' : '?') + _q : '');
-      if (_s1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_s1);
+      /* SPRK-SEND-SPK-ONLY v1 — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>. Only the SPK leaves: it is the
+       whole handshake, because the code identifies the creative and the creative identifies the
+       affiliate. Everything else is SPRK's and stays here — the funnel beacon above already
+       recorded the full value, so geo, campaign and affiliate remain recoverable on our side.
+       Two reasons this is safer than sending the lot: a short clean code cannot be truncated or
+       rejected by a network, and the affiliate's username never appears in a third party's logs.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form
+       label is their attribution key, and blanking it would pay them nothing. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
+      if (_send1) _u += (_u.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
       return _u;
     })();
     return url;
@@ -676,6 +686,42 @@
     }, { threshold:0.12 });
     reveal.forEach(function(el){ io.observe(el); });
   }
+
+/* SPRK-FUNNEL-BEACON v2 */
+  /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
+     analytics cannot throw on the path to the offer. No UA test here -- /api/funnel-beacon
+     classifies in-app server-side, which keeps this page identical for every visitor. */
+  (function(){
+    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    var bseg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+    function bsend(ev, extra){
+      try {
+        var d = { event: ev, sid: bq.get('sid') || '',
+                  s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                  ttclid: bq.get('ttclid') || '',
+                  slice: 'ACASHUSA-SAMMY', clone: 'US', path: location.pathname };
+        if (extra) for (var k in extra) d[k] = extra[k];
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify(d)], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    /* Bound to the CTA, not to the URL builder — binding to the exit control is what keeps a
+       'click' meaning the same thing on every lander generation. Fires once. */
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'ctaBtn' || el.id === 'tipGo' || el.id === 'doorClaim' || el.id === 'cta-hero'
+            || (el.classList && (el.classList.contains('offer-link') || el.classList.contains('store-combo')))) {
+          fired = true;
+          bsend('offer_click', { s5: (window.__SPRK_S5 || '') });
+          return;
+        }
+      }
+    }, true);
+  })();
 })();
 </script>
 
