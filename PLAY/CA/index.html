@@ -338,7 +338,7 @@
          `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
          is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
          platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
-      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || _s1;
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
       if (!_send1) return OFFER_LINK;
       return OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
     })();
