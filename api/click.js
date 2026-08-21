@@ -13,11 +13,9 @@
  * creative path) written from inside the redirect itself, so a click cannot land
  * on the network without first landing in our log.
  *
- * ⚠️ THE GATE APPENDS EXACTLY ONE THING (2026-08-21): the click token, in the slot
- * the destination's network reads `cid=` from (`s5` on CAKE, `sub2` on Everflow).
- * That is a second parameter on the wire and it is deliberate — see the block at
- * the append site for the measurement that justifies it. The page's own param is
- * never touched, so the affiliate code still arrives exactly as it did.
+ * ⚠️ THE GATE ADDS NOTHING TO THE WIRE. It forwards the page's URL unchanged: the
+ * offer link plus the one param carrying the affiliate code. A click token rode here
+ * briefly and was removed — see the note at the mint site.
  *
  * Order of operations is the design:
  *   1. resolve the target (override table, else the page's validated `u`)
@@ -35,7 +33,6 @@
 import {
   buildDirectUrl,
   extractSparkCode,
-  gateClickSlotFor,
   getGateOverride,
   isAllowedGateDestination,
 } from './_lib/links-config.js';
@@ -102,25 +99,19 @@ export default async function handler(req, res) {
       return res.status(404).send('Not found');
     }
 
-    /* ── THE CLICK TOKEN (2026-08-21) ──────────────────────────────────────────
-     * One unique value per click, riding the slot the destination's network reads its
-     * `cid=` from. This is the SECOND parameter on the wire, and it is deliberate.
+    /* ── ONE PARAM ON THE WIRE ─────────────────────────────────────────────────
+     * The network receives the offer link and the affiliate code. Nothing else.
      *
-     * WHY IT IS WORTH BREAKING "one param and the link" FOR. A conversion that comes back
-     * with no transaction id and no click token has only `(network, spark code)` to be
-     * identified by, and the postback then has to fall back to collapsing anything on that
-     * pair inside 120 seconds. Measured on production 2026-08-21: 76% of gross arrives with
-     * no usable transaction id, and the Monetise click slot is empty on 98.7% of postbacks —
-     * so most of the money is currently carried by an identifier that cannot tell two real
-     * conversions apart. This token is what makes them distinguishable.
+     * A click token briefly rode here in the `cid` slot (s5 on CAKE, sub2 on Everflow) as
+     * duplicate protection. It is gone at Migi's instruction, and the ground has shifted under
+     * the reason it existed: Monetise is substituting `#tid#` correctly again, so `conversions`
+     * has a real transaction id to enforce its unique index on — which is the protection the
+     * token was standing in for. Measured over 60 days there was never a provable duplicate.
      *
-     * It does NOT change what identifies the affiliate: the code still rides slot 1 exactly
-     * as before, and a gate click row carries no owner, so a postback that matches on this
-     * token still attributes through the spark code (postback.ts falls through when
-     * `clickRow.owner_user_id` is null). Dedup precision, not a new attribution path. */
+     * The click_id is STILL minted and STILL logged. It is our own record of the click; it just
+     * does not travel. What we give up by not sending it is the ability to tie a conversion back
+     * to one exact click — attribution is unaffected, because that has always run on the code. */
     const clickId = mintClickId();
-    const slot = gateClickSlotFor(target);
-    target = target + (target.indexOf('?') > -1 ? '&' : '?') + slot + '=' + encodeURIComponent(clickId);
 
     /* ── PROBE MODE ────────────────────────────────────────────────────────────
      * Mass link-testing needs to ask "would this click work?" thousands of times without
@@ -145,7 +136,6 @@ export default async function handler(req, res) {
         ok: true,
         target,
         via,
-        slot: gateClickSlotFor(target),
         key: deriveGateKey(lp),
       });
     }

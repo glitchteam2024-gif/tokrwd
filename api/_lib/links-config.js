@@ -1891,27 +1891,13 @@ export const GATE_OVERRIDES = {};
  * reverse. An override row that omits forwardParam must not silently default to one dialect and
  * zero out attribution for the other family — so infer from the host instead.
  */
-/**
- * The slot a destination's network reads its CLICK TOKEN back out of.
- *
- * Every offer declares `clickid_slot` in SPRK, and each network's postback template already
- * points `cid=` at that slot — `cid=#s5#` on Monetise (CAKE), `cid={sub2}` on the Everflow
- * family. Both are configured correctly and have been arriving EMPTY, because the door was
- * the only thing that ever filled them and it left the lander path on 2026-08-18. Measured
- * 2026-08-21: Monetise `s5` non-empty on 1.3% of postbacks, `cid` on 0.4%.
- *
- * Filling it again is what gives a conversion a per-click identity. Inferred from the host
- * rather than read from the DB so the redirect stays a pure function of the URL — no lookup
- * on the money path. The mapping matches production exactly: the 6 active Monetise offers
- * declare `s5`, all 58 active Everflow-family offers declare `sub2`.
+/* `gateClickSlotFor()` lived here — it chose the slot a click token rode back in (`s5` on CAKE,
+ * `sub2` on Everflow). REMOVED 2026-08-21 with the token itself: the wire carries the offer link
+ * and the affiliate code, and nothing else. Do not reintroduce it to "help attribution" — that
+ * decision has now been made four separate times. If duplicate protection is ever genuinely
+ * needed again, the network's own `txid` is the mechanism (Monetise substitutes `#tid#`
+ * correctly, and `conversions` has a unique index on it), not a second param on our wire.
  */
-export function gateClickSlotFor(destination) {
-  try {
-    return /\.co\.uk$/i.test(new URL(destination).hostname) ? 's5' : 'sub2';
-  } catch {
-    return 'sub2';
-  }
-}
 
 export function gateForwardParamFor(destination) {
   try {
