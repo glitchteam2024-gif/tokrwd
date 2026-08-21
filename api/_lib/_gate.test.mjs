@@ -33,6 +33,7 @@ function makeRes() {
     setHeader(k, v) { this.headers[k] = v; },
     status(c) { this.statusCode = c; return this; },
     send(b) { this.body = b; this.headersSent = true; return this; },
+    json(b) { this.body = b; this.headersSent = true; return this; },
     redirect(code, url) { this.statusCode = code; this.redirected = url; this.headersSent = true; return this; },
   };
 }
@@ -208,6 +209,34 @@ ok('allowlist: lookalike hosts refused',
 {
   const res = await hit({ u: [OFFER, OFFER], s1: [WIRE], lp: ['/frcusa.html'] });
   ok('array-form params resolve to first non-empty', res.statusCode === 302 && splitToken(res.redirected, OFFER).base === OFFER, res.redirected);
+}
+
+// ── 6b. probe mode: answers without acting ───────────────────────────────────
+{
+  const KEYED = { ...VISITOR_HEADERS, 'x-gate-key': 'test-gate-key' };
+  calls.length = 0;
+  const res = makeRes();
+  await handler({ query: { u: OFFER, s1: WIRE, lp: '/frcusa.html', probe: '1' }, headers: KEYED }, res);
+  ok('probe answers 200, not a redirect', res.statusCode === 200 && !res.redirected, String(res.statusCode));
+  const body = res.body && typeof res.body === 'object' ? res.body : null;
+  ok('probe reports the target it WOULD have sent', body && body.target === OFFER, JSON.stringify(res.body));
+  ok('probe reports the click slot', body && body.slot === 's5', body && body.slot);
+  ok('probe reports the derived creative key', body && body.key === 'frcusa', body && body.key);
+  // THE POINT: mass-testing every lander must not poison the click log or fire real clicks.
+  ok('probe writes NO log row', calls.length === 0, String(calls.length));
+
+  // An UNKEYED probe must behave like a normal click — otherwise anyone could append probe=1
+  // to a real ad link and silently suppress its logging.
+  calls.length = 0;
+  const res2 = makeRes();
+  await handler({ query: { u: OFFER, s1: WIRE, lp: '/frcusa.html', probe: '1' }, headers: VISITOR_HEADERS }, res2);
+  ok('an UNKEYED probe=1 is ignored — the click still redirects', res2.statusCode === 302, String(res2.statusCode));
+  ok('an UNKEYED probe=1 still logs, so it cannot suppress a real click', calls.length === 1, String(calls.length));
+
+  // A probe of a bad destination must still be refused, or the test would pass a dead lander.
+  const res3 = makeRes();
+  await handler({ query: { u: 'https://evil.example.com/x', probe: '1' }, headers: KEYED }, res3);
+  ok('probe still refuses an off-allowlist destination', res3.statusCode === 404, String(res3.statusCode));
 }
 
 // ── 7. deriveGateKey ─────────────────────────────────────────────────────────

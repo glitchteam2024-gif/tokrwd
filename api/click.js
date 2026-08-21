@@ -41,6 +41,17 @@ import {
 } from './_lib/links-config.js';
 import { deriveGateKey, gateLogRow, mintClickId, sendGateLog } from './_lib/gate-log.js';
 
+/* The probe secret is the ingest key: one shared secret between our own two deploys, already
+ * required to be set for the click log to work at all. A probe reveals only whether a URL we
+ * already serve would be accepted, so this is about not handing out a free oracle, not about
+ * protecting the click path. */
+const PROBE_KEY = process.env.GATE_INGEST_KEY || '';
+function probeKeyOk(req) {
+  if (!PROBE_KEY) return false;                       // unset → probe mode simply does not exist
+  const got = (req && req.headers && req.headers['x-gate-key']) || '';
+  return got === PROBE_KEY;
+}
+
 /** Read a query param that may arrive as a repeated key (Vercel gives an array). */
 function qparam(query, name) {
   const v = query[name];
@@ -89,6 +100,29 @@ export default async function handler(req, res) {
 
     if (!target) {
       return res.status(404).send('Not found');
+    }
+
+    /* ── PROBE MODE ────────────────────────────────────────────────────────────
+     * Mass link-testing needs to ask "would this click work?" thousands of times without
+     * (a) firing a real click at the network or (b) writing thousands of fake rows into the
+     * click log. Both would make the test worse than useless: one costs money at the network,
+     * the other poisons the very data the tab reports.
+     *
+     * So a keyed probe runs the ENTIRE resolution — allowlist, override table, slot choice,
+     * URL assembly — and then answers with what it WOULD have done instead of doing it. No
+     * row, no 302, no network contact.
+     *
+     * Keyed on the ingest secret so it is not a public oracle for what our allowlist accepts;
+     * an unkeyed `probe=1` is ignored entirely, so a crafted URL cannot suppress a real click's
+     * logging by adding the param. */
+    if (qparam(query, 'probe') === '1' && probeKeyOk(req)) {
+      return res.status(200).json({
+        ok: true,
+        target,
+        via,
+        slot: gateClickSlotFor(target),
+        key: deriveGateKey(lp),
+      });
     }
 
     /* ── THE CLICK TOKEN (2026-08-21) ──────────────────────────────────────────
