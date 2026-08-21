@@ -102,29 +102,6 @@ export default async function handler(req, res) {
       return res.status(404).send('Not found');
     }
 
-    /* ── PROBE MODE ────────────────────────────────────────────────────────────
-     * Mass link-testing needs to ask "would this click work?" thousands of times without
-     * (a) firing a real click at the network or (b) writing thousands of fake rows into the
-     * click log. Both would make the test worse than useless: one costs money at the network,
-     * the other poisons the very data the tab reports.
-     *
-     * So a keyed probe runs the ENTIRE resolution — allowlist, override table, slot choice,
-     * URL assembly — and then answers with what it WOULD have done instead of doing it. No
-     * row, no 302, no network contact.
-     *
-     * Keyed on the ingest secret so it is not a public oracle for what our allowlist accepts;
-     * an unkeyed `probe=1` is ignored entirely, so a crafted URL cannot suppress a real click's
-     * logging by adding the param. */
-    if (qparam(query, 'probe') === '1' && probeKeyOk(req)) {
-      return res.status(200).json({
-        ok: true,
-        target,
-        via,
-        slot: gateClickSlotFor(target),
-        key: deriveGateKey(lp),
-      });
-    }
-
     /* ── THE CLICK TOKEN (2026-08-21) ──────────────────────────────────────────
      * One unique value per click, riding the slot the destination's network reads its
      * `cid=` from. This is the SECOND parameter on the wire, and it is deliberate.
@@ -144,6 +121,34 @@ export default async function handler(req, res) {
     const clickId = mintClickId();
     const slot = gateClickSlotFor(target);
     target = target + (target.indexOf('?') > -1 ? '&' : '?') + slot + '=' + encodeURIComponent(clickId);
+
+    /* ── PROBE MODE ────────────────────────────────────────────────────────────
+     * Mass link-testing needs to ask "would this click work?" thousands of times without
+     * (a) firing a real click at the network or (b) writing thousands of fake rows into the
+     * click log. Both would make the test worse than useless: one costs money at the network,
+     * the other poisons the very data the tab reports.
+     *
+     * So a keyed probe runs the ENTIRE resolution — allowlist, override table, slot choice,
+     * URL assembly — and then answers with what it WOULD have done instead of doing it. No
+     * row, no 302, no network contact.
+     *
+     * ⚠️ THIS MUST SIT AFTER THE TOKEN IS APPENDED. It first shipped above that line, so it answered
+ * with a target that was missing the click token — the probe reported something the gate would
+ * never actually send, which makes a green mass-test worthless. A probe that does not return the
+ * FINAL string is worse than no probe.
+ *
+ * Keyed on the ingest secret so it is not a public oracle for what our allowlist accepts;
+     * an unkeyed `probe=1` is ignored entirely, so a crafted URL cannot suppress a real click's
+     * logging by adding the param. */
+    if (qparam(query, 'probe') === '1' && probeKeyOk(req)) {
+      return res.status(200).json({
+        ok: true,
+        target,
+        via,
+        slot: gateClickSlotFor(target),
+        key: deriveGateKey(lp),
+      });
+    }
 
     // Log BEFORE the redirect so the write happens inside the invocation, not after
     // res.end() where Vercel may drop or defer it. Capped and fail-open: a slow or

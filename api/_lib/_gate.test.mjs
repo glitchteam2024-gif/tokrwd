@@ -219,7 +219,13 @@ ok('allowlist: lookalike hosts refused',
   await handler({ query: { u: OFFER, s1: WIRE, lp: '/frcusa.html', probe: '1' }, headers: KEYED }, res);
   ok('probe answers 200, not a redirect', res.statusCode === 200 && !res.redirected, String(res.statusCode));
   const body = res.body && typeof res.body === 'object' ? res.body : null;
-  ok('probe reports the target it WOULD have sent', body && body.target === OFFER, JSON.stringify(res.body));
+  // THE ASSERTION THAT WAS MISSING, and the reason probe mode shipped broken: it answered with the
+  // pre-token target, so a mass-test could pass while the gate sent something else entirely.
+  const ptok = splitToken(body && body.target, OFFER);
+  ok('probe reports the target it WOULD have sent, token INCLUDED',
+     body && ptok.base === OFFER && TOKEN_SHAPE.test(ptok.value || ''), JSON.stringify(res.body));
+  ok('the probe target is the FINAL string, not an intermediate',
+     body && /[?&](s5|sub2)=/.test(body.target || ''), body && body.target);
   ok('probe reports the click slot', body && body.slot === 's5', body && body.slot);
   ok('probe reports the derived creative key', body && body.key === 'frcusa', body && body.key);
   // THE POINT: mass-testing every lander must not poison the click log or fire real clicks.
