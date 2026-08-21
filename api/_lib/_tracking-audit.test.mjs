@@ -78,6 +78,7 @@ const SKIP_FILES = new Set([
   'api/_lib/_partner-links.test.mjs',   // its fixtures are partner destinations, i.e. network URLs
   'api/_lib/_partner-store.test.mjs',   // ditto — it drives the real handlers with them
   'api/_lib/_partner-portal.test.mjs',  // ditto — the partner-facing half
+  'api/_lib/_gate.test.mjs',            // ditto — /click gate fixtures are network URLs
   'api/detector.js', 'api/harness.js', 'api/signatures.js', // cloaking QA tooling
   'admin/index.html', 'admin/carrd-script.js',              // dashboard + paste-in snippet
 ]);

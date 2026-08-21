@@ -19,13 +19,23 @@ network live in the separate **SPRKNetworkAds** repo. For the spark-code mint ru
 wire scheme see the `sprk-new-offer` skill; for "affiliate's conversions look wrong" see
 `sprk-affiliate-conv-debug`.
 
-## The funnel (current, since 2026-08-20)
+## The funnel (current, since 2026-08-21)
 
-    ad ( ?s1=<SPK>&… )  ->  /r  ->  /pre  ->  lander  ->  offer
+    ad ( ?s1=<SPK>&… )  ->  /r  ->  /pre  ->  lander  ->  /click (first-party stamp)  ->  offer
 
-**The door is gone from this path.** There is no `sprktrax.org` hop in any deployed lander. The
-lander resolves `s1` and links STRAIGHT to the network, carrying that one parameter and nothing
-else — see "The outbound wire" below, which is the load-bearing section of this file now.
+**The CTA walks OUR /click gate first (Migi asked for it back, 2026-08-21 — the Skro-style
+"click URL" pattern).** The page still builds the finished network URL itself — base + exactly ONE
+param carrying the code, the 2026-08-20 contract unchanged — but the CTA href is now
+`/click?u=<that URL>&s1=<raw wire>&lp=<pathname>[&t=<ttclid>]`, same-origin on every alias domain.
+`api/click.js` logs the click server-side (click_id, raw wire, IP, Vercel geo, exact clone path →
+a `clicks` row with `entry='gate'` in SPRK, via the `api/gate-click` ingest on sprktrax.org) and
+then 302s to `u` BYTE FOR BYTE. It redirects FIRST and logs after, so the visitor never waits;
+every failure on the log path costs a row, never a click. See "The /click gate" below.
+
+**This is NOT the old sprktrax door returning.** The door rewrote the wire (s1→aff, s2→SPK, minted
+s5), owned the destination, and sat cross-origin. The gate rewrites nothing, adds no param the
+network sees, and the network still receives the link + one code. There is still no `sprktrax.org`
+URL in any page — the ingest hop is server-to-server from our lambda.
 
 **No cloaking.** The lander renders the SAME markup for every visitor (including ad-review
 crawlers).
@@ -846,6 +856,49 @@ Still open (business calls, in `EXCEPTIONS`): `api/affrkr.js` → `affrkr.com`, 
 `trendhavenn.com`, and `EOZ.html`'s `vmry7.ttrk.io` script. All three pages are live but orphaned —
 nothing in the repo links to them.
 
+## The /click gate — the first-party stamp (2026-08-21)
+
+Migi's ask, referencing his old cloaker's `www.rewardsgo.go/click` and Skro's click URL: *"build
+something similar … have that as our gate for all of our affiliates … make sure we never miss a
+single click."* Every lander CTA now returns
+
+    /click?u=<finished offer URL>&s1=<raw wire>&lp=<location.pathname>[&t=<ttclid>]
+
+- **`api/click.js`** (routed at `/click` in vercel.json): resolves `GATE_OVERRIDES[deriveGateKey(lp)]`
+  if a row exists, else validates `u` with `isAllowedGateDestination` (host allowlist
+  `GATE_DEST_HOST_RE` in links-config.js — every network family the estate names; our own hosts
+  refused so `u` can never loop the gate). 302 FIRST, then `await sendGateLog(...)` — the lambda
+  stays alive until the POST lands, the visitor never waits. Total fail-open: any internal error
+  still forwards a validated `u`. A 404 is only ever a crafted URL (bad host, missing u).
+- **`api/_lib/gate-log.js`**: `mintClickId()` (22 base62 — the shape SPRK's postback already
+  accepts), `deriveGateKey()` (`/AK52/GB7` → `ak52-gb`; grouping label, never routing on its own),
+  `gateLogRow()` (raw wire, dest, ua, first-hop IP, `x-vercel-ip-*` geo incl. city/lat/lon),
+  `sendGateLog()` (POST to `sprktrax.org/api/gate-click`, header `x-gate-key` =
+  `GATE_INGEST_KEY` env or committed fallback, 1.5s cap, console-only failures).
+- **The row lands in SPRK's `clicks` table with `entry='gate'`** (SPRKNetworkAds
+  `api-src/gate-click.ts` → `recordClick`): spk_code = extracted code, sub1 = raw wire, plus the
+  2026-08-21 migration columns `ip` (raw — Migi's call), `city`, `lat`, `lon`, `lander_path`.
+  `door-clicks.ts` reads it as a third feed, so affiliate/admin click counts include gate rows;
+  the beacon still double-fires on the same tap by design and `flagUniqueClicks` folds the pair.
+- **`GATE_OVERRIDES` (links-config.js) is the control surface**: one committed row reroutes or
+  pauses a whole creative family (key = deriveGateKey) without touching its clones. Ships empty.
+- **/c/ direct mode and /api/reco log the same row shape** (keys `c-<slug>` / `reco`), which is
+  why CLFCCA / CLFCUK / ESGP / trt / TSUP are deliberately NOT swept onto /click — their /c/ hop
+  logs already, and wrapping them would double-log.
+- **Env (optional, both Vercel projects): `GATE_INGEST_KEY`** rotates the shared secret;
+  `GATE_INGEST_URL` repoints the ingest. Without them the committed fallbacks work out of the box.
+- **Tests**: `_offer-link.test.mjs` executes the shipped builder in all ~7,726 landers against the
+  gate contract (u decodes to base + ONE param, allowlist-pass, raw wire on our url only, untagged
+  → bare u and no s1); `_gate.test.mjs` drives the real `api/click.js` + `/c/` handlers with a
+  stubbed ingest (302-before-log order, open-redirect refusals, override path, fail-open).
+- **The funnel beacon is UNTOUCHED** — it still records the full wire client-side with the `sid`
+  journey id. The gate is the server-side truth; the beacon is the funnel story. Both stay.
+- ⚠️ **Deploy order**: SPRKNetworkAds (the ingest) first, then tokrwd. Reversed, clicks still
+  redirect fine but log rows 404 until the ingest is live (fail-open, lost rows only).
+- ⚠️ **Never "optimize" the page to link the network directly again** — that silently removes the
+  only server-side click record; and never make the gate rewrite `u` (it forwards byte-for-byte;
+  the one-param contract lives in the PAGE builder, tested there).
+
 ## The outbound wire: ONE param, and the name is the network's, not ours (2026-08-20)
 
 ⚠️ **This section replaces the old "s1–s5 wire scheme". The door is gone from the landers, and so
@@ -1027,6 +1080,18 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
 
 ## Changelog
 
+- **2026-08-21** — **The /click gate: every CTA stamps through our own first-party click URL.**
+  Migi asked for the old cloaker's `/click` pattern back ("so we can make sure we never miss a
+  single click … track the s1 always") — WITHOUT a cloaker and WITHOUT reopening the door. Swept
+  all 7,726 network-destined landers: the builder TAIL now returns
+  `/click?u=<finished offer URL>&s1=<raw wire>&lp=<pathname>[&t=<ttclid>]`; declarations untouched
+  (the audit's per-slice destination check keeps reading the same line). New `api/click.js` +
+  `api/_lib/gate-log.js` + gate section in links-config.js + `/click` rewrite in vercel.json;
+  /c/ direct mode and /api/reco log the same row (CLFCCA/CLFCUK/ESGP/trt/TSUP deliberately not
+  swept — their /c/ hop logs). SPRKNetworkAds side (branch `claude/click-gate-ingest`):
+  `api-src/gate-click.ts` ingest → `clicks` rows entry='gate', new columns ip/city/lat/lon/
+  lander_path (migration RUN in prod 2026-08-21), third feed in door-clicks.ts. The outbound
+  one-param contract is UNCHANGED — see "The /click gate" section above.
 - **2026-08-20** — **s1-only, rebuilt on top of `ac2992a`.** That commit ("the network gets the
   code, SPRK keeps the wire") landed mid-session and overlapped: it extracts the SPK from the
   compound wire and it EXPANDED the funnel beacon. Both were adopted — the extraction now runs on

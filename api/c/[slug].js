@@ -14,8 +14,10 @@
  *            only mode that attributes a conversion to an affiliate.
  *
  *   direct → 302 straight to the network with the sub-ID appended.
- *            No clicks row, no click_id. Conversions can only be matched on what
- *            the network echoes back to /postback. For offers not in SPRK.
+ *            Since 2026-08-21 the click IS logged (a `clicks` row via the gate
+ *            ingest, entry='gate', key `c-<slug>`) — but no click_id rides the
+ *            wire, so conversions are still matched only on what the network
+ *            echoes back to /postback. For offers not in SPRK.
  *
  * Example (door):
  *   /c/freecash?campid=SPK-A1B2-C3D4
@@ -39,6 +41,7 @@ import {
   offerLinkFor,
   partnerKey,
 } from '../_lib/links-config.js';
+import { gateLogRow, sendGateLog } from '../_lib/gate-log.js';
 
 /** Read a query param that may arrive as a repeated key (Vercel gives an array). */
 function qparam(query, name) {
@@ -177,6 +180,21 @@ export default async function handler(req, res) {
   if (ttclid) extras.ttclid = ttclid;
 
   const destUrl = buildDirectUrl(link.destination, forwardParam, sparkCode, extras);
+
+  // Log the click, THEN redirect — same order and reason as /api/click: an await after
+  // res.end() is not guaranteed to run on Vercel. Direct mode used to write NO row anywhere
+  // ("conversions can only be matched on what the network echoes back"); this is the click-side
+  // record it never had. Capped + fail-open, so it cannot cost the click.
+  let lp = '';
+  try { lp = new URL(req.headers.referer || '').pathname; } catch { /* no referer */ }
+  await sendGateLog(gateLogRow(req, {
+    key: `c-${slug}`,
+    lp,
+    s1: subId,
+    dest: destUrl,
+    ttclid,
+    via: link.partner ? 'partner' : 'direct',
+  }));
 
   return res.redirect(302, destUrl);
 }

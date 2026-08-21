@@ -572,6 +572,9 @@ const RESERVED_LANDER_ROOTS = new Set([
   // The safe page. `lp=safe` / `to=/safe` would spend the whole budget landing paid
   // traffic on the page whose entire job is to be the one that does NOT convert.
   'safe',
+  // The click gate. `lp=click` / `to=/click` would land paid traffic on a redirector
+  // with no destination -- same class of hole as `lp=c/...` was.
+  'click',
 ]);
 
 /**
@@ -1833,4 +1836,80 @@ export function isSafeDestination(url) {
   } catch {
     return false;
   }
+}
+
+/* ----------------------------- The click gate (/click) -----------------------------
+ *
+ * Every lander CTA walks `/click?u=<finished offer URL>&s1=<raw wire>&lp=<pathname>`:
+ * the gate logs the click server-side (click_id, raw wire, IP, geo, creative path)
+ * and then 302s to `u` UNCHANGED. The page remains the source of truth for the
+ * destination and the one outbound param -- the gate adds a log, never a rewrite.
+ *
+ * `u` is client-supplied on a public endpoint, so it is an open redirect unless the
+ * host is pinned. The allowlist below is every network family a deployed lander
+ * actually names in its declaration (census 2026-08-21); our own hosts are refused
+ * outright so a crafted `u` can never loop the gate into itself.
+ */
+export const GATE_DEST_HOST_RE =
+  /^(?:www\.)?(?:(?:monetisetrk|montrk)\d{0,2}\.co\.uk|fkn8s74mztrk\.com|phef6trk\.com|giftclick\.org)$/i;
+
+export function isAllowedGateDestination(url) {
+  try {
+    const raw = String(url || '');
+    // The URL parser silently STRIPS tab/newline before parsing, so a value that smuggles a
+    // decoded CRLF can pass `new URL` and still reach a Location header raw. Refuse it here --
+    // never rely on the HTTP layer to reject the header.
+    if (/[\u0000-\u001f\u007f]/.test(raw)) return false;
+    // Reject anything outside printable ASCII too: a code point >= 0x100 passes the URL parser but
+    // is refused by the HTTP layer as an invalid Location header, so it would throw at redirect
+    // time on a value that had already been accepted. No real lander emits it (bases are ASCII and
+    // encodeURIComponent output is ASCII), so this only closes a crafted-request hang.
+    if (/[^\x20-\x7e]/.test(raw)) return false;
+    const parsed = new URL(raw);
+    if (parsed.protocol !== 'https:') return false;
+    if (parsed.username || parsed.password) return false;
+    return GATE_DEST_HOST_RE.test(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Per-family override table -- the gate's control surface.
+ *
+ * A row here wins over the page's own `u` for every click whose derived key matches,
+ * WITHOUT touching the N clones that share the family. This is how a creative family
+ * gets rerouted (new network link) or paused (destination -> house fallback) with a
+ * one-line deploy instead of a 100-file sweep.
+ *
+ *   'ak52-gb': { destination: 'https://...', forwardParam: 'sub1', enabled: true },
+ *
+ * The key is deriveGateKey() of the lander path (see api/_lib/gate-log.js):
+ * top folder lowercased, plus the second segment with its trailing digits stripped --
+ * `/AK52/GB7` -> 'ak52-gb', `/frcusa.html` -> 'frcusa', `/50FC/FC12` -> '50fc-fc'.
+ * Ship EMPTY by default: with no row, the gate forwards the page's own URL.
+ */
+export const GATE_OVERRIDES = {};
+
+/**
+ * The param name a destination host reads. The s1/sub1 split is the estate's costliest trap: a
+ * CAKE/Monetise `*.co.uk` endpoint reads `s1` and discards `sub1`; Everflow-family hosts do the
+ * reverse. An override row that omits forwardParam must not silently default to one dialect and
+ * zero out attribution for the other family — so infer from the host instead.
+ */
+export function gateForwardParamFor(destination) {
+  try {
+    return /\.co\.uk$/i.test(new URL(destination).hostname) ? 's1' : 'sub1';
+  } catch {
+    return 'sub1';
+  }
+}
+
+export function getGateOverride(key) {
+  if (!key || !Object.prototype.hasOwnProperty.call(GATE_OVERRIDES, key)) return null;
+  const row = GATE_OVERRIDES[key];
+  if (!row || row.enabled === false) return null;
+  if (!row.destination || !isSafeDestination(row.destination)) return null;
+  // Freeze the resolved dialect on the returned row so the caller never re-defaults to 'sub1'.
+  return { ...row, forwardParam: row.forwardParam || gateForwardParamFor(row.destination) };
 }

@@ -7,8 +7,9 @@
  * see it at all. Kept as its own route because RS/index.html links to /api/reco.
  */
 import { getConfiguredOfferLink, isSafeDestination } from './_lib/links-config.js';
+import { gateLogRow, sendGateLog } from './_lib/gate-log.js';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const link = getConfiguredOfferLink('reco-social-off');
   // A disabled or missing slug must not fall back to a stale hardcoded URL — that is
   // exactly the kill switch failing open. 404 instead.
@@ -32,6 +33,19 @@ export default function handler(req, res) {
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   res.setHeader('Referrer-Policy', 'no-referrer');
+
+  // Log the click, THEN redirect — same contract as /api/click and /c/ (an await after
+  // res.end() is not guaranteed to run on Vercel; capped + fail-open, cannot cost the click).
+  let lp = '';
+  try { lp = new URL(req.headers.referer || '').pathname; } catch { /* no referer */ }
+  await sendGateLog(gateLogRow(req, {
+    key: 'reco',
+    lp,
+    s1: sub,
+    dest,
+    ttclid: (first(req.query.ttclid) || '').toString(),
+    via: 'direct',
+  }));
 
   return res.redirect(302, dest);
 }
