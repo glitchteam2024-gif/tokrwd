@@ -58,6 +58,19 @@ globalThis.fetch = async (url, opts) => {
 };
 
 const OFFER = 'https://montrk5.co.uk/?a=26648&c=55504&s1=SPK-05BD-7BF1';
+
+/** The gate appends EXACTLY ONE param to the page's URL: the click token, in the slot the
+ *  destination's network reads `cid=` from. Split it back off so every other assertion can
+ *  talk about the page's URL as the page built it. */
+function splitToken(redirected, pageUrl) {
+  if (typeof redirected !== 'string') return { base: null, name: null, value: null };
+  const sep = pageUrl.indexOf('?') > -1 ? '&' : '?';
+  if (!redirected.startsWith(pageUrl + sep)) return { base: redirected, name: null, value: null };
+  const tail = redirected.slice((pageUrl + sep).length);
+  const eq = tail.indexOf('=');
+  return { base: pageUrl, name: tail.slice(0, eq), value: decodeURIComponent(tail.slice(eq + 1)) };
+}
+const TOKEN_SHAPE = /^[0-9A-Za-z]{22}$/;
 const WIRE = 'migi_26_SPK-05BD-7BF1_US_1799887766';
 
 async function hit(query, headers = VISITOR_HEADERS) {
@@ -74,14 +87,20 @@ async function hit(query, headers = VISITOR_HEADERS) {
 // ── 1. the happy path ────────────────────────────────────────────────────────
 {
   const res = await hit({ u: OFFER, s1: WIRE, lp: '/frcusa.html', t: 'TT_1' });
-  ok('valid hit 302s to u byte-for-byte', res.statusCode === 302 && res.redirected === OFFER, res.redirected);
+  const tok = splitToken(res.redirected, OFFER);
+  ok('valid hit 302s to the page URL with the token appended', res.statusCode === 302 && tok.base === OFFER, res.redirected);
+  ok('the appended param is the CAKE click slot (s5)', tok.name === 's5', String(tok.name));
+  ok('the token is a 22-char base62 click id', TOKEN_SHAPE.test(tok.value || ''), String(tok.value));
   ok('exactly one log row shipped', calls.length === 1, String(calls.length));
   const p = calls[0] ? JSON.parse(calls[0].opts.body) : {};
   ok('the log is attempted BEFORE the redirect (write runs inside the invocation)', calls[0] && calls[0].atSend === false);
   ok('log carries a 22-char base62 click_id', /^[0-9A-Za-z]{22}$/.test(p.click_id || ''), p.click_id);
   ok('log carries the RAW wire', p.s1 === WIRE, p.s1);
   ok('log key derives from the lander path', p.key === 'frcusa', p.key);
-  ok('log carries the destination', p.dest === OFFER);
+  ok('log carries the destination actually served', p.dest === res.redirected);
+  // The whole reason the token exists: the value on the wire must be the id in the row, or a
+  // postback that echoes it back resolves to nothing.
+  ok('the token on the wire IS the logged click_id', p.click_id === tok.value, p.click_id + ' vs ' + tok.value);
   ok('log carries ttclid', p.ttclid === 'TT_1');
   ok('log carries the visitor IP (first x-forwarded-for hop)', p.ip === '203.0.113.7', p.ip);
   ok('log carries decoded Vercel geo', p.country === 'US' && p.city === 'San Antonio' && p.lat === 29.4241, JSON.stringify([p.country, p.city, p.lat]));
@@ -116,8 +135,11 @@ ok('allowlist: lookalike hosts refused',
 
 // ── 3. an untagged visit still lands ─────────────────────────────────────────
 {
-  const res = await hit({ u: 'https://montrk5.co.uk/?a=26648&c=55504', lp: '/frcusa.html' });
-  ok('untagged visit 302s to the bare link', res.statusCode === 302 && res.redirected === 'https://montrk5.co.uk/?a=26648&c=55504');
+  const BARE = 'https://montrk5.co.uk/?a=26648&c=55504';
+  const res = await hit({ u: BARE, lp: '/frcusa.html' });
+  const t2 = splitToken(res.redirected, BARE);
+  ok('untagged visit still 302s to the bare link (plus the token)', res.statusCode === 302 && t2.base === BARE, res.redirected);
+  ok('untagged visit adds no affiliate param of its own', !/[?&]s1=/.test(res.redirected || ''), res.redirected);
   const p = JSON.parse(calls[0].opts.body);
   ok('untagged log row has null s1', p.s1 === null, String(p.s1));
 }
@@ -126,7 +148,7 @@ ok('allowlist: lookalike hosts refused',
 {
   fetchBehavior = 'throw';
   const res = await hit({ u: OFFER, s1: WIRE, lp: '/frcusa.html' });
-  ok('ingest exploding → click still 302s', res.statusCode === 302 && res.redirected === OFFER);
+  ok('ingest exploding → click still 302s', res.statusCode === 302 && splitToken(res.redirected, OFFER).base === OFFER, res.redirected);
   fetchBehavior = 'refuse';
   const res2 = await hit({ u: OFFER, s1: WIRE, lp: '/frcusa.html' });
   ok('ingest refusing → click still 302s', res2.statusCode === 302);
@@ -137,29 +159,34 @@ ok('allowlist: lookalike hosts refused',
 {
   GATE_OVERRIDES['ak52-gb'] = { destination: 'https://monetisetrk2.co.uk/?a=26648&c=99999', forwardParam: 's1', enabled: true };
   const res = await hit({ u: OFFER, s1: WIRE, lp: '/AK52/GB7' });
-  ok('override wins over u and rebuilds one-param outbound',
-     res.redirected === 'https://monetisetrk2.co.uk/?a=26648&c=99999&s1=SPK-05BD-7BF1', res.redirected);
+  const OV = 'https://monetisetrk2.co.uk/?a=26648&c=99999&s1=SPK-05BD-7BF1';
+  ok('override wins over u and rebuilds the one-param outbound',
+     splitToken(res.redirected, OV).base === OV, res.redirected);
   const p = JSON.parse(calls[0].opts.body);
   ok('override log says via=override and keeps the raw wire', p.via === 'override' && p.s1 === WIRE);
 
   GATE_OVERRIDES['ak52-gb'].enabled = false;
   const res2 = await hit({ u: OFFER, s1: WIRE, lp: '/AK52/GB7' });
-  ok('a disabled override falls back to the page URL', res2.redirected === OFFER, res2.redirected);
+  ok('a disabled override falls back to the page URL', splitToken(res2.redirected, OFFER).base === OFFER, res2.redirected);
   delete GATE_OVERRIDES['ak52-gb'];
 
   // A row that OMITS forwardParam must not default to sub1 for a CAKE (.co.uk) destination —
   // that ships a param the endpoint discards and zeroes attribution. getGateOverride infers s1.
   GATE_OVERRIDES['cake-fam'] = { destination: 'https://montrk5.co.uk/?a=1&c=2', enabled: true };
   const res3 = await hit({ u: OFFER, s1: WIRE, lp: '/CAKE/FAM' });
-  ok('override with no forwardParam infers s1 for a .co.uk host',
-     res3.redirected === 'https://montrk5.co.uk/?a=1&c=2&s1=SPK-05BD-7BF1', res3.redirected);
+  const CK = 'https://montrk5.co.uk/?a=1&c=2&s1=SPK-05BD-7BF1';
+  const t3 = splitToken(res3.redirected, CK);
+  ok('override with no forwardParam infers s1 for a .co.uk host', t3.base === CK, res3.redirected);
+  ok('a CAKE destination gets its token in s5', t3.name === 's5', String(t3.name));
   delete GATE_OVERRIDES['cake-fam'];
 
   // An Everflow (.com) destination with no forwardParam infers sub1.
   GATE_OVERRIDES['ef-fam'] = { destination: 'https://www.fkn8s74mztrk.com/A/B/', enabled: true };
   const res4 = await hit({ u: OFFER, s1: WIRE, lp: '/EF/FAM' });
-  ok('override with no forwardParam infers sub1 for a .com host',
-     res4.redirected === 'https://www.fkn8s74mztrk.com/A/B/?sub1=SPK-05BD-7BF1', res4.redirected);
+  const EF = 'https://www.fkn8s74mztrk.com/A/B/?sub1=SPK-05BD-7BF1';
+  const t4 = splitToken(res4.redirected, EF);
+  ok('override with no forwardParam infers sub1 for a .com host', t4.base === EF, res4.redirected);
+  ok('an Everflow destination gets its token in sub2', t4.name === 'sub2', String(t4.name));
   delete GATE_OVERRIDES['ef-fam'];
 }
 
@@ -180,7 +207,7 @@ ok('allowlist: lookalike hosts refused',
 // ── 6. repeated params (Vercel array form) ───────────────────────────────────
 {
   const res = await hit({ u: [OFFER, OFFER], s1: [WIRE], lp: ['/frcusa.html'] });
-  ok('array-form params resolve to first non-empty', res.statusCode === 302 && res.redirected === OFFER);
+  ok('array-form params resolve to first non-empty', res.statusCode === 302 && splitToken(res.redirected, OFFER).base === OFFER, res.redirected);
 }
 
 // ── 7. deriveGateKey ─────────────────────────────────────────────────────────

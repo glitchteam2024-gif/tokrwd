@@ -125,11 +125,15 @@ export async function sendGateLog(fields, { capMs = 800 } = {}) {
 }
 
 /** Everything the ingest wants, assembled from a request + the caller's specifics. */
-export function gateLogRow(req, { key, lp, s1, dest, ttclid, via }) {
+export function gateLogRow(req, { key, lp, s1, dest, ttclid, via, clickId }) {
   const headers = (req && req.headers) || {};
   const geo = geoFromHeaders(headers);
   return {
-    click_id: mintClickId(),
+    /* The caller mints the id BEFORE building the outbound URL, because the same token has to
+     * ride the wire AND land in this row — that pairing is what lets a postback resolve a
+     * conversion back to one exact click. Falls back to minting here for any caller that does
+     * not put a token on the wire. */
+    click_id: clickId || mintClickId(),
     key: cap(key, 64),
     lp: cap(lp, 200),
     s1: cap(s1, 256),

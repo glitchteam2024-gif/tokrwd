@@ -17,7 +17,7 @@
 // printed on every run so a carve-out cannot quietly become permanent.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { OFFER_LINKS, DOOR_BASE } from './links-config.js';
+import { OFFER_LINKS, RETIRED_DOOR_BASE } from './links-config.js';
 
 let pass = 0, fail = 0;
 
@@ -246,15 +246,21 @@ for (const rel of files) {
 }
 report('every /c/ slug referenced by a lander is enabled in OFFER_LINKS', badSlugs);
 
-// ── 4. Every door URL points at the real door ────────────────────────────────
+// ── 4. The door is GONE, and must not come back ──────────────────────────────
+// It used to be enough to check a door URL pointed at the RIGHT door. The door route was
+// deleted on 2026-08-21, so any door URL in a deployed file is now a dead link — and the
+// door has crept back three times through a generator, which is exactly why this is a
+// tripwire on the name rather than a check on its shape.
 const badDoors = [];
 for (const rel of files) {
   const src = readFileSync(new URL(rel, REPO), 'utf8');
   for (const m of src.matchAll(/https:\/\/([a-z0-9.-]+)\/api\/link\/([a-z0-9-]+)/gi)) {
-    if (`https://${m[1]}/api/link` !== DOOR_BASE) badDoors.push(`${rel}: ${m[0]}`);
+    badDoors.push(`${rel}: ${m[0]} (the door is deleted — this link 404s)`);
   }
 }
-report('every door URL uses DOOR_BASE', badDoors);
+report('no deployed file points at the retired door', badDoors);
+report('the retired-door constant is not used as a destination',
+  RETIRED_DOOR_BASE === 'https://sprktrax.org/api/link' ? [] : ['RETIRED_DOOR_BASE changed unexpectedly']);
 
 // ── 5. No third-party tracking script on a deployed page ─────────────────────
 // A tracker we do not run sees our traffic and cannot be reconciled with our numbers.

@@ -1165,10 +1165,6 @@ export function resolveLander({ carrdUrl = '', campid = '', campaigns = {}, part
  */
 export const OFFER_LINKS = [
   // ── Door-routed (full SPRK attribution) ────────────────────────────────────
-  { slug: 'freecash', mode: 'door', doorSlug: 'freecash', enabled: true },
-  { slug: 'testerup', mode: 'door', doorSlug: 'testerup', enabled: true },
-  { slug: 'copper', mode: 'door', doorSlug: 'copper', enabled: true },
-  { slug: 'gravypass', mode: 'door', doorSlug: 'gravypass', enabled: true },
 
   // ── Direct-to-network offers ───────────────────────────────────────────────
   // Testerup US/CA/UK — direct tracking link
@@ -1246,7 +1242,10 @@ export const OFFER_LINKS = [
 ];
 
 /** Base URL of the sprktrax affiliate door. */
-export const DOOR_BASE = 'https://sprktrax.org/api/link';
+/* The retired tracking door. Kept ONLY as the string the tracking audit refuses to find in a
+ * deployed page — the door came back three times through a generator, so its name is now a
+ * tripwire rather than a destination. Nothing routes here; the route itself is deleted. */
+export const RETIRED_DOOR_BASE = 'https://sprktrax.org/api/link';
 
 /** Look up an offer link by slug. Disabled links resolve to undefined. */
 export function getConfiguredOfferLink(slug) {
@@ -1713,16 +1712,14 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
     };
   }
 
+  /* The door is DELETED (2026-08-21). An offer still pointing at it is a config error, not a
+   * route — fail loudly here rather than drawing a hop to a URL that now 404s. */
   const doorMatch = match.match(/^sprktrax\.org\/api\/link\/([a-z0-9-]+)$/i);
   if (doorMatch) {
-    const doorUrl = new URL(`${DOOR_BASE}/${doorMatch[1]}`);
-    doorUrl.searchParams.set('s1', code);
-    for (const [k, v] of Object.entries(carry)) doorUrl.searchParams.set(k, v);
-    hops.push({ step: 'SPRK door', url: doorUrl.toString() });
     return {
-      ok: true, offer, offer_label: label, mode: 'door', slug: doorMatch[1], hops,
-      tracks_as: 's1 → the door rewrites it: the affiliate number lands in s1, the spark code moves ' +
-                 'to s2, and a click_id is minted into s5.',
+      ok: false, offer, offer_label: label, slug: doorMatch[1], hops,
+      reason: 'This offer still points at the retired SPRK door (' + doorMatch[1] + '). That route ' +
+              'no longer exists — repoint it at the network URL or a /c/ slug.',
     };
   }
 
@@ -1750,13 +1747,10 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
   hops.push({ step: 'Our redirector', url: hop.toString() });
 
   if (link.mode === 'door') {
-    const doorUrl = new URL(`${DOOR_BASE}/${link.doorSlug || slug}`);
-    doorUrl.searchParams.set('s1', code);
-    for (const [k, v] of Object.entries(carry)) doorUrl.searchParams.set(k, v);
-    hops.push({ step: 'SPRK door', url: doorUrl.toString() });
     return {
-      ok: true, offer, offer_label: label, mode: 'door', slug, hops,
-      tracks_as: 's1 → the door rewrites it before the network sees it.',
+      ok: false, offer, offer_label: label, slug, hops,
+      reason: 'This link is still marked mode:\'door\', but the SPRK door was deleted on 2026-08-21. ' +
+              'Give it a `destination` and mode:\'direct\'.',
     };
   }
 
@@ -1897,6 +1891,28 @@ export const GATE_OVERRIDES = {};
  * reverse. An override row that omits forwardParam must not silently default to one dialect and
  * zero out attribution for the other family — so infer from the host instead.
  */
+/**
+ * The slot a destination's network reads its CLICK TOKEN back out of.
+ *
+ * Every offer declares `clickid_slot` in SPRK, and each network's postback template already
+ * points `cid=` at that slot — `cid=#s5#` on Monetise (CAKE), `cid={sub2}` on the Everflow
+ * family. Both are configured correctly and have been arriving EMPTY, because the door was
+ * the only thing that ever filled them and it left the lander path on 2026-08-18. Measured
+ * 2026-08-21: Monetise `s5` non-empty on 1.3% of postbacks, `cid` on 0.4%.
+ *
+ * Filling it again is what gives a conversion a per-click identity. Inferred from the host
+ * rather than read from the DB so the redirect stays a pure function of the URL — no lookup
+ * on the money path. The mapping matches production exactly: the 6 active Monetise offers
+ * declare `s5`, all 58 active Everflow-family offers declare `sub2`.
+ */
+export function gateClickSlotFor(destination) {
+  try {
+    return /\.co\.uk$/i.test(new URL(destination).hostname) ? 's5' : 'sub2';
+  } catch {
+    return 'sub2';
+  }
+}
+
 export function gateForwardParamFor(destination) {
   try {
     return /\.co\.uk$/i.test(new URL(destination).hostname) ? 's1' : 'sub1';

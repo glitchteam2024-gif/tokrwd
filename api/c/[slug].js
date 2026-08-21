@@ -7,21 +7,14 @@
  *
  * A link resolves in one of two modes (see api/_lib/links-config.js):
  *
- *   door   → 302 to sprktrax.org/api/link/<doorSlug>?s1=<spark code>
- *            The door resolves the affiliate, writes a `clicks` row, mints a
- *            click_id, stamps s1/s2/s4/s5, applies the offer's cap and `pulled`
- *            kill switch, and only then redirects to the network. This is the
- *            only mode that attributes a conversion to an affiliate.
+ *   door   → RETIRED 2026-08-21. The door route is deleted; a row still marked
+ *            mode:'door' now 404s here instead of routing.
  *
  *   direct → 302 straight to the network with the sub-ID appended.
  *            Since 2026-08-21 the click IS logged (a `clicks` row via the gate
  *            ingest, entry='gate', key `c-<slug>`) — but no click_id rides the
  *            wire, so conversions are still matched only on what the network
  *            echoes back to /postback. For offers not in SPRK.
- *
- * Example (door):
- *   /c/freecash?campid=SPK-A1B2-C3D4
- *   → 302 https://sprktrax.org/api/link/freecash?s1=SPK-A1B2-C3D4
  *
  * Example (direct):
  *   /c/testerup-us-off?sub1=SPK-A1B2-C3D4
@@ -32,8 +25,6 @@
 import { getOfferLink } from '../_lib/store.js';
 import { getPartnerRows } from '../_lib/partner-store.js';
 import {
-  DOOR_BASE,
-  PASSTHROUGH_PARAMS,
   buildDirectUrl,
   extractSparkCode,
   getConfiguredOfferLink,
@@ -96,14 +87,11 @@ export default async function handler(req, res) {
    * inbound sub-ID is that partner's code — which is what lets two people run the
    * same landing page on two different affiliate accounts.
    *
-   * Two things are deliberately narrow. Door-mode slugs are never consulted: those
-   * attribute inside SPRK at the door, which owns the destination. And a code that
-   * matches nothing falls through to the committed row SILENTLY — an observable
-   * difference between "unknown code" and "known code" would turn this public URL
-   * into an oracle for enumerating partner codes.
+   * One thing is deliberately narrow: a code that matches nothing falls through to the
+   * committed row SILENTLY — an observable difference between "unknown code" and
+   * "known code" would turn this public URL into an oracle for enumerating partner codes.
    *
-   * The store read is skipped entirely for door-mode slugs and for a click with no
-   * sub-ID. It is NOT free for house traffic on a direct slug — those carry a
+   * The store read is skipped entirely for a click with no sub-ID. It is NOT free for house traffic on a direct slug — those carry a
    * sub-ID too — but the answer is cached per lambda for 30s and failures back off,
    * so the cost is one round trip per instance per half-minute, not per click.
    */
@@ -128,25 +116,13 @@ export default async function handler(req, res) {
     console.log('[c] partner destination:', slug, '->', link.partner);
   }
 
-  // ── Door mode ──────────────────────────────────────────────────────────────
+  // ── Door mode: GONE (2026-08-21) ───────────────────────────────────────────
+  // The SPRK door was deleted. A row still marked mode:'door' can no longer be routed
+  // anywhere, so refuse it on OUR origin — a clean 404 in our own logs, rather than
+  // bouncing a paid visitor to a URL that 404s at sprktrax.
   if (link.mode === 'door') {
-    // The door 404s without an s1. Fail here instead, on our side, where it is
-    // visible — rather than emitting a URL that looks like a door outage.
-    if (!subId) {
-      return res.status(404).send('Not found');
-    }
-
-    const dest = new URL(`${DOOR_BASE}/${encodeURIComponent(link.doorSlug || slug)}`);
-    dest.searchParams.set('s1', extractSparkCode(subId));
-
-    // s3 is only honoured downstream when its sprk_sig HMAC rides along with it;
-    // forward both untouched and let the door decide whether to trust them.
-    for (const name of PASSTHROUGH_PARAMS) {
-      const v = qparam(query, name).trim();
-      if (v) dest.searchParams.set(name, v);
-    }
-
-    return res.redirect(302, dest.toString());
+    console.warn('[c] refusing retired door-mode slug:', slug);
+    return res.status(404).send('Not found');
   }
 
   // ── Direct mode ────────────────────────────────────────────────────────────

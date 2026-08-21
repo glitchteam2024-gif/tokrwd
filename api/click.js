@@ -7,11 +7,17 @@
  *   /click?u=<finished offer URL>&s1=<raw wire>&lp=<lander path>&t=<ttclid>
  *
  * The page still builds the finished offer URL itself — base + exactly ONE param
- * carrying the code, the contract shipped 2026-08-20 — and the gate forwards it
- * BYTE FOR BYTE. What the gate adds is the thing a beacon can never guarantee: a
+ * carrying the code, the contract shipped 2026-08-20 — and the gate forwards that
+ * URL unchanged. What the gate adds is the thing a beacon can never guarantee: a
  * server-side row for every single CTA click (click_id, raw wire, IP, geo,
  * creative path) written from inside the redirect itself, so a click cannot land
  * on the network without first landing in our log.
+ *
+ * ⚠️ THE GATE APPENDS EXACTLY ONE THING (2026-08-21): the click token, in the slot
+ * the destination's network reads `cid=` from (`s5` on CAKE, `sub2` on Everflow).
+ * That is a second parameter on the wire and it is deliberate — see the block at
+ * the append site for the measurement that justifies it. The page's own param is
+ * never touched, so the affiliate code still arrives exactly as it did.
  *
  * Order of operations is the design:
  *   1. resolve the target (override table, else the page's validated `u`)
@@ -29,10 +35,11 @@
 import {
   buildDirectUrl,
   extractSparkCode,
+  gateClickSlotFor,
   getGateOverride,
   isAllowedGateDestination,
 } from './_lib/links-config.js';
-import { deriveGateKey, gateLogRow, sendGateLog } from './_lib/gate-log.js';
+import { deriveGateKey, gateLogRow, mintClickId, sendGateLog } from './_lib/gate-log.js';
 
 /** Read a query param that may arrive as a repeated key (Vercel gives an array). */
 function qparam(query, name) {
@@ -84,10 +91,30 @@ export default async function handler(req, res) {
       return res.status(404).send('Not found');
     }
 
+    /* ── THE CLICK TOKEN (2026-08-21) ──────────────────────────────────────────
+     * One unique value per click, riding the slot the destination's network reads its
+     * `cid=` from. This is the SECOND parameter on the wire, and it is deliberate.
+     *
+     * WHY IT IS WORTH BREAKING "one param and the link" FOR. A conversion that comes back
+     * with no transaction id and no click token has only `(network, spark code)` to be
+     * identified by, and the postback then has to fall back to collapsing anything on that
+     * pair inside 120 seconds. Measured on production 2026-08-21: 76% of gross arrives with
+     * no usable transaction id, and the Monetise click slot is empty on 98.7% of postbacks —
+     * so most of the money is currently carried by an identifier that cannot tell two real
+     * conversions apart. This token is what makes them distinguishable.
+     *
+     * It does NOT change what identifies the affiliate: the code still rides slot 1 exactly
+     * as before, and a gate click row carries no owner, so a postback that matches on this
+     * token still attributes through the spark code (postback.ts falls through when
+     * `clickRow.owner_user_id` is null). Dedup precision, not a new attribution path. */
+    const clickId = mintClickId();
+    const slot = gateClickSlotFor(target);
+    target = target + (target.indexOf('?') > -1 ? '&' : '?') + slot + '=' + encodeURIComponent(clickId);
+
     // Log BEFORE the redirect so the write happens inside the invocation, not after
     // res.end() where Vercel may drop or defer it. Capped and fail-open: a slow or
     // dead ingest costs at most capMs and a lost row, never the click.
-    await sendGateLog(gateLogRow(req, { key, lp, s1, dest: target, ttclid, via }));
+    await sendGateLog(gateLogRow(req, { key, lp, s1, dest: target, ttclid, via, clickId }));
 
     return res.redirect(302, target);
   } catch (err) {
