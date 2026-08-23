@@ -391,6 +391,41 @@ without comparing against `cake_conversions`.
 - **Note:** the "CAKE lags about an hour" reading taken earlier the same day was NOT lag — it was
   this. Real CAKE reporting lag is ~6 minutes.
 
+### 10c. The SAME London clock on the way BACK IN — conversion_at, stat_day, chart hours
+- **Presents:** `cake_conversions.conversion_at` runs +60 min against the postback for the same
+  event; a conversion in the first hour of a UTC day is attributed to the WRONG DAY on the
+  affiliate's dashboard; the earnings chart's hour buckets sit an hour late.
+- **Root cause:** CAKE returns `2026-08-23T14:12:40` — a bare wall clock, no zone, on the LONDON
+  clock. `new Date(str)` reads a zone-less ISO string as LOCAL, and Vercel runs TZ=UTC, so it became
+  an instant an hour too late in BST. Same defect as #10b, opposite direction.
+- **Measured 2026-08-23:** exactly +60.0 min on 23 of 23 genuinely-postbacked rows, and **407 of
+  5,983 mirrored conversions (6.8%) on the wrong calendar day**.
+  ⚠️ TRAP that will fool you if you re-measure: 112 July rows read +0.0 skew. They are
+  `match_source='cake-rebuild'` — `conversions` rows BUILT FROM `cake_conversions`, so they inherited
+  the same wrong stamp and agree with it circularly. **Always split the comparison by
+  `match_source`**; only genuine postback rows (null / 'spk' / 'subid_owner') are evidence.
+- **Fix/status:** SHIPPED to `claude/clicks-one-basis` (commit `5a44d73c`, PR #13). One
+  `parseCakeDate` in `api-src/_lib/cake-date.ts` at all three sites: poll-cake `conversion_at`,
+  poll-cake `stat_day`, cake-reports `events[].ts`.
+- **NO DATA MIGRATION — do not write one.** The poller's daily DEEP reconcile re-pulls 400 days of
+  conversions and re-upserts on (cake_affiliate_id, conversion_id); any reconcile re-pulls 30 days of
+  clicks and REPLACES each day's bucket. The mirror rewrites itself from source on deploy — hit
+  `?mode=deep` to do it now. A `- interval '1 hour'` UPDATE is not idempotent, would corrupt correct
+  rows written after the deploy, and hard-codes an offset that is wrong half the year.
+
+### 10d. The two click feeds have PERMANENT holes in OPPOSITE directions
+- **Presents:** "this creative shows 0 clicks but it's definitely running", or a code whose number
+  looks nothing like the network's.
+- **The two holes (verified live, 2026-08-21→23, per code per ET day):**
+  - **CAKE cannot see a non-Monetise code AT ALL.** `SPK-A947-ACBE` (Fluent, Apple Pay): ours 23,
+    CAKE 0. `SPK-F180-73BE` (Fluent): ours 6, CAKE 0.
+  - **We cannot see traffic that never passes our lander.** `SPK-3704-A758` (Monetise, Freecash):
+    ours 0 — **zero gate clicks** — CAKE 5. Self-launched links straight to the network do this.
+  - Where BOTH can see, they agree tightly: `SPK-191D-6D81` 46 vs 46, `SPK-14BC-B744` 42 vs 43.
+- **How to apply:** never "fix" a feed because it disagrees with the other — check the offer's
+  network and the code's gate-click count FIRST. This is why the tile takes the per-code MAX
+  (`api/_lib/clicks-one-basis.js`) instead of preferring either source.
+
 ### 11. Gate clicks arriving with NO spark code (open)
 - **Presents:** a chunk of `clicks` rows with `entry='gate'` and `spk_code IS NULL`. 48 on 2026-08-22
   and 20 on 2026-08-23, nearly all `domain='www.myrewardscorner.com'` with `slug` NULL. CAKE
