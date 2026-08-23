@@ -361,6 +361,36 @@ without comparing against `cake_conversions`.
   `dashboard/index.html` is the pre-React Alpine copy and its only route (`/soloaffiliate`) 404s —
   it still carries the OLD two-basis logic. Fix `web/`, not the HTML.
 
+### 10b. THE REAL ROOT CAUSE of #10's "Today is wrong, custom works": CAKE runs on LONDON time
+- **Presents:** the Today pill under-reports clicks and never shows the last hour of live traffic;
+  a custom range covering the SAME day is right. 2026-08-23 16:52 ET, timothycooper859: custom
+  08/23–08/23 = 29 clicks, Today = 8, same second.
+- **Root cause:** MyMonetise is a UK platform. Its reports both FILTER on and RETURN **Europe/London**
+  wall-clock (BST = UTC+1 Mar–Oct). `formatCakeDate` rendered **UTC** getters. Sending UTC digits to
+  a London clock shifts every window an hour EARLY — it drags in an hour of the previous day and
+  drops the most recent hour of this one. Nothing re-filters the returned rows by time, so the
+  shifted window IS what the affiliate sees. Worst on TODAY, whose end is `now`; a CUSTOM range ends
+  at the next midnight, and that whole-day end has an hour of slack that absorbs the skew — which is
+  the entire "custom works better" effect.
+- **PROOF, two independent ways (don't re-derive this):**
+  (a) 2026-08-23 20:42:35 UTC / 21:42:35 London — CAKE's newest `click_date` was **21:36:47**. A
+      click cannot be 54 minutes in the future.
+  (b) Row by row: SPK-14BC-B744's nine `/click` gate rows appear in CAKE as the SAME NINE — same
+      IPs, same seconds, exactly +1h, including one visitor's triple-tap on both sides.
+  The 2026-07-27 "CAKE is UTC, verified" note was WRONG: it compared the string `04:06:49` against
+  door rows stamped `04:xx`. Two clocks an hour apart print matching digits if you only compare digits.
+- **Fix/status:** SHIPPED to `claude/clicks-one-basis` (SPRKNetworkAds commit `407852a8`, PR #13).
+  ONE shared `formatCakeDate` in `api-src/_lib/cake-date.ts` renders CAKE's own clock via Intl
+  (DST-aware; byte-identical to the old output in GMT). It replaces TWO hand-copied UTC twins —
+  `cake-reports.ts` and `cron/poll-cake.ts` — so `cake_clicks_daily`'s windows were an hour early too.
+  Pin: `api/_lib/_cake-date.test.mjs` (BST, GMT, both DST edges, the hour-24 midnight trap).
+- **STILL OPEN, separate fix + data migration:** the timestamps CAKE RETURNS are London too and
+  callers parse them as UTC. That is the long-known +60 min on `cake_conversions.conversion_at`
+  versus the postback for the same event — it lands on chart BUCKETS and stored row timestamps, not
+  on which rows a window returns.
+- **Note:** the "CAKE lags about an hour" reading taken earlier the same day was NOT lag — it was
+  this. Real CAKE reporting lag is ~6 minutes.
+
 ### 11. Gate clicks arriving with NO spark code (open)
 - **Presents:** a chunk of `clicks` rows with `entry='gate'` and `spk_code IS NULL`. 48 on 2026-08-22
   and 20 on 2026-08-23, nearly all `domain='www.myrewardscorner.com'` with `slug` NULL. CAKE
