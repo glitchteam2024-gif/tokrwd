@@ -248,8 +248,16 @@
       "destination": "/apay750usa-c.html"
     },
     {
-      "source": "/AS50/:c(US\\d+)",
+      "source": "/AS50/:c(US\\d+)/go",
       "destination": "/acashusa-sammy.html"
+    },
+    {
+      "source": "/AS50/:c(US\\d+)",
+      "destination": "/acashusa-sammy-pre.html"
+    },
+    {
+      "source": "/acashusa-sammy-pre",
+      "destination": "/acashusa-sammy-pre.html"
     },
     {
       "source": "/acashusa-sammy",
