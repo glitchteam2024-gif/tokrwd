@@ -327,6 +327,50 @@ without comparing against `cake_conversions`.
   every perf/admin surface built on it. Don't compare an affiliate's dashboard day to an admin-board
   day and assume one of them is broken.
 
+### 10. "The clicks number CHANGED when I refreshed" — the tile had two bases and picked by luck
+- **Presents:** an affiliate screenshots the same day twice, minutes apart, with different click
+  counts and no traffic in between. Triggering case 2026-08-23: timothycooper859 (Coop2x4Ever) —
+  15:14 ET showed Itslaurataylor 7 · ITZJENNI 1 (tile 8), 15:15 ET showed 2 · 1 (tile 3).
+- **Root cause:** `setSprkClicks` chose the whole basis on CAKE-LAYER HEALTH. `cake_ok` /
+  `clicks_available` come from `affiliate_earnings`, which runs a LIVE 15-second multi-network CAKE
+  `/Clicks` pull and sets `clicks_available: !!(clkList && clkList.allOk !== false) && isolationComplete`.
+  Any timeout, any one network erroring, or a failed isolation scan flips it — so which of the two
+  numbers an affiliate saw was decided by which HTTP call won that page load. Healthy → CAKE's landed
+  clicks (2); unavailable → our first-party unique count (7). Both were right for their basis.
+- **Fix/status:** SHIPPED to branch `claude/clicks-one-basis` in **SPRKNetworkAds** (commit
+  `4381201c`, off origin/main — merge it). One rule now: **per code, the LARGER of the two feeds**,
+  which is a pure function of the two payloads and cannot move between loads. Not a blend, never a
+  sum, and it does not reinstate the whole-basis-on-door-counts gate rejected in 2026-07 (a per-code
+  max can only ever RAISE a CAKE count). Units are guarded — only the DEDUPED first-party map may be
+  compared; a raw-only payload keeps the old top-up-a-zero rule. Pin:
+  `api/_lib/_clicks-one-basis.test.mjs` (fails on pre-fix code with exactly 3 vs 8).
+- **THE OTHER HALF, and say this to the affiliate: CAKE's clicks report LAGS about an hour.** Watched
+  live on 2026-08-23: SPK-14BC-B744 read 2 at 19:20 UTC and 6 at 19:33 for a burst that ran
+  18:14–18:45, converging on the 7 our own log already had. Nothing is lost — the old dashboard was
+  showing a stale number and labelling it today. On SETTLED days the two feeds agree to the click
+  (8 of the 10 codes with CAKE data on 21–22 Aug matched exactly).
+- **The first-party feed is three feeds** (`api/_lib/door-clicks.js`): the door log before
+  `DOOR_RETIRED_AT` (2026-08-18), the lander beacon (`funnel_events.event='offer_click'`) after it,
+  and since 2026-08-21 the `/click` gate (`clicks.entry='gate'`). Gate and beacon fire on the SAME
+  tap, so the raw count is ~2x — always read `unique_by_spk` / `unique_total`, never `by_spk`.
+  Verified folding correctly: 9 gate + 7 beacon rows → 7 unique.
+- **The beacon alone badly under-reports** (network-wide 9 / 3 / 7 taps on 18–20 Aug against CAKE's
+  44 / 134 / 37). That window is beacon-only, which is exactly why the rule is a MAX and not
+  "first-party wins".
+- **NOTE the shipped page:** `www.sprknetwork.ad/dashboard` is the **Next app** (`web/app/lib/dashboard/`).
+  `dashboard/index.html` is the pre-React Alpine copy and its only route (`/soloaffiliate`) 404s —
+  it still carries the OLD two-basis logic. Fix `web/`, not the HTML.
+
+### 11. Gate clicks arriving with NO spark code (open)
+- **Presents:** a chunk of `clicks` rows with `entry='gate'` and `spk_code IS NULL`. 48 on 2026-08-22
+  and 20 on 2026-08-23, nearly all `domain='www.myrewardscorner.com'` with `slug` NULL. CAKE
+  independently reports the same shape (a `cake_clicks_daily` row with `spk_code` NULL, 17 today).
+- **Impact:** they belong to nobody, so they appear on NO affiliate dashboard and in no EPC. They are
+  not lost money on their own, but a conversion behind one of them lands `unmatched`.
+- **Root cause:** not yet diagnosed — the lander is reaching `/click` without an `s1`. Suspect a
+  myrewardscorner entry path that does not forward query params (the same family as issue #7).
+- **Fix/status:** OPEN, flagged 2026-08-23.
+
 ## Closing the loop
 
 - Tell Migi plainly: what the affiliate sees, what admin sees, which known issue explains the gap,
