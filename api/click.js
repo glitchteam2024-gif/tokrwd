@@ -26,8 +26,12 @@
  *
  * Fail-open everywhere on the money path: an unknown override key, a dead ingest,
  * a slow ingest — none of them can cost a paid click (sendGateLog never throws and
- * caps its own wait). The only 404s are requests no lander ever emits
- * (missing/off-allowlist `u`), which is the open-redirect gate, not click handling.
+ * caps its own wait). 404s come from exactly two places, and neither can fire for a
+ * live affiliate's real traffic:
+ *   · requests no lander ever emits (missing/off-allowlist `u`) — the open-redirect gate
+ *   · the ingest answering that this code's OWNER IS DEACTIVATED (2026-08-24). An
+ *     explicit positive is the ONLY reply that stops a click; 204, timeout, refusal,
+ *     unparseable body and no-key-configured all leave the redirect untouched.
  */
 
 import {
@@ -143,7 +147,26 @@ export default async function handler(req, res) {
     // Log BEFORE the redirect so the write happens inside the invocation, not after
     // res.end() where Vercel may drop or defer it. Capped and fail-open: a slow or
     // dead ingest costs at most capMs and a lost row, never the click.
-    await sendGateLog(gateLogRow(req, { key, lp, s1, dest: target, ttclid, via, clickId }));
+    const logged = await sendGateLog(gateLogRow(req, { key, lp, s1, dest: target, ttclid, via, clickId }));
+
+    /* ── THE OWNER IS SWITCHED OFF ─────────────────────────────────────────────
+     * A deactivated affiliate has no access to the network at all (SPRK admin ▸ Users ▸ ACCESS),
+     * and that has to include the traffic their already-distributed links keep sending. Nothing
+     * else in this path could enforce it: SPRK's own doors (api/c.js, api/sc.js) carry the gate
+     * but are not in the lander→offer path, and the row this gate writes lands AFTER the decision.
+     *
+     * The answer rides the ingest POST above, which was already awaited and already capped, so
+     * this adds no hop and no latency budget. Only an explicit `deactivated: true` stops the
+     * click; every other outcome — 204, timeout, dead ingest, no key configured — leaves `logged`
+     * null and the redirect happens exactly as before. A live affiliate can never lose a click to
+     * this check.
+     *
+     * 404, matching what an unknown `u` gets: an already-distributed link goes dead rather than
+     * announcing why it died to whoever is holding it. */
+    if (logged && logged.deactivated === true) {
+      console.error('[click] refusing — owner account DEACTIVATED. s1=' + (s1 || '-'));
+      return res.status(404).send('Not found');
+    }
 
     return res.redirect(302, target);
   } catch (err) {

@@ -107,7 +107,7 @@ export function geoFromHeaders(headers) {
 export async function sendGateLog(fields, { capMs = 800 } = {}) {
   // No key configured → nothing to authenticate with. Skip the hop rather than POST an
   // unauthenticated body the ingest will only 401. (Deploy step: set GATE_INGEST_KEY on both.)
-  if (!INGEST_KEY) return;
+  if (!INGEST_KEY) return null;
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), capMs);
@@ -118,9 +118,22 @@ export async function sendGateLog(fields, { capMs = 800 } = {}) {
       signal: ctrl.signal,
     });
     clearTimeout(timer);
-    if (!r.ok) console.error('[gate-log] ingest refused:', r.status);
+    if (!r.ok) { console.error('[gate-log] ingest refused:', r.status); return null; }
+    /* THE INGEST CAN ANSWER BACK (2026-08-24). Its ordinary reply is still 204-with-no-body, and
+     * that is what almost every call gets. The one thing it can say is that this code's OWNER is
+     * DEACTIVATED, and the gate 404s on that instead of redirecting — see api/click.js.
+     *
+     * Answering here costs NOTHING: this POST is already awaited behind the cap above, before the
+     * redirect, so the deactivation check rides a hop the click path was paying for anyway.
+     *
+     * FAIL-OPEN on every other shape. A 204, an unparseable body, a refusal, a timeout, a dead
+     * ingest — all return null and the caller redirects exactly as it does today. This function
+     * still never throws, and the only way it can stop a click is an explicit positive. */
+    if (r.status === 204) return null;
+    try { return await r.json(); } catch { return null; }
   } catch (err) {
     console.error('[gate-log] ingest failed:', err && err.name === 'AbortError' ? 'timeout' : (err && err.message));
+    return null;
   }
 }
 
