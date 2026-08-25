@@ -324,11 +324,18 @@ eq('a prototype key is not treated as a campaign mapping',
 const REPO = new URL('../../', import.meta.url);
 
 function doorsIn(html) {
-  // Every way a lander names its destination: the Path A `var DOOR` line, a
-  // sprktrax door URL, or a /c/<slug> offer link on any of our cloaker domains.
+  // Every way a lander names its destination: the OFFER_LINK line, a legacy sprktrax door URL,
+  // or a /c/<slug> offer link on one of our own domains.
   const found = new Set();
   for (const m of html.matchAll(/sprktrax\.org\/api\/link\/([a-z0-9-]+)/gi)) found.add(`sprktrax.org/api/link/${m[1].toLowerCase()}`);
   for (const m of html.matchAll(/\/c\/([a-z0-9-]+)/gi)) found.add(`/c/${m[1].toLowerCase()}`);
+  // Since 2026-08-17 a lander names its destination as the NETWORK URL itself — the door hop is
+  // gone. Read it from the one line that decides it rather than from any network URL on the page,
+  // so a preconnect hint or a comment cannot be mistaken for the offer link.
+  // The identifiers were renamed off the door vocabulary on 2026-08-20 (DOOR -> OFFER_LINK);
+  // the old spellings stay matched so an unconverted page is still read, not silently skipped.
+  for (const m of html.matchAll(/window\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\s*=\s*window\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\s*\|\|\s*"([^"]+)"/gi)) found.add(m[1].toLowerCase());
+  for (const m of html.matchAll(/(?:var|let|const)\s+(?:DOOR|OFFER_LINK|OFFER_URL|OFFER_BASE)\s*=\s*(?:window\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\s*\|\|\s*)?['"]([^'"]+)['"]/gi)) found.add(m[1].toLowerCase());
   return found;
 }
 
@@ -435,11 +442,20 @@ for (const [name, url] of Object.entries(LANDER_URLS)) {
     new URL(hopUrl(bare, 'Their network')).searchParams.get('sub1'), null);
   eq('…and says so in tracks_as', /unattributed/.test(bare.tracks_as), true);
 
-  // A door-routed offer is a different story and must not be described as if the
-  // scaler's own code survives to the network.
-  const door = traceOfferChain(LANDER_URLS.FC, 'SPK-A1B2-C3D4');
-  eq('a door-routed lander traces as door mode', door.mode, 'door');
-  eq('…and says the door rewrites the subids', /door rewrites/.test(door.tracks_as), true);
+  // A HOUSE lander (2026-08-17: these went direct too, so there is no door hop left to
+  // describe). The panel must now say the scaler's code reaches the network UNCHANGED —
+  // the opposite of what it said while the door was rewriting subids, and the reason this
+  // assertion was inverted rather than deleted: quietly dropping it would let the screen
+  // keep promising a rewrite that no longer happens.
+  const house = traceOfferChain(LANDER_URLS.FC, 'SPK-A1B2-C3D4');
+  eq('a house lander now traces as direct mode', house.mode, 'direct');
+  eq('…and carries the code to the network as s1', house.forward_param, 's1');
+  eq('…with s1 LAST on the outbound hop, as the lander builds it',
+    (() => { const u = new URL(hopUrl(house, 'Their network'));
+             const k = [...u.searchParams.keys()]; return k[k.length - 1]; })(), 's1');
+  eq('…and the code itself survives', new URL(hopUrl(house, 'Their network')).searchParams.get('s1'), 'SPK-A1B2-C3D4');
+  eq('…and no sprktrax door is claimed anywhere in the chain',
+    house.hops.some(h => /sprktrax\.org/.test(h.url)), false);
 
   // An unbound page cannot have its outbound derived — must fail loudly, since the
   // whole value of this screen is telling a scaler the truth about their tracking.

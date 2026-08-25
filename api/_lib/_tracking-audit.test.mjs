@@ -17,7 +17,7 @@
 // printed on every run so a carve-out cannot quietly become permanent.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { OFFER_LINKS, DOOR_BASE } from './links-config.js';
+import { OFFER_LINKS, RETIRED_DOOR_BASE } from './links-config.js';
 
 let pass = 0, fail = 0;
 
@@ -56,7 +56,10 @@ const OUR_TRACKING_HOSTS = new Set([
 // Matched against a parsed HOSTNAME, not against raw text: `https://www.trendhavenn.com`
 // slipped past an earlier text-anchored version of this check because of the `www.`,
 // which is precisely the kind of miss that makes an audit worse than no audit.
-const NETWORK_HOST_RE = /^(?:.*\.)?(?:monetisetrk\d*|montrk\d*|phef6trk|affrkr|trendhavenn|buenohoodies)\.(?:co\.uk|com)$/i;
+// ⚠️ `fkn8s74mztrk` (Everflow) was missing here until 2026-08-20, so the destination checks below
+// silently skipped the 6,471 landers that point at it — the largest slice of the estate — even
+// though OFFER_LINKS_BY_SLICE already pinned Everflow path segments for PR50/PC50.
+const NETWORK_HOST_RE = /^(?:.*\.)?(?:monetisetrk\d*|montrk\d*|phef6trk|fkn8s74mztrk|affrkr|trendhavenn|buenohoodies)\.(?:co\.uk|com)$/i;
 
 // Files that legitimately contain network hosts or archived cloaking, and never deploy.
 //
@@ -71,11 +74,11 @@ const SKIP_FILES = new Set([
   'api/_lib/links-config.js',      // the one place a network host belongs
   'api/_lib/_tracking-audit.test.mjs',
   'api/_lib/_links-config.test.mjs',
-  'api/_lib/_traffic-filter.test.mjs',  // its fixtures ARE in-app user agents, by definition
   'api/_lib/_prelander-page.test.mjs',  // ditto — it asserts ON the breakout patterns
   'api/_lib/_partner-links.test.mjs',   // its fixtures are partner destinations, i.e. network URLs
   'api/_lib/_partner-store.test.mjs',   // ditto — it drives the real handlers with them
   'api/_lib/_partner-portal.test.mjs',  // ditto — the partner-facing half
+  'api/_lib/_gate.test.mjs',            // ditto — /click gate fixtures are network URLs
   'api/detector.js', 'api/harness.js', 'api/signatures.js', // cloaking QA tooling
   'admin/index.html', 'admin/carrd-script.js',              // dashboard + paste-in snippet
 ]);
@@ -112,27 +115,30 @@ console.log(`scanning ${files.length} deployed file(s)\n`);
 
 // ── 1. A lander's network link must be the RIGHT one for its slice and geo ────
 //
-// ⚠️ THIS CHECK CHANGED MEANING ON 2026-08-11, BY OWNER DECISION. It used to be "no deployed file
-// may link straight to a network tracker at all" — because every lander routed through the SPRK
-// door, and a direct link was by definition a bypass. Migi removed the door from the funnel: the
-// lander now links to the network itself, carrying s1=<SPK>, s2=<affiliate id>, s3=<ad account>
-// and a unique s5. So "links to a tracker" is no longer the defect.
+// ⚠️ MEANING CHANGED TWICE, BOTH TIMES BY OWNER DECISION.
+//   2026-08-11 — Migi removed the door from part of the funnel, so "links to a tracker" stopped
+//                being a defect and this became "the link matches this clone's slice and geo".
+//   2026-08-17 — Migi removed the door from ALL of it: every lander CTA now goes straight to the
+//                network. ~6,900 files gained a network link at once.
 //
-// WHAT REPLACED IT IS A REAL RISK, AND IT IS WHY THIS CHECK WAS NARROWED RATHER THAN DELETED.
-// The door used to resolve the per-geo destination per click (offers.destination_by_geo). Hardcoding
-// it into the page moves that lookup into 1,410 static files, and Freecash alone is SEVEN campaign
-// ids — /50FC/GB1 must reach c=55503, not the US c=55504. A wrong-geo link does not error: it pays
-// out against another country's campaign, on a page quoting the wrong currency, and nothing in the
-// funnel notices. So the invariant is now "the link matches this clone's own slice and geo", and a
-// copy-paste or a stale campaign id fails the build.
+// THE RISK THIS GUARDS IS UNCHANGED AND IS THE REASON IT WAS NARROWED RATHER THAN DELETED.
+// The door used to resolve the per-geo destination per click (offers.destination_by_geo). That
+// lookup now lives in thousands of static files, and Freecash alone is SEVEN campaign ids —
+// /50FC/GB1 must reach c=55503, not the US c=55504. A wrong-geo link does not error: it pays out
+// against another country's campaign, on a page quoting the wrong currency, and nothing in the
+// funnel notices. The failure mode is a copy-paste between clones or a stale campaign id.
 //
-// KEEP THIS TABLE IN STEP WITH SPRKNetworkAds landers/prelander/direct-offer.py OFFERS, which is
-// what writes the links, and with offers.destination_by_geo, which is what the network actually
-// honours. Three copies is two too many — but the other two live in another repo and a database,
-// and a build cannot read either.
+// So there are two assertions, and the FIRST is the one that scales:
+//   a) every clone of a (slice, geo) must carry the SAME destination. This needs no table, covers
+//      every slice automatically, and is exactly what a bad copy-paste breaks.
+//   b) for slices pinned in OFFER_LINKS_BY_SLICE, that destination must still contain the expected
+//      campaign id. This is the one that catches a campaign id going stale, and it needs a human
+//      to keep it in step with offers.destination_by_geo — which a build cannot read.
+// Pin a slice in (b) when you know its campaign ids; (a) protects it either way.
 const OFFER_LINKS_BY_SLICE = {
   '50FC': { FC: 'c=55504', US: 'c=55504', CA: 'c=55506', GB: 'c=55503',
             NL: 'c=55508', JP: 'c=55510', AT: 'c=55513', DE: 'c=55520' },
+  '50FCII': { FC: 'c=55504' },
   CR50: { CR: 'c=55412' },
   GP:   { GP: 'c=56278' },
   PG50: { US: 'c=56213', GB: 'c=56213' },
@@ -143,33 +149,77 @@ const OFFER_LINKS_BY_SLICE = {
   PR50: { US: 'GS3NQC1D', CA: 'GS3NQC1D', GB: 'GS3NQC1D', AU: 'GS3NQC1D' },
   PC50: { US: 'H1N8TBG5' },
 };
-const CLONE_PATH = /^([A-Za-z0-9]+)\/([A-Za-z]+)(\d+)\/go\/index\.html$/;
 
+/** The outbound offer link a lander actually ships. */
+// The door vocabulary was renamed to OFFER_LINK on 2026-08-20. Both spellings stay matched: a
+// page that has not been converted must still be READ by this check, not silently skipped.
+const OUTBOUND_RE = new RegExp(
+  'window\\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\\s*=\\s*window\\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\\s*\\|\\|\\s*"([^"]+)"' +
+  '|(?:var|let|const)\\s+(?:DOOR|OFFER_LINK|OFFER_URL|OFFER_BASE)\\s*=\\s*(?:window\\.__(?:DOOR_URL|OFFER_LINK|OFFER_URL)__\\s*\\|\\|\\s*)?[\'"]([^\'"]+)[\'"]');
+
+// Clone shapes seen in the tree: SLICE/GEO<n>/index.html, the same with a /go/ hop, SLICE/GEO/
+// (the per-geo canonical), and SLICE/index.html (the slice root — a real deployed lander, so it is
+// checked rather than exempted: exempting it is how the one page nobody re-checks ends up on a
+// retired campaign id).
+const SHAPES = [
+  /^([A-Za-z0-9]+)\/([A-Za-z]+)\d+\/go\/index\.html$/,
+  /^([A-Za-z0-9]+)\/([A-Za-z]+)\d+\/index\.html$/,
+  /^([A-Za-z0-9]+)\/([A-Za-z]{2,3})\/index\.html$/,
+];
+
+const groups = new Map();          // "SLICE\u0000GEO" -> Map(destination -> [files])
+let inspected = 0;                 // landers whose destination line was actually readable
 const offenders = [];
 for (const rel of files) {
   const src = readFileSync(new URL(rel, REPO), 'utf8');
   const hits = [...src.matchAll(/https?:\/\/([a-z0-9.-]+)/gi)].filter((m) => NETWORK_HOST_RE.test(m[1]));
   if (!hits.length) continue;
 
-  const cm = CLONE_PATH.exec(rel);
-  // A SLICE ROOT (e.g. GP/index.html) is a real deployed lander too — it is the page the fan-out
-  // was cloned FROM and it still answers at /GP/. It has no geo in its path, so it is checked
-  // against any link configured for its slice rather than exempted: exempting it is how the one
-  // page nobody re-checks ends up pointing at a retired campaign id.
-  const rm = cm ? null : /^([A-Za-z0-9]+)\/index\.html$/.exec(rel);
-  if (!cm && !rm) {
-    // A network link outside any lander at all is the original defect, unchanged.
-    offenders.push(`${rel}: ${hits[0][0]} (network link outside a lander)`);
-    continue;
-  }
-  const slice = cm ? cm[1] : rm[1];
-  const geo = cm ? cm[2] : null;
-  const map = OFFER_LINKS_BY_SLICE[slice] || {};
-  const want = geo ? map[geo.toUpperCase()]
-                   : (Object.values(map).length === 1 ? Object.values(map)[0] : null);
-  if (!want) { offenders.push(`${rel}: no configured offer link for ${slice}/${geo}`); continue; }
-  if (!src.includes(want)) offenders.push(`${rel}: expected ${want} for ${slice}/${geo}, not found`);
+  // A network link in something that is not a landing page at all is the original defect: a
+  // redirector or a library with a tracker URL baked in, which no per-geo rule can protect.
+  if (!rel.endsWith('.html')) { offenders.push(`${rel}: ${hits[0][0]} (network link outside a lander)`); continue; }
+
+  let slice = null, geo = null;
+  for (const re of SHAPES) { const m = re.exec(rel); if (m) { slice = m[1]; geo = m[2].toUpperCase(); break; } }
+  if (!slice) continue;   // a root-level lander (frcusa.html etc.) — no slice/geo to check it against
+
+  const m = OUTBOUND_RE.exec(src);
+  if (!m) continue;
+  inspected++;
+  const dest = m[1] || m[2];
+  if (dest.includes('sprktrax.org')) continue;   // still on the door; check 4 and _direct-offer own that
+
+  const key = `${slice}\u0000${geo}`;
+  if (!groups.has(key)) groups.set(key, new Map());
+  const byDest = groups.get(key);
+  if (!byDest.has(dest)) byDest.set(dest, []);
+  byDest.get(dest).push(rel);
 }
+
+// (a) clones of one (slice, geo) must agree
+for (const [key, byDest] of groups) {
+  if (byDest.size === 1) continue;
+  const [slice, geo] = key.split('\u0000');
+  const detail = [...byDest].map(([d, fs]) => `${d} (${fs.length} files, e.g. ${fs[0]})`).join(' VS ');
+  offenders.push(`${slice}/${geo}: clones disagree on the destination — ${detail}`);
+}
+
+// (b) pinned slices must still carry the expected campaign id
+for (const [key, byDest] of groups) {
+  const [slice, geo] = key.split('\u0000');
+  const want = (OFFER_LINKS_BY_SLICE[slice] || {})[geo];
+  if (!want) continue;
+  for (const [dest, fs] of byDest) {
+    if (!dest.includes(want)) offenders.push(`${slice}/${geo}: expected ${want}, got ${dest} (${fs.length} files)`);
+  }
+}
+// ⚠️ This check reads the destination out of ONE line. When that line was renamed
+// (__DOOR_URL__ -> __OFFER_LINK__) the regex stopped matching and every lander fell through the
+// `if (!m) continue` above — the check passed while inspecting nothing. Assert the coverage so a
+// future rename fails loudly instead of going quietly blind.
+console.log(`   (destination line read in ${inspected} landers)`);
+report('the destination check actually inspected the estate',
+       inspected > 5000 ? [] : [`_tracking-audit: only ${inspected} landers had a readable destination line — OUTBOUND_RE has gone blind`]);
 report('every lander links to the offer link for its own slice and geo', offenders);
 
 // ── 2. Every /c/ offer link on a lander is on one of OUR hosts ────────────────
@@ -196,15 +246,21 @@ for (const rel of files) {
 }
 report('every /c/ slug referenced by a lander is enabled in OFFER_LINKS', badSlugs);
 
-// ── 4. Every door URL points at the real door ────────────────────────────────
+// ── 4. The door is GONE, and must not come back ──────────────────────────────
+// It used to be enough to check a door URL pointed at the RIGHT door. The door route was
+// deleted on 2026-08-21, so any door URL in a deployed file is now a dead link — and the
+// door has crept back three times through a generator, which is exactly why this is a
+// tripwire on the name rather than a check on its shape.
 const badDoors = [];
 for (const rel of files) {
   const src = readFileSync(new URL(rel, REPO), 'utf8');
   for (const m of src.matchAll(/https:\/\/([a-z0-9.-]+)\/api\/link\/([a-z0-9-]+)/gi)) {
-    if (`https://${m[1]}/api/link` !== DOOR_BASE) badDoors.push(`${rel}: ${m[0]}`);
+    badDoors.push(`${rel}: ${m[0]} (the door is deleted — this link 404s)`);
   }
 }
-report('every door URL uses DOOR_BASE', badDoors);
+report('no deployed file points at the retired door', badDoors);
+report('the retired-door constant is not used as a destination',
+  RETIRED_DOOR_BASE === 'https://sprktrax.org/api/link' ? [] : ['RETIRED_DOOR_BASE changed unexpectedly']);
 
 // ── 5. No third-party tracking script on a deployed page ─────────────────────
 // A tracker we do not run sees our traffic and cannot be reconciled with our numbers.
@@ -316,6 +372,46 @@ for (const rel of files) {
   }
 }
 report('cloaking/breakout code appears only in the sanctioned prelander files', cloaking);
+
+// ── 7. The front must not decide who is real, and the decoy must stay dead ────
+//
+// Removed 2026-08-17. /r used to answer {} for a visitor it disliked — desktop, no
+// ttclid, a bot-ish user-agent, or a client-hint contradiction — and the Carrd embed
+// then rendered js/decoy.js, a FABRICATED E-COMMERCE STORE, in place of the funnel.
+// An ad reviewer saw a different website from the buyer. That is cloaking in the
+// plainest sense, and it is what gets a domain flagged by TikTok ad review and by
+// Safari/Chrome deceptive-site protection — a domain-level flag, so it takes every
+// campaign down at once.
+//
+// This check exists because the gates are cheap to re-add and each one looks locally
+// reasonable ("just block the obvious bots"). The invariant is not "block less". It
+// is that /r returns the SAME KIND OF ANSWER to everyone, so nothing downstream can
+// serve a reviewer a different page. Attribution does not need a gate here: the door
+// 404s any click whose s1 is not a valid spark code, which fails closed at the hop
+// where money is actually involved.
+//
+// If a genuine anti-fraud need appears, it belongs AFTER the click is attributed —
+// in the door or in postback scoring — never in front of the page render.
+const frontGate = [];
+const decoyRefs = [];
+for (const rel of files) {
+  const raw = readFileSync(new URL(rel, REPO), 'utf8');
+  const src = stripComments(raw);
+  // The decoy must not come back, under any name, on any deployed page.
+  if (/\bdecoy\.js\b/.test(src)) decoyRefs.push(`${rel}: references decoy.js`);
+  if (rel !== 'api/r.js') continue;
+  if (/user-?agent/i.test(src) && /\breturn\b[^;]*\{\s*\}/.test(src)) {
+    frontGate.push(`${rel}: appears to reject a visitor on user-agent`);
+  }
+  for (const [re, what] of [
+    [/BOT_UA_PATTERNS|\bisBot\s*\(/, 'a bot user-agent gate'],
+    [/traffic-filter|evaluateRequest/, 'the UA/client-hint contradiction gate'],
+    [/hasTtclid|!\s*hasTtclid/, 'a ttclid requirement'],
+    [/device\s*===\s*['"](d|t|desktop|tablet)['"]/, 'a device-class gate'],
+  ]) if (re.test(src)) frontGate.push(`${rel}: ${what} is back`);
+}
+report('js/decoy.js is gone and nothing references it', decoyRefs);
+report('/r does not gate the visitor on user-agent, device or ttclid', frontGate);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

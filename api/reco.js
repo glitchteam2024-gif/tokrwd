@@ -7,8 +7,9 @@
  * see it at all. Kept as its own route because RS/index.html links to /api/reco.
  */
 import { getConfiguredOfferLink, isSafeDestination } from './_lib/links-config.js';
+import { gateLogRow, sendGateLog } from './_lib/gate-log.js';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   const link = getConfiguredOfferLink('reco-social-off');
   // A disabled or missing slug must not fall back to a stale hardcoded URL — that is
   // exactly the kill switch failing open. 404 instead.
@@ -23,19 +24,28 @@ export default function handler(req, res) {
 
   const sub = (first(req.query.s1) || first(req.query.campid) || first(req.query.s2) || first(req.query.sub_id) || '').toString();
 
-  // Forward ONLY s3 (the TikTok ad account the SPRK launcher stamps on every ad link) so per-account
-  // breakdown survives this hop. This hop goes DIRECT to the network tracker (no SPRK door): s2/s4
-  // have no consumer here, and s5 is the network's click_id echo slot — forwarding a constant s5
-  // would collapse postback dedup — so only s3 rides through.
-  const s3v = (first(req.query.s3) || '').toString();
-  const extra = s3v ? '&s3=' + encodeURIComponent(s3v) : '';
-
-  const dest = OFFER_BASE + encodeURIComponent(sub) + extra;
+  /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else.
+     s3 used to ride along here for a per-ad-account breakdown; it does not any more. An empty
+     code appends NOTHING rather than shipping a blank sub-id the network would record as real. */
+  const dest = sub ? OFFER_BASE + encodeURIComponent(sub) : OFFER_BASE.replace(/[?&][a-z0-9_]+=$/i, '');
 
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   res.setHeader('Referrer-Policy', 'no-referrer');
+
+  // Log the click, THEN redirect — same contract as /api/click and /c/ (an await after
+  // res.end() is not guaranteed to run on Vercel; capped + fail-open, cannot cost the click).
+  let lp = '';
+  try { lp = new URL(req.headers.referer || '').pathname; } catch { /* no referer */ }
+  await sendGateLog(gateLogRow(req, {
+    key: 'reco',
+    lp,
+    s1: sub,
+    dest,
+    ttclid: (first(req.query.ttclid) || '').toString(),
+    via: 'direct',
+  }));
 
   return res.redirect(302, dest);
 }

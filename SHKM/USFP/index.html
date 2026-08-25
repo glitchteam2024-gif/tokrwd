@@ -515,7 +515,7 @@
     <section class="final-claim" id="claim">
       <div class="shell">
         <h2>Ready to see your qualifying offers?</h2>
-        <a class="cta" href="https://sprktrax.org/api/link/flash-poll-shein-2-us-kerman" id="claim-button">See my offers</a>
+        <a class="cta" href="https://www.fkn8s74mztrk.com/F2R45HNR/GZ9W1JS7/" id="claim-button">See my offers</a>
       </div>
     </section>
   </main>
@@ -531,21 +531,21 @@
   </div>
 
   <script>
-    // ---- Outbound: the SPRK tracking DOOR ----
+
     // Replaced the supplied demo handler, which cancelled the only converting click on the page.
-    // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
+
     // and 302s to the real Shein URL — which lives in the offer row and never appears in this
     // page's source.
-    const DOOR = "https://sprktrax.org/api/link/flash-poll-shein-2-us-kerman";
+    const OFFER_LINK = "https://www.fkn8s74mztrk.com/F2R45HNR/GZ9W1JS7/";
 
-    // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
+
     const q = new URLSearchParams(location.search);
 
-    // campid is the Carrd/Spartis name for the same value — promote it when s1 is absent.
+
     if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
 
-    // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
-    // the door 404s an untagged click by design, and that is the real attribution gate.
+
+
     if (!q.get('s1')) {
       const mc = q.get('mc_attr') || '', f = {};
       mc.split('..').forEach((kv) => { const i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -553,13 +553,29 @@
     }
 
     function offerUrl() {
-      // s1 LAST — ad automations append to the tail. campid is a lander-side alias, lg routes the
+
       // lander; neither belongs in what the network sees.
       const out = new URLSearchParams(q.toString());
       out.delete('s1'); out.delete('campid'); out.delete('lg');
       const qs = out.toString(), s1 = q.get('s1') || '';
-      let url = DOOR + (qs ? '?' + qs : '');
-      if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+      /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+      let url = (function () {
+        var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+        if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+        /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+           The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+           code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+           already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+           `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+           is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+           platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+        var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+        var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+        var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+        /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+        return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+      })();
+      
       return url;
     }
 
@@ -587,8 +603,6 @@
     document.addEventListener('visibilitychange', syncDocumentVisibility);
     syncDocumentVisibility();
   </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
-<script src="/js/ttclid.js" async></script>
+
 </body>
 </html>

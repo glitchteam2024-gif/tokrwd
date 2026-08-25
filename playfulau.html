@@ -270,7 +270,7 @@
     <span>After 2 offers &middot; paid via <b>PayPal</b></span>
   </div>
 
-  <!-- CLAIM: walks the SPRK door (see the wiring script below). The real Playful Rewards
+  <!-- CLAIM: see the wiring script below. The real Playful Rewards
        network URL lives in the offer row and never appears in this markup. -->
   <a class="cta offer-link" id="claimBtn" href="#">Install App &amp; Start Earning</a>
 
@@ -302,42 +302,27 @@
 <script>
 (function(){
   // ---- Outbound: the SPRK tracking OFFER_URL ----
-  // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
+
   // and 302s to the real Playful Rewards URL — which lives in the offer row and never appears here.
-  // Never wire this CTA straight to the network: that skips the door, so no click_id is minted, no
-  // clicks row is written, and the conversion lands unmatched.
-  var OFFER_URL = 'https://sprktrax.org/api/link/playful-au';
-/* SPRK-DIRECT-OFFER v1 */
-  /* Build the network URL. Reads the query directly, so it does not care which local the lander
-     happened to keep it in.
-       - s1 (the SPK) is placed LAST: ad automations append to the tail, and a first-match tracker
-         must not meet a different s1 first.
-       - lg / campid are lander-side routing aliases and never reach the network.
-       - s5 is a UNIQUE-PER-CLICK anti-duplicate token. Monetise sends a real txid on 1.2% of
-         conversions (17/1439, measured over 30 days), so with no click token api/postback.js dedups
-         on (network, spark, sub2..sub5) inside 120s -- and s1/s2/s3 are CONSTANT per creative. A
-         unique s5 is the only thing keeping two genuine leads from collapsing into one payment. It
-         resolves to nothing; uniqueness is its whole job, so a collision costs one dedup, never
-         attribution.
-       - the separator is derived from the base, because every Monetise link already carries
-         ?a=&c= while the Everflow ones are a bare path. Hardcoding '?' is what produced two '?'
-         in one URL (and silently dropped ttclid) in the funnel this family was adapted from. */
-  function __sprkOffer(base) {
-    var p = new URLSearchParams(location.search);
-    p.delete('lg'); p.delete('campid'); p.delete('sid');
-    var s1 = p.get('s1') || p.get('sub1') || '';
-    p.delete('s1'); p.delete('sub1');
-    var t;
-    try { t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { t = ''; }
-    if (!t) t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-    t = t.slice(0, 22);
-    ['2','3'].forEach(function(n){ var v = p.get('s'+n); if (v && !p.get('sub'+n)) p.set('sub'+n, v); p.delete('s'+n); });
-    if (!p.get('sub5')) p.set('sub5', t);
-    try { window.__SPRK_S5 = p.get('sub5'); } catch (e) {}
-    var qs = p.toString();
-    var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');
-    if (s1) url += (url.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(s1);
-    return url;
+
+
+  var OFFER_URL = 'https://www.fkn8s74mztrk.com/F2R45HNR/GSLZGFND/';
+/* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+  function __offerUrl(base) {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || '';
+    /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+       code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+       already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+       is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+       platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _dest = !_send1 ? base : base + (base.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+    var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+    return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
   }
   /* SPRK-FUNNEL-BEACON v2 */
   /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
@@ -377,15 +362,15 @@
 
 
 
-  // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
+
   var q = new URLSearchParams(location.search);
 
-  // campid is the Carrd/Spartis name for the same value — promote it to s1 when s1 is absent, so a
+
   // Carrd-sourced click still resolves an owner instead of arriving anonymous.
   if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
 
-  // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
-  // the door 404s an untagged click by design.
+
+
   if (!q.get('s1')) {
     var mc = q.get('mc_attr') || '', f = {};
     mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -393,11 +378,11 @@
   }
 
   function offerUrl(){
-    // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network param.
+
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('campid'); out.delete('lg');
     var qs = out.toString(), s1 = q.get('s1') || '';
-    var url = __sprkOffer(OFFER_URL);
+    var url = __offerUrl(OFFER_URL);
     return url;
   }
 
@@ -450,8 +435,6 @@
   });
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
-<script src="/js/ttclid.js" async></script>
+
 </body>
 </html>

@@ -400,13 +400,26 @@ const LANDER_HOST_SET = (() => {
  * and a page disagree.
  */
 export const OFFERS = {
-  freecash:       { label: 'Freecash',             match: 'sprktrax.org/api/link/freecash' },
-  testerup:       { label: 'Testerup',             match: 'sprktrax.org/api/link/testerup' },
-  copper:         { label: 'Copper',               match: 'sprktrax.org/api/link/copper' },
-  gravypass:      { label: 'Gravypass',            match: 'sprktrax.org/api/link/gravypass' },
+  freecash:       { label: 'Freecash',             match: 'https://montrk5.co.uk/?a=26648&c=55504' },
+  // ⚠️ c=55412 is COPPER's campaign, and that is not a typo. The Testerup offer is
+  // status='archived' with fallback_offer_id -> Copper Banking, so the door was already
+  // sending every Testerup click to Copper; the 2026-08-17 direct migration froze that
+  // behaviour into the page. The lander copy still says Testerup. DECIDE: re-point the
+  // TU/CLTU/50TU landers at a live offer, or re-brand them as Copper.
+  testerup:       { label: 'Testerup',             match: 'https://montrk.co.uk/?a=26648&c=55412' },
+  copper:         { label: 'Copper',               match: 'https://montrk.co.uk/?a=26648&c=55412' },
+  gravypass:      { label: 'Gravypass',            match: 'https://monetisetrk2.co.uk/?a=26648&c=56278' },
   'freecash-uk':  { label: 'Freecash UK',          match: '/c/frrcsh-uk-off' },
   'freecash-ca':  { label: 'Freecash CA',          match: '/c/frrcsh-ca-off' },
   'testerup-mon': { label: 'Testerup (Monetise)',  match: '/c/testerup-us-mon-off' },
+  // Retail Style Shein $750, US — the offer /STT/US fires.
+  //
+  // ⚠️ NOT `shein-us`. That slug, plus `shein` and `shein-gb`, are RETIRED: they 404 at the
+  // door even with a valid s1, which means no landing_pages row matches them. The entire
+  // SHEIN/ + SH50/ house family (~120 pages) still points at them and is inert for that
+  // reason — worth fixing separately, but it is not this lander's problem. Probe before
+  // trusting any door slug: 302-with-s1 and 404-without is alive; 404-both is gone.
+  'shein-retail-us': { label: 'Retail Style Shein $750 (US)', match: 'https://www.fkn8s74mztrk.com/F2R45HNR/H3J9L2H2/' },
   // Named for the OFFER, not for one person: /ESGP is shared by every partner in
   // PARTNER_LINKS that points at it, each on their own affiliate link. The label
   // shows up beside the lander in the admin pickers, where "(Edwin)" would read as
@@ -418,7 +431,7 @@ export const OFFERS = {
   // serves the US page. The other five geos are reached through the PR50/<GEO>n pools that SPRK
   // assigns, exactly like Freecash's FCASH/* pages — they are deliberately not `lp=`-routable, so
   // no public offer key can aim traffic at the wrong language.
-  playful:        { label: 'Playful Rewards',      match: 'sprktrax.org/api/link/playful-us' },
+  playful:        { label: 'Playful Rewards',      match: 'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/' },
 };
 
 /**
@@ -483,6 +496,25 @@ export const OVERRIDE_LANDERS = {
     offer: 'playful',
     owner: 'SPRK house — Playful Rewards (alias of `play`, same page)',
   },
+  // An operator-supplied Shein design: dark, editorial, "Shop The Trend" brandmark rather
+  // than the SHEIN wordmark. Override-only, so nothing reaches it without `lp=stt` on the
+  // ad link and it is backed out by removing that param — no deploy.
+  //
+  // It fires Retail Style Shein, NOT the retired $750 Shein offer the SHEIN/ + SH50/ pages
+  // still point at. It is deliberately NOT comparable to those: they fire a dead door, so
+  // an A/B against them would read as this page converting infinitely better.
+  //
+  // Still a FOLDER lander (/STT/US) rather than a flat root .html: the flattening of
+  // 2026-08-12 collapsed the numbered CLONE pools, while the canonical per-geo pages are
+  // folders still. This is a canonical page with no clone pool, so it takes that shape.
+  //
+  // Folder is STT (the page's own brandmark) precisely because it is NOT the SHEIN page;
+  // naming it SHEIN-anything would invite someone to `cp` over it.
+  stt: {
+    path: '/STT/US',
+    offer: 'shein-retail-us',
+    owner: 'house — Retail Style Shein $750 US, alternate design',
+  },
 };
 
 const OVERRIDE_LANDER_MAP = new Map(
@@ -540,6 +572,9 @@ const RESERVED_LANDER_ROOTS = new Set([
   // The safe page. `lp=safe` / `to=/safe` would spend the whole budget landing paid
   // traffic on the page whose entire job is to be the one that does NOT convert.
   'safe',
+  // The click gate. `lp=click` / `to=/click` would land paid traffic on a redirector
+  // with no destination -- same class of hole as `lp=c/...` was.
+  'click',
 ]);
 
 /**
@@ -899,6 +934,12 @@ export const PRELANDER_ENABLED = true;
  * the fail-open behaviour just means no prelander.
  */
 export const PRELANDER_ALLOWED_ROOTS = [
+  // RETIRED 2026-08-17: seph/sp50 (Sephora, all 4 geos), uber/ue50 (Uber Eats GB). Their
+  // offer rows were DELETED from the network, so there was no link left to point them at —
+  // the CTA had been 404ing at the door. Files removed in the same commit. ak50/ak51 are
+  // deliberately NOT retired here: only their US trees were dead, and /AK50/:c(AU|CA|GB)
+  // still rewrite to live flat pages, so pulling those roots would cost those geos the
+  // prelander (fail-open — the click lands, the in-app escape silently stops firing).
   // Flat Freecash pages, 2026-08-12. 50FC/<GEO><N>/ collapsed to one file per geo; the
   // pages are top-level, so each NAME is its own root. Added to BOTH lists in the same
   // commit — a lander that deploys without its allowlist entry loses the click, not the hop.
@@ -942,7 +983,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'ravfc', 'rv61', 'rv62', 'rv63', 'ravfcurl',
   'apay750', 'apayfp', 'cash', 'cb', 'cb50', 'cbak', 'clfc', 'clfcca', 'clfcuk',
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
-  'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'seph', 'sh50', 'shb2s', 'shein',
+  'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'sh50', 'shb2s', 'shein',
   // The owner scaler Playful Rewards page, 2026-08-12. Flat pair: /PlayfulM-pre.html breaks the
   // in-app webview, then forwards to /PlayfulM.html via its sprk-lander meta. cleanPath lowercases
   // the root and does NOT strip the extension, so the entry carries .html — same as fctt.html.
@@ -955,8 +996,10 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // forwards to /mgfc.html via its sprk-lander meta. Added to BOTH lists in this commit.
   'mgfc.html', 'mgfc-pre.html',
   'shrtl', 'sr50',
-  'sp50', 'tsup',
-  'tu', 'uber', 'ue50', 'trt',
+  // STT/US — a second Shein $750 US design, override-only via lp=stt. Canonical page,
+  // no clone pool, so it stays a folder lander like SHEIN/US.
+  'stt', 'tsup',
+  'tu', 'trt',
 ];
 
 const PRELANDER_ROOT_SET = new Set(PRELANDER_ALLOWED_ROOTS);
@@ -1125,10 +1168,6 @@ export function resolveLander({ carrdUrl = '', campid = '', campaigns = {}, part
  */
 export const OFFER_LINKS = [
   // ── Door-routed (full SPRK attribution) ────────────────────────────────────
-  { slug: 'freecash', mode: 'door', doorSlug: 'freecash', enabled: true },
-  { slug: 'testerup', mode: 'door', doorSlug: 'testerup', enabled: true },
-  { slug: 'copper', mode: 'door', doorSlug: 'copper', enabled: true },
-  { slug: 'gravypass', mode: 'door', doorSlug: 'gravypass', enabled: true },
 
   // ── Direct-to-network offers ───────────────────────────────────────────────
   // Testerup US/CA/UK — direct tracking link
@@ -1216,7 +1255,10 @@ export const OFFER_LINKS = [
 ];
 
 /** Base URL of the sprktrax affiliate door. */
-export const DOOR_BASE = 'https://sprktrax.org/api/link';
+/* The retired tracking door. Kept ONLY as the string the tracking audit refuses to find in a
+ * deployed page — the door came back three times through a generator, so its name is now a
+ * tripwire rather than a destination. Nothing routes here; the route itself is deleted. */
+export const RETIRED_DOOR_BASE = 'https://sprktrax.org/api/link';
 
 /** Look up an offer link by slug. Disabled links resolve to undefined. */
 export function getConfiguredOfferLink(slug) {
@@ -1659,16 +1701,38 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
 
   // A door-routed offer: the door re-stamps subids itself, so what the affiliate
   // ends up seeing is decided there, not here. Say so instead of inventing it.
+  // A DIRECT offer: since 2026-08-17 the lander links to the network itself, so there is no
+  // hop between the page and the network to describe. Built to mirror the lander's own builder
+  // exactly — extras first, s1 LAST — because the whole point of this panel is telling a scaler
+  // the truth about what their click carries. If the lander's order ever changes, change it here
+  // in the same commit.
+  if (/^https?:\/\//i.test(match)) {
+    const extraParts = Object.entries(carry)
+      .filter(([, v]) => v)
+      .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v));
+    let url = match + (extraParts.length ? (match.includes('?') ? '&' : '?') + extraParts.join('&') : '');
+    if (code) url += (url.includes('?') ? '&' : '?') + 's1=' + encodeURIComponent(code);
+    hops.push({ step: 'Their network', url });
+    return {
+      ok: true, offer, offer_label: label, mode: 'direct', slug: null, hops,
+      forward_param: 's1',
+      tracks_as: code
+        ? `s1=${code} — the page sends it straight to the network, unchanged. No door rewrites it ` +
+          'any more, so this is exactly the value that lands in their reports. A unique s5 rides ' +
+          'alongside it purely to stop two genuine leads deduping into one payment.'
+        : 's1 — empty, because no tracking code was given. The click still converts, but it ' +
+          'attributes to nobody.',
+    };
+  }
+
+  /* The door is DELETED (2026-08-21). An offer still pointing at it is a config error, not a
+   * route — fail loudly here rather than drawing a hop to a URL that now 404s. */
   const doorMatch = match.match(/^sprktrax\.org\/api\/link\/([a-z0-9-]+)$/i);
   if (doorMatch) {
-    const doorUrl = new URL(`${DOOR_BASE}/${doorMatch[1]}`);
-    doorUrl.searchParams.set('s1', code);
-    for (const [k, v] of Object.entries(carry)) doorUrl.searchParams.set(k, v);
-    hops.push({ step: 'SPRK door', url: doorUrl.toString() });
     return {
-      ok: true, offer, offer_label: label, mode: 'door', slug: doorMatch[1], hops,
-      tracks_as: 's1 → the door rewrites it: the affiliate number lands in s1, the spark code moves ' +
-                 'to s2, and a click_id is minted into s5.',
+      ok: false, offer, offer_label: label, slug: doorMatch[1], hops,
+      reason: 'This offer still points at the retired SPRK door (' + doorMatch[1] + '). That route ' +
+              'no longer exists — repoint it at the network URL or a /c/ slug.',
     };
   }
 
@@ -1696,13 +1760,10 @@ export function traceOfferChain(landerUrl, subId, extras = {}) {
   hops.push({ step: 'Our redirector', url: hop.toString() });
 
   if (link.mode === 'door') {
-    const doorUrl = new URL(`${DOOR_BASE}/${link.doorSlug || slug}`);
-    doorUrl.searchParams.set('s1', code);
-    for (const [k, v] of Object.entries(carry)) doorUrl.searchParams.set(k, v);
-    hops.push({ step: 'SPRK door', url: doorUrl.toString() });
     return {
-      ok: true, offer, offer_label: label, mode: 'door', slug, hops,
-      tracks_as: 's1 → the door rewrites it before the network sees it.',
+      ok: false, offer, offer_label: label, slug, hops,
+      reason: 'This link is still marked mode:\'door\', but the SPRK door was deleted on 2026-08-21. ' +
+              'Give it a `destination` and mode:\'direct\'.',
     };
   }
 
@@ -1782,4 +1843,96 @@ export function isSafeDestination(url) {
   } catch {
     return false;
   }
+}
+
+/* ----------------------------- The click gate (/click) -----------------------------
+ *
+ * Every lander CTA walks `/click?u=<finished offer URL>&s1=<raw wire>&lp=<pathname>`:
+ * the gate logs the click server-side (click_id, raw wire, IP, geo, creative path)
+ * and then 302s to `u` UNCHANGED. The page remains the source of truth for the
+ * destination and the one outbound param -- the gate adds a log, never a rewrite.
+ *
+ * `u` is client-supplied on a public endpoint, so it is an open redirect unless the
+ * host is pinned. The allowlist below is every network family a deployed lander
+ * actually names in its declaration (census 2026-08-21); our own hosts are refused
+ * outright so a crafted `u` can never loop the gate into itself.
+ *
+ * ⚠️ A NEW NETWORK NEEDS A LINE HERE OR EVERY CLICK 404s AT OUR OWN GATE. That failure is
+ * invisible from the lander: the page is perfect, the destination is right, and the visitor
+ * never reaches it. _offer-link.test.mjs asserts every deployed lander's `u` passes this
+ * allowlist, which is what caught pcbdfv7trk on intake — keep that check green rather than
+ * discovering it from a dead campaign.
+ *   pcbdfv7trk.com — Prescott (everflow), added 2026-08-24 with Swagbucks iOS, the first
+ *   lander on that network. Taken from offers.destination_by_geo, not from the supplied page.
+ */
+export const GATE_DEST_HOST_RE =
+  /^(?:www\.)?(?:(?:monetisetrk|montrk)\d{0,2}\.co\.uk|fkn8s74mztrk\.com|phef6trk\.com|pcbdfv7trk\.com|giftclick\.org)$/i;
+
+export function isAllowedGateDestination(url) {
+  try {
+    const raw = String(url || '');
+    // The URL parser silently STRIPS tab/newline before parsing, so a value that smuggles a
+    // decoded CRLF can pass `new URL` and still reach a Location header raw. Refuse it here --
+    // never rely on the HTTP layer to reject the header.
+    if (/[\u0000-\u001f\u007f]/.test(raw)) return false;
+    // Reject anything outside printable ASCII too: a code point >= 0x100 passes the URL parser but
+    // is refused by the HTTP layer as an invalid Location header, so it would throw at redirect
+    // time on a value that had already been accepted. No real lander emits it (bases are ASCII and
+    // encodeURIComponent output is ASCII), so this only closes a crafted-request hang.
+    if (/[^\x20-\x7e]/.test(raw)) return false;
+    const parsed = new URL(raw);
+    if (parsed.protocol !== 'https:') return false;
+    if (parsed.username || parsed.password) return false;
+    return GATE_DEST_HOST_RE.test(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Per-family override table -- the gate's control surface.
+ *
+ * A row here wins over the page's own `u` for every click whose derived key matches,
+ * WITHOUT touching the N clones that share the family. This is how a creative family
+ * gets rerouted (new network link) or paused (destination -> house fallback) with a
+ * one-line deploy instead of a 100-file sweep.
+ *
+ *   'ak52-gb': { destination: 'https://...', forwardParam: 'sub1', enabled: true },
+ *
+ * The key is deriveGateKey() of the lander path (see api/_lib/gate-log.js):
+ * top folder lowercased, plus the second segment with its trailing digits stripped --
+ * `/AK52/GB7` -> 'ak52-gb', `/frcusa.html` -> 'frcusa', `/50FC/FC12` -> '50fc-fc'.
+ * Ship EMPTY by default: with no row, the gate forwards the page's own URL.
+ */
+export const GATE_OVERRIDES = {};
+
+/**
+ * The param name a destination host reads. The s1/sub1 split is the estate's costliest trap: a
+ * CAKE/Monetise `*.co.uk` endpoint reads `s1` and discards `sub1`; Everflow-family hosts do the
+ * reverse. An override row that omits forwardParam must not silently default to one dialect and
+ * zero out attribution for the other family — so infer from the host instead.
+ */
+/* `gateClickSlotFor()` lived here — it chose the slot a click token rode back in (`s5` on CAKE,
+ * `sub2` on Everflow). REMOVED 2026-08-21 with the token itself: the wire carries the offer link
+ * and the affiliate code, and nothing else. Do not reintroduce it to "help attribution" — that
+ * decision has now been made four separate times. If duplicate protection is ever genuinely
+ * needed again, the network's own `txid` is the mechanism (Monetise substitutes `#tid#`
+ * correctly, and `conversions` has a unique index on it), not a second param on our wire.
+ */
+
+export function gateForwardParamFor(destination) {
+  try {
+    return /\.co\.uk$/i.test(new URL(destination).hostname) ? 's1' : 'sub1';
+  } catch {
+    return 'sub1';
+  }
+}
+
+export function getGateOverride(key) {
+  if (!key || !Object.prototype.hasOwnProperty.call(GATE_OVERRIDES, key)) return null;
+  const row = GATE_OVERRIDES[key];
+  if (!row || row.enabled === false) return null;
+  if (!row.destination || !isSafeDestination(row.destination)) return null;
+  // Freeze the resolved dialect on the returned row so the caller never re-defaults to 'sub1'.
+  return { ...row, forwardParam: row.forwardParam || gateForwardParamFor(row.destination) };
 }

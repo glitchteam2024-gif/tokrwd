@@ -222,8 +222,7 @@
     <span>After 2 offers &middot; paid via <b>Cash App</b></span>
   </div>
 
-  <!-- CLAIM: fires the Spartis offer cloak with ?campid= (Monetise, short code testerup-us-mon-off).
-       Real Monetise link + s1 forwarding are configured in Spartis Offer Links, not here. -->
+  
   <a class="cta offer-link" id="claimBtn" href="#">Install App &amp; Start Earning</a>
 
   <div class="section-label">YOUR EARNING JOURNEY</div>
@@ -253,7 +252,7 @@
 
 <script>
 (function(){
-  // ---- SubID (campid) extraction — Spartis bot flow ----
+
   function getCampid(){
     var p = new URLSearchParams(window.location.search);
     return p.get('campid') || p.get('s1') || p.get('s2') || '';
@@ -263,9 +262,16 @@
     // OUR offer link, on OUR cloaker domain. Emits ?campid= (never ?s1=); the slug is
     // resolved by api/_lib/links-config.js OFFER_LINKS, which forwards the sub-id as s1.
     // Was buenohoodies.com/c/… — a SEPARATE deploy we do not run, so it never picked up
-    // this repo's config (same slug resolved to monetisetrk8 there vs montrk here) and
+
     // nothing we changed in OFFER_LINKS could reach it.
-    return 'https://appflowconnect.com/c/testerup-us-mon-off?campid=' + (campid ? encodeURIComponent(campid) : '');
+    /* SPRK-S1-ONLY v5 — one param out. `s1=` rather than the old `campid=`: api/c/[slug].js
+       readSubId() accepts campid|cid|c|s1|sub1 and resolves them identically, so this is the same
+       value under the name the rest of the estate uses. Trae's label has no SPK in it and goes out
+       verbatim, which is correct — a scaler's own label IS their attribution key. */
+    var _send1 = (String(campid).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i) || [''])[0].toUpperCase() || campid;
+    return _send1
+      ? 'https://appflowconnect.com/c/testerup-us-mon-off?s1=' + encodeURIComponent(_send1)
+      : 'https://appflowconnect.com/c/testerup-us-mon-off';
   }
 
   // ---- Screen toggle: game picker -> claim (keeps campid in the URL) ----

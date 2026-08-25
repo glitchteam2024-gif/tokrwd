@@ -20,16 +20,10 @@ export default function handler(req, res) {
   // Pull the tracking sub-id from the incoming click (any of these keys).
   const sub = (first(req.query.s1) || first(req.query.campid) || first(req.query.s2) || first(req.query.sub_id) || '').toString();
 
-  // Forward ONLY s3 — the TikTok ad account the SPRK launcher stamps on every ad link — so the
-  // per-account breakdown survives this hop instead of collapsing to s1 alone. We deliberately do
-  // NOT forward s2/s4/s5: this hop routes through the sprktrax door, which authoritatively re-stamps
-  // s1=aff<N>, s2=<SPK>, s4=<served offer name> and injects the click_id itself. Forwarding an
-  // inbound s4 would SUPPRESS the door's offer-name stamp (it stamps only when s4 is absent), and
-  // forwarding s5 (the network's click_id echo slot) risks collapsing postback dedup on a constant.
-  const s3v = (first(req.query.s3) || '').toString();
-  const extra = s3v ? '&s3=' + encodeURIComponent(s3v) : '';
-
-  const dest = OFFER_BASE + encodeURIComponent(sub) + extra;
+  /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else.
+     s3 used to ride along here for a per-ad-account breakdown; it does not any more. An empty
+     code appends NOTHING rather than shipping a blank sub-id the network would record as real. */
+  const dest = sub ? OFFER_BASE + encodeURIComponent(sub) : OFFER_BASE.replace(/[?&][a-z0-9_]+=$/i, '');
 
   // Never cache a redirect, and don't leak the referrer onward.
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');

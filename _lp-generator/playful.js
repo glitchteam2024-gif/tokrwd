@@ -80,6 +80,7 @@
  * a source string stops matching, this throws rather than silently emitting an English page into
  * the German slot.
  */
+require('./_guard.js')('playful.js');
 const fs = require('fs');
 const path = require('path');
 

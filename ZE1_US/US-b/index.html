@@ -7,24 +7,12 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
-<link rel="preconnect" href="https://sprktrax.org" crossorigin>
-<link rel="dns-prefetch" href="https://sprktrax.org">
+<link rel="preconnect" href="https://www.fkn8s74mztrk.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.fkn8s74mztrk.com">
 <link rel="preconnect" href="https://analytics.tiktok.com" crossorigin>
 
-<!-- ============================================================
-     Injected server-side by /functions/undefined/_middleware.js
-     __DOOR_URL__   the SPRK click door for this offer. NOT the network URL.
-                    The door mints the click_id and stamps the subid wire.
-     __GEO_AMOUNT__ display string for this visitor's geo
-     __GEO_VALUE__  numeric value for pixel events
-     __STATS__      social-proof strings. See NOTES.md before shipping these.
-     ============================================================ -->
-<!-- ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR. Runs FIRST, in the head: before the pixel fires,
-     before the body paints, and before the CTA is wired. Ordering is load-bearing — running this
-     late double-counted the TikTok PageView (one on the page being left, one on the page being
-     entered) and left a window where a fast tap fired the CTA on the WRONG geo's door.
-     Keeps the clone index (/SH50/US7?lg=GB -> /SH50/GB7) so the URL footprint stays spread.
-     NOT CLOAKING: keyed on an explicit query param, never the user agent, identical for crawlers. -->
+
+
 <script>
 (function(){
   var GEOS = ["US"], THIS_GEO = "US";
@@ -46,13 +34,12 @@
    decided by WHICH PAGE the ad points at, and the click door routes on landing_pages.geo for that
    same lander. One fact drives both, so the page cannot promise one country's offer and hand the
    visitor another's. ||-guarded so a server-side injection still wins if one is ever added. */
-window.__DOOR_URL__ = window.__DOOR_URL__ || "https://sprktrax.org/api/link/zelle-us-b";
+window.__OFFER_LINK__ = window.__OFFER_LINK__ || "https://www.fkn8s74mztrk.com/F2R45HNR/GWPKWML2/";
 window.__STATS__    = window.__STATS__ || null;
 </script>
 
 <style>
-/* Hallmark · macrostructure: Marquee Hero · genre: modern-minimal · theme: ZE1_US brand tokens
- * pre-emit critique: P4 H5 E4 S4 R5 V4 · tracking contract: unchanged from slice 50 */
+
 *{margin:0;padding:0;box-sizing:border-box}
 body,html{background:#fff;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;overflow-x:hidden;min-height:100vh;color:#14161a;-webkit-font-smoothing:antialiased}
 a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,.08);cursor:pointer}
@@ -92,9 +79,7 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 .mq{background:#14161a;color:#fff;margin:-1.1rem -1rem 1.4rem;padding:3rem 1.4rem 2.3rem;text-align:left}
 .mq-tag{font-size:.63rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.55;margin-bottom:1.4rem}
 .mq-amt{font-size:5rem;font-weight:900;line-height:.88;letter-spacing:-.05em;overflow-wrap:anywhere}
-/* THE NO-FIGURE HERO. B is amount-led; a brand that quotes no sum (Prograd — Monetise's "No False
-   Earning Claims" restriction) would otherwise render an empty ink block. Words need a smaller size,
-   looser tracking and a measure that a 5rem numeral does not. */
+
 .mq-lede{font-size:2.6rem;font-weight:900;line-height:1.02;letter-spacing:-.035em;max-width:11ch;overflow-wrap:anywhere}
 .mq-sub{font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;line-height:1.45;margin-top:.9rem;opacity:.62;max-width:17rem}
 .mq-mech{margin-top:2rem;text-align:left}
@@ -144,7 +129,7 @@ a,button,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:r
 window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
 if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
 
-var DOOR       = window.__DOOR_URL__   || 'https://sprktrax.org/api/link/zelle';
+var OFFER_LINK       = window.__OFFER_LINK__   || 'https://www.fkn8s74mztrk.com/F2R45HNR/GWPKWML2/';
 /* Amounts are baked into the markup at build time — nothing to substitute at runtime. */
 var GEO_VALUE = 750;
 
@@ -163,23 +148,11 @@ var GEO_VALUE = 750;
   bar.hidden = false;
 })();
 
-/* ------------------------------------------------------------------
-   FORWARD EVERY INCOMING PARAM to the door — the tokrwd lander contract.
-   Inbound the launcher sets s1=<SPK> (the attribution key), s2=<publisher>,
-   s3=<ad account>, s4, ttclid. The door re-stamps outbound (s1 -> bare
-   affiliate id, s2 -> SPK, s3 forwarded, s4 -> offer name, click_id -> s5).
-   An earlier draft of this page whitelisted only utm_campaign/ttclid/s1,
-   which silently dropped s3 — the ad-account leg — on every click.
 
-   s1 is the AFFILIATE'S SPARK CODE and nothing else. Ricky (Monetise,
-   2026-07-16): "pass your S1 values to look like affiliate IDs". Never
-   overwrite s1 with a campaign name — that is what breaks attribution.
-   ------------------------------------------------------------------ */
 var q = new URLSearchParams(location.search);
 
 
-/* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not
-   pass it directly. If neither field exists s1 stays EMPTY — never fabricated. */
+
 if (!q.get('s1')) {
   var mc = q.get('mc_attr') || '', f = {};
   mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -187,42 +160,37 @@ if (!q.get('s1')) {
 }
 
 /* Referrer rescue for a stripped query (in-app browsers drop params on some hops). */
-if ((!q.get('s1') || !q.get('utm_campaign')) && document.referrer) {
+if (!q.get('s1') && document.referrer) {
   try {
     var r = new URLSearchParams(new URL(document.referrer).search);
-    ['s1','s2','s3','s4','utm_campaign','campaign','ttclid','lg'].forEach(function(k){
-      if (!q.get(k) && r.get(k)) q.set(k, r.get(k));
-    });
+    var _r = r.get('s1') || r.get('sub1');
+    if (_r) q.set('s1', _r);
   } catch(e) {}
 }
 
-/* Drop unsubstituted TikTok macros rather than forwarding the literal placeholder. */
-var tt = q.get('ttclid') || '';
-if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
 
 var s1 = q.get('s1') || '';
-var campaign = q.get('utm_campaign') || q.get('campaign') || '';
-var ttclid = q.get('ttclid') || '';
 
-/* NO UA SNIFFING, deliberately. The earlier draft classified the visitor as a bot and
-   suppressed utm_campaign/ttclid for them. Once the door URL forwards the whole query
-   string that branch stopped affecting routing, leaving a bot regex sitting in the page
-   doing nothing — and a lander that appears to behave differently for a crawler is what
-   gets the whole domain flagged and every campaign on it blocked. Attribution does not
-   need a gate here: the door 404s any click with no s1 (api/link/[slug].js). */
 
-/* Door URL: every param rides, with s1 placed LAST (ad automations append to the
-   tail). The door 404s a click with no s1 — by design, that is the real gate. */
-function buildDoorUrl() {
-  var out = new URLSearchParams(q.toString());
-  out.delete('s1');
-  out.delete('lg');   // routes the lander only — the door/network never sees it
-  var qs = out.toString();
-  var url = DOOR + (qs ? '?' + qs : '');
-  if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
-  return url;
+
+
+function buildOfferUrl() {
+  var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+  if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+  /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+     The wire is <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the code
+     identifies the creative and the creative identifies the affiliate. The funnel beacon has
+     already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+     `|| _s1` keeps a code-less value going out verbatim — a scaler's own free-form label IS
+     their attribution key and blanking it would pay them nothing. Case-insensitive, because a
+     lowercasing ad platform would otherwise match nothing and ship the entire wire. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+  var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+  /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+  return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
 }
-var target = buildDoorUrl();
+var target = buildOfferUrl();
 
 if (window.ttq) {
   try { ttq.track('ViewContent', { content_name: 'Zelle US Landing', value: GEO_VALUE }); } catch(e) {}
@@ -244,19 +212,8 @@ function handleCta(e) {
 ctaBtn.addEventListener('touchend', function(e){ hasTouched = true; handleCta(e); }, {passive:false});
 ctaBtn.addEventListener('click', function(e){ if (!hasTouched) handleCta(e); });
 
-if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1) {
-  console.log('[zelle/US debug]', {
-    geo: document.documentElement.getAttribute('data-geo') || '(unknown)',
-    s1: s1 || '(none - door will 404)',
-    campaign: campaign || '(none)',
-    ttclid: ttclid || '(none)',
-    target: target
-  });
-}
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
-<script src="/js/ttclid.js" async></script>
+
 </body>
 </html>

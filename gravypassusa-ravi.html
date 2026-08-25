@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en-US" data-geo="US">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" href="/images/gravypass-mark.png" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://monetisetrk2.co.uk">
+<meta name="description" content="Get paid real cash and gift cards to play mobile games. Join 500,000+ players earning PayPal cash, Venmo, and gift cards daily with $0 fees." />
+<title>GravyPass — Get Paid to Play Mobile Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ===== Reset & Base ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;background:#59d9ec;color:#102a43;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block;max-width:100%}
+
+/* ===== Theme Variables ===== */
+:root{
+--bg:#59d9ec; --bg-card:#ffffff; --bg-card-60:rgba(255,255,255,.72);
+--bg-card-50:rgba(255,255,255,.58); --bg-header:rgba(89,217,236,.92);
+--text:#102a43; --text-2:#28516b; --text-3:#47758b; --text-gold:#b87900;
+--text-gold-2:#d99000; --gold:#f7b731; --gold-light:#ffd15c; --gold-dark:#e99c16;
+--border:rgba(16,42,67,.16); --border-gold:rgba(247,183,49,.68);
+--ring-gold:rgba(247,183,49,.5); --ring-amber:rgba(247,183,49,.7);
+--volt:#eb7030; --volt-dark:#c74d21;
+--shadow-card:0 10px 0 rgba(16,42,67,.08);
+--shadow-card-sm:0 6px 0 rgba(16,42,67,.08);
+}
+
+/* ===== Utility ===== */
+.mx-auto{margin-left:auto;margin-right:auto}
+.max-w-6xl{max-width:72rem} .max-w-5xl{max-width:64rem} .max-w-3xl{max-width:48rem}
+.max-w-2xl{max-width:42rem} .max-w-md{max-width:28rem} .max-w-xl{max-width:36rem}
+.max-w-lg{max-width:32rem} .max-w-sm{max-width:24rem}
+.px-5{padding-left:1.25rem;padding-right:1.25rem}
+.py-2{padding-top:.5rem;padding-bottom:.5rem}
+.py-3{padding-top:.75rem;padding-bottom:.75rem}
+.py-4{padding-top:1rem;padding-bottom:1rem}
+.py-6{padding-top:1.5rem;padding-bottom:1.5rem}
+.py-10{padding-top:2.5rem;padding-bottom:2.5rem}
+.py-20{padding-top:5rem;padding-bottom:5rem}
+.py-24{padding-top:6rem;padding-bottom:6rem}
+.pt-14{padding-top:3.5rem} .pt-20{padding-top:5rem} .pb-20{padding-bottom:5rem}
+.mb-3{margin-bottom:.75rem} .mb-4{margin-bottom:1rem} .mb-5{margin-bottom:1.25rem}
+.mb-8{margin-bottom:2rem} .mb-10{margin-bottom:2.5rem} .mb-12{margin-bottom:3rem}
+.mt-2{margin-top:.5rem} .mt-3{margin-top:.75rem} .mt-4{margin-top:1rem}
+.mt-5{margin-top:1.25rem} .mt-6{margin-top:1.5rem} .mt-8{margin-top:2rem}
+.mt-12{margin-top:3rem} .mt-16{margin-top:4rem}
+.gap-2{gap:.5rem} .gap-3{gap:.75rem} .gap-4{gap:1rem} .gap-5{gap:1.25rem}
+.gap-6{gap:1.5rem} .gap-8{gap:2rem} .gap-12{gap:3rem}
+.text-center{text-align:center} .text-left{text-align:left}
+.text-sm{font-size:.875rem} .text-lg{font-size:1.125rem}
+.text-xl{font-size:1.25rem} .text-2xl{font-size:1.5rem}
+.text-3xl{font-size:1.875rem} .text-4xl{font-size:2.25rem}
+.text-5xl{font-size:3rem} .text-6xl{font-size:3.75rem}
+.font-medium{font-weight:500} .font-semibold{font-weight:600}
+.font-bold{font-weight:700} .font-black{font-weight:900}
+.tracking-tight{letter-spacing:-.025em} .tracking-wide{letter-spacing:.025em}
+.uppercase{text-transform:uppercase}
+.rounded-xl{border-radius:.75rem} .rounded-2xl{border-radius:1rem}
+.rounded-3xl{border-radius:1.5rem} .rounded-full{border-radius:9999px}
+.rounded-\[2rem\]{border-radius:2rem}
+.border{border-width:1px} .border-t{border-top-width:1px} .border-b{border-bottom-width:1px}
+.border-slate-800{border-color:var(--border)}
+.border-gravy-500{border-color:var(--gold)}
+.border-gravy-500\/30{border-color:var(--border-gold)}
+.border-gravy-500\/40{border-color:var(--border-gold)}
+.bg-slate-950{background-color:var(--bg)}
+.bg-slate-900{background-color:var(--bg-card)}
+.bg-slate-900\/60{background-color:var(--bg-card-60)}
+.bg-slate-900\/50{background-color:var(--bg-card-50)}
+.bg-slate-900\/95{background-color:rgba(255,255,255,.95)}
+.bg-slate-800{background-color:var(--bg-card-50)}
+.bg-slate-800\/50{background-color:var(--bg-card-50)}
+.bg-slate-800\/60{background-color:var(--bg-card-50)}
+.bg-slate-950\/90{background-color:var(--bg-header)}
+.bg-gravy-500{background-color:var(--gold)}
+.bg-gravy-500\/10{background-color:rgba(247,183,49,.18)}
+.bg-gravy-500\/20{background-color:rgba(247,183,49,.18)}
+.text-white{color:var(--text)}
+.text-slate-300{color:var(--text-2)} .text-slate-400{color:var(--text-2)}
+.text-slate-500{color:var(--text-3)} .text-slate-600{color:var(--text-3)}
+.text-slate-700{color:var(--text-3)} .text-slate-800{color:var(--text-gold)}
+.text-gravy-300{color:var(--text-gold)} .text-gravy-400{color:var(--text-gold)}
+.text-gravy-500{color:var(--text-gold-2)}
+.text-slate-950{color:#102a43}
+.text-blue-400{color:#60a5fa} .text-sky-400{color:#38bdf8}
+.text-amber-400{color:#fbbf24} .text-indigo-400{color:#818cf8}
+.text-emerald-500{color:#10b981}
+.bg-blue-500\/15{background-color:rgba(59,130,246,.15)}
+.bg-sky-500\/15{background-color:rgba(14,165,233,.15)}
+.bg-amber-500\/15{background-color:rgba(245,158,11,.15)}
+.bg-indigo-500\/15{background-color:rgba(99,102,241,.15)}
+.ring-blue-500\/30{--tw-ring-color:rgba(59,130,246,.3)}
+.ring-sky-500\/30{--tw-ring-color:rgba(14,165,233,.3)}
+.ring-amber-500\/30{--tw-ring-color:rgba(245,158,11,.3)}
+.ring-indigo-500\/30{--tw-ring-color:rgba(99,102,241,.3)}
+.ring-1{box-shadow:0 0 0 1px var(--tw-ring-color,transparent)}
+.ring-gravy-500\/30{--tw-ring-color:var(--ring-gold)}
+.ring-gravy-500\/40{--tw-ring-color:var(--ring-gold)}
+.ring-amber-300\/40{--tw-ring-color:var(--ring-amber)}
+.font-display{font-family:'Space Grotesk',system-ui,sans-serif}
+.text-balance{text-wrap:balance}
+.flex{display:flex} .grid{display:grid} .hidden{display:none}
+.inline-flex{display:inline-flex} .inline-block{display:inline-block}
+.items-center{align-items:center} .items-start{align-items:flex-start}
+.items-end{align-items:flex-end}
+.justify-center{justify-content:center} .justify-between{justify-content:space-between}
+.flex-col{flex-direction:column} .flex-wrap{flex-wrap:flex-wrap}
+.flex-1{flex:1} .flex-shrink-0{flex-shrink:0}
+.grid-cols-2{grid-template-columns:repeat(2,1fr)}
+.relative{position:relative} .absolute{position:absolute} .fixed{position:fixed}
+.sticky{position:sticky}
+.inset-0{top:0;right:0;bottom:0;left:0}
+.inset-y-0{top:0;bottom:0}
+.left-0{left:0} .right-0{right:0} .bottom-0{bottom:0} .top-0{top:0}
+.-bottom-4{bottom:-1rem} .-top-40{top:-10rem} .top-20{top:5rem}
+.left-1\/2{left:50%} .top-1\/2{top:50%}
+.-translate-x-1\/2{transform:translateX(-50%)}
+.-translate-y-1\/2{transform:translateY(-50%)}
+.translate-y-full{transform:translateY(100%)}
+.translate-y-0{transform:translateY(0)}
+.z-50{z-index:50}
+.overflow-hidden{overflow:hidden} .overflow-auto{overflow:auto}
+.whitespace-nowrap{white-space:nowrap}
+.w-full{width:100%} .w-8{width:2rem} .w-9{width:2.25rem}
+.w-10{width:2.5rem} .w-11{width:2.75rem} .w-12{width:3rem}
+.w-14{width:3.5rem} .w-16{width:4rem} .w-64{width:16rem}
+.w-72{width:18rem} .w-96{width:24rem} .w-\[36rem\]{width:36rem}
+.w-\[40rem\]{width:40rem} .w-6{width:1.5rem} .w-5{width:1.25rem}
+.w-4{width:1rem} .w-2{width:.5rem} .h-2{height:.5rem}
+.h-4{height:1rem} .h-5{height:1.25rem} .h-7{height:1.75rem}
+.h-8{height:2rem} .h-9{height:2.25rem} .h-10{height:2.5rem}
+.h-11{height:2.75rem} .h-12{height:3rem} .h-14{height:3.5rem}
+.h-16{height:4rem} .h-72{height:18rem} .h-96{height:24rem}
+.h-80{height:20rem} .h-1\.5{height:.375rem} .h-px{height:1px}
+.min-h-screen{min-height:100vh} .min-h-\[1\.5rem\]{min-height:1.5rem}
+.max-w-none{max-width:none}
+.object-cover{object-fit:cover} .object-contain{object-fit:contain}
+.object-\[42\%_30\%\]{object-position:42% 30%}
+.gap-x-4{column-gap:1rem} .gap-x-5{column-gap:1.25rem}
+.gap-y-2{row-gap:.5rem}
+.shadow-lg{box-shadow:0 10px 15px -3px rgba(0,0,0,.1)}
+.shadow-2xl{box-shadow:0 25px 50px -12px rgba(0,0,0,.25)}
+.shadow-gravy-500\/30{box-shadow:0 10px 15px -3px rgba(247,183,49,.35)}
+.shadow-gravy-500\/50{box-shadow:0 10px 15px -3px rgba(247,183,49,.5)}
+.drop-shadow-logo{filter:drop-shadow(0 2px 8px rgba(247,183,49,.35))}
+.drop-shadow-hero{filter:drop-shadow(0 20px 50px rgba(247,183,49,.25))}
+.backdrop-blur-lg{backdrop-filter:blur(16px)}
+.backdrop-blur-sm{backdrop-filter:blur(4px)}
+.blur-3xl{filter:blur(64px)}
+.pointer-events-none{pointer-events:none}
+.cursor-pointer{cursor:pointer}
+.opacity-0{opacity:0} .opacity-75{opacity:.75}
+.transition-all{transition:all .3s ease}
+.transition-colors{transition:color .3s,background-color .3s,border-color .3s}
+.transition-transform{transition:transform .3s}
+.transition-duration-300{transition-duration:.3s}
+.duration-300{transition-duration:.3s} .duration-700{transition-duration:.7s}
+.ease-in-out{transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.hover\:bg-gravy-400:hover{background-color:var(--gold-light)!important}
+.hover\:border-gravy-500:hover{border-color:var(--gold)}
+.hover\:border-gravy-500\/40:hover{border-color:rgba(247,183,49,.4)}
+.hover\:bg-gravy-500\/10:hover{background-color:rgba(247,183,49,.1)}
+.hover\:bg-slate-900:hover{background-color:var(--bg-card)}
+.hover\:border-slate-700:hover{border-color:rgba(16,42,67,.24)}
+.hover\:text-gravy-300:hover{color:var(--text-gold)}
+.hover\:text-slate-300:hover{color:var(--text-2)}
+.hover\:underline:hover{text-decoration:underline}
+.hover\:shadow-gravy-500\/50:hover{box-shadow:0 10px 15px -3px rgba(247,183,49,.5)}
+.active\:scale-95:active{transform:scale(.95)}
+.active\:scale-\[0\.98\]:active{transform:scale(.98)}
+.group:hover .group-hover\:translate-x-1{transform:translateX(.25rem)}
+.group:hover .group-hover\:text-gravy-300{color:var(--text-gold)}
+.group:hover .group-hover\:text-gravy-400{color:var(--text-gold)}
+.group:hover .group-hover\:text-slate-700{color:var(--text-gold)}
+.rotate-180{transform:rotate(180deg)}
+.underline-offset-4{text-underline-offset:4px}
+
+/* ===== Grid backgrounds ===== */
+.bg-grid{background-image:linear-gradient(to right,rgba(16,42,67,.06) 1px,transparent 1px),linear-gradient(to bottom,rgba(16,42,67,.06) 1px,transparent 1px);background-size:40px 40px}
+
+/* ===== Gradient text ===== */
+.gradient-text{background:linear-gradient(to right,var(--gold-light),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+/* ===== Gradient backgrounds ===== */
+.gradient-gold-r{background:linear-gradient(to right,var(--gold),var(--gold-light),var(--gold))}
+.gradient-gold-br{background:linear-gradient(to bottom right,var(--gold),var(--gold-dark))}
+.gradient-volt-br{background:linear-gradient(to bottom right,var(--volt),var(--volt-dark))}
+.gradient-gold-emerald{background:linear-gradient(to bottom right,var(--gold-light),#10b981)}
+.gradient-fade-r{background:linear-gradient(to right,var(--gold),transparent)}
+.gradient-fade-l{background:linear-gradient(to left,var(--gold),transparent)}
+.gradient-line{background:linear-gradient(to right,transparent,rgba(247,183,49,.4),transparent)}
+.gradient-line-r{background:linear-gradient(to right,rgba(247,183,49,.5),transparent)}
+
+/* ===== Card shadow ===== */
+.rounded-3xl,.rounded-2xl{box-shadow:var(--shadow-card)}
+button,a{transition-duration:180ms}
+button:hover,a:hover{transform:translateY(-2px)}
+
+/* ===== Animations ===== */
+@keyframes ticker-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes fade-in-up{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(247,183,49,.4)}50%{box-shadow:0 0 40px rgba(247,183,49,.7)}}
+@keyframes spin-slow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes ping{75%,100%{transform:scale(2);opacity:0}}
+.animate-ticker-scroll{animation:ticker-scroll 30s linear infinite}
+.animate-fade-in-up{animation:fade-in-up .6s ease-out forwards}
+.animate-pulse-glow{animation:pulse-glow 2s ease-in-out infinite}
+.animate-spin-slow{animation:spin-slow 1s linear infinite}
+.animate-ping{animation:ping 1s cubic-bezier(0,0,.2,1) infinite}
+
+/* ===== Responsive ===== */
+@media(min-width:640px){
+.sm\:text-5xl{font-size:3rem} .sm\:text-4xl{font-size:2.25rem}
+.sm\:flex-row{flex-direction:row}
+.sm\:w-auto{width:auto}
+.sm\:grid-cols-2{grid-template-columns:repeat(2,1fr)}
+.sm\:p-8{padding:2rem}
+.sm\:pt-20{padding-top:5rem}
+}
+@media(min-width:768px){
+.md\:grid-cols-3{grid-template-columns:repeat(3,1fr)}
+.md\:block{display:block}
+}
+@media(min-width:1024px){
+.lg\:grid-cols-2{grid-template-columns:repeat(2,1fr)}
+.lg\:text-left{text-align:left}
+.lg\:text-6xl{font-size:3.75rem}
+.lg\:max-w-none{max-width:none}
+.lg\:justify-start{justify-content:flex-start}
+.lg\:grid-cols-3{grid-template-columns:repeat(3,1fr)}
+.lg\:mx-0{margin-left:0;margin-right:0}
+.lg\:pt-28{padding-top:7rem}
+.lg\:hidden{display:none}
+.lg\:block{display:block}
+}
+@media(max-width:640px){
+.rounded-3xl,.rounded-2xl{box-shadow:var(--shadow-card-sm)}
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ===== FAQ accordion ===== */
+.faq-content{display:grid;grid-template-rows:0fr;opacity:0;transition:all .3s ease-in-out}
+.faq-content.open{grid-template-rows:1fr;opacity:1}
+.faq-inner{overflow:hidden}
+
+/* ===== Progress bar ===== */
+.progress-fill{transition:width .7s ease}
+</style>
+</head>
+<body>
+<div class="min-h-screen bg-slate-950">
+
+<!-- ===== Live Ticker Bar ===== -->
+<div class="relative overflow-hidden gradient-gold-r text-slate-950" style="color:#102a43">
+  <div class="flex whitespace-nowrap py-2 animate-ticker-scroll" id="ticker"></div>
+  <div class="pointer-events-none absolute inset-y-0 left-0 w-16 gradient-fade-r"></div>
+  <div class="pointer-events-none absolute inset-y-0 right-0 w-16 gradient-fade-l"></div>
+  <div class="sr-only" id="sr-payout">Live Update: $14,250+ paid out to gamers today. Average cashout time: 12 minutes.</div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur-lg sticky top-0 z-40">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+    <a href="#top" class="flex items-center gap-3" aria-label="GravyPass home">
+      <img src="/images/gravypass-mark.png" alt="GravyPass golden padlock and coins logo" class="h-12 w-12 rounded-xl object-cover object-[42%_30%] drop-shadow-logo" />
+      <span class="font-display text-xl font-bold tracking-tight text-white">Gravy<span class="text-gravy-400">Pass</span></span>
+    </a>
+    <a href="#selector" class="rounded-xl bg-gravy-500 px-4 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-gravy-400">Claim $10 Bonus</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ===== Hero ===== -->
+<section class="relative overflow-hidden bg-slate-950 bg-grid">
+  <div class="pointer-events-none absolute -top-40 left-1/2 h-96 w-[36rem] -translate-x-1/2 rounded-full bg-gravy-500/20 blur-3xl"></div>
+  <div class="pointer-events-none absolute top-20 right-0 h-72 w-72 rounded-full bg-gravy-500/20 blur-3xl" style="background:rgba(235,112,48,.18)"></div>
+  <div class="relative mx-auto max-w-6xl px-5 pt-14 pb-20 sm:pt-20 lg:pt-28">
+    <div class="grid items-center gap-12 lg:grid-cols-2">
+      <div class="text-center lg:text-left">
+        <div class="inline-flex items-center gap-2 rounded-full border border-gravy-500/40 bg-gravy-500/10 px-4 py-1.5 text-sm font-medium text-gravy-300">
+          <span class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-gravy-500 opacity-75"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-gravy-500"></span>
+          </span>
+          500,000+ players earning now
+        </div>
+        <h1 class="mt-6 font-display text-4xl font-bold tracking-tight text-white text-balance" style="line-height:1.1">
+          Get Paid to Play <span class="gradient-text">Top Mobile Games</span> &amp; Test New Apps
+        </h1>
+        <p class="mx-auto mt-5 max-w-xl text-lg text-slate-300 lg:mx-0" style="line-height:1.625">
+          Turn your gaming hours into real money. Join over 500,000+ players earning PayPal cash, Venmo, and gift cards daily with <span class="font-semibold text-white">$0 fees</span>.
+        </p>
+        <div class="mt-8 flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
+          <a href="#selector" class="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gravy-500 px-7 py-4 text-lg font-bold text-slate-950 shadow-lg shadow-gravy-500/30 transition-all hover:bg-gravy-400 hover:shadow-gravy-500/50 active:scale-95 sm:w-auto">
+            Claim My $10 Gaming Welcome Bonus
+            <svg class="h-5 w-5 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-slate-300 lg:justify-start">
+          <span class="inline-flex items-center gap-1.5">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="#f7b731" stroke="#f7b731" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="font-semibold text-white">4.8</span> Gamer Rating
+          </span>
+          <span class="text-slate-600">•</span>
+          <span class="inline-flex items-center gap-1.5">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="#f7b731" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01L7 20"/><path d="M21 3v5h-5"/><path d="M21 8a8.5 8.5 0 0 0-12 12"/><path d="M3 11v9h9"/><path d="M3 11a8.5 8.5 0 0 0 12 12"/></svg>
+            100% Free
+          </span>
+          <span class="text-slate-600">•</span>
+          <span class="inline-flex items-center gap-1.5">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="#f7b731" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l1.78-2.37V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5l1.78 2.37A1 1 0 0 1 20 14v6a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M6 5v6"/><path d="M18 5v6"/><path d="M7 17h10"/></svg>
+            Instant Cashouts
+          </span>
+        </div>
+      </div>
+      <div class="relative mx-auto max-w-md lg:max-w-none">
+        <div class="relative animate-pulse-glow">
+          <img src="/images/gravy/cashout-1.webp" alt="Gravy Pass cashout confirmation screen" width="566" height="1024" class="mx-auto w-full max-w-sm rounded-[2rem] drop-shadow-hero" loading="eager" />
+        </div>
+        <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-slate-900/80 px-5 py-2 text-sm font-medium text-gravy-300 backdrop-blur-sm ring-1 ring-gravy-500/30">Official Reward Redemptions</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Game Selector ===== -->
+<section id="selector" class="relative bg-slate-950 py-20">
+  <div class="mx-auto max-w-3xl px-5">
+    <div class="mb-10 text-center">
+      <h2 class="font-display text-3xl font-bold text-white sm:text-4xl">Find Your Perfect Earning Match</h2>
+      <p class="mt-3 text-slate-400">Answer 3 quick questions and we'll match you with the highest-paying game offers for your device.</p>
+    </div>
+    <div class="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 shadow-2xl backdrop-blur-sm sm:p-8" id="selector-card">
+      <div class="mb-8 flex items-center justify-center gap-2" id="progress-bar"></div>
+      <div id="step-content"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== How It Works ===== -->
+<section class="relative bg-slate-950 py-20">
+  <div class="pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 gradient-line"></div>
+  <div class="mx-auto max-w-5xl px-5">
+    <div class="mb-12 text-center">
+      <h2 class="font-display text-3xl font-bold text-white sm:text-4xl">How It Works</h2>
+      <p class="mt-3 text-slate-400">Three simple steps from download to cash in your pocket.</p>
+    </div>
+    <div class="grid gap-6 md:grid-cols-3" id="how-it-works"></div>
+  </div>
+</section>
+
+<!-- ===== Cashout Ticker ===== -->
+<section class="relative bg-slate-950 py-20" id="cashout-section">
+  <div class="mx-auto max-w-5xl px-5">
+    <div class="mb-10 text-center">
+      <div class="inline-flex items-center gap-2 rounded-full border border-gravy-500/30 bg-gravy-500/10 px-4 py-1.5 text-sm font-medium text-gravy-300">
+        <span class="relative flex h-2 w-2">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-gravy-500 opacity-75"></span>
+          <span class="relative inline-flex h-2 w-2 rounded-full bg-gravy-500"></span>
+        </span>
+        Live Cashouts
+      </div>
+      <h2 class="mt-4 font-display text-3xl font-bold text-white sm:text-4xl">Recent Cashouts</h2>
+      <p class="mt-3 text-slate-400">Real payout confirmations from Gravy Pass players. <span class="font-semibold">Individual results vary.</span></p>
+    </div>
+    <div class="grid gap-5 md:grid-cols-3" id="cashout-grid">
+      <img src="/images/gravy/cashout-1.webp" alt="Gravy Pass cashout confirmation" width="566" height="1024" class="w-full rounded-2xl" loading="lazy" decoding="async" />
+      <img src="/images/gravy/cashout-2.webp" alt="Gravy Pass cashout confirmation" width="571" height="1024" class="w-full rounded-2xl" loading="lazy" decoding="async" />
+      <img src="/images/gravy/cashout-3.webp" alt="Gravy Pass cashout confirmation" width="571" height="1024" class="w-full rounded-2xl" loading="lazy" decoding="async" />
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="relative bg-slate-950 py-20">
+  <div class="mx-auto max-w-3xl px-5">
+    <div class="mb-10 text-center">
+      <h2 class="font-display text-3xl font-bold text-white sm:text-4xl">Frequently Asked Questions</h2>
+      <p class="mt-3 text-slate-400">Everything you need to know before you start earning.</p>
+    </div>
+    <div class="grid gap-3" id="faq-list"></div>
+  </div>
+</section>
+
+<!-- ===== Final CTA ===== -->
+<section class="relative overflow-hidden bg-slate-950 py-24">
+  <div class="pointer-events-none absolute left-1/2 top-1/2 h-80 w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gravy-500/15 blur-3xl"></div>
+  <div class="relative mx-auto max-w-2xl px-5 text-center">
+    <h2 class="font-display text-3xl font-bold text-white sm:text-5xl text-balance">Start Earning Real Cash <span class="gradient-text">Today</span></h2>
+    <p class="mx-auto mt-4 max-w-lg text-lg text-slate-300">Join 500,000+ players already getting paid to play. It's free, it's instant, and your $10 welcome bonus is waiting.</p>
+    <a href="#selector" class="group mt-8 inline-flex items-center justify-center gap-2 rounded-2xl bg-gravy-500 px-8 py-4 text-lg font-bold text-slate-950 shadow-lg shadow-gravy-500/30 transition-all hover:bg-gravy-400 hover:shadow-gravy-500/50 active:scale-95">
+      Claim My $10 Gaming Welcome Bonus
+      <svg class="h-5 w-5 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </a>
+    <p class="mt-4 text-sm text-slate-500">4.8 Gamer Rating • 100% Free • Instant Cashouts</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== Footer ===== -->
+<footer class="border-t border-slate-800 bg-slate-950 py-10">
+  <div class="mx-auto max-w-5xl px-5 text-center">
+    <div class="flex items-center justify-center gap-3">
+      <img src="/images/gravypass-mark.png" alt="GravyPass golden padlock and coins logo" class="h-14 w-14 rounded-xl object-cover object-[42%_30%] drop-shadow-logo" />
+      <div class="font-display text-xl font-bold text-white">Gravy<span class="text-gravy-400">Pass</span></div>
+    </div>
+    <p class="mx-auto mt-3 max-w-md text-sm text-slate-500">Get paid real cash and gift cards for playing mobile games. All reward redemptions are processed through official, verified payment partners.</p>
+    <div class="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-600">
+      <span>PayPal Cash</span><span>•</span><span>Venmo</span><span>•</span>
+      <span>Amazon Gift Cards</span><span>•</span><span>Visa Prepaid</span><span>•</span>
+      <span>Apple/Google Play Credits</span>
+    </div>
+    <p class="mt-6 text-xs text-slate-700">© 2026 GravyPass. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- ===== Sticky Bottom Bar ===== -->
+<div class="fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 lg:hidden" id="sticky-bar" style="transform:translateY(100%)">
+  <div class="border-t border-gravy-500/30 bg-slate-900/95 px-4 py-3 backdrop-blur-lg">
+    <div class="flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gravy-500/20 ring-1 ring-gravy-500/40">
+          <svg class="h-5 w-5 text-gravy-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21c-1.737 0-3.148-1.411-3.148-3.148v-3.702c0-1.737 1.411-3.148 3.148-3.148 1.737 0 3.148 1.411 3.148 3.148v3.702c0 1.737-1.411 3.148-3.148 3.148z"/><path d="M16 14c.644 0 1.167.523 1.167 1.167v1.167h-2.334v-1.167c0-.644.523-1.167 1.167-1.167z"/></svg>
+        </div>
+        <div class="text-sm">
+          <div class="font-semibold text-white">Your $10 Welcome Bonus</div>
+          <div class="text-xs text-gravy-400">is Reserved!</div>
+        </div>
+      </div>
+      <a href="#selector" class="inline-flex items-center gap-1.5 rounded-xl bg-gravy-500 px-5 py-2.5 text-sm font-bold text-slate-950 transition-all hover:bg-gravy-400 active:scale-95">
+        Claim Now
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+// ===== Data =====
+const tickerMessages = [
+  'Live Update: $14,250+ paid out to gamers today',
+  'Average cashout time: 12 minutes',
+  '500,000+ players earning right now',
+  '$0 fees — you keep 100% of your earnings',
+  'New Amazon gift card offers just dropped',
+  'Instant PayPal transfers available',
+];
+
+
+const faqs = [
+  { question: 'Is GravyPass actually free to play?', answer: 'Yes — GravyPass is 100% free to join and use. There are no subscription fees, no hidden charges, and no payment information required to start earning. We partner with game developers and advertisers who sponsor the rewards, so you never pay a dime.' },
+  { question: 'How fast do I get paid after completing a game task?', answer: 'Most cashouts are processed instantly — the average cashout time is just 12 minutes. PayPal and Venmo transfers typically arrive within minutes, while gift cards are delivered to your email immediately after redemption.' },
+  { question: 'How much can I earn per week?', answer: 'Earnings vary based on how much you play and which tasks you complete. Active players regularly earn $50–$200+ per week by playing popular mobile games and reaching in-game milestones. The more you play, the more you earn — and every dollar you earn is yours to keep with $0 fees. Individual results vary.' },
+  { question: 'What reward methods are available?', answer: 'You can redeem your earnings as PayPal Cash, Venmo transfers, Amazon Gift Cards, Visa Prepaid Cards, and Apple/Google Play Store credits. All redemptions are official and processed through secure, verified payment partners.' },
+  { question: 'Do I need to link a bank account or credit card?', answer: 'No. You never need to link a bank account or credit card to use GravyPass. When you cash out to PayPal or Venmo, you simply enter the email address associated with your account — we handle the rest.' },
+];
+
+// ===== Icons (inline SVG) =====
+const ICONS = {
+  arrowRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+  smartphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>',
+  gamepad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 3-1 3-3h8c0 2 2 3 3 3a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/></svg>',
+  wallet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  loader: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>',
+  sparkles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg>',
+  chevronDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21c-1.737 0-3.148-1.411-3.148-3.148v-3.702c0-1.737 1.411-3.148 3.148-3.148 1.737 0 3.148 1.411 3.148 3.148v3.702c0 1.737-1.411 3.148-3.148 3.148z"/><path d="M16 14c.644 0 1.167.523 1.167 1.167v1.167h-2.334v-1.167c0-.644.523-1.167 1.167-1.167z"/></svg>',
+};
+
+// ===== Ticker Bar =====
+(function() {
+  const ticker = document.getElementById('ticker');
+  const looped = [...tickerMessages, ...tickerMessages];
+  ticker.innerHTML = looped.map(msg =>
+    `<span class="mx-6 text-sm font-semibold tracking-wide" style="color:#102a43">${msg}<span class="mx-6" style="color:rgba(233,156,22,.6)">|</span></span>`
+  ).join('');
+})();
+
+// ===== Live payout counter =====
+(function() {
+  let paidOut = 14250;
+  const sr = document.getElementById('sr-payout');
+  setInterval(() => {
+    paidOut += Math.floor(Math.random() * 15) + 5;
+    sr.textContent = `Live Update: $${paidOut.toLocaleString()}+ paid out to gamers today. Average cashout time: 12 minutes.`;
+  }, 4000);
+})();
+
+// ===== How It Works =====
+(function() {
+  const steps = [
+    { icon: ICONS.gamepad, title: 'Pick a Game', desc: 'Choose from 100+ trending mobile games across every genre.', accent: 'gradient-gold-br' },
+    { icon: ICONS.trophy, title: 'Play & Reach Levels', desc: 'Earn points as you complete in-game milestones and challenges.', accent: 'gradient-volt-br' },
+    { icon: ICONS.wallet, title: 'Instant Cashout', desc: 'Withdraw straight to PayPal, Venmo, or gift cards — no waiting.', accent: 'gradient-gold-emerald' },
+  ];
+  const container = document.getElementById('how-it-works');
+  container.innerHTML = steps.map((step, i) => `
+    <div class="group relative rounded-2xl border border-slate-800 bg-slate-900/50 p-6 transition-all hover:border-gravy-500/40 hover:bg-slate-900">
+      <div class="mb-4 flex items-center justify-between">
+        <div class="flex h-14 w-14 items-center justify-center rounded-2xl ${step.accent} shadow-lg" style="color:#fff">
+          <span style="width:1.75rem;height:1.75rem;display:inline-block">${step.icon}</span>
+        </div>
+        <span class="font-display text-5xl font-bold text-slate-800 transition-colors group-hover:text-slate-700">${i + 1}</span>
+      </div>
+      <h3 class="text-xl font-bold text-white">${step.title}</h3>
+      <p class="mt-2 text-slate-400" style="line-height:1.625">${step.desc}</p>
+      ${i < steps.length - 1 ? '<div class="absolute -right-3 top-1/2 hidden h-px w-6 -translate-y-1/2 gradient-line-r md:block"></div>' : ''}
+    </div>
+  `).join('');
+})();
+
+// ===== Cashout proof =====
+// The comp rendered twelve invented players here (Player_88214, +$15 PayPal, 3m ago...) under
+// "Real Players, Real Payouts". The section now ships the three REAL cashout screenshots the
+// house already uses on Mggrvy, with the same "Individual results vary." line. Nothing to
+// render at runtime — the proof is static markup, so there is no feed to fake.
+
+// ===== FAQ =====
+(function() {
+  let openIdx = 0;
+  const list = document.getElementById('faq-list');
+  function render() {
+    list.innerHTML = faqs.map((item, i) => `
+      <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
+        <button class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left" data-faq="${i}">
+          <span class="font-semibold text-white">${item.question}</span>
+          <span class="flex-shrink-0 text-gravy-400 transition-transform duration-300 ${openIdx === i ? 'rotate-180' : ''}" style="width:1.25rem;height:1.25rem;display:inline-block">${ICONS.chevronDown}</span>
+        </button>
+        <div class="faq-content ${openIdx === i ? 'open' : ''}">
+          <div class="faq-inner">
+            <p class="px-5 pb-5 text-slate-400" style="line-height:1.625">${item.answer}</p>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    list.querySelectorAll('[data-faq]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.faq);
+        openIdx = openIdx === idx ? -1 : idx;
+        render();
+      });
+    });
+  }
+  render();
+})();
+
+// ===== Game Selector =====
+(function() {
+  let step = 0, device = null, genre = null, payout = null, loadingPhase = 0;
+  const content = document.getElementById('step-content');
+  const progressBar = document.getElementById('progress-bar');
+  const stepLabels = ['Device', 'Genre', 'Payout'];
+  const loadingMessages = [
+    'Scanning available game tasks for your device...',
+    'Matching your game genre preferences...',
+    'Reserving your $10 welcome bonus...',
+  ];
+  const devices = [{ id: 'iOS', label: 'iOS' }, { id: 'Android', label: 'Android' }];
+  const genres = [{ id: 'Action & Strategy', label: 'Action & Strategy' }, { id: 'Puzzle & Casual', label: 'Puzzle & Casual' }, { id: 'RPG & Adventure', label: 'RPG & Adventure' }];
+  const payouts = [{ id: 'PayPal', label: 'PayPal' }, { id: 'Venmo', label: 'Venmo' }, { id: 'Amazon', label: 'Amazon' }, { id: 'Visa', label: 'Visa' }];
+  const payoutColors = { PayPal: 'text-blue-400', Venmo: 'text-sky-400', Amazon: 'text-amber-400', Visa: 'text-indigo-400' };
+
+  function renderProgress() {
+    if (step >= 4) { progressBar.innerHTML = ''; return; }
+    progressBar.innerHTML = stepLabels.map((label, i) => {
+      const active = step >= i;
+      const checkIcon = active && step > i ? `<span style="width:1rem;height:1rem;display:inline-block">${ICONS.check}</span>` : (i + 1);
+      return `<div class="flex items-center">
+        <div class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors ${active ? 'bg-gravy-500 text-slate-950' : 'bg-slate-800 text-slate-500'}">${checkIcon}</div>
+        <span class="ml-2 text-sm font-medium ${active ? 'text-gravy-300' : 'text-slate-500'}">${label}</span>
+        ${i < 2 ? '<span class="mx-3 h-px w-8 bg-slate-800"></span>' : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function render() {
+    renderProgress();
+    if (step === 0) {
+      content.innerHTML = `
+        <div class="animate-fade-in-up">
+          <div class="mb-5 flex items-center gap-2 text-lg font-semibold text-white">
+            <span style="width:1.25rem;height:1.25rem;color:#f7b731;display:inline-block">${ICONS.smartphone}</span>
+            Select your device:
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            ${devices.map(d => `<button class="group rounded-2xl border border-slate-700 bg-slate-800/50 p-6 text-center transition-all hover:border-gravy-500 hover:bg-gravy-500/10 active:scale-95" data-device="${d.id}"><div class="text-2xl font-bold text-white group-hover:text-gravy-300">${d.label}</div></button>`).join('')}
+          </div>
+        </div>`;
+      content.querySelectorAll('[data-device]').forEach(btn => {
+        btn.addEventListener('click', () => { device = btn.dataset.device; step = 1; render(); });
+      });
+    } else if (step === 1) {
+      content.innerHTML = `
+        <div class="animate-fade-in-up">
+          <div class="mb-5 flex items-center gap-2 text-lg font-semibold text-white">
+            <span style="width:1.25rem;height:1.25rem;color:#f7b731;display:inline-block">${ICONS.gamepad}</span>
+            Favorite game genre:
+          </div>
+          <div class="grid gap-3">
+            ${genres.map(g => `<button class="group flex items-center justify-between rounded-2xl border border-slate-700 bg-slate-800/50 px-5 py-4 text-left transition-all hover:border-gravy-500 hover:bg-gravy-500/10 active:scale-[0.98]" data-genre="${g.id}"><span class="font-semibold text-white group-hover:text-gravy-300">${g.label}</span><span class="text-slate-600 transition-transform group-hover:translate-x-1 group-hover:text-gravy-400">&rarr;</span></button>`).join('')}
+          </div>
+        </div>`;
+      content.querySelectorAll('[data-genre]').forEach(btn => {
+        btn.addEventListener('click', () => { genre = btn.dataset.genre; step = 2; render(); });
+      });
+    } else if (step === 2) {
+      content.innerHTML = `
+        <div class="animate-fade-in-up">
+          <div class="mb-5 flex items-center gap-2 text-lg font-semibold text-white">
+            <span style="width:1.25rem;height:1.25rem;color:#f7b731;display:inline-block">${ICONS.wallet}</span>
+            Preferred payout method:
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            ${payouts.map(p => `<button class="group rounded-2xl border border-slate-700 bg-slate-800/50 p-5 text-center transition-all hover:border-gravy-500 hover:bg-gravy-500/10 active:scale-95" data-payout="${p.id}"><div class="flex items-center justify-center gap-2"><span class="text-xs font-black uppercase ${payoutColors[p.id]}">${p.id[0]}</span><span class="font-bold text-white group-hover:text-gravy-300">${p.label}</span></div></button>`).join('')}
+          </div>
+        </div>`;
+      content.querySelectorAll('[data-payout]').forEach(btn => {
+        btn.addEventListener('click', () => { payout = btn.dataset.payout; step = 3; loadingPhase = 0; render(); runLoading(); });
+      });
+    } else if (step === 3) {
+      content.innerHTML = `
+        <div class="flex flex-col items-center py-10 text-center animate-fade-in-up">
+          <span class="animate-spin-slow text-gravy-400" style="width:3rem;height:3rem;display:inline-block">${ICONS.loader}</span>
+          <div class="mt-6 min-h-[1.5rem] text-lg font-medium text-white">${loadingMessages[loadingPhase]}</div>
+          <div class="mt-4 h-1.5 w-64 overflow-hidden rounded-full bg-slate-800">
+            <div class="h-full rounded-full gradient-gold-br progress-fill" style="width:${((loadingPhase + 1) / 3) * 100}%"></div>
+          </div>
+        </div>`;
+    } else if (step === 4) {
+      content.innerHTML = `
+        <div class="flex flex-col items-center py-6 text-center animate-fade-in-up">
+          <div class="flex h-16 w-16 items-center justify-center rounded-full bg-gravy-500/20 ring-1 ring-gravy-500/40">
+            <span class="text-gravy-400" style="width:2rem;height:2rem;display:inline-block">${ICONS.sparkles}</span>
+          </div>
+          <div class="mt-5 text-2xl font-bold text-white">14 Offers Found!</div>
+          <div class="mt-2 text-lg font-semibold text-gravy-400">$10 Bonus Reserved!</div>
+          <div class="mt-4 rounded-xl bg-slate-800/60 px-5 py-3 text-sm text-slate-300">
+            Matched for: <span class="font-semibold text-white">${device}</span> • <span class="font-semibold text-white">${genre}</span> • <span class="font-semibold text-white">${payout}</span>
+          </div>
+          <a href="#" id="offerBtn" class="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-gravy-500 px-7 py-4 text-lg font-bold text-slate-950 shadow-lg shadow-gravy-500/30 transition-all hover:bg-gravy-400 hover:shadow-gravy-500/50 active:scale-95">Claim My $10 Bonus Now</a>
+          <button class="mt-4 text-sm text-slate-500 underline-offset-4 hover:text-slate-300 hover:underline" id="reset-btn">Start over</button>
+        </div>`;
+      document.getElementById('reset-btn').addEventListener('click', () => { step = 0; device = null; genre = null; payout = null; loadingPhase = 0; render(); });
+    }
+  }
+
+  function runLoading() {
+    loadingPhase = 0; render();
+    setTimeout(() => { loadingPhase = 1; render(); }, 900);
+    setTimeout(() => { loadingPhase = 2; render(); }, 1900);
+    setTimeout(() => { step = 4; render(); }, 2900);
+  }
+
+  render();
+})();
+
+// ===== Sticky Bottom Bar =====
+(function() {
+  const bar = document.getElementById('sticky-bar');
+  function onScroll() {
+    if (window.scrollY > 600) bar.style.transform = 'translateY(0)';
+    else bar.style.transform = 'translateY(100%)';
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+// ===== offer wiring =====
+(function(){
+  var OFFER_URL = 'https://monetisetrk2.co.uk/?a=26648&c=56278';
+/* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+  function __offerUrl(base) {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || '';
+    /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+       code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+       already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+       is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+       platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _dest = !_send1 ? base : base + (base.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+    var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+    return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+  }
+
+  /* Drop unsubstituted TikTok macros rather than forwarding the literal placeholder. */
+  (function(){
+    var u = new URL(location.href), tt = u.searchParams.get('ttclid') || '';
+    if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) {
+      u.searchParams.delete('ttclid');
+      try { history.replaceState(null, '', u.toString()); } catch (e) {}
+    }
+  })();
+
+  var target = __offerUrl(OFFER_URL);
+
+  /* SPRK-FUNNEL-BEACON v2 — same contract as the shipped Gravy Pass lander, so this page shows
+     up in the same funnel report instead of going dark. sendBeacon never blocks the tap. */
+  var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  var bseg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+  function bsend(ev, extra){
+    try {
+      var d = { event: ev, sid: bq.get('sid') || '',
+                s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                ttclid: bq.get('ttclid') || '',
+                slice: bseg[0] || '', clone: bseg[1] || '', path: location.pathname };
+      if (extra) for (var k in extra) d[k] = extra[k];
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify(d)], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+
+  /* The page funnels every button into #selector; step 4 of the selector is the only exit to the
+     offer. In the comp that button was href="#" — a dead end. It is rendered dynamically, so the
+     handler is delegated rather than bound once. */
+  function go(e){
+    if (e) e.preventDefault();
+    bsend('offer_click', { s5: window.__SPRK_S5 || '' });
+    location.replace(target);
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target && e.target.closest && e.target.closest('#offerBtn');
+    if (b) go(e);
+  });
+  document.addEventListener('touchend', function(e){
+    var b = e.target && e.target.closest && e.target.closest('#offerBtn');
+    if (b) go(e);
+  }, { passive: false });
+
+  /* Keep the href real so the button is a genuine link, not a JS-only trap. */
+  var mo = new MutationObserver(function(){
+    var b = document.getElementById('offerBtn');
+    if (b && b.getAttribute('href') !== target) b.setAttribute('href', target);
+  });
+  try { mo.observe(document.body, { childList: true, subtree: true }); } catch (e) {}
+
+})();
+</script>
+</body>
+</html>

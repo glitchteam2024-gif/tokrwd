@@ -42,6 +42,7 @@
  *
  * To change any of them, edit sammy-acash-source.html and re-run. Nothing here needs touching.
  */
+require('./_guard.js')('sammy-acash.js');
 const fs = require('fs');
 const path = require('path');
 

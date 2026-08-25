@@ -37,6 +37,7 @@
  * hold the converting button — so only the button is wired. If Migi wants every CTA to fire the
  * door instead, that is a copy/structure decision and belongs in the source file, not here.
  */
+require('./_guard.js')('kerman-apay.js');
 const fs = require('fs');
 const path = require('path');
 

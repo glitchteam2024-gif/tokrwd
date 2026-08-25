@@ -6,39 +6,7 @@
 <title>Get paid to play</title>
 <meta name="robots" content="noindex,nofollow" />
 
-<!--
-  MIGI'S FREECASH **CA** LANDER — design supplied by Migi 2026-08-10, replacing the previous
-  /mgfrcsh markup. Layout, copy and the 21+ Quick Tip interstitial are his, kept as written.
 
-  ⚠️⚠️ THIS PAGE LINKS **DIRECT TO THE NETWORK**, NOT THROUGH THE SPRK DOOR. ⚠️⚠️
-  Owner decision (Migi, 2026-08-10), taken with the trade-off stated and re-confirmed. The previous
-  version of this file pointed #ctaBtn at https://sprktrax.org/api/link/freecash-ca. It no longer
-  does. What that costs, so nobody "fixes" it back without knowing it was deliberate:
-
-    · NO clicks row and NO click_id is minted. `landers/apple/build.py` STRUCTURE E note 1 names
-      this shape "bypass failure mode C", and .claude/skills/sprk-money-integrity/SKILL.md logs a
-      live instance: 198 clicks and $60 reached the network without touching a door, invisible.
-    · The scaler->passthrough fix (SPRKNetworkAds d5115ab, error-log #052) lives INSIDE the door,
-      so it does not run for this traffic. Whatever ?s1= arrives is what the network sees.
-    · The affiliate dashboard's click/EPC layer reads the door's `clicks` table, so this traffic
-      does not appear there.
-
-  WHAT STILL WORKS, and why the money is not at risk: api/postback.js resolves an owner by
-  click_id FIRST and then by EXACT spk_code. Migi's labels (YSL-M2-2, YSL-M3-2, YSL-M1-2, YSL-M2,
-  YSL-M3) are all registered, active spark_codes owned by miguelamaya8085@gmail.com — verified
-  2026-08-10 — so a conversion carrying one of them still attributes to him with no click_id.
-  ⚠️ That is the ONLY thing holding attribution up here. An UNREGISTERED label on this page's
-  ?s1= produces an `unmatched` conversion. Register a new label BEFORE running traffic on it.
-
-  THE CAMPAIGN: ?a=26648&c=55506 is Freecash **CA** (offers.destination_by_geo->>'CA'). The design
-  Migi supplied carried ?a=26648&c=55504 on montrk3 — that is the **US** campaign, and it is not
-  used here because this lander is the CA one. montrk3 and montrk5 were previously followed to the
-  same final destination (pp4a.adj.st) and are interchangeable hosts for this network; the host
-  stored in destination_by_geo (montrk5) is the one used.
-
-  ⚠️ DO NOT "fix" a geo problem by editing offers.destination_url — that column is the FALLBACK
-  shared by every Freecash geo (us, at, ca, de, gb, jp, nl hang off one offer row).
--->
 
 <!-- TikTok pixel — same id as every other lander in this funnel. Carried over from the previous
      /mgfrcsh: without it this page is a hole in the funnel while /pre and the Apple family report. -->
@@ -269,8 +237,7 @@
   <footer class="sticky">
     <div class="wrap">
       <div class="avail"><span class="dot"></span>Available now on iOS and Android</div>
-      <!-- one link, two separate-looking boxes. href stays "#" — the offer script below builds the
-           real Monetise offer URL at runtime and carries the inbound SubID into s1. -->
+      
       <a class="store-combo offer-link" id="ctaBtn" href="#">
         <span class="btn btn-play">
           <svg width="22" height="24" viewBox="0 0 24 26" fill="none"><path d="M2 2.2C1.6 2.5 1.4 3 1.4 3.7v18.6c0 .7.2 1.2.6 1.5L12.6 13 2 2.2z" fill="#0a3d20"/><path d="M16.3 9.3 4.1 2.3 3.6 2 12.6 13l3.7-3.7z" fill="#0a3d20"/><path d="M16.3 16.7 12.6 13l3.7 3.7 4-2.3c.7-.4.7-1.4 0-1.8l-4-2.3-3.7 3.7 3.7 3.7z" fill="#0a3d20"/></svg>
@@ -324,49 +291,26 @@
     }, 3800);
   })();
 
-  /* ── Tracking ──────────────────────────────────────────────────────────────────────────────
-     DIRECT-TO-NETWORK by owner decision — see the banner comment in <head> for what that costs
-     and why the money still attributes. The house param contract is kept even though the door is
-     not in the chain: forward EVERY inbound param, put s1 LAST (ad automations append to the end),
-     and drop an unsubstituted TikTok macro rather than shipping the literal.
-
-     ?a=26648&c=55506 = Freecash CA. The design supplied carried c=55504 (US) — changed, because
-     this is the CA lander. */
+  
   (function(){
     var OFFER_BASE = 'https://montrk5.co.uk/?a=26648&c=55506';
 
     var q = new URLSearchParams(location.search);
 
-    /* SubID: accept the whole chain the prelanders may have forwarded, normalise onto s1. */
+    
     var s1 = q.get('s1') || q.get('sub1') || q.get('campid') || q.get('s2') || q.get('cid') || q.get('c') || '';
 
-    /* ttclid hygiene — carried over from the previous /mgfrcsh, do not drop it.
-       An unsubstituted macro is worse than nothing: it is indistinguishable downstream from a real
-       click id. Same rules api/_lib/tiktok-event.js usableTtclid() applies. */
-    var tt = q.get('ttclid') || '';
-    if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
-
-    /* COOKIE FALLBACK for a ttclid the query lost (error-log #048). /js/ttclid.js banks the click
-       id in a first-party _ttclid cookie, but its own rewriter only tags <a href> anchors that
-       already point at a tracker — and this page BUILDS that href in JS afterwards, so the cookie
-       was written and never read. Re-validated here because a cookie is attacker-writable. */
-    if (!q.get('ttclid')) {
-      try {
-        var ck = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
-        var ckv = ck ? decodeURIComponent(ck[1]) : '';
-        if (ckv && !/[{}\[\]#%]/.test(ckv) && !/CLICK_ID|__CLICKID__/i.test(ckv)) q.set('ttclid', ckv);
-      } catch (e) {}
-    }
-
-    /* Everything else rides through; s1 is appended LAST. `lg` is the geo selector and is ours.
-       `a` and `c` are dropped because OFFER_BASE ALREADY CARRIES THEM — letting an inbound copy
-       through would put two `a=` (or two `c=`) on one URL, and a first-match tracker reads the
-       wrong one. Same duplicate-key failure the Gravypass migration documents for a doubled s1. */
-    var out = new URLSearchParams(q.toString());
-    out.delete('s1'); out.delete('sub1'); out.delete('campid'); out.delete('lg'); out.delete('cid');
-    out.delete('a'); out.delete('c');
-    var qs = out.toString();
-    var OFFER = OFFER_BASE + (qs ? '&' + qs : '') + '&s1=' + encodeURIComponent(s1);
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    var OFFER = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      var _dest = !_send1 ? OFFER_BASE : OFFER_BASE + (OFFER_BASE.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
 
     var overlay = document.getElementById('tipOverlay');
     document.getElementById('tipGo').href = OFFER; // "Got it" goes to the offer
@@ -376,7 +320,17 @@
 
     document.querySelectorAll('a.offer-link, a.store-combo').forEach(function(a){
       a.setAttribute('href', OFFER);        // fallback if the click handler is blocked
-      a.addEventListener('click', openTip); // intercept -> show the tip first
+      /* NO CLICK INTERCEPT (2026-08-17). This used to be:
+           a.addEventListener('click', openTip)
+         openTip() calls e.preventDefault(), so the FIRST tap on the CTA did not go to the
+         offer at all -- it opened the quick-tip overlay, and the visitor had to find and tap
+         'Got it' to actually leave. That is the reported 'they click the button and nothing
+         happens'. Every visitor who tapped once and stopped was a paid click thrown away.
+         The href is already the finished offer URL (set on the line above), so the anchor now
+         navigates natively on the first tap -- which also works with JS half-loaded, and lets
+         long-press / open-in-new-tab behave the way a link should.
+         The overlay markup stays in the page but is never opened; tipGo still carries the same
+         URL, so anything already linking to it is unaffected. Do not re-bind this. */
     });
     document.getElementById('tipGo').addEventListener('click', function(e){ e.preventDefault(); window.location.href = OFFER; });
     document.getElementById('tipClose').addEventListener('click', closeTip);
@@ -384,33 +338,14 @@
 
     try { if (window.ttq) ttq.track('LanderView', { content_name: 'freecash CA lander reached' }); } catch (e) {}
 
-    /* NO s1 = THIS CLICK IS UNATTRIBUTABLE. There is no door in this chain to 404 it, so the visitor
-       reaches the offer and any conversion comes back with an empty SubID and lands `unmatched`.
-       That failure is silent by nature, so it is made loud in all three places it can be. */
+    
     if (!s1) {
       try { if (window.ttq) ttq.track('CtaNoS1', { content_name: 'freecash CA cta without s1' }); } catch (e) {}
       console.warn('[mgfrcsh] NO ?s1= ON THIS URL — the offer will still open, but the conversion ' +
                    'cannot be attributed and will land unmatched. Add ?s1=<your registered spark code>.');
-      if (location.search.indexOf('debug=1') > -1) {
-        var warn = document.createElement('p');
-        warn.className = 'dbg';
-        warn.textContent = 'debug: no ?s1= on this URL — conversions will land unmatched. Append ?s1=<spark code>.';
-        var card = document.querySelector('.wrap');
-        if (card) card.appendChild(warn);
-      }
     }
 
-    if (location.search.indexOf('debug=1') > -1) {
-      console.log('[mgfrcsh debug]', {
-        s1: s1 || '(none — conversions will be unmatched)',
-        ttclid: q.get('ttclid') || '(none)',
-        mode: 'DIRECT to network (no SPRK door)',
-        target: OFFER
-      });
-    }
   })();
 </script>
-<!-- Banks ttclid in the _ttclid cookie so the fallback above has something to read. -->
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

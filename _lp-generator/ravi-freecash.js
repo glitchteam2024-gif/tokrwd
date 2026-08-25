@@ -112,6 +112,7 @@
  * amount is a claim, not a translation. `currency` is a VARIANTS field so a confirmed figure is a
  * one-line edit — see the per-geo print at the foot of every run.
  */
+require('./_guard.js')('ravi-freecash.js');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');

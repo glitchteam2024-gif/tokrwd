@@ -8,15 +8,10 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
-<link rel="preconnect" href="https://sprktrax.org" crossorigin>
-<link rel="dns-prefetch" href="https://sprktrax.org">
+<link rel="preconnect" href="https://www.fkn8s74mztrk.com" crossorigin>
+<link rel="dns-prefetch" href="https://www.fkn8s74mztrk.com">
 
-<!-- ?lg=<GEO> — the AFFILIATE'S GEO SELECTOR. Runs FIRST, in the head: before the pixel fires,
-     before the body paints, and before the CTA is wired. Ordering is load-bearing — running this
-     late double-counted the TikTok PageView (one on the page being left, one on the page being
-     entered) and left a window where a fast tap fired the CTA on the WRONG geo's door.
-     Keeps the clone index (/AK50/GB7?lg=AU -> /AK50/AU7) so the URL footprint stays spread.
-     NOT CLOAKING: keyed on an explicit query param, never the user agent, identical for crawlers. -->
+
 <script>
 (function(){
   var GEOS = ["US"], THIS_GEO = "US";
@@ -32,22 +27,7 @@
 })();
 </script>
 
-<!-- THE TTCLID GATE IS GONE (owner, 2026-08-10). It used to bounce any visitor without a usable
-     ttclid to /safe before first paint. Three reasons it came out, and the owner made the call:
 
-       1. IT BLOCKED REAL BUYERS. Measured against production the day it shipped: 8 of 369 clicks
-          in 24h arrived with no usable ttclid — 4 empty, 4 an unsubstituted macro. That is 2.2%
-          of paid traffic turned away at the door, and they are disproportionately the in-app
-          visitors whose query got stripped on a hop, i.e. exactly who the funnel is built for.
-       2. IT WAS THE ONE CLOAKING-SHAPED THING LEFT. ttclid exists only on a real ad click, so
-          gating on it served ad review a different page from buyers. js/breakout.js in tokrwd
-          spells out why that is the pattern that gets a domain flagged.
-       3. IT BOUGHT NOTHING FOR ATTRIBUTION. ttclid is still CAPTURED — the query carries it to the
-          door, api/link/[slug].js writes it to clicks.ttclid, and api/postback.js reads it back for
-          the Events API forward. Recording never depended on refusing anybody entry.
-
-     Clicks now reach the offer whether or not TikTok gave them a click id. /safe still exists and
-     still carries its pixel; nothing routes to it from here any more. -->
 
 <script id="offer-config">
 /* This page IS one geo — US, with its own figures baked into the markup. There is deliberately
@@ -55,19 +35,13 @@
    ad points at, and the click door routes on landing_pages.geo for that same lander. One fact drives
    both, so the page cannot promise one country's offer and hand the visitor another's.
    ||-guarded so a server-side injection still wins. */
-window.__DOOR_URL__ = window.__DOOR_URL__ || "https://sprktrax.org/api/link/applepayflash-us-e";
+window.__OFFER_LINK__ = window.__OFFER_LINK__ || "https://www.fkn8s74mztrk.com/F2R45HNR/H2F1BL3X/";
 window.__STATS__    = window.__STATS__ || null;
 </script>
 
 
 <style>
-/* Hallmark · macrostructure: Bento Grid · tone: utilitarian · anchor hue: neutral grey
- * pre-emit critique: P5 H5 E4 S5 R5 V5
- * genre: modern-minimal · theme: custom (graphite, from images/offers/FL222114.webp)
- * offer: FL222114 applepayflash-us-e · geo: US · slice: AF54
- * nav/footer archetypes: N/A — single-screen lander, one CTA, no nav and no footer.
- * fonts: system stack, zero webfonts (paid-traffic performance; see tokens.css).
- */
+
 :root{
   /* ── Type ─────────────────────────────────────────────────────────────── */
   --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -111,7 +85,7 @@ window.__STATS__    = window.__STATS__ || null;
   --radius-pill: 980px;
   --rule-hair:  1px;
 
-  /* Alpha-only, used inside mask-image. Tokenised so no raw colour literal ships (gate 48). */
+  
   --mask-solid: rgb(0 0 0);
   --color-paper:    oklch(21% 0.004 250);
   --color-paper-2:  oklch(26% 0.005 250);
@@ -265,20 +239,7 @@ h1{font-size:var(--text-2xl);font-weight:800;line-height:1.1;letter-spacing:-.03
 .amt-sub{display:block;font-size:var(--text-lg);font-weight:700;line-height:1.2;
   letter-spacing:-.02em;color:var(--color-ink-2);margin-top:var(--space-sm)}
 
-/* ── Material, not decoration ────────────────────────────────────────────────
-   The page was a flat grey field: every surface sat on exactly the same plane, which is what made
-   it read as unfinished rather than restrained. Three cheap, static passes fix it, and NONE of
-   them is a colour — graphite's accent is deliberately white so the CTA reads as an Apple control,
-   and a hue here would compete with it.
 
-   1. An ambient wash from the top edge. Light entering the frame, NOT a spotlight parked behind
-      the headline — a centred radial bloom behind hero type is the tell this palette would
-      otherwise trip.
-   2. A 1px top highlight on every dark block, from the --sheen token the graphite palette already
-      declares. This is what makes a surface look lit from above instead of cut out of paper.
-   3. Elevation under the primary control only. A white button on a dark page has no edge to catch
-      light, so its depth has to come from the shadow it casts. Restricted to the ONE control that
-      matters; putting it on everything would flatten the hierarchy again. */
 body{background-image:radial-gradient(130% 70% at 50% -10%, var(--sheen), transparent 62%);
   background-repeat:no-repeat;background-attachment:fixed}
 .choice-2,.tile,.panel{box-shadow:inset 0 1px 0 var(--sheen)}
@@ -425,9 +386,7 @@ body{background-image:radial-gradient(130% 70% at 50% -10%, var(--sheen), transp
 <div class="stats" id="statsBar" hidden></div>
 
 <script>
-/* Screen swap. Both choices advance — see the AGE GATE note in build.py; this is a commitment
-   device, not an age check. Nothing here navigates: #ctaBtn on screen B is wired by the shared
-   tail and is the only thing that leaves the page, so the door still mints every click. */
+
 (function(){
   var a = document.getElementById('screenA'), b = document.getElementById('screenB');
   var going = false;
@@ -452,11 +411,7 @@ body{background-image:radial-gradient(130% 70% at 50% -10%, var(--sheen), transp
   document.getElementById('gateA').addEventListener('click', advance);
   document.getElementById('gateB').addEventListener('click', advance);
 
-  /* The second CTA is a REMOTE for the first, never a second door. The shared tail wires #ctaBtn
-     alone — it owns buildDoorUrl(), the loading label and the double-tap guard — so forwarding the
-     tap keeps exactly ONE place that navigates and ONE place that can mint a click. Building a
-     second href here would be a second copy of the door URL, i.e. the drift this family already
-     refuses everywhere else. The disabled probe stops a tap landing after the first one armed. */
+  
   var cta2 = document.getElementById('ctaBtn2');
   if (cta2) cta2.addEventListener('click', function(){
     var main = document.getElementById('ctaBtn');
@@ -476,7 +431,7 @@ body{background-image:radial-gradient(130% 70% at 50% -10%, var(--sheen), transp
 window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
 if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
 
-var DOOR      = window.__DOOR_URL__ || 'https://sprktrax.org/api/link/applepayflash-us-e';
+var OFFER_LINK      = window.__OFFER_LINK__ || 'https://www.fkn8s74mztrk.com/F2R45HNR/H2F1BL3X/';
 /* Amount is baked into the markup at build time — nothing to substitute at runtime. */
 var GEO_VALUE = 750;
 
@@ -496,21 +451,10 @@ var GEO_VALUE = 750;
   bar.hidden = false;
 })();
 
-/* ------------------------------------------------------------------
-   FORWARD EVERY INCOMING PARAM to the door — the tokrwd lander contract.
-   Inbound the launcher sets s1=<SPK> (the attribution key), s2=<publisher>,
-   s3=<ad account>, s4, ttclid. The door re-stamps outbound (s1 -> bare
-   affiliate id, s2 -> SPK, s3 forwarded, s4 -> offer name, click_id -> s5).
-   An earlier draft whitelisted only utm_campaign/ttclid/s1, which silently
-   dropped s3 — the ad-account leg — on every click.
 
-   s1 is the AFFILIATE'S SPARK CODE and nothing else. Never overwrite it with
-   a campaign name — that is what breaks attribution.
-   ------------------------------------------------------------------ */
 var q = new URLSearchParams(location.search);
 
-/* mc_attr fallback: derive s1 (e=<spark> .. c=<code>) when the launcher did not
-   pass it directly. If neither field exists s1 stays EMPTY — never fabricated. */
+
 if (!q.get('s1')) {
   var mc = q.get('mc_attr') || '', f = {};
   mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -518,29 +462,16 @@ if (!q.get('s1')) {
 }
 
 /* Referrer rescue for a stripped query (in-app browsers drop params on some hops). */
-if ((!q.get('s1') || !q.get('utm_campaign')) && document.referrer) {
+if (!q.get('s1') && document.referrer) {
   try {
     var r = new URLSearchParams(new URL(document.referrer).search);
-    ['s1','s2','s3','s4','utm_campaign','campaign','ttclid','lg'].forEach(function(k){
-      if (!q.get(k) && r.get(k)) q.set(k, r.get(k));
-    });
+    var _r = r.get('s1') || r.get('sub1');
+    if (_r) q.set('s1', _r);
   } catch(e) {}
 }
 
-/* Drop unsubstituted TikTok macros rather than forwarding the literal placeholder. */
-var tt = q.get('ttclid') || '';
-if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
 
-/* COOKIE FALLBACK for a ttclid the query lost. /js/ttclid.js banks the click id in a first-party
-   _ttclid cookie on the first page that sees it — but its own rewriter only ever tags <a href>
-   anchors, and the CTA on every one of these landers is a <button> that calls location.replace().
-   So on THIS family the cookie was written and then never read: the door URL is built from `q`
-   alone, and a query stripped on an in-app-browser hop reached the door with no click id at all.
-   Reading it here is what closes that.
-   Runs AFTER the macro drop above, so an unsubstituted placeholder is cleared first and then
-   genuinely refilled rather than left in place. The value is re-validated against the SAME rules
-   api/_lib/tiktok-event.js usableTtclid() applies — a cookie is attacker-writable, and a garbage
-   value promoted here would be indistinguishable downstream from a real click id. */
+
 if (!q.get('ttclid')) {
   try {
     var ck = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
@@ -550,25 +481,27 @@ if (!q.get('ttclid')) {
 }
 
 var s1 = q.get('s1') || '';
-var campaign = q.get('utm_campaign') || q.get('campaign') || '';
-var ttclid = q.get('ttclid') || '';
 
-/* NO UA SNIFFING, deliberately. A lander that appears to behave differently for a crawler is what
-   gets the whole domain flagged and every campaign on it blocked. Attribution does not need a gate
-   here: the door 404s any click with no s1 (api/link/[slug].js). */
 
-/* Door URL: every param rides, with s1 placed LAST (ad automations append to the
-   tail). The door 404s a click with no s1 — by design, that is the real gate. */
-function buildDoorUrl() {
-  var out = new URLSearchParams(q.toString());
-  out.delete('s1');
-  out.delete('lg');   // routes the lander only — the door/network never sees it
-  var qs = out.toString();
-  var url = DOOR + (qs ? '?' + qs : '');
-  if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
-  return url;
+
+
+function buildOfferUrl() {
+  var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+  if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+  /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+     The wire is <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the code
+     identifies the creative and the creative identifies the affiliate. The funnel beacon has
+     already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+     `|| _s1` keeps a code-less value going out verbatim — a scaler's own free-form label IS
+     their attribution key and blanking it would pay them nothing. Case-insensitive, because a
+     lowercasing ad platform would otherwise match nothing and ship the entire wire. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+  var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+  /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+  return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
 }
-var target = buildDoorUrl();
+var target = buildOfferUrl();
 
 if (window.ttq) {
   try { ttq.track('ViewContent', { content_name: 'Apple Pay Flash US Landing', value: GEO_VALUE }); } catch(e) {}
@@ -590,10 +523,7 @@ function handleCta(e) {
   ctaBtn.setAttribute('disabled', 'disabled');
   if (window.ttq) {
     try { ttq.track('ClickButton', { content_name: 'Apple Pay Flash US CTA', value: GEO_VALUE }); } catch(e) {}
-    /* CtaNoS1 — they did everything right and the click is still about to die: the door 404s any
-       hit with no s1, by design. A non-zero count here means the AD LINK is mis-built (?s1= empty,
-       or the launcher never appended it), not that the page failed. Cheapest possible catch for a
-       failure mode that otherwise looks like "traffic that just did not convert". */
+    
     if (!s1) { try { ttq.track('CtaNoS1', { content_name: 'Apple Pay Flash US cta without s1' }); } catch(e) {} }
   }
   location.replace(target);
@@ -601,19 +531,8 @@ function handleCta(e) {
 ctaBtn.addEventListener('touchend', function(e){ hasTouched = true; handleCta(e); }, {passive:false});
 ctaBtn.addEventListener('click', function(e){ if (!hasTouched) handleCta(e); });
 
-if (location.hostname === 'localhost' || location.search.indexOf('debug=1') > -1) {
-  console.log('[applepayflash-us-e/age-gate debug]', {
-    geo: document.documentElement.getAttribute('data-geo') || '(unknown)',
-    s1: s1 || '(none - door will 404)',
-    campaign: campaign || '(none)',
-    ttclid: ttclid || '(none)',
-    target: target
-  });
-}
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
-<script src="/js/ttclid.js" async></script>
+
 </body>
 </html>

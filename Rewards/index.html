@@ -159,7 +159,7 @@ footer .links span { color:#3a3d44; font-size:11px; }
   <div class="bottom-cta">
     <a href="#" id="cta-bottom" class="cta-btn"><span class="shimmer animate-shimmer"></span><span class="lbl">CREATE FREE PROFILE &amp; START PLAYING</span></a>
   </div>
-  <!-- FAQ: objection handling (boosts conversion + trust, stays compliant) -->
+  
   <h2 class="section-title">Frequently Asked Questions</h2>
   <div class="faq">
     <div class="faq-item"><div class="q">Is it really free to join?</div><div class="a">Yes. Creating your profile is completely free and takes under a minute &mdash; no payment information required.</div></div>
@@ -204,7 +204,7 @@ footer .links span { color:#3a3d44; font-size:11px; }
 // (no interstitial, no cloaked redirect, no hidden CPA popup loop).
 // ===================================================================
 // OUR offer link, on OUR cloaker domain. Was the bare network URL
-// monetisetrk8.co.uk/?a=26648&c=55504 — same Freecash campaign, but a hop we do not
+
 // run and cannot cap, kill, or reconcile. /c/frrcsh-us-off resolves to a=26648&c=55504.
 var SIGNUP_URL = 'https://appflowconnect.com/c/frrcsh-us-off?s1=';
 
@@ -214,7 +214,7 @@ var SIGNUP_URL = 'https://appflowconnect.com/c/frrcsh-us-off?s1=';
   var sub = p.get('s1') || p.get('campid') || p.get('s2') || '';
   // Forward ONLY s3 (the TikTok ad account the SPRK launcher stamps on every ad link) so the
   // per-account breakdown survives this hop. This CTA goes DIRECT to the network tracker (no SPRK
-  // door): s2/s4 have no consumer here and s5 is the network's click_id echo slot, so only s3 rides.
+
   var s3v = p.get('s3') || '';
   var extra = s3v ? '&s3=' + encodeURIComponent(s3v) : '';
   var dest = SIGNUP_URL + encodeURIComponent(sub) + extra;

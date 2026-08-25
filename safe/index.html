@@ -33,38 +33,13 @@
   html,body{margin:0;padding:0;background:#fff}
 </style>
 
-<!-- ══ TikTok pixel — PageView ONLY ═══════════════════════════════════════════════════════════
-     Owner decision, 2026-08-09. The point is that TikTok sees this destination as a live page
-     that receives traffic, rather than a URL its pixel has never once heard from.
 
-     ttq.page() AND NOTHING ELSE. The landers fire ViewContent and ClickButton with a value; this
-     page must not. Every one of those events on a page that cannot convert would teach the pixel
-     that this traffic is worth something, and value-based bidding would optimise toward it.
-
-     ⚠️ KNOWN COST, accepted when this was chosen: the PageViews here are non-buyer traffic —
-     mostly no-ttclid visits, which is exactly the population the gate exists to divert. They land
-     in the same pixel the campaigns optimise on. If targeting starts drifting, this tag is the
-     first thing to pull.
-
-     Same pixel id as the landers (TT_PIXEL in landers/apple/build.py, SPRKNetworkAds). It is a
-     public value — it already ships in every lander's markup — so a literal here leaks nothing.
-     If the landers ever move to a different pixel, this has to move with them by hand; there is
-     no shared source for it across the two repos. -->
 <script>
 !function (w, d, t) {
   w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
   ttq.load('D9R5S3BC77UA78AD3M10');
   ttq.page();
-  /* SafeView — added 2026-08-10 to make the gate MEASURABLE.
-     Until now this page fired the same bare ttq.page() as the landers, so in Events Manager a
-     visitor diverted here and a visitor who reached the offer were the SAME row. The drop-off
-     could not be attributed to the gate or cleared of it, which is why it stayed a theory.
-
-     This does NOT breach the "PageView only" rule above. That rule exists to keep VALUE off a page
-     that cannot convert — "events on a page that cannot convert would teach the pixel that this
-     traffic is worth something". SafeView carries no `value` and no `content_id`; it is a counter,
-     and value-based bidding optimises on the configured conversion event, not on an arbitrary
-     custom one. Never add a value here — that is the line, and it is still intact. */
+  
   ttq.track('SafeView', { content_name: 'safe bounce landing' });
 }(window, document, 'ttq');
 </script>
@@ -72,7 +47,6 @@
 <!-- Banks the click id if this visit somehow carried one. The gate only sends no-ttclid traffic
      here, so this is normally a no-op — but the query now rides along, and a visitor who arrives
      with an unusable ttclid today could arrive with a good one after a macro fix upstream. -->
-<script src="/js/ttclid.js"></script>
 </head>
 <body>
 <script src="/js/safe.js"></script>

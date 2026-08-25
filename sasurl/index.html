@@ -3,24 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Claim Your $750 Apple Cash Reward</title>
-<meta name="description" content="Complete a few quick steps and get $750 in Apple Cash sent straight to your account.">
+<title>Get $750 Paid To Your Apple Cash</title>
+<meta name="description" content="Complete a few quick steps and get $750 sent straight to your Apple Cash balance.">
 <style>
   :root{
-    --bg-0:#050506;
-    --bg-1:#0c0a10;
-    --surface:#101018;
-    --surface-2:#16141d;
-    --border:rgba(255,255,255,0.09);
+    --bg-0:#0a0d12;
+    --bg-1:#10141c;
+    --surface:#151a24;
+    --surface-2:#1b212d;
+    --border:rgba(255,255,255,0.08);
     --border-strong:rgba(255,255,255,0.16);
-    --text:#f6f6f8;
-    --text-muted:#9a97a6;
-    --text-faint:#6b6876;
-    --purple:#a463f7;
-    --pink:#ef5da8;
-    --green:#22d478;
-    --green-2:#12a860;
-    --gold:#ffc857;
+    --text:#f5f6f8;
+    --text-muted:#8b93a3;
+    --text-faint:#5b6273;
+    --gold:#d9b56d;
+    --gold-2:#b8904a;
+    --gold-bright:#f4e0ac;
+    --ink-on-gold:#231803;
     --radius-lg:22px;
     --radius-md:16px;
     --radius-sm:11px;
@@ -31,35 +30,30 @@
     min-height:100vh;
     min-height:100svh;
     background:
-      radial-gradient(600px 420px at 15% -8%, rgba(164,99,247,0.20), transparent 60%),
-      radial-gradient(500px 380px at 90% 8%, rgba(239,93,168,0.14), transparent 60%),
-      linear-gradient(to bottom,#0c0a10 0%,#08070c 40%,#050506 100%);
+      radial-gradient(520px 380px at 20% -6%, rgba(217,181,109,0.14), transparent 60%),
+      radial-gradient(460px 340px at 88% 10%, rgba(217,181,109,0.08), transparent 60%),
+      linear-gradient(to bottom, var(--bg-1) 0%, var(--bg-0) 45%, #060709 100%);
     color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
   }
   a{color:inherit;}
-  .wrap{
-    max-width:460px;
-    margin:0 auto;
-    padding:22px 18px 40px;
-    position:relative;
-  }
+  .wrap{max-width:460px;margin:0 auto;padding:26px 18px 40px;}
 
-  /* ---------- eyebrow ---------- */
+  /* ================= EYEBROW ================= */
   .eyebrow{
     display:flex;
     align-items:center;
     justify-content:center;
     gap:7px;
-    font-size:11.5px;
+    font-size:11px;
     font-weight:700;
-    letter-spacing:.04em;
+    letter-spacing:.05em;
     text-transform:uppercase;
-    color:#c9f7dd;
-    background:rgba(34,212,120,0.10);
-    border:1px solid rgba(34,212,120,0.35);
+    color:var(--gold-bright);
+    background:rgba(217,181,109,0.10);
+    border:1px solid rgba(217,181,109,0.35);
     padding:6px 14px;
     border-radius:999px;
     width:fit-content;
@@ -67,30 +61,47 @@
   }
   .dot-live{
     width:6px;height:6px;border-radius:50%;
-    background:var(--green);
-    box-shadow:0 0 0 0 rgba(34,212,120,0.6);
+    background:var(--gold);
+    box-shadow:0 0 0 0 rgba(217,181,109,0.6);
     animation:pulse 1.8s ease-in-out infinite;
     flex-shrink:0;
   }
   @keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(34,212,120,0.55);}
-    70%{box-shadow:0 0 0 6px rgba(34,212,120,0);}
-    100%{box-shadow:0 0 0 0 rgba(34,212,120,0);}
+    0%{box-shadow:0 0 0 0 rgba(217,181,109,0.5);}
+    70%{box-shadow:0 0 0 6px rgba(217,181,109,0);}
+    100%{box-shadow:0 0 0 0 rgba(217,181,109,0);}
   }
 
-  /* ---------- hero card ---------- */
-  .card-stage{
-    position:relative;
-    padding:14px 0 26px;
+  /* ================= HEADLINE FIRST ================= */
+  .hero-copy{text-align:center;padding:0 4px 26px;}
+  h1{
+    font-size:clamp(1.6rem,7.2vw,2.1rem);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    line-height:1.15;
+    margin-bottom:12px;
   }
+  h1 .accent{
+    background:linear-gradient(120deg, var(--gold-bright), var(--gold-2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .subhead{
+    font-size:14.5px;
+    color:var(--text-muted);
+    line-height:1.55;
+    max-width:350px;
+    margin:0 auto;
+  }
+
+  /* ================= PREMIUM CARD ================= */
+  .card-stage{position:relative;padding:6px 0 26px;}
   .card-glow{
     position:absolute;
-    inset:-30px -10px 10px;
-    background:
-      radial-gradient(220px 160px at 25% 30%, rgba(164,99,247,0.55), transparent 70%),
-      radial-gradient(200px 150px at 80% 70%, rgba(239,93,168,0.45), transparent 70%);
-    filter:blur(38px);
-    opacity:.85;
+    inset:-26px -10px 6px;
+    background:radial-gradient(240px 160px at 50% 40%, rgba(217,181,109,0.28), transparent 70%);
+    filter:blur(34px);
     z-index:0;
     pointer-events:none;
   }
@@ -100,13 +111,12 @@
     aspect-ratio:1.62/1;
     border-radius:var(--radius-lg);
     background:
-      radial-gradient(120% 140% at 100% 0%, rgba(164,99,247,0.35), transparent 55%),
-      radial-gradient(90% 120% at 0% 100%, rgba(239,93,168,0.25), transparent 55%),
-      linear-gradient(155deg,#151320 0%,#0a0910 60%,#050409 100%);
+      linear-gradient(120deg, rgba(217,181,109,0.14), transparent 40%),
+      linear-gradient(155deg,#1b2130 0%,#11141c 55%,#0a0a0e 100%);
     border:1px solid var(--border-strong);
     box-shadow:
-      0 30px 60px -20px rgba(0,0,0,0.65),
-      0 0 0 1px rgba(255,255,255,0.02) inset;
+      0 30px 60px -20px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(217,181,109,0.08) inset;
     padding:20px 22px;
     display:flex;
     flex-direction:column;
@@ -117,33 +127,34 @@
     content:"";
     position:absolute;
     inset:0;
-    background-image:radial-gradient(rgba(255,255,255,0.09) 1px, transparent 1.4px);
-    background-size:16px 16px;
-    -webkit-mask-image:radial-gradient(circle at 75% 60%, black 0%, transparent 65%);
-    mask-image:radial-gradient(circle at 75% 60%, black 0%, transparent 65%);
-    opacity:.9;
+    background-image:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 8px);
+    opacity:.5;
   }
-  .card-top{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1;}
+  .card-brand{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700;letter-spacing:-0.01em;color:#fff;}
+  .card-brand svg{width:15px;height:15px;fill:#fff;}
+  .card-chip{
+    width:34px;height:24px;
+    border-radius:5px;
+    background:linear-gradient(155deg, var(--gold-bright), var(--gold-2));
     position:relative;
     z-index:1;
+    box-shadow:0 2px 4px rgba(0,0,0,0.3);
   }
-  .card-brand{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-size:16px;
-    font-weight:700;
-    letter-spacing:-0.01em;
+  .card-chip::before{
+    content:"";
+    position:absolute;
+    inset:4px;
+    border:1px solid rgba(35,24,3,0.35);
+    border-radius:2px;
   }
-  .card-brand svg{width:16px;height:16px;fill:#fff;}
+  .card-mid{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;}
   .card-amount{
-    font-size:clamp(2rem,9vw,2.6rem);
+    font-size:clamp(2rem,9vw,2.5rem);
     font-weight:800;
     letter-spacing:-0.02em;
-    background:linear-gradient(135deg,#fff,#d8d2ea 60%,#f0c6e0);
+    background:linear-gradient(135deg,#fff, var(--gold-bright) 70%);
     -webkit-background-clip:text;
     background-clip:text;
     color:transparent;
@@ -156,50 +167,19 @@
     z-index:1;
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   }
-  .card-number{
-    font-size:13px;
-    letter-spacing:.14em;
-    color:rgba(255,255,255,0.55);
-  }
+  .card-number{font-size:12.5px;letter-spacing:.14em;color:rgba(255,255,255,0.5);}
   .card-meta{
     font-size:9.5px;
     letter-spacing:.08em;
-    color:rgba(255,255,255,0.4);
+    color:var(--gold-bright);
     text-align:right;
     line-height:1.5;
     text-transform:uppercase;
+    opacity:.85;
   }
 
-  /* ---------- headline ---------- */
-  .hero-copy{
-    text-align:center;
-    padding:8px 4px 22px;
-  }
-  h1{
-    font-size:clamp(1.55rem,7vw,2rem);
-    font-weight:800;
-    letter-spacing:-0.02em;
-    line-height:1.15;
-    margin-bottom:10px;
-  }
-  h1 .accent{
-    background:linear-gradient(120deg,var(--green),#7be8ac);
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
-  }
-  .subhead{
-    font-size:14.5px;
-    color:var(--text-muted);
-    line-height:1.55;
-    max-width:360px;
-    margin:0 auto;
-  }
-
-  /* ---------- CTA ---------- */
-  .cta-block{
-    padding:4px 0 6px;
-  }
+  /* ================= CTA ================= */
+  .cta-block{padding:2px 0 6px;}
   .cta-btn{
     display:flex;
     align-items:center;
@@ -208,25 +188,20 @@
     width:100%;
     border:none;
     cursor:pointer;
-    background:linear-gradient(135deg,var(--green) 0%,var(--green-2) 100%);
-    color:#04170c;
+    background:linear-gradient(135deg, var(--gold-bright) 0%, var(--gold-2) 100%);
+    color:var(--ink-on-gold);
     font-size:16.5px;
     font-weight:800;
     letter-spacing:-0.01em;
     padding:17px 20px;
     border-radius:14px;
     box-shadow:
-      0 14px 30px -8px rgba(34,212,120,0.45),
-      0 2px 0 0 rgba(255,255,255,0.25) inset;
+      0 14px 30px -8px rgba(217,181,109,0.4),
+      0 2px 0 0 rgba(255,255,255,0.35) inset;
     transition:transform .15s ease, box-shadow .15s ease;
   }
-  .cta-btn:hover{
-    transform:translateY(-1px);
-    box-shadow:
-      0 18px 36px -8px rgba(34,212,120,0.55),
-      0 2px 0 0 rgba(255,255,255,0.25) inset;
-  }
-  .cta-btn:active{transform:translateY(0px) scale(.99);}
+  .cta-btn:hover{transform:translateY(-1px);box-shadow:0 18px 36px -8px rgba(217,181,109,0.5), 0 2px 0 0 rgba(255,255,255,0.35) inset;}
+  .cta-btn:active{transform:translateY(0) scale(.99);}
   .cta-btn svg{width:17px;height:17px;flex-shrink:0;}
   .cta-micro{
     text-align:center;
@@ -239,103 +214,67 @@
     gap:6px;
     flex-wrap:wrap;
   }
-  .cta-micro b{color:var(--text-muted);font-weight:600;}
-  .cta-timer{
-    color:var(--gold);
-    font-variant-numeric:tabular-nums;
-    font-weight:700;
-  }
 
-  /* ---------- trust row ---------- */
-  .trust-row{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:8px;
-    margin-top:20px;
-  }
-  .trust-item{
+  /* ================= BENEFIT CHIPS ================= */
+  .benefit-row{
     display:flex;
-    flex-direction:column;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    margin-top:22px;
+  }
+  .benefit-chip{
+    display:flex;
     align-items:center;
     gap:6px;
-    text-align:center;
-    padding:12px 6px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-muted);
     background:var(--surface);
     border:1px solid var(--border);
-    border-radius:var(--radius-sm);
+    padding:9px 13px;
+    border-radius:999px;
+    white-space:nowrap;
   }
-  .trust-item svg{width:18px;height:18px;color:var(--green);flex-shrink:0;}
-  .trust-item span{font-size:10.8px;color:var(--text-muted);line-height:1.3;font-weight:600;}
+  .benefit-chip svg{width:13px;height:13px;color:var(--gold);flex-shrink:0;}
 
-  /* ---------- section shell ---------- */
-  section{margin-top:40px;}
-  .section-head{
-    text-align:center;
-    margin-bottom:20px;
-  }
+  /* ================= SECTION SHELL ================= */
+  section.body-section{margin-top:44px;}
+  .section-head{margin-bottom:22px;}
   .section-eyebrow{
     font-size:11.5px;
     font-weight:700;
     letter-spacing:.06em;
     text-transform:uppercase;
-    color:var(--purple);
+    color:var(--gold);
     margin-bottom:8px;
   }
-  .section-title{
-    font-size:1.3rem;
+  .section-title{font-size:1.3rem;font-weight:800;letter-spacing:-0.02em;}
+
+  /* ================= EDITORIAL STEPS ================= */
+  .step-row{
+    display:flex;
+    gap:16px;
+    padding:20px 0;
+    border-top:1px solid var(--border);
+  }
+  .step-row:last-child{border-bottom:1px solid var(--border);}
+  .step-index{
+    flex:0 0 auto;
+    font-size:1.7rem;
     font-weight:800;
     letter-spacing:-0.02em;
+    color:transparent;
+    -webkit-text-stroke:1.3px var(--gold);
+    width:44px;
   }
+  .step-content{flex:1;min-width:0;padding-top:2px;}
+  .step-title{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .step-desc{font-size:13px;color:var(--text-muted);line-height:1.5;}
 
-  /* ---------- how it works ---------- */
-  .steps{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-  .step{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius-md);
-    padding:15px 16px;
-  }
-  .step-icon{
-    flex:0 0 auto;
-    width:42px;
-    height:42px;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:linear-gradient(155deg,rgba(164,99,247,0.18),rgba(239,93,168,0.12));
-    border:1px solid var(--border-strong);
-  }
-  .step-icon svg{width:19px;height:19px;color:#e7ddff;}
-  .step-body{flex:1;min-width:0;}
-  .step-title{font-size:14.5px;font-weight:700;margin-bottom:2px;}
-  .step-desc{font-size:12.5px;color:var(--text-muted);line-height:1.4;}
-  .step-num{
-    flex:0 0 auto;
-    width:26px;height:26px;
-    border-radius:50%;
-    background:var(--green);
-    color:#04170c;
-    font-size:12.5px;
-    font-weight:800;
-    display:flex;align-items:center;justify-content:center;
-  }
-
-  /* ---------- faq ---------- */
-  .faq-item{
-    border:1px solid var(--border);
-    border-radius:var(--radius-md);
-    background:var(--surface);
-    margin-bottom:9px;
-    overflow:hidden;
-  }
+  /* ================= FAQ (minimal list) ================= */
+  .faq-item{border-bottom:1px solid var(--border);}
+  .faq-item:first-child{border-top:1px solid var(--border);}
   .faq-q{
     width:100%;
     display:flex;
@@ -348,63 +287,39 @@
     font-size:13.8px;
     font-weight:700;
     text-align:left;
-    padding:15px 16px;
+    padding:17px 2px;
     cursor:pointer;
   }
-  .faq-q .chev{
+  .faq-q .plus{
     flex-shrink:0;
-    width:18px;height:18px;
-    color:var(--text-faint);
+    width:20px;height:20px;
+    position:relative;
     transition:transform .25s ease;
   }
-  .faq-item.open .faq-q .chev{transform:rotate(180deg);}
-  .faq-a{
-    max-height:0;
-    overflow:hidden;
-    transition:max-height .28s ease;
+  .faq-q .plus::before,.faq-q .plus::after{
+    content:"";
+    position:absolute;
+    top:50%;left:50%;
+    background:var(--gold);
+    border-radius:2px;
+    transform:translate(-50%,-50%);
   }
-  .faq-a p{
-    font-size:12.8px;
-    color:var(--text-muted);
-    line-height:1.55;
-    padding:0 16px 16px;
-  }
+  .faq-q .plus::before{width:12px;height:2px;}
+  .faq-q .plus::after{width:2px;height:12px;}
+  .faq-item.open .faq-q .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .28s ease;}
+  .faq-a p{font-size:12.8px;color:var(--text-muted);line-height:1.55;padding:0 2px 18px;}
 
-  /* ---------- footer ---------- */
-  footer{
-    margin-top:38px;
-    padding-top:22px;
-    border-top:1px solid var(--border);
-  }
-  .footer-badges{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:16px;
-    margin-bottom:16px;
-    flex-wrap:wrap;
-  }
-  .footer-badges .badge{
-    display:flex;align-items:center;gap:5px;
-    font-size:10.8px;color:var(--text-faint);font-weight:600;
-  }
+  /* ================= FOOTER ================= */
+  footer{margin-top:42px;padding-top:24px;border-top:1px solid var(--border);}
+  .footer-badges{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;}
+  .footer-badges .badge{display:flex;align-items:center;gap:5px;font-size:10.6px;color:var(--text-faint);font-weight:600;}
   .footer-badges svg{width:13px;height:13px;color:var(--text-faint);}
-  .disclaimer{
-    font-size:10.3px;
-    line-height:1.6;
-    color:var(--text-faint);
-    text-align:center;
-    max-width:400px;
-    margin:0 auto;
-  }
+  .disclaimer{font-size:10.3px;line-height:1.6;color:var(--text-faint);text-align:center;max-width:400px;margin:0 auto;}
   .disclaimer a{text-decoration:underline;color:var(--text-faint);}
-  .disclaimer .links{
-    display:flex;justify-content:center;gap:14px;margin-top:10px;
-  }
+  .disclaimer .links{display:flex;justify-content:center;gap:14px;margin-top:10px;}
 
-  @media (min-width:520px){
-    .wrap{padding-top:40px;}
-  }
+  @media (min-width:520px){.wrap{padding-top:40px;}}
 </style>
 </head>
 <body>
@@ -412,6 +327,11 @@
 <div class="wrap">
 
   <div class="eyebrow"><span class="dot-live"></span> Verified Reward Program</div>
+
+  <div class="hero-copy">
+    <h1>Get Paid <span class="accent">$750</span> Straight To Your Apple Cash</h1>
+    <p class="subhead">Complete a few quick steps today and unlock an instant reward — no purchase necessary.</p>
+  </div>
 
   <div class="card-stage">
     <div class="card-glow"></div>
@@ -421,115 +341,82 @@
           <svg viewBox="0 0 24 24"><path d="M16.365 1.43c0 1.14-.415 2.06-1.244 2.76-.83.7-1.83 1.06-3.02.97-.024-1.11.43-2.06 1.235-2.76.8-.7 1.85-1.09 3.03-.97zm3.85 16.4c-.34.76-.5 1.1-.94 1.77-.62.94-1.49 2.11-2.57 2.12-1.03.01-1.3-.68-2.7-.68-1.4 0-1.72.67-2.75.7-1.08.03-1.9-1.03-2.53-1.97-1.36-2.02-2.4-5.72-1-8.22.7-1.24 1.94-2.03 3.28-2.05 1.06-.02 2.06.72 2.7.72.63 0 1.85-.9 3.13-.77.53.02 2.03.21 2.99 1.6-2.6 1.5-2.18 5.4.39 6.78z"/></svg>
           Cash
         </div>
+        <div class="card-chip"></div>
+      </div>
+      <div class="card-mid">
         <div class="card-amount">$750</div>
       </div>
       <div class="card-bottom">
-        <div class="card-number">•••• •••• •••• 7750</div>
+        <div class="card-number">•••• •••• •••• 4291</div>
         <div class="card-meta">Apple&nbsp;Pay<br>Instant&nbsp;Reward</div>
       </div>
     </div>
   </div>
 
-  <div class="hero-copy">
-    <h1>Claim Your <span class="accent">$750 Apple Cash</span> Reward Today</h1>
-    <p class="subhead">Answer a few quick questions and complete simple offers to unlock an instant reward sent straight to your Apple Cash balance.</p>
-  </div>
-
   <div class="cta-block">
     <button class="cta-btn" id="cta-hero" type="button">
-      Claim My $750 Now
+      Claim My $750
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
-    <div class="cta-micro">
-      <span>⏱ Today's window closes in</span>
-      <span class="cta-timer" id="timer">--:--:--</span>
-    </div>
+    <div class="cta-micro"><span>⏱ Takes about 3 minutes</span><span>·</span><span>🔒 Free &amp; secure to enter</span></div>
   </div>
 
-  <div class="trust-row">
-    <div class="trust-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-      <span>256-bit encrypted</span>
-    </div>
-    <div class="trust-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/></svg>
-      <span>Verified partner offer</span>
-    </div>
-    <div class="trust-item">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.9-6.2 3.9 1.6-7L2 9.2l7.1-.6L12 2z"/></svg>
-      <span>4.8/5 average rating</span>
-    </div>
+  <div class="benefit-row">
+    <div class="benefit-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>No purchase required</div>
+    <div class="benefit-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Paid via Apple Pay</div>
+    <div class="benefit-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Bank-level encryption</div>
   </div>
 
   <!-- HOW IT WORKS -->
-  <section id="how">
+  <section class="body-section" id="how">
     <div class="section-head">
       <div class="section-eyebrow">Simple process</div>
       <div class="section-title">How It Works</div>
     </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <div class="step-title">Enter your email</div>
-          <div class="step-desc">So we know where to send your reward confirmation.</div>
-        </div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-        </div>
+    <div class="step-row">
+      <div class="step-index">01</div>
+      <div class="step-content">
+        <div class="step-title">Enter your email</div>
+        <div class="step-desc">So we can confirm your eligibility and send your reward updates.</div>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <div class="step-title">Complete 2–3 quick offers</div>
-          <div class="step-desc">Simple sponsor offers — the more you finish, the more you unlock.</div>
-        </div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 18h6"/></svg>
-        </div>
+    </div>
+    <div class="step-row">
+      <div class="step-index">02</div>
+      <div class="step-content">
+        <div class="step-title">Complete 2–3 quick offers</div>
+        <div class="step-desc">Simple sponsor offers — the more you finish, the more you can unlock.</div>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <div class="step-title">Get paid via Apple Pay</div>
-          <div class="step-desc">Your $750 reward lands directly in your Apple Cash balance.</div>
-        </div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg>
-        </div>
+    </div>
+    <div class="step-row">
+      <div class="step-index">03</div>
+      <div class="step-content">
+        <div class="step-title">Receive $750 via Apple Pay</div>
+        <div class="step-desc">Your reward is sent straight to your Apple Cash balance.</div>
       </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section id="faq">
+  <section class="body-section" id="faq">
     <div class="section-head">
       <div class="section-eyebrow">Questions</div>
       <div class="section-title">Frequently Asked</div>
     </div>
     <div class="faq-list">
       <div class="faq-item">
-        <button class="faq-q">Do I need to make a purchase to qualify?
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <button class="faq-q">Do I need to make a purchase to qualify?<span class="plus"></span></button>
         <div class="faq-a"><p>No — there's no purchase required. You simply complete the steps above to become eligible for your reward.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q">How do I receive my $750?
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <button class="faq-q">How do I receive my $750?<span class="plus"></span></button>
         <div class="faq-a"><p>Once you complete the required steps, your reward is issued directly to your Apple Cash balance — ready to spend, send, or transfer.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q">How long does this take?
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <button class="faq-q">How long does this take?<span class="plus"></span></button>
         <div class="faq-a"><p>Most people finish in under 5 minutes. Daily availability is limited, so we recommend starting today.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q">Is my information secure?
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
+        <button class="faq-q">Is my information secure?<span class="plus"></span></button>
         <div class="faq-a"><p>Yes. All data is encrypted in transit and we never sell your personal information to third parties.</p></div>
       </div>
     </div>
@@ -560,21 +447,18 @@
 
 <script>
 (function(){
-  // ---- Outbound: the SPRK tracking DOOR ----
-  // Replaced the supplied placeholder destination. The door mints the click_id, freezes the owner
-  // at click time, stamps the outbound subid wire and 302s to the real Apple Cash URL — which
   // lives in the offer row and never appears in this page's source.
-  var DOOR = "https://sprktrax.org/api/link/applecash-us-sammy";
+  var OFFER_LINK = "https://www.fkn8s74mztrk.com/F2R45HNR/H3DKFR9H/";
 
   // Carry EVERY incoming param through. His original did window.location.href = URL with no query
-  // at all, which dropped s1 and left every conversion unattributed.
+
   var q = new URLSearchParams(location.search);
 
-  // campid is the Carrd/Spartis name for the same value — promote it when s1 is absent.
+
   if (!q.get("s1") && q.get("campid")) q.set("s1", q.get("campid"));
 
-  // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
-  // the door 404s an untagged click by design, and that is the real attribution gate.
+
+
   if (!q.get("s1")) {
     var mc = q.get("mc_attr") || "", f = {};
     mc.split("..").forEach(function (kv) { var i = kv.indexOf("="); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -582,12 +466,27 @@
   }
 
   function offerUrl(){
-    // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network param.
+
     var out = new URLSearchParams(q.toString());
     out.delete("s1"); out.delete("campid"); out.delete("lg");
     var qs = out.toString(), s1 = q.get("s1") || "";
-    var url = DOOR + (qs ? "?" + qs : "");
-    if (s1) url += (qs ? "&" : "?") + "s1=" + encodeURIComponent(s1);
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    var url = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+         The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+         code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+         already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+         `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+         is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+         platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
     return url;
   }
 
@@ -621,23 +520,8 @@
     });
   });
 
-  // ---- daily countdown timer (resets at local midnight) ----
-  var timerEl = document.getElementById("timer");
-  function updateTimer(){
-    var now = new Date();
-    var midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-    var diff = midnight - now;
-    var h = Math.floor(diff / 3600000);
-    var m = Math.floor((diff % 3600000) / 60000);
-    var s = Math.floor((diff % 60000) / 1000);
-    function pad(n){ return n < 10 ? "0" + n : n; }
-    timerEl.textContent = pad(h) + ":" + pad(m) + ":" + pad(s);
-  }
-  updateTimer();
-  setInterval(updateTimer, 1000);
-
   // ---- scroll reveal ----
-  var reveal = document.querySelectorAll("section, .card-stage, .hero-copy, .cta-block, .trust-row");
+  var reveal = document.querySelectorAll(".body-section, .card-stage, .hero-copy, .cta-block, .benefit-row");
   if("IntersectionObserver" in window){
     reveal.forEach(function(el){ el.style.opacity = 0; el.style.transform = "translateY(14px)"; el.style.transition = "opacity .5s ease, transform .5s ease"; });
     var io = new IntersectionObserver(function(entries){
@@ -651,11 +535,44 @@
     }, { threshold:0.12 });
     reveal.forEach(function(el){ io.observe(el); });
   }
+
+/* SPRK-FUNNEL-BEACON v2 */
+  /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
+     analytics cannot throw on the path to the offer. No UA test here -- /api/funnel-beacon
+     classifies in-app server-side, which keeps this page identical for every visitor. */
+  (function(){
+    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    var bseg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+    function bsend(ev, extra){
+      try {
+        var d = { event: ev, sid: bq.get('sid') || '',
+                  s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                  ttclid: bq.get('ttclid') || '',
+                  slice: 'ACASHUSA-SAMMY', clone: 'US', path: location.pathname };
+        if (extra) for (var k in extra) d[k] = extra[k];
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify(d)], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    /* Bound to the CTA, not to the URL builder — binding to the exit control is what keeps a
+       'click' meaning the same thing on every lander generation. Fires once. */
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'ctaBtn' || el.id === 'tipGo' || el.id === 'doorClaim' || el.id === 'cta-hero'
+            || (el.classList && (el.classList.contains('offer-link') || el.classList.contains('store-combo')))) {
+          fired = true;
+          bsend('offer_click', { s5: (window.__SPRK_S5 || '') });
+          return;
+        }
+      }
+    }, true);
+  })();
 })();
 </script>
 
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

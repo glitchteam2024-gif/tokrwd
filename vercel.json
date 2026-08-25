@@ -248,12 +248,36 @@
       "destination": "/apay750usa-c.html"
     },
     {
-      "source": "/AS50/:c(US\\d+)",
+      "source": "/AS50/:c(US\\d+)/go",
       "destination": "/acashusa-sammy.html"
+    },
+    {
+      "source": "/AS50/:c(US\\d+)",
+      "destination": "/acashusa-sammy-pre.html"
+    },
+    {
+      "source": "/acashusa-sammy-pre",
+      "destination": "/acashusa-sammy-pre.html"
     },
     {
       "source": "/acashusa-sammy",
       "destination": "/acashusa-sammy.html"
+    },
+    {
+      "source": "/AS51/:c(US\\d+)/go",
+      "destination": "/swagbucksusa-sammy.html"
+    },
+    {
+      "source": "/AS51/:c(US\\d+)",
+      "destination": "/swagbucksusa-sammy-pre.html"
+    },
+    {
+      "source": "/swagbucksusa-sammy-pre",
+      "destination": "/swagbucksusa-sammy-pre.html"
+    },
+    {
+      "source": "/swagbucksusa-sammy",
+      "destination": "/swagbucksusa-sammy.html"
     },
     {
       "source": "/CA150/:c(US\\d+)",
@@ -326,6 +350,70 @@
     {
       "source": "/apay750usa-kerman",
       "destination": "/apay750usa-kerman.html"
+    },
+    {
+      "source": "/RV64/:c(US\\d+)",
+      "destination": "/apay750usa-ravi.html"
+    },
+    {
+      "source": "/apay750usa-ravi",
+      "destination": "/apay750usa-ravi.html"
+    },
+    {
+      "source": "/RV65/:c(US\\d+)",
+      "destination": "/apayflashusa-ravi.html"
+    },
+    {
+      "source": "/apayflashusa-ravi",
+      "destination": "/apayflashusa-ravi.html"
+    },
+    {
+      "source": "/RV66/:c(US\\d+)",
+      "destination": "/acashusa-ravi.html"
+    },
+    {
+      "source": "/acashusa-ravi",
+      "destination": "/acashusa-ravi.html"
+    },
+    {
+      "source": "/RV67/:c(CA\\d+)",
+      "destination": "/apay1kcana-ravi.html"
+    },
+    {
+      "source": "/apay1kcana-ravi",
+      "destination": "/apay1kcana-ravi.html"
+    },
+    {
+      "source": "/RV68/:c(AU\\d+)",
+      "destination": "/apay1kau-ravi.html"
+    },
+    {
+      "source": "/apay1kau-ravi",
+      "destination": "/apay1kau-ravi.html"
+    },
+    {
+      "source": "/RV69/:c(GB\\d+)",
+      "destination": "/apay1kuk-ravi.html"
+    },
+    {
+      "source": "/apay1kuk-ravi",
+      "destination": "/apay1kuk-ravi.html"
+    },
+    {
+      "source": "/RV70/:c(US\\d+)/go",
+      "destination": "/gravypassusa-ravi.html"
+    },
+    {
+      "source": "/RV70/:c(US\\d+)",
+      "destination": "/gravypassusa-ravi-pre.html"
+    },
+    {
+      "source": "/gravypassusa-ravi-pre",
+      "destination": "/gravypassusa-ravi-pre.html"
+    },
+    {
+      "source": "/gravypassusa-ravi",
+      "destination": "/gravypassusa-ravi.html"
     },
     {
       "source": "/PR50/:c(AU\\d+)/go",
@@ -754,6 +842,14 @@
       "destination": "/api/c/:slug"
     },
     {
+      "source": "/u/:slug",
+      "destination": "/api/u/:slug"
+    },
+    {
+      "source": "/click",
+      "destination": "/api/click"
+    },
+    {
       "source": "/postback",
       "destination": "/api/postback"
     }
@@ -819,6 +915,82 @@
         {
           "key": "Referrer-Policy",
           "value": "no-referrer"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/click",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/api/click",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/u/(.*)",
+      "headers": [
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/api/u/(.*)",
+      "headers": [
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         },
         {
           "key": "X-Robots-Tag",

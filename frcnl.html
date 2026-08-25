@@ -2,10 +2,7 @@
 <html lang="nl" data-geo="NL">
 <head>
 <meta charset="UTF-8" />
-<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
-     every visitor, including TikTok's crawler. Ad review flags landers that behave differently
-     for a crawler than for a user, and a flagged lander gets blocked outright. Attribution does
-     not need a gate — the door (api/link/[slug].js) 404s any click without a valid spark code. -->
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Spelen en geld verdienen</title>
 <script>
@@ -293,48 +290,26 @@
     }, 3800);
   })();
 
-  // Build the offer URL (click id -> Everflow sub1, plus ttclid for TikTok CAPI),
+
   // show the Quick Tip on CTA tap, then continue to the offer on "Got it".
   (function(){
-    // Through the SPRK door (Migi, 2026-08-12). The door mints the click_id, writes the clicks
-    // row, freezes ttclid for the CAPI forward, and picks the destination from THIS page's
-    // landing_pages.geo — not the visitor's IP, which is spoofable and would let traffic shop
-    // into a higher-paying geo. It is also the only place a cap, a revoke or a payout-lock can
-    // still stop a click; a static page cannot hold any of those.
-    // The wire is built by __sprkOffer below and forwards
-    // everything it was given. Forwards EVERYTHING the ad link carried: s1=<SPK> (per-creative
-    // spark id), s2=<publisher_code> (per-affiliate source), ttclid, etc. — nothing dropped.
-    var OFFER_URL = 'https://sprktrax.org/api/link/freecash-nl';
-/* SPRK-DIRECT-OFFER v1 */
-  /* Build the network URL. Reads the query directly, so it does not care which local the lander
-     happened to keep it in.
-       - s1 (the SPK) is placed LAST: ad automations append to the tail, and a first-match tracker
-         must not meet a different s1 first.
-       - lg / campid are lander-side routing aliases and never reach the network.
-       - s5 is a UNIQUE-PER-CLICK anti-duplicate token. Monetise sends a real txid on 1.2% of
-         conversions (17/1439, measured over 30 days), so with no click token api/postback.js dedups
-         on (network, spark, sub2..sub5) inside 120s -- and s1/s2/s3 are CONSTANT per creative. A
-         unique s5 is the only thing keeping two genuine leads from collapsing into one payment. It
-         resolves to nothing; uniqueness is its whole job, so a collision costs one dedup, never
-         attribution.
-       - the separator is derived from the base, because every Monetise link already carries
-         ?a=&c= while the Everflow ones are a bare path. Hardcoding '?' is what produced two '?'
-         in one URL (and silently dropped ttclid) in the funnel this family was adapted from. */
-  function __sprkOffer(base) {
-    var p = new URLSearchParams(location.search);
-    p.delete('lg'); p.delete('campid'); p.delete('sid');
-    var s1 = p.get('s1') || p.get('sub1') || '';
-    p.delete('s1'); p.delete('sub1');
-    var t;
-    try { t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { t = ''; }
-    if (!t) t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-    t = t.slice(0, 22);
-    if (!p.get('s5')) p.set('s5', t);
-    try { window.__SPRK_S5 = p.get('s5'); } catch (e) {}
-    var qs = p.toString();
-    var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');
-    if (s1) url += (url.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(s1);
-    return url;
+    var OFFER_URL = 'https://montrk5.co.uk/?a=26648&c=55508';
+/* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+  function __offerUrl(base) {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || '';
+    /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+       code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+       already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+       is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+       platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _dest = !_send1 ? base : base + (base.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+    var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+    return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
   }
   /* SPRK-FUNNEL-BEACON v2 */
   /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
@@ -379,7 +354,7 @@
       mc.split('..').forEach(function(kv){ var i = kv.indexOf('='); if (i>0) f[kv.slice(0,i)] = kv.slice(i+1); });
       var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — an untagged visit stays untagged and simply attributes to nobody
     }
-    q.delete('lg'); var url = __sprkOffer(OFFER_URL);
+    q.delete('lg'); var url = __offerUrl(OFFER_URL);
 
     var overlay = document.getElementById('tipOverlay');
     document.getElementById('tipGo').href = url; // "Got it" goes to the offer
@@ -389,16 +364,21 @@
 
     document.querySelectorAll('a.offer-link, a.store-combo').forEach(function(a){
       a.setAttribute('href', url);          // fallback if the click handler is blocked
-      a.addEventListener('click', openTip); // intercept -> show the tip first
+      /* NO CLICK INTERCEPT (2026-08-17). This used to be:
+           a.addEventListener('click', openTip)
+         openTip() calls e.preventDefault(), so the FIRST tap on the CTA did not go to the
+         offer at all -- it opened the quick-tip overlay, and the visitor had to find and tap
+         'Got it' to actually leave. That is the reported 'they click the button and nothing
+         happens'. Every visitor who tapped once and stopped was a paid click thrown away.
+         The href is already the finished offer URL (set on the line above), so the anchor now
+         navigates natively on the first tap -- which also works with JS half-loaded, and lets
+         long-press / open-in-new-tab behave the way a link should.
+         The overlay markup stays in the page but is never opened; tipGo still carries the same
+         URL, so anything already linking to it is unaffected. Do not re-bind this. */
     });
     document.getElementById('tipClose').addEventListener('click', closeTip);
     overlay.addEventListener('click', function(e){ if (e.target === overlay) closeTip(); });
   })();
 </script>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"49739f916f3d48e0a3f0cfdd73f6adce","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
-<!-- TikTok ttclid passthrough — captures the click ID and appends it to the sprktrax.org door link
-     (sprktrax.org is in ttclid.js's tracker allowlist), so the door forwards it into the postback.
-     Matches the /TU and /CB landers. -->
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

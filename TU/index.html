@@ -2,10 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
-     every visitor, including TikTok's crawler. Ad review flags landers that behave differently
-     for a crawler than for a user, and a flagged lander gets blocked outright. Attribution does
-     not need a gate — the door 404s any untagged click (api/link/[slug].js: `if (!spk) return 404`). -->
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Get paid to test apps</title>
 <link rel="icon" type="image/png" href="/images/testerup-logo.png" />
@@ -240,8 +237,7 @@
   <footer class="sticky">
     <div class="wrap">
       <div class="avail"><span class="dot"></span>Available now on iOS and Android</div>
-      <!-- one link, two separate-looking boxes. NOTE: no offer URL in the markup — the inline offer
-           script below builds it at runtime (points at the SPRK door, s1 carried over). -->
+      
       <a class="store-combo offer-link" href="#">
         <span class="btn btn-play">
           <svg width="22" height="24" viewBox="0 0 24 26" fill="none"><path d="M2 2.2C1.6 2.5 1.4 3 1.4 3.7v18.6c0 .7.2 1.2.6 1.5L12.6 13 2 2.2z" fill="#fff"/><path d="M16.3 9.3 4.1 2.3 3.6 2 12.6 13l3.7-3.7z" fill="#fff"/><path d="M16.3 16.7 12.6 13l3.7 3.7 4-2.3c.7-.4.7-1.4 0-1.8l-4-2.3-3.7 3.7 3.7 3.7z" fill="#fff"/></svg>
@@ -296,27 +292,41 @@
   })();
 </script>
 
-<!-- Testerup offer wiring — builds the offer link at runtime (kept OUT of the markup) and routes
-     through the SPRK tracking DOOR, carrying the incoming ?s1= over so attribution lands. Same
-     pattern as the Freecash lander. -->
+
 <script>
 (function () {
   'use strict';
 
-  // The SPRK tracking DOOR (slug 'testerup'). The door records the first-party click, mints the
-  // click_id, stamps the per-affiliate label, then 302s to the Testerup offer — the real network URL
-  // lives in the offer row (api/link/[slug].js), never in this lander. Mirrors Freecash's door.
-  var DOOR = 'https://sprktrax.org/api/link/testerup';
 
-  // Carry every incoming param (esp. ?s1=<SPK>, set per-creative by the launcher) through to the door.
+
+  // lives in the offer row (api/link/[slug].js), never in this lander. Mirrors Freecash's door.
+  var OFFER_LINK = 'https://montrk.co.uk/?a=26648&c=55412';
+
+
   var q = new URLSearchParams(location.search);
   if (!q.get('s1')) {
-    // Fallback: derive s1 from mc_attr (e=<spark> .. c=<code>) if it wasn't passed directly.
+
     var mc = q.get('mc_attr') || '', f = {};
     mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
     var d = f.e || f.c; if (d) q.set('s1', d);
   }
-  var offerUrl = DOOR + '?' + q.toString();
+  /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+  var offerUrl = (function () {
+    var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+    if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+    /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+       code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+       already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+       is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+       platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+    var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+    return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+  })();
 
   function wire() {
     var overlay = document.getElementById('tipOverlay');
@@ -336,7 +346,17 @@
 
     document.querySelectorAll('a.offer-link, a.store-combo').forEach(function (a) {
       a.setAttribute('href', offerUrl);     // fallback if the click handler is blocked
-      a.addEventListener('click', openTip); // intercept -> show the tip first
+      /* NO CLICK INTERCEPT (2026-08-17). This used to be:
+           a.addEventListener('click', openTip)
+         openTip() calls e.preventDefault(), so the FIRST tap on the CTA did not go to the
+         offer at all -- it opened the quick-tip overlay, and the visitor had to find and tap
+         'Got it' to actually leave. That is the reported 'they click the button and nothing
+         happens'. Every visitor who tapped once and stopped was a paid click thrown away.
+         The href is already the finished offer URL (set on the line above), so the anchor now
+         navigates natively on the first tap -- which also works with JS half-loaded, and lets
+         long-press / open-in-new-tab behave the way a link should.
+         The overlay markup stays in the page but is never opened; tipGo still carries the same
+         URL, so anything already linking to it is unaffected. Do not re-bind this. */
     });
 
     var tipClose = document.getElementById('tipClose');
@@ -355,6 +375,5 @@
 </script>
 
 <!-- TikTok ttclid passthrough — captures click ID and appends to all tracker links -->
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

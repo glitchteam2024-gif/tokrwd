@@ -19,12 +19,26 @@ network live in the separate **SPRKNetworkAds** repo. For the spark-code mint ru
 wire scheme see the `sprk-new-offer` skill; for "affiliate's conversions look wrong" see
 `sprk-affiliate-conv-debug`.
 
-## The funnel (current, since 2026-07-21)
+## The funnel (current, since 2026-08-21)
 
-    ad ( ?s1=<SPK>&s2=<pub>&s3=<adacct>&s4=&ttclid= )  ->  /r  ->  /pre  ->  lander  ->  door  ->  offer
+    ad ( ?s1=<SPK>&… )  ->  /r  ->  /pre  ->  lander  ->  /click (first-party stamp)  ->  offer
+
+**The CTA walks OUR /click gate first (Migi asked for it back, 2026-08-21 — the Skro-style
+"click URL" pattern).** The page still builds the finished network URL itself — base + exactly ONE
+param carrying the code, the 2026-08-20 contract unchanged — but the CTA href is now
+`/click?u=<that URL>&s1=<raw wire>&lp=<pathname>[&t=<ttclid>]`, same-origin on every alias domain.
+`api/click.js` logs the click server-side (click_id, raw wire, IP, Vercel geo, exact clone path →
+a `clicks` row with `entry='gate'` in SPRK, via the `api/gate-click` ingest on sprktrax.org) and
+then 302s to `u` BYTE FOR BYTE. It redirects FIRST and logs after, so the visitor never waits;
+every failure on the log path costs a row, never a click. See "The /click gate" below.
+
+**This is NOT the old sprktrax door returning.** The door rewrote the wire (s1→aff, s2→SPK, minted
+s5), owned the destination, and sat cross-origin. The gate rewrites nothing, adds no param the
+network sees, and the network still receives the link + one code. There is still no `sprktrax.org`
+URL in any page — the ingest hop is server-to-server from our lambda.
 
 **No cloaking.** The lander renders the SAME markup for every visitor (including ad-review
-crawlers) and forwards the whole query string to its door untouched.
+crawlers).
 
 **One prelander, in front of everything (added 2026-07-27 — Migi asked; TikTok's in-app webview
 was failing on real devices).** `/pre` hands the visitor to their real browser before the offer
@@ -34,7 +48,11 @@ prelander per brand existed until 2026-07-21 and was removed for cloaking; the t
 those pages cloaking (`looksLikeReview()` → a different page for reviewers) is deliberately absent
 from this one.
 
-## Offer → door → canonical file → copies
+## Offer → destination → canonical file → copies
+
+⚠️ The "Door / destination" column below is HISTORICAL for the door hop — every deployed lander
+now names a network URL directly in `window.__OFFER_LINK__` / `var OFFER_LINK`. The folder→offer
+pairings are still accurate.
 
 Every numbered folder is a **byte-identical copy** of its offer's ONE canonical lander. Edit the
 canonical, then propagate (see next section). `cleanUrls:true` in `vercel.json` serves `/FC` from
@@ -75,11 +93,22 @@ network must be able to route traffic onto it. They are registered in `OVERRIDE_
 |-----------|---------|-------------------------------------------------|-----------------------------------|------------------------------------|
 | `lp=trt`  | `trt/`  | `appflowconnect.com/c/testerup-us-mon-off`       | montrk `a=26648 c=56132`          | Trae / TenX — scaler (aff #2)      |
 | `lp=esgp` | `ESGP/` | `/c/esgp-off` (relative → `www.tokrwd.co`)       | `phef6trk.com/213T8QJ/32BB7QT/`   | Edwin — scaler, own affiliate link |
+| `lp=stt`  | `STT/US/` | `sprktrax.org/api/link/shein-us` (Path A, door) | Shein $750 US                    | **house** — alternate Shein design |
 
 `ESGP` is also bound to `laboedomegan.carrd.co` by host (see `CARRD_ROUTES` below), so Edwin's ad links
 need no `lp=` on them.
 
-These use `mode:'direct'` on purpose: the payout is the scaler's, so the click must **not** walk the
+**`stt` is the one override lander that is NOT a scaler's** (added 2026-08-16). It is a second,
+visually distinct Shein design — dark/editorial, "Shop The Trend" brandmark instead of the SHEIN
+wordmark — kept override-only so it can be split-tested against the standing `SHEIN/US` + `SH50`
+pool without touching those 120 clones, and backed out by dropping `lp=stt` from the ad link with
+no deploy. It walks the **door** (`mode` is irrelevant — there is no `/c/` hop), so it has full SPRK
+attribution exactly like `SHEIN/US`; the scaler reasoning below does not apply to it. Folder is
+`STT` after the page's own brandmark, deliberately not `SHEIN`-anything, so nobody `cp`s the
+generated Shein page over it. It is a HAND-BUILT page — `_lp-generator/build.js` must never learn
+about it, for the same reason Freecash is not in `BRANDS`.
+
+The scaler entries use `mode:'direct'` on purpose: the payout is the scaler's, so the click must **not** walk the
 SPRK door (which would resolve it to a SPRK affiliate and credit the conversion inside our network).
 No clicks row and no click_id on this path, by design — they settle by invoice, and `sub1` carries the
 spark code only so their reported volume can be reconciled against our traffic.
@@ -827,50 +856,220 @@ Still open (business calls, in `EXCEPTIONS`): `api/affrkr.js` → `affrkr.com`, 
 `trendhavenn.com`, and `EOZ.html`'s `vmry7.ttrk.io` script. All three pages are live but orphaned —
 nothing in the repo links to them.
 
-## s1–s5 wire scheme (what tracks)
+## The /click gate — the first-party stamp (2026-08-21)
 
-- **Inbound to the lander:** `s1 = <SPK>` (opaque `SPK-XXXX-XXXX` spark code, THE attribution key) ·
-  `s2 = <publisher>` · `s3 = <ad account>` (or campaign id for self-launched TikTok) · `s4` empty ·
-  `ttclid` empty-or-set. The lander forwards ALL of them unchanged.
-- **Outbound (door re-stamp, Path A):** `s1 = <affId>` — the **pure affiliate number, no `aff`
-  prefix** (changed 2026-07-23; was `aff<N>` before) · `s2 = <SPK>` · `s3 = ad account` · `s4 = offer
-  name` · click_id in `offers.clickid_slot` (default `s5`).
-- The door **404s any click whose s1 isn't a valid SPK** — so an untagged/blank visit fails closed.
-  That is why removing the blank-page gate does NOT weaken attribution: the door is the real gate.
+Migi's ask, referencing his old cloaker's `www.rewardsgo.go/click` and Skro's click URL: *"build
+something similar … have that as our gate for all of our affiliates … make sure we never miss a
+single click."* Every lander CTA now returns
 
-Full detail + the mint rules live in `sprk-new-offer`. Seeing a bare affiliate number (e.g. `26`) in
-the network's s1 column is CORRECT — don't "fix" it back to SPK.
+    /click?u=<finished offer URL>&s1=<raw wire>&lp=<location.pathname>[&t=<ttclid>]
+
+- **`api/click.js`** (routed at `/click` in vercel.json): resolves `GATE_OVERRIDES[deriveGateKey(lp)]`
+  if a row exists, else validates `u` with `isAllowedGateDestination` (host allowlist
+  `GATE_DEST_HOST_RE` in links-config.js — every network family the estate names; our own hosts
+  refused so `u` can never loop the gate). 302 FIRST, then `await sendGateLog(...)` — the lambda
+  stays alive until the POST lands, the visitor never waits. Total fail-open: any internal error
+  still forwards a validated `u`. A 404 is only ever a crafted URL (bad host, missing u).
+- **`api/_lib/gate-log.js`**: `mintClickId()` (22 base62 — the shape SPRK's postback already
+  accepts), `deriveGateKey()` (`/AK52/GB7` → `ak52-gb`; grouping label, never routing on its own),
+  `gateLogRow()` (raw wire, dest, ua, first-hop IP, `x-vercel-ip-*` geo incl. city/lat/lon),
+  `sendGateLog()` (POST to `sprktrax.org/api/gate-click`, header `x-gate-key` =
+  `GATE_INGEST_KEY` env or committed fallback, 1.5s cap, console-only failures).
+- **The row lands in SPRK's `clicks` table with `entry='gate'`** (SPRKNetworkAds
+  `api-src/gate-click.ts` → `recordClick`): spk_code = extracted code, sub1 = raw wire, plus the
+  2026-08-21 migration columns `ip` (raw — Migi's call), `city`, `lat`, `lon`, `lander_path`.
+  `door-clicks.ts` reads it as a third feed, so affiliate/admin click counts include gate rows;
+  the beacon still double-fires on the same tap by design and `flagUniqueClicks` folds the pair.
+- **`GATE_OVERRIDES` (links-config.js) is the control surface**: one committed row reroutes or
+  pauses a whole creative family (key = deriveGateKey) without touching its clones. Ships empty.
+- **/c/ direct mode and /api/reco log the same row shape** (keys `c-<slug>` / `reco`), which is
+  why CLFCCA / CLFCUK / ESGP / trt / TSUP are deliberately NOT swept onto /click — their /c/ hop
+  logs already, and wrapping them would double-log.
+- **Env (optional, both Vercel projects): `GATE_INGEST_KEY`** rotates the shared secret;
+  `GATE_INGEST_URL` repoints the ingest. Without them the committed fallbacks work out of the box.
+- **Tests**: `_offer-link.test.mjs` executes the shipped builder in all ~7,726 landers against the
+  gate contract (u decodes to base + ONE param, allowlist-pass, raw wire on our url only, untagged
+  → bare u and no s1); `_gate.test.mjs` drives the real `api/click.js` + `/c/` handlers with a
+  stubbed ingest (302-before-log order, open-redirect refusals, override path, fail-open).
+- **The funnel beacon is UNTOUCHED** — it still records the full wire client-side with the `sid`
+  journey id. The gate is the server-side truth; the beacon is the funnel story. Both stay.
+- ⚠️ **Deploy order**: SPRKNetworkAds (the ingest) first, then tokrwd. Reversed, clicks still
+  redirect fine but log rows 404 until the ingest is live (fail-open, lost rows only).
+- ⚠️ **Never "optimize" the page to link the network directly again** — that silently removes the
+  only server-side click record; and never make the gate rewrite `u` (it forwards byte-for-byte;
+  the one-param contract lives in the PAGE builder, tested there).
+
+## The outbound wire: ONE param, and the name is the network's, not ours (2026-08-20)
+
+⚠️ **This section replaces the old "s1–s5 wire scheme". The door is gone from the landers, and so
+is everything the door needed.** Migi's instruction, verbatim: *"moving forward it only ever carrys
+the s1 and then the link, and make sure it carrys the s1 from the prelander."*
+
+- **Inbound to the lander:** whatever the ad link carries — `s1`, plus possibly `s2`/`s3`/`s4`/
+  `ttclid`/`lg`/`campid`/`mc_attr`. The lander READS this to resolve `s1` and forwards none of it.
+- **Outbound to the network: the base offer URL plus exactly one parameter, carrying the SPK CODE
+  — not the whole wire.** Slot 1 arrives compound (`<username>_<affId>_<SPK>_<GEO>_<campaign>`);
+  `ac2992a` decided only the code leaves, because the code identifies the creative and the creative
+  identifies the affiliate. A 50-char underscore-laden value risks truncation at the network, and
+  the affiliate's username has no business in a third party's logs.
+
+      https://montrk5.co.uk/?a=26648&c=55504&s1=SPK-05BD-7BF1        <- CAKE / Monetise
+      https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/?sub1=SPK-…     <- Everflow family
+
+⚠️ **`s1` and `sub1` are the SAME field in two dialects, and you cannot pick one globally.** An
+Everflow endpoint reads `sub1..sub5` and silently discards anything called `s1` — that is the bug
+`a252f6f` / `b948895` fixed across 6,465 landers. Forcing the literal name `s1` everywhere would
+zero out attribution on the 6,471 Everflow landers; forcing `sub1` would do the same to the 1,258
+CAKE ones. **The name follows the destination.** See `sprk-network-postback-wiring`.
+
+- **s1 is resolved, never fabricated.** Order: `?s1=` → `?sub1=` → the `mc_attr` fallback
+  (`e=` / `c=`) → a referrer rescue for in-app browsers that strip the query. If none of them
+  yields a value the CTA is **just the offer link, with no parameter at all** — an untagged visit
+  attributes to nobody rather than to a made-up code.
+- **Then the SPK is extracted:** `(String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}/i)||[''])[0].toUpperCase() || _s1`.
+  Two details are load-bearing and both are tested:
+  **`/i`** — a lowercasing ad platform would otherwise match nothing and ship the entire wire;
+  **`|| _s1`** — a value with NO code in it goes out verbatim, because a scaler's free-form label
+  (`TRAE_spark97_US`) IS their attribution key and blanking it would pay them nothing.
+- **The prelander adds nothing.** It forwards its whole query to the lander, so `s1` survives the
+  hop; the lander then reduces it to the one param. It no longer mints a `sid`.
+
+### What was removed, and what that costs (say these out loud)
+
+| Removed | Consequence — do not rediscover it |
+|---|---|
+| the minted `s5` per-click token | The postback dedups on `(network, spark, sub2..sub5)` in a 120s window when the network returns no real txid. With s5 gone, **two genuine conversions on the same creative inside 120s can collapse into one payment.** The fix belongs on the postback side (`api/postback.js` in SPRKNetworkAds), not by putting a param back on the lander. |
+| `ttclid` forwarding + `js/ttclid.js` | TikTok CAPI has no click id to attribute with, so match quality drops. The TikTok **pixel** (`ttq`) is untouched and still fires. |
+| ~~the funnel beacon~~ — **KEPT**, Migi confirmed 2026-08-20 | `ac2992a` had just expanded it (40 → 78 landers) on purpose: **BEACON FIRST, THEN STRIP.** It records the FULL wire before the strip, so geo/campaign/affiliate stay recoverable on our side. It is a same-origin `sendBeacon` to our own server, not a param on the offer URL, so it does not violate "only the s1 and the link". The prelander's `sid` stays with it — that is what makes the four events one story. |
+| `s2` (publisher), `s3` (ad account), `s4` | The network no longer receives these legs at all. |
+| the Cloudflare Insights beacon (71 pages) | Third-party analytics that rode in with a copied page. |
+| the `?debug=1` console block (7,312 pages) | It printed s1, the campaign, the ttclid and the finished target URL. |
+
+## Generators are QUARANTINED (2026-08-20)
+
+Every script in `_lp-generator/` now calls `_guard.js` and **refuses to run**. This is deliberate:
+they are how the door kept coming back. Running one today silently does three things —
+
+1. emits `https://sprktrax.org/api/link/<slug>` as the CTA destination, overwriting a live network URL;
+2. emits the old wiring that forwards the whole query and mints an `s5`;
+3. **recreates the 619 landers retired in `49c065b`** (verified: a single `--clones 1` run wrote 58
+   directories back, `50FC/` among them).
+
+They also cannot be fixed by editing a template: the per-brand, per-geo NETWORK URL they should emit
+is not in that folder. `build.js` knows only a `doorSlug`; the real destinations live in the deployed
+pages (`window.__OFFER_LINK__`) and in the offer rows. **Reviving a generator means giving it that
+table first.** `lander-check.js` is NOT guarded — it only verifies.
+
+Override deliberately with `SPRK_ALLOW_DOOR_REGEN=1`, and read the diff.
+
+## Bugs the s1-only review caught — the checks that found them (2026-08-20)
+
+A source diff of 8,500 files hides everything. These were all found AFTER the change looked done,
+and every one was invisible to `git diff` and to a passing test suite. Re-run these before shipping
+any sweep across the estate.
+
+1. **702 landers had a DEAD CTA.** The `buildDoorUrl()` replacement hardcoded `OFFER_LINK`, but
+   those pages declare `var OFFER_URL` — so the CTA threw `ReferenceError` on load. Found by
+   executing pages in a real browser with an injected `window.onerror`, NOT by the test suite:
+   the harness supplied `OFFER_LINK` as a `new Function` parameter and so masked it.
+   → `_offer-link.test.mjs` now asserts the builder's base identifier is **declared on the page**.
+   Verified to bite: rename that one declaration back and the suite fails.
+2. **`_tracking-audit.test.mjs` had gone blind and passed vacuously.** Its `OUTBOUND_RE` matched
+   only `__DOOR_URL__` / `var DOOR`; after the rename it matched nothing, every lander hit
+   `if (!m) continue`, and the per-slice/geo destination check inspected **zero** pages while
+   reporting PASS. → it now counts what it inspected and fails under 5,000.
+3. **`NETWORK_HOST_RE` never contained `fkn8s74mztrk`** (Everflow), so that same check had been
+   skipping the 6,471-lander Everflow estate since the Everflow migration — pre-existing, not
+   caused by this work. Added; it now covers 7,440 landers and they agree.
+4. **`js/tsup-offer.js` and `Rewards/index.html` leaked `s3`**, and both built their base as
+   `'…?s1='` so an untagged visit shipped a **blank `s1=`** — which a network records as a real
+   but empty sub-id, not as "no sub-id". Both fixed.
+5. **`js/tsup-offer.js` still had the click intercept** removed everywhere else on 2026-08-17 —
+   the first tap opened the overlay instead of the offer. It was missed in that sweep and had been
+   eating the first tap on `/TSUP` ever since.
+6. **`api/{reco,copper,affrkr,redirect}.js` all appended `s3`** to the network URL. `/api/reco` is
+   live (every `RS50` clone forwards to `/RS/` which hits it).
+7. **6 `*-ravi.html` files got an unterminated block comment** — a prose-stripping regex ate the
+   closing `*/`. Caught by parsing every inline `<script>` with `node:vm`.
+
+The three checks worth keeping, in order of what they caught:
+
+```bash
+# 1. parse every inline <script> in every changed page (strip HTML comments first —
+#    a comment quoting "<script src>" otherwise reads as an unterminated block)
+# 2. execute the shipped builder in every lander
+node api/_lib/_offer-link.test.mjs
+# 3. load one page per DISTINCT SHAPE in a browser with an injected window.onerror.
+#    ~151 shapes cover ~8,500 files; srcdoc + a <base> tag lets you inject the collector
+#    before the page's own scripts run, which a plain src= iframe cannot.
+```
+
+⚠️ **Never run a generator to "test" it.** One `--clones 1` run during this review repainted 421
+live pages with the door and recreated 58 retired directories. That is what `_guard.js` now prevents.
+
+⚠️ **The browser caches `/js/*.js` across page reloads and query changes.** A fix to
+`js/tsup-offer.js` kept showing the old URL until the server was restarted on a different port.
+
+## Vocabulary: there is no "door" in a lander any more
+
+Renamed across every deployed page, so a grep for the door finds nothing that still exists:
+
+    window.__DOOR_URL__  ->  window.__OFFER_LINK__
+    var DOOR             ->  var OFFER_LINK
+    buildDoorUrl()       ->  buildOfferUrl()
+    __sprkOffer()        ->  __offerUrl()          (702 dead copies deleted outright)
 
 ## Verify before you ship (do this every time)
 
-Source diffs lie about runtime behavior. Prove it in a browser:
+Source diffs lie about runtime behavior. **First run the executable guard**, which runs the SHIPPED
+builder out of every deployed page:
 
 ```bash
-cd <repo> && python3 -m http.server 8899 &     # serve statically
+node api/_lib/_offer-link.test.mjs
 ```
 
-Load each edited lander with a full query, e.g. `http://localhost:8899/50FC/FC1/index.html?s1=SPK-TEST-0001&s2=pub9&s3=acct7&s4=&ttclid=`, then check in the page:
-- the CTA / `a.offer-link` / `a.door` / `#tipGo` href is the correct door URL carrying **every**
-  param (this catches the classic "gate removed but wiring guard left → dead `#` CTA" bug),
-- no cloaking script remains (`x-safari`, `intent://`, `__SUBID_OK`, `document.write`),
-- images load (no 404 from the deeper folder path),
-- a BARE visit (no query) does not fabricate an `s1` (no `s1=mc`).
+It asserts, for all ~7,700 landers: exactly one `?`, exactly ONE parameter added, named `s1` or
+`sub1` to match the destination, carrying the code unmodified, nothing leaked (s2/s3/s4/s5/sub2-5/
+ttclid/lg/campid/sid/mc_attr), an untagged visit appending nothing, and no page pointing at
+sprktrax. It replaced `_direct-offer.test.mjs`, which pinned the old s5/s2/s3 contract and had been
+failing on `main` since the Everflow migration.
 
-The prelander sits in front now, so also load it and confirm the whole chain:
-`http://localhost:8899/pre/index.html?s1=SPK-TEST-0001&s3=acct7&ttclid=TT1&to=%2F50FC%2FFC1` —
-a desktop browser must land on the lander with `s1`/`ttclid`/`s3` intact, **no `to=` on the door
-URL**, and `&preview=1` must render the card without navigating (that is the admin iframe path).
-
-Run the suite. All four must be green — the last two are the prelander's:
+Then prove it in a real browser anyway:
 
 ```bash
-for t in _links-config _tracking-audit _traffic-filter _prelander-page; do node "api/_lib/$t.test.mjs" | tail -1; done
+cd <repo> && python3 -m http.server 8899 &
 ```
 
-The old repo-wide clean grep is now **check 6 of `_tracking-audit.test.mjs`**, which strips comments
-first (so `js/safe.js` saying it avoids `document.write` no longer reads as using it) and allows the
-scheme patterns only in `pre/index.html` + `js/breakout.js`. Run the test rather than the grep — the
-grep flagged those two sanctioned files and every comment mentioning the patterns.
+- lander: `http://localhost:8899/frcusa.html?s1=SPK-TEST-0001&s2=pub9&s3=acct7&ttclid=TT1&lg=US&campid=X&sid=zz`
+  → `a.offer-link` / `#tipGo` href must be **base + one param**, nothing else.
+- bare visit `http://localhost:8899/frcusa.html` → href is the bare offer link, **no `?` at all**.
+- prelander: `http://localhost:8899/frcusa-pre.html?s1=SPK-TEST-0001&s2=pub9&ttclid=TT1`, tap
+  Continue → lands on the lander with `s1` intact and **no `sid` added**.
+- `performance.getEntriesByType('resource')` must show **no** `sprknetwork.ad`, `funnel-beacon`,
+  `cloudflareinsights` or `ttclid.js` request. The TikTok pixel SHOULD still be there.
+
+⚠️ **Never click a CTA on a live lander during verification** — the destination is a real tracker
+and it registers a real click. Read the `href`; do not follow it.
+
+Run the suite:
+
+```bash
+for t in _links-config _tracking-audit _prelander-page _front-routing _partner-links _partner-store _partner-portal _offer-link; do
+  printf '%-18s ' "$t"; node "api/_lib/$t.test.mjs" | tail -1
+done
+```
+
+⚠️ **`_prelander-page.test.mjs` fails 8/62 on `main` and has since before this work** — it drives
+`js/breakout.js` against the old `?to=` design, while the flat prelanders now name their lander in a
+`<meta name="sprk-lander">`. Pre-existing; do not attribute it to a lander change. Everything else
+must be green.
+
+⚠️ **`git clean -fd` will delete new untracked test files** — `git add` them first. Learned the
+hard way here: it removed `_offer-link.test.mjs` and `_guard.js` mid-session.
+
+The old repo-wide clean grep is **check 6 of `_tracking-audit.test.mjs`**, which strips comments
+first and allows the scheme patterns only in `pre/index.html` + `js/breakout.js`. Run the test
+rather than the grep.
 
 ## Deploy / push mechanics
 
@@ -881,6 +1080,124 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
 
 ## Changelog
 
+- **2026-08-21** — **The /click gate: every CTA stamps through our own first-party click URL.**
+  Migi asked for the old cloaker's `/click` pattern back ("so we can make sure we never miss a
+  single click … track the s1 always") — WITHOUT a cloaker and WITHOUT reopening the door. Swept
+  all 7,726 network-destined landers: the builder TAIL now returns
+  `/click?u=<finished offer URL>&s1=<raw wire>&lp=<pathname>[&t=<ttclid>]`; declarations untouched
+  (the audit's per-slice destination check keeps reading the same line). New `api/click.js` +
+  `api/_lib/gate-log.js` + gate section in links-config.js + `/click` rewrite in vercel.json;
+  /c/ direct mode and /api/reco log the same row (CLFCCA/CLFCUK/ESGP/trt/TSUP deliberately not
+  swept — their /c/ hop logs). SPRKNetworkAds side (branch `claude/click-gate-ingest`):
+  `api-src/gate-click.ts` ingest → `clicks` rows entry='gate', new columns ip/city/lat/lon/
+  lander_path (migration RUN in prod 2026-08-21), third feed in door-clicks.ts. The outbound
+  one-param contract is UNCHANGED — see "The /click gate" section above.
+- **2026-08-20** — **s1-only, rebuilt on top of `ac2992a`.** That commit ("the network gets the
+  code, SPRK keeps the wire") landed mid-session and overlapped: it extracts the SPK from the
+  compound wire and it EXPANDED the funnel beacon. Both were adopted — the extraction now runs on
+  all 7,728 landers rather than its original 86, and the beacon stays (Migi confirmed). The rest: Migi: *"remove anything that had to do with the sprkdoor … make it
+  so moving forward it only ever carrys the s1 and then the link."* Rewrote the CTA builder in
+  **7,725 landers** to emit the offer link plus ONE param (`sub1` on 6,471 Everflow pages, `s1` on
+  1,258 CAKE pages), deleted the funnel beacon from 796 landers and 797 prelanders, dropped the
+  minted `s5`, the `sub2/sub3/sub4` namespacing, `ttclid` forwarding, `js/ttclid.js` (deleted), the
+  Cloudflare Insights beacon (71 pages), the `?debug=1` console dump (7,312 pages) and 702 dead
+  `__offerUrl` copies. Renamed the door vocabulary out of every page. Quarantined all 11 generators
+  behind `_guard.js`. New `api/_lib/_offer-link.test.mjs` executes the shipped builder in 7,728
+  landers; `_direct-offer.test.mjs` deleted as superseded. `_links-config.test.mjs`'s `doorsIn()`
+  taught the new identifier names. See "The outbound wire" above for what the removals cost —
+  **the s5/postback-dedup one is the expensive one.** A full review before the push then found and
+  fixed 7 more defects, 2 of them pre-existing — see "Bugs the s1-only review caught".
+
+- **2026-08-17 (2)** — **THE DOOR IS GONE FROM THE LANDERS.** Migi: "make sure every single landing
+  page redirects with a actual link instead of calling a API at the end." 6,937 files migrated to
+  `SPRK-DIRECT-OFFER v2` — the CTA now goes STRAIGHT to the network. Destinations were taken from
+  **what the live door actually returned** (a 302 probe of all 323 slugs), not reconstructed from
+  the DB, so behaviour is unchanged apart from the missing hop; the DB agreed with production on
+  235/235 where both had an answer.
+  ⚠️ **The trap that would have killed every click, and why a plain URL swap is wrong.** The old
+  builder was `DOOR + (qs ? '?' + qs : '')`. A door URL carries no query so a hardcoded `?` was
+  right; every network URL already has one (`?a=26648&c=55504`, or an Everflow path), so a naive
+  swap yields TWO `?` and the network silently drops s1/s2/s3/ttclid. Six builder variants existed
+  across the tree (`var`/`let`/`const`, `url`/`offerUrl`/`target`, sourced from `qs` or
+  `q.toString()`); all were normalised to one self-contained IIFE that is separator-aware, mints a
+  **unique per-click s5**, and appends **s1 last, exactly once** — the old follow-up
+  `if (s1) url += …` line had to be DELETED or s1 shipped twice.
+  **The unique s5 is load-bearing, not decoration.** The door used to mint the click id. Nothing
+  does now, and Monetise returns a real txid on only ~1.2%% of conversions, so `api/postback.js`
+  dedups on `(network, spark, sub2..sub5)` within 120s while s1/s2/s3 are CONSTANT per creative.
+  Without a unique s5 two genuine leads collapse into one payment.
+  **Repointed on the way past** (dead slug → live offer, geo-for-geo): `shein-us` →
+  `retail-style-shein-us`, `shein-gb` → `flash-poll-shein-gb`, `shein-au` →
+  `product-reviewer-shein-bonus-au`, `shein-retail-us` → `retail-style-shein-us`, `cash-us` →
+  `rewarded-discovery-cash-us`, `freecash-us` → `freecash`.
+  **619 files could NOT be migrated and still call the door**, because their offer no longer exists
+  and there is no link to point them at: applepay1000-us/-b/-c (303), sephora ×4 geos (124),
+  cash-gb/au (62), playful-rewards-cash-us-b/-c (62), shein-ca (31), ubereats-gb (31), plus bare
+  canonicals. `_direct-offer.test.mjs` prints them on every run. **Retiring or re-branding them is
+  Migi's call — it cannot be fixed in code.**
+  ⚠️ **Testerup now hardcodes COPPER's campaign (`c=55412`), and that is not a typo.** Testerup is
+  `status='archived'` with `fallback_offer_id` → Copper Banking, so the door was already sending
+  every Testerup click to Copper; the migration froze that in the page. The lander copy still says
+  Testerup, and un-archiving the offer will no longer change where the traffic goes. DECIDE.
+  Tests: new `_direct-offer.test.mjs` runs the SHIPPED builder out of all 6,923 migrated landers and
+  asserts one `?`, s1 once/last/correct, a unique s5 per build, s2/s3/ttclid surviving, and that
+  `lg`/`campid` never reach the network. Audit **check 1 was rewritten**: the pinned
+  `OFFER_LINKS_BY_SLICE` table cannot scale to 161 (slice, geo) groups, so the primary assertion is
+  now *"every clone of a (slice, geo) carries the SAME destination"* — which needs no table and is
+  exactly what a bad copy-paste breaks — with the pinned campaign ids kept as a second check for the
+  slices we know. `traceOfferChain` gained a **direct** branch so the admin panel stops claiming a
+  door rewrite that no longer happens, and `OFFERS[].match` now names the network URL.
+- **2026-08-17** — **The front stopped deciding who is real, and the CTA started working.** Migi:
+  "remove the crawler… people reach the lander but they click the button and then it doesn't
+  redirect." Three separate causes, all confirmed live; the door was NOT one of them (measured
+  40/40 clean 302s, 267ms median).
+  1. **The Carrd embed was a genuine cloaker** — `admin/carrd-script.js` was headed "UNIVERSAL CARRD
+     CLOAKER SCRIPT", and a desktop / no-campid / `/r`-declined visitor was served `js/decoy.js`, a
+     **fabricated storefront**. Verified live on all three domains. Removed: the bot-UA, device,
+     ttclid and client-hint-contradiction gates are gone from `api/r.js`, `js/decoy.js` and
+     `api/_lib/traffic-filter.js` are **deleted**, and the embed was rewritten with no decoy branch.
+     `/r` now returns the same answer to every visitor. Locked by the new
+     `api/_lib/_front-routing.test.mjs` (drives the REAL handler with six visitor shapes and asserts
+     one destination) plus audit checks 7–8. **Rollout is by hand** — the live embed is pasted into
+     each Carrd page, so every page needs repasting; an un-repasted page keeps its own desktop gate,
+     and its stale `d=` field is now inert server-side (asserted).
+  2. **The CTA did not navigate on the first tap.** `openTip()` `preventDefault()`ed and opened the
+     quick-tip overlay; the visitor had to find "Got it →" and tap again. 76 files, plus
+     `_lp-generator/freecash-template.html` so regeneration keeps the fix. The `offer_click` beacon
+     fired on that first tap, so **the dashboard's OFFER column was counting taps, not arrivals** —
+     real offer arrivals were lower than reported.
+  3. **85 of 323 door slugs 404** (778 files). A data problem, not a redirect one: 68 have no
+     `landing_pages` row and 15 are archived with the **offer row deleted**. Sephora, Uber Eats GB,
+     Cash GB/AU and Apple Pay $1000 US no longer exist as offers, so there is nothing to repoint
+     them at — **still open, Migi's call.**
+  ⚠️ **Probing door health: read `__DOOR_URL__`, never the first `api/link/` match.** Every lander
+  also carries a bare-slug fallback string that is never used; counting those inflates the breakage
+  about 7× (5,479 vs the true 778).
+  **Two findings that are business calls, not bugs:** Testerup is `status='archived'` with
+  `fallback_offer_id` → **Copper Banking**, so all 50 Testerup landers advertise Testerup while every
+  click correctly pays against Copper (`c=55412`) — and `testerup` is the only duplicated slug in
+  `landing_pages`. And 21 live slugs return `sub1=~SPRK_LABEL_WITHHELD~` instead of the spark code
+  (every `-d`/`-e`/`-f` of applecash / applepay1000-au,ca,gb / applepay750 / applepayflash, plus
+  `freecash-ca`, `freecash-us-f`, `playful-us-f`) — those clicks reach the network unattributed.
+  Both are door-side, i.e. SPRKNetworkAds.
+  **Corrections to this document, found the hard way:** live landers are served from
+  **myrewardscorner.com** (that is what `landing_pages.link` points at), `50FC/` no longer exists,
+  and the outbound wire has **inverted** — `s1` now carries the spark code and `s2` the affiliate
+  number, not the reverse as described under "s1–s5 wire scheme" above.
+- **2026-08-16** — **`STT/US/` — a second Shein design, `lp=stt`.** Supplied as a standalone HTML
+  file (dark/neon "Shop The Trend" page) with three `REPLACE_WITH_YOUR_REFERRAL_LINK` placeholders
+  and no tracking of any kind. Wired onto the standing Shein contract rather than re-invented: the
+  `shein-us` door, whole-query forwarding with `s1` last, `mc_attr` fallback, referrer rescue,
+  TikTok macro scrub, the `D6CF3ABC77U56TVAPJPG` pixel and `/js/ttclid.js` — all lifted from
+  `SHEIN/US/index.html` so the two designs are comparable on identical wiring. New `OFFERS` key
+  `shein-us` (the first Shein entry in that table — the generated pages were never offer-bound
+  because nothing routed to them by alias). Fixed on intake: all three CTAs hardcoded a referral
+  placeholder (they are now `href="#"`, built at runtime, so a pre-JS tap cannot fire a param-less
+  door hit the door then 404s), and four `favicon*` files were referenced that do not exist in the
+  repo — dropped rather than stubbed, since every lander here ships without one.
+  ⚠️ **Left as the author wrote it, flagged not fixed:** step 3 says the $750 is *"Applied
+  automatically to your account for your first order"*, where `SHEIN/US` discloses *"Complete 3-5
+  recommended deals … to unlock the full $750"*. Those describe different offers. Migi's call.
 - **2026-07-21** — Removed the in-app-breakout prelander. All 150 numbered folders (50FC/50TU/CR50)
   became byte-identical copies of the canonical `/FC` `/TU` `/CB` landers. One prelander per brand
   archived, unwired, in `justincase/` (+ restore loops in `justincase/README.md`).

@@ -17,35 +17,7 @@
 }(window, document, 'ttq');
 </script>
 
-<!--
-  GRAVY PASS prelander. Iterated from a competitor page Migi supplied (testerrewards.org), 2026-08-10.
-  The SHAPE is kept — logo, headline, stat strip, a short quiz, a calculating beat, an estimate, one
-  CTA. What is NOT kept is every piece of fabricated proof it carried, because the family has already
-  lost an ad to exactly that (landers/apple/build.py, STRUCTURE E note 2; Monetise restriction
-  "No False Earning Claims").
 
-  REMOVED FROM THE SOURCE, and why each one could not ship:
-
-    Trustpilot "Excellent ★★★★★"   Impersonates a real company's rating. There is no Trustpilot
-                                   profile behind it. This is the single most serious item on the
-                                   page — it borrows another business's credibility wholesale.
-    3 testimonials                 Invented people, invented payouts ("$527 in my first week",
-                                   "$2,000 in my first month"). Migi's own brief replaced this
-                                   block with the four steps, so it was already going.
-    Live earning toasts            Manufactured "Jake A. earned +$14.50" every ~6s, from a random
-                                   name generator. Fabricated real-time social proof.
-    "705 claimed in the last hour" A counter seeded at 680 + rand(40) that ticks upward on a timer.
-                                   It counts nothing.
-    1.3M+ / $500M / 4.7★           No source. Left as a labelled placeholder below rather than
-                                   deleted, so real figures can drop straight in.
-    "Recent cashouts" screenshots  Screenshots of payouts we cannot attribute.
-    "limited spots"                Unverifiable scarcity, the same line struck off the Apple family.
-
-  THE ESTIMATE IS ARITHMETIC ON MIGI'S OWN NUMBERS, not a new claim. He supplied "$50–80 per game
-  session" and "$15 bonus"; the quiz multiplies the session figure by how many sessions the chosen
-  time band allows and shows the range. Change SESSION_LOW / SESSION_HIGH in one place and every
-  number on the results screen follows.
--->
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff;min-height:100svh;display:flex;align-items:flex-start;justify-content:center;overflow-x:hidden;-webkit-font-smoothing:antialiased}
@@ -180,7 +152,7 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
     <div class="logo-row anim" aria-hidden="true">
       <img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60">
       <span class="logo-x">&times;</span>
-      <img src="/images/gravypass-logo.png" alt="" width="60" height="60">
+      <img src="/images/gravypass-mark.png" alt="" width="60" height="60">
     </div>
 
     <h1 class="headline anim" style="animation-delay:.08s">Get Paid To Game</h1>
@@ -229,7 +201,7 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
 
   <!-- ── Q1 (was Q2 — the device question is gone per Migi) ─────────────────── -->
   <div id="screenQ1" class="screen" hidden>
-    <div class="logo-row anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60"><span class="logo-x">&times;</span><img src="/images/gravypass-logo.png" alt="" width="60" height="60"></div>
+    <div class="logo-row anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60"><span class="logo-x">&times;</span><img src="/images/gravypass-mark.png" alt="" width="60" height="60"></div>
     <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 1 of 2</p></div>
     <div class="quiz-progress anim" style="animation-delay:.1s" aria-hidden="true"><span class="quiz-dot active"></span><span class="quiz-dot"></span></div>
     <h2 class="quiz-question anim" style="animation-delay:.15s">Are you serious about earning money from your phone?</h2>
@@ -239,7 +211,7 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
 
   <!-- ── Q2 — the answer that actually drives the estimate ──────────────────── -->
   <div id="screenQ2" class="screen" hidden>
-    <div class="logo-row anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60"><span class="logo-x">&times;</span><img src="/images/gravypass-logo.png" alt="" width="60" height="60"></div>
+    <div class="logo-row anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60"><span class="logo-x">&times;</span><img src="/images/gravypass-mark.png" alt="" width="60" height="60"></div>
     <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 2 of 2</p></div>
     <div class="quiz-progress anim" style="animation-delay:.1s" aria-hidden="true"><span class="quiz-dot done"></span><span class="quiz-dot active"></span></div>
     <h2 class="quiz-question anim" style="animation-delay:.15s">How much time can you spend per day?</h2>
@@ -403,75 +375,50 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
     setTimeout(function () { showScreen('screenResult'); }, 2900);
   };
 
-  /* ── Tracking ─────────────────────────────────────────────────────────────
-     Same contract as every other lander in this repo: forward EVERY inbound param to the door,
-     with s1 LAST, and drop an unsubstituted TikTok macro rather than shipping the literal.
-     The door is landing_pages.slug 'gravypass' (offer code GP), which already exists and is
-     active. The offer's destination_url is what actually forwards to the network — see the
-     migration alongside this file; until that runs the door resolves but sends nowhere useful.
-
-     ⚠️ THIS LANDER'S ROW HAS owner_user_id NULL, unlike the Apple family. That means owner-mode is
-     OFF: the door does NOT scrub slot 1 and does NOT withhold an unregistered label, so whatever
-     ?s1= arrives is forwarded verbatim. Convenient (no owner_subid_labels row needed) and also the
-     reason a stray s1 appended to the public URL would ride through — worth knowing before this
-     scales. */
-  var DOOR = window.__DOOR_URL__ || 'https://sprktrax.org/api/link/gravypass';
+  
+  var OFFER_LINK = window.__OFFER_LINK__ || 'https://monetisetrk2.co.uk/?a=26648&c=56278';
 
   var q = new URLSearchParams(location.search);
   if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
   var tt = q.get('ttclid') || '';
   if (tt && (tt.indexOf('CLICK_ID') > -1 || tt.indexOf('__CLICKID__') > -1 || tt.indexOf('{{') > -1 || tt.indexOf('}}') > -1)) q.delete('ttclid');
 
-  /* COOKIE FALLBACK for a ttclid the query lost — the same leak closed on the Apple family.
-     /js/ttclid.js banks the click id in a first-party _ttclid cookie, but its own rewriter only
-     tags <a href> anchors that already point at a tracker, and this page BUILDS that href in JS
-     afterwards. So the cookie was being written and never read. Re-validated against the same
-     rules api/_lib/tiktok-event.js usableTtclid() applies, because a cookie is attacker-writable
-     and a garbage value promoted here is indistinguishable downstream from a real click id. */
-  if (!q.get('ttclid')) {
-    try {
-      var ck = document.cookie.match(/(?:^|; )_ttclid=([^;]*)/);
-      var ckv = ck ? decodeURIComponent(ck[1]) : '';
-      if (ckv && !/[{}\[\]#%]/.test(ckv) && !/CLICK_ID|__CLICKID__/i.test(ckv)) q.set('ttclid', ckv);
-    } catch (e) {}
-  }
 
   var s1 = q.get('s1') || '';
   var out = new URLSearchParams(q.toString());
   out.delete('s1'); out.delete('campid'); out.delete('lg');
   var qs = out.toString();
-  var target = DOOR + (qs ? '?' + qs : '') + (s1 ? ((qs ? '&' : '?') + 's1=' + encodeURIComponent(s1)) : '');
+  /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+  var target = (function () {
+    var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+    if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+    /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+       code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+       already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+       is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+       platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+    var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+    return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+  })();
 
   var cta = document.getElementById('ctaBtn');
   if (cta) cta.setAttribute('href', target);
 
   try { if (window.ttq) ttq.track('LanderView', { content_name: 'gravypass lander reached' }); } catch (e) {}
 
-  /* NO s1 = THIS CLICK IS ALREADY DEAD. api/link/[slug].js 404s any hit without one, by design —
-     it is the attribution gate. The failure was SILENT though: the CTA looked normal, the tap went
-     nowhere, and nothing said why. That cost a live test.
-     Now it is loud in all three places it can be: an event for the funnel, a console line for
-     whoever is testing, and visible text on the page under ?debug=1. */
+  
   if (!s1) {
     try { if (window.ttq) ttq.track('CtaNoS1', { content_name: 'gravypass cta without s1' }); } catch (e) {}
     console.warn('[Mggrvy] NO ?s1= ON THIS URL — the door will 404 and this click cannot be ' +
-                 'attributed. Add ?s1=<your spark code>. Door: ' + DOOR);
-    if (location.search.indexOf('debug=1') > -1) {
-      var warn = document.createElement('p');
-      warn.style.cssText = 'margin:14px auto 0;max-width:420px;font-size:12.5px;line-height:1.5;' +
-        'color:#ffb4b4;border:1px solid rgba(255,120,120,.4);border-radius:10px;padding:10px 12px';
-      warn.textContent = 'debug: no ?s1= on this URL — the door will 404. Append ?s1=<spark code>.';
-      var card = document.querySelector('.container');
-      if (card) card.appendChild(warn);
-    }
+                 'attributed. Add ?s1=<your spark code>. Door: ' + OFFER_LINK);
   }
 
-  if (location.search.indexOf('debug=1') > -1) {
-    console.log('[Mggrvy debug]', { s1: s1 || '(none — door will 404)', ttclid: q.get('ttclid') || '(none)', door: DOOR, target: target });
-  }
 })();
 </script>
-<!-- Banks ttclid in the _ttclid cookie so the fallback above has something to read. -->
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

@@ -1,0 +1,185 @@
+/**
+ * /api/click — the first-party click stamp (routed at /click).
+ *
+ * Every lander CTA points here, same-origin on whichever alias domain served the
+ * page:
+ *
+ *   /click?u=<finished offer URL>&s1=<raw wire>&lp=<lander path>&t=<ttclid>
+ *
+ * The page still builds the finished offer URL itself — base + exactly ONE param
+ * carrying the code, the contract shipped 2026-08-20 — and the gate forwards that
+ * URL unchanged. What the gate adds is the thing a beacon can never guarantee: a
+ * server-side row for every single CTA click (click_id, raw wire, IP, geo,
+ * creative path) written from inside the redirect itself, so a click cannot land
+ * on the network without first landing in our log.
+ *
+ * ⚠️ THE GATE ADDS NOTHING TO THE WIRE. It forwards the page's URL unchanged: the
+ * offer link plus the one param carrying the affiliate code. A click token rode here
+ * briefly and was removed — see the note at the mint site.
+ *
+ * Order of operations is the design:
+ *   1. resolve the target (override table, else the page's validated `u`)
+ *   2. log the click (capped, fail-open) — BEFORE the redirect, so the write is
+ *      guaranteed to run inside the invocation rather than after res.end(), where
+ *      Vercel does not promise an un-awaited/late await ever completes
+ *   3. 302 to the target
+ *
+ * Fail-open everywhere on the money path: an unknown override key, a dead ingest,
+ * a slow ingest — none of them can cost a paid click (sendGateLog never throws and
+ * caps its own wait). 404s come from exactly two places, and neither can fire for a
+ * live affiliate's real traffic:
+ *   · requests no lander ever emits (missing/off-allowlist `u`) — the open-redirect gate
+ *   · the ingest answering that this code's OWNER IS DEACTIVATED (2026-08-24). An
+ *     explicit positive is the ONLY reply that stops a click; 204, timeout, refusal,
+ *     unparseable body and no-key-configured all leave the redirect untouched.
+ */
+
+import {
+  buildDirectUrl,
+  extractSparkCode,
+  getGateOverride,
+  isAllowedGateDestination,
+} from './_lib/links-config.js';
+import { deriveGateKey, gateLogRow, mintClickId, sendGateLog } from './_lib/gate-log.js';
+
+/* The probe secret is the ingest key: one shared secret between our own two deploys, already
+ * required to be set for the click log to work at all. A probe reveals only whether a URL we
+ * already serve would be accepted, so this is about not handing out a free oracle, not about
+ * protecting the click path. */
+const PROBE_KEY = process.env.GATE_INGEST_KEY || '';
+function probeKeyOk(req) {
+  if (!PROBE_KEY) return false;                       // unset → probe mode simply does not exist
+  const got = (req && req.headers && req.headers['x-gate-key']) || '';
+  return got === PROBE_KEY;
+}
+
+/** Read a query param that may arrive as a repeated key (Vercel gives an array). */
+function qparam(query, name) {
+  const v = query[name];
+  if (Array.isArray(v)) return v.find(x => x != null && String(x).trim() !== '') || '';
+  return v == null ? '' : String(v);
+}
+
+function noStore(res) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  // Load-bearing: without this the network would receive our gate URL — raw wire
+  // included — in the Referer header of the redirected request.
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+}
+
+export default async function handler(req, res) {
+  noStore(res);
+
+  const query = req.query || {};
+  const u = qparam(query, 'u').trim();
+  const s1 = qparam(query, 's1').trim();
+  const lp = qparam(query, 'lp').trim();
+  const ttclid = qparam(query, 't').trim();
+
+  let target = '';
+  let via = 'page';
+
+  try {
+    const key = deriveGateKey(lp);
+
+    // The override table wins when a row exists — that is the reroute/pause knob.
+    // It rebuilds the outbound with the same helpers /c/ uses: one param, the
+    // extracted code (or a scaler's label verbatim — extractSparkCode's contract).
+    const override = getGateOverride(key);
+    if (override) {
+      // override.forwardParam is always set — getGateOverride resolves the s1/sub1 dialect from
+      // the destination host when the row omits it, so a CAKE reroute cannot ship a dead `sub1`.
+      const code = s1 ? extractSparkCode(s1) : '';
+      target = buildDirectUrl(override.destination, override.forwardParam, code);
+      via = 'override';
+    } else if (isAllowedGateDestination(u)) {
+      target = u;
+    }
+
+    if (!target) {
+      return res.status(404).send('Not found');
+    }
+
+    /* ── ONE PARAM ON THE WIRE ─────────────────────────────────────────────────
+     * The network receives the offer link and the affiliate code. Nothing else.
+     *
+     * A click token briefly rode here in the `cid` slot (s5 on CAKE, sub2 on Everflow) as
+     * duplicate protection. It is gone at Migi's instruction, and the ground has shifted under
+     * the reason it existed: Monetise is substituting `#tid#` correctly again, so `conversions`
+     * has a real transaction id to enforce its unique index on — which is the protection the
+     * token was standing in for. Measured over 60 days there was never a provable duplicate.
+     *
+     * The click_id is STILL minted and STILL logged. It is our own record of the click; it just
+     * does not travel. What we give up by not sending it is the ability to tie a conversion back
+     * to one exact click — attribution is unaffected, because that has always run on the code. */
+    const clickId = mintClickId();
+
+    /* ── PROBE MODE ────────────────────────────────────────────────────────────
+     * Mass link-testing needs to ask "would this click work?" thousands of times without
+     * (a) firing a real click at the network or (b) writing thousands of fake rows into the
+     * click log. Both would make the test worse than useless: one costs money at the network,
+     * the other poisons the very data the tab reports.
+     *
+     * So a keyed probe runs the ENTIRE resolution — allowlist, override table, slot choice,
+     * URL assembly — and then answers with what it WOULD have done instead of doing it. No
+     * row, no 302, no network contact.
+     *
+     * ⚠️ THIS MUST SIT AFTER THE TOKEN IS APPENDED. It first shipped above that line, so it answered
+ * with a target that was missing the click token — the probe reported something the gate would
+ * never actually send, which makes a green mass-test worthless. A probe that does not return the
+ * FINAL string is worse than no probe.
+ *
+ * Keyed on the ingest secret so it is not a public oracle for what our allowlist accepts;
+     * an unkeyed `probe=1` is ignored entirely, so a crafted URL cannot suppress a real click's
+     * logging by adding the param. */
+    if (qparam(query, 'probe') === '1' && probeKeyOk(req)) {
+      return res.status(200).json({
+        ok: true,
+        target,
+        via,
+        key: deriveGateKey(lp),
+      });
+    }
+
+    // Log BEFORE the redirect so the write happens inside the invocation, not after
+    // res.end() where Vercel may drop or defer it. Capped and fail-open: a slow or
+    // dead ingest costs at most capMs and a lost row, never the click.
+    const logged = await sendGateLog(gateLogRow(req, { key, lp, s1, dest: target, ttclid, via, clickId }));
+
+    /* ── THE OWNER IS SWITCHED OFF ─────────────────────────────────────────────
+     * A deactivated affiliate has no access to the network at all (SPRK admin ▸ Users ▸ ACCESS),
+     * and that has to include the traffic their already-distributed links keep sending. Nothing
+     * else in this path could enforce it: SPRK's own doors (api/c.js, api/sc.js) carry the gate
+     * but are not in the lander→offer path, and the row this gate writes lands AFTER the decision.
+     *
+     * The answer rides the ingest POST above, which was already awaited and already capped, so
+     * this adds no hop and no latency budget. Only an explicit `deactivated: true` stops the
+     * click; every other outcome — 204, timeout, dead ingest, no key configured — leaves `logged`
+     * null and the redirect happens exactly as before. A live affiliate can never lose a click to
+     * this check.
+     *
+     * 404, matching what an unknown `u` gets: an already-distributed link goes dead rather than
+     * announcing why it died to whoever is holding it. */
+    if (logged && logged.deactivated === true) {
+      console.error('[click] refusing — owner account DEACTIVATED. s1=' + (s1 || '-'));
+      return res.status(404).send('Not found');
+    }
+
+    return res.redirect(302, target);
+  } catch (err) {
+    console.error('[click] gate error:', err && err.message);
+    // Never lose a paid click to our own defect: if the response has not gone out
+    // yet and the page gave us a legitimate destination, still forward the visitor.
+    try {
+      if (!res.headersSent && isAllowedGateDestination(u)) {
+        return res.redirect(302, u);
+      }
+      if (!res.headersSent) {
+        return res.status(404).send('Not found');
+      }
+    } catch { /* response already closed — nothing left to protect */ }
+  }
+}

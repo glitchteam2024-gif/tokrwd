@@ -8,8 +8,7 @@
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<!-- No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for every
-     visitor, including ad-review crawlers. Attribution rides the query string to the door untouched. -->
+
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a140f;--card:#0f1d16;--border:rgba(34,197,94,.45);--accent:#22c55e;--accent-light:#4ade80;--text:#fff;--muted:#9ca3af}
@@ -17,7 +16,7 @@ html,body{height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;background-image:radial-gradient(rgba(34,197,94,.08) 1px,transparent 1px);background-size:40px 40px}
 .page{max-width:460px;margin:0 auto;padding:max(32px,env(safe-area-inset-top)) max(22px,env(safe-area-inset-right)) max(40px,env(safe-area-inset-bottom)) max(22px,env(safe-area-inset-left));min-height:100dvh;display:flex;flex-direction:column;align-items:center}
 .logos{display:flex;align-items:center;justify-content:center;gap:14px;margin:22px 0 18px}
-.logos .icon{width:60px;height:60px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:30px;filter:drop-shadow(0 4px 14px rgba(34,197,94,.28))}
+.logos .icon{width:60px;height:60px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:30px;object-fit:cover;filter:drop-shadow(0 4px 14px rgba(34,197,94,.28))}
 .logos .tt{background:#010101;color:#fff}
 .logos .gp{background:linear-gradient(160deg,#4ade80,#16a34a);color:#062012;font-weight:900;font-size:24px;letter-spacing:-1px}
 .logos .x{color:var(--muted);font-size:18px;font-weight:600}
@@ -47,11 +46,17 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
 </head>
 <body>
 <div class="page">
-  <!-- Logo slots: drop real /images/tiktok-icon.png + /images/gravypass-logo.png later; these are inline placeholders -->
+  <!-- Real brand marks (2026-08-18, owner request): TikTok LEFT, Gravy Pass RIGHT.
+       ⚠️ The Gravy Pass mark is /images/gravypass-MARK.png, NOT /images/freecash-mark-green-on-dark.png.
+       Despite its name that second file holds the FREECASH mark — the same S-glyph as
+       /images/freecash-logo.webp, recoloured — and /images/gravy-logo.png is TESTERUP's
+       (trt/ and 50TU/ use it correctly, under that name). Two different brands have already
+       been shipped under a "Gravy Pass" label from those two files. This one is the real mark,
+       taken from the advertiser's own site. Verify the picture, never the filename. -->
   <div class="logos">
-    <div class="icon tt">&#9835;</div>
+    <img class="icon tt" src="/images/tiktok-icon-free-png.png" alt="TikTok" width="60" height="60" decoding="async">
     <span class="x">&times;</span>
-    <div class="icon gp">GP</div>
+    <img class="icon gp" src="/images/gravypass-mark.png" alt="Gravy Pass" width="60" height="60" decoding="async">
   </div>
   <div class="verified"><span class="check">&#10003;</span> Verified by TikTok</div>
 
@@ -60,7 +65,7 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
 
   <div class="games">
     <a class="game highlight door">
-      <img class="ico" src="/images/block-blast.png" alt="Block Blast">
+      <img class="ico" src="/images/block-blast.jpg" alt="Block Blast" width="72" height="72" loading="lazy" decoding="async">
       <div class="txt"><div class="sml">Get Paid to Play</div><div class="big">Block Blast</div></div>
     </a>
     <a class="game highlight door">
@@ -68,11 +73,11 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
       <div class="txt"><div class="sml">Get Paid to Play</div><div class="big">Candy Crush</div></div>
     </a>
     <a class="game door">
-      <div class="ico subway">&#127939;</div>
+      <img class="ico" src="/images/subway-surfers.jpg" alt="Subway Surfers" width="72" height="72" loading="lazy" decoding="async">
       <div class="txt"><div class="sml">Get Paid to Play</div><div class="big">Subway Surfers</div></div>
     </a>
     <a class="game door">
-      <div class="ico roblox">&#127918;</div>
+      <img class="ico" src="/images/roblox.jpg" alt="Roblox" width="72" height="72" loading="lazy" decoding="async">
       <div class="txt"><div class="sml">Get Paid to Play</div><div class="big">Roblox</div></div>
     </a>
   </div>
@@ -86,41 +91,27 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
 </div>
 
 <script>
-// CTA wiring — every game card routes through the SPRK tracking door (mints click_id, logs the click,
-// cloaks -> the Gravypass offer). Forward EVERYTHING the ad/prelander passed: s1=<SPK>, s2=<publisher_code>,
+
+
 // ttclid, etc. — nothing dropped. Same door pattern as the FreeCash landers, slug = gravypass.
 (function(){
-  var OFFER_URL = 'https://montrk2.co.uk/?a=26648&c=56278';
-/* SPRK-DIRECT-OFFER v1 */
-  /* Build the network URL. Reads the query directly, so it does not care which local the lander
-     happened to keep it in.
-       - s1 (the SPK) is placed LAST: ad automations append to the tail, and a first-match tracker
-         must not meet a different s1 first.
-       - lg / campid are lander-side routing aliases and never reach the network.
-       - s5 is a UNIQUE-PER-CLICK anti-duplicate token. Monetise sends a real txid on 1.2% of
-         conversions (17/1439, measured over 30 days), so with no click token api/postback.js dedups
-         on (network, spark, sub2..sub5) inside 120s -- and s1/s2/s3 are CONSTANT per creative. A
-         unique s5 is the only thing keeping two genuine leads from collapsing into one payment. It
-         resolves to nothing; uniqueness is its whole job, so a collision costs one dedup, never
-         attribution.
-       - the separator is derived from the base, because every Monetise link already carries
-         ?a=&c= while the Everflow ones are a bare path. Hardcoding '?' is what produced two '?'
-         in one URL (and silently dropped ttclid) in the funnel this family was adapted from. */
-  function __sprkOffer(base) {
-    var p = new URLSearchParams(location.search);
-    p.delete('lg'); p.delete('campid'); p.delete('sid');
-    var s1 = p.get('s1') || p.get('sub1') || '';
-    p.delete('s1'); p.delete('sub1');
-    var t;
-    try { t = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { t = ''; }
-    if (!t) t = Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-    t = t.slice(0, 22);
-    if (!p.get('s5')) p.set('s5', t);
-    try { window.__SPRK_S5 = p.get('s5'); } catch (e) {}
-    var qs = p.toString();
-    var url = base + (qs ? (base.indexOf('?') > -1 ? '&' : '?') + qs : '');
-    if (s1) url += (url.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(s1);
-    return url;
+  var OFFER_URL = 'https://monetisetrk2.co.uk/?a=26648&c=56278';
+/* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+  function __offerUrl(base) {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || '';
+    /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+       The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+       code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+       already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+       `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+       is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+       platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _dest = !_send1 ? base : base + (base.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+    var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+    return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
   }
   /* SPRK-FUNNEL-BEACON v2 */
   /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
@@ -160,12 +151,11 @@ h1{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.5px;margin-
 
 
   var qs = location.search || '';
-  var url = __sprkOffer(OFFER_URL);
+  var url = __offerUrl(OFFER_URL);
   document.querySelectorAll('a.door').forEach(function(a){ a.setAttribute('href', url); });
 })();
 </script>
 
 <!-- TikTok ttclid passthrough — captures click ID and appends to all tracker links -->
-<script src="/js/ttclid.js" async></script>
 </body>
 </html>

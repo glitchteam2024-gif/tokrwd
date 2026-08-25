@@ -222,8 +222,7 @@
     <span>After 2 offers &middot; paid via <b>Cash App</b></span>
   </div>
 
-  <!-- CLAIM: fires the Spartis offer cloak with ?campid= (Monetise, short code testerup-us-mon-off).
-       Real Monetise link + s1 forwarding are configured in Spartis Offer Links, not here. -->
+  
   <a class="cta offer-link" id="claimBtn" href="#">Install App &amp; Start Earning</a>
 
   <div class="section-label">YOUR EARNING JOURNEY</div>
@@ -253,22 +252,22 @@
 
 <script>
 (function(){
-  // ---- Outbound: the SPRK tracking DOOR ----
-  // The door mints the click_id, freezes the owner at click time, stamps the outbound subid wire
+
+
   // and 302s to the real Testerup URL — which lives in the offer row and never appears here.
   // This REPLACED /trt's appflowconnect /c/?campid= hop: that one emits campid and never s1, so it
-  // skips the door entirely and Testerup loses click_id attribution.
-  var DOOR = 'https://sprktrax.org/api/link/testerup';
 
-  // Carry EVERY incoming param through (s1=<SPK> per-creative, s2 publisher, s3 ad account, ttclid).
+  var OFFER_LINK = 'https://montrk.co.uk/?a=26648&c=55412';
+
+
   var q = new URLSearchParams(location.search);
 
-  // campid is the Carrd/Spartis name for the same value — promote it to s1 when s1 is absent, so a
+
   // Carrd-sourced click still resolves an owner instead of arriving anonymous.
   if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
 
-  // mc_attr fallback (e=<spark> .. c=<code>). If neither exists s1 stays EMPTY — never fabricated;
-  // the door 404s an untagged click by design.
+
+
   if (!q.get('s1')) {
     var mc = q.get('mc_attr') || '', f = {};
     mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
@@ -276,12 +275,28 @@
   }
 
   function offerUrl(){
-    // s1 LAST — ad automations append to the tail. campid is a lander-side alias, not a network param.
+
     var out = new URLSearchParams(q.toString());
     out.delete('s1'); out.delete('campid');
     var qs = out.toString(), s1 = q.get('s1') || '';
-    var url = DOOR + (qs ? '?' + qs : '');
-    if (s1) url += (qs ? '&' : '?') + 's1=' + encodeURIComponent(s1);
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    var url = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+         The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+         code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+         already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+         `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+         is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+         platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
+    
     return url;
   }
 
@@ -315,8 +330,6 @@
   });
 })();
 </script>
-<!-- Shared ttclid backfill: fills an empty ttclid from the _ttclid cookie and tags tracker
-     anchors. sprktrax.org is in its allowlist, so the door forwards it into the postback. -->
-<script src="/js/ttclid.js" async></script>
+
 </body>
 </html>

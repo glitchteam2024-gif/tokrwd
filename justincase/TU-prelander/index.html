@@ -168,17 +168,7 @@
   </div>
 
   <script>
-    /* ============================================================================
-       PRELANDER — in-app-browser breakout in front of the "like" lander.
-
-       Flow:  ad (?s1=<SPK>&s2=&s3=&s4=&ttclid=…)
-                -> THIS prelander (breaks out of the in-app webview)
-                -> DEST like-lander (carries EVERY param through)
-                -> offer door (sprktrax.org/api/link/<slug>) -> offer.
-
-       Attribution: the affiliate is resolved in the backend from s1=<SPK>. We inject
-       NOTHING — we only make sure every incoming param survives the hop to DEST.
-       ========================================================================= */
+    
 
     /* ── SWAP: destination "like" lander for this offer (same domain, relative) ── */
     var DEST = "/TU";          /* the offer's like-lander, same domain (relative) */

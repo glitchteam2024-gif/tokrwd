@@ -93,7 +93,7 @@ td a:hover { color: var(--purple-hover); }
 .lander-actions { display: flex; gap: 8px; padding: 0 14px 14px; }
 .lander-actions .btn { flex: 1; justify-content: center; }
 
-/* Postback section */
+
 .postback-url-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 16px 20px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 12px; word-break: break-all; }
 .postback-desc { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
 .postback-desc code { background: var(--purple-dim); color: var(--purple); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
@@ -486,17 +486,7 @@ td a:hover { color: var(--purple-hover); }
   </div>
 </div>
 
-<!-- PARTNER LINKS TAB ---------------------------------------------------------
-     One person, one row: their Carrd page, the landing page they run, and THEIR
-     OWN affiliate link from whatever network they are on. The lander keeps firing
-     the same /c/ slug it always has; what changes per person is the destination
-     that slug resolves to, keyed on their tracking code. That is what lets two
-     people run the same landing page on two different affiliate accounts.
 
-     Rows saved here are live as soon as a datastore is connected. Rows in
-     PARTNER_LINKS (api/_lib/links-config.js) go live on deploy and always win a
-     collision, so a saved row can add a person but never silently repoint one that
-     is in source control. -->
 <div class="tab-panel" id="panel-partners">
 
   <div class="card">
@@ -579,7 +569,7 @@ td a:hover { color: var(--purple-hover); }
   </div>
 </div>
 
-<!-- POSTBACKS TAB -->
+
 <div class="tab-panel" id="panel-postbacks">
   <div class="card">
     <h3>Global Postback URL</h3>
@@ -877,12 +867,7 @@ function esc(s) {
 
 function tlParam() { return (DATA.routing && DATA.routing.override_param) || 'lp'; }
 
-/* ── Affiliates ───────────────────────────────────────────────────────────────
- * Who a given override link is FOR. The campid is the attribution — the email is
- * a label so a pile of links stays legible. Saved in this browser for the same
- * reason the landers are: there is no shared store behind this dashboard, and the
- * real affiliate roster lives in SPRK, not here.
- */
+
 function tlAffLoad() {
   let list;
   try { list = JSON.parse(localStorage.getItem(TL_AFF_STORE) || '[]'); } catch (e) { return []; }
@@ -899,7 +884,7 @@ function tlAffAdd() {
   const carrd = asgNormHost(document.getElementById('tlAffCarrd').value);
   if (!code) return showToast('campid is required — it is what actually attributes', true);
   // The campid rides in a URL query slot; anything needing escaping would not survive
-  // the round trip intact and would land at the door as a different string.
+
   if (!/^[A-Za-z0-9._-]+$/.test(code)) {
     return showToast('campid: letters, digits, . _ - only', true);
   }
@@ -1035,14 +1020,14 @@ function tlAffRemove(code) {
   tlRender();
 }
 
-/** Selecting an affiliate fills the campid — the field stays editable for one-offs. */
+
 function tlAffPick() {
   const code = document.getElementById('tlAffSelect').value;
   if (code) document.getElementById('tlCampid').value = code;
   tlBuild();
 }
 
-/** The affiliate currently selected, or null. */
+
 function tlAffCurrent() {
   const code = document.getElementById('tlAffSelect').value
     || document.getElementById('tlCampid').value.trim();
@@ -1288,7 +1273,7 @@ function asgRender() {
   const landers = asgLanders();
 
   // Landing-page picker, grouped so a scaler's private page is never mistaken for
-  // one of the standing affiliate landers.
+
   const sel = document.getElementById('asgLander');
   const previous = sel.value;
   const group = (kind, label) => {
@@ -1639,7 +1624,7 @@ async function tlResolve() {
       body: JSON.stringify({
         action: 'resolve_lander',
         carrd_url: link,
-        // A scaler's campid is legitimately not SPK-shaped; warning about it every
+
         // time would train the operator to ignore the warnings that do matter.
         allow_custom_campid: !!(tlAffCurrent() && tlAffCurrent().scaler)
       })
@@ -1690,14 +1675,7 @@ async function tlResolve() {
     </div>`;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════════
- * PARTNER LINKS — assign a link to someone
- * ══════════════════════════════════════════════════════════════════════════════
- * Their Carrd page, the landing page they run, and their own affiliate link.
- * Every URL on this screen comes from the server, which resolves it with the same
- * code a live click runs, so the panel cannot promise a destination or a sub-ID
- * param that the redirect does not actually send.
- */
+
 
 function plRows()    { return DATA.partners || []; }
 function plStorage() { return DATA.storage || {}; }
@@ -1885,8 +1863,8 @@ function plValidate(f) {
   if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(f.carrd)) return 'That Carrd page is not a valid hostname.';
   if (!f.lander) return 'Pick a landing page.';
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/.test(f.code)) return 'Their tracking code must be 3-64 characters of A-Z 0-9 . _ -';
-  // A SPK-XXXX-XXXX code was minted by SPRK and already belongs to a network
-  // affiliate. Using one here would hand that affiliate's clicks to this partner.
+
+
   if (/^SPK-[0-9A-F]{4}-[0-9A-F]{4}(-\d+)?$/i.test(f.code)) {
     return 'That is a SPRK-minted spark code — it belongs to a network affiliate. Give this partner a code of their own.';
   }
