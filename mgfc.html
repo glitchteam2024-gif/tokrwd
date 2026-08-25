@@ -184,10 +184,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
      The door mints the click_id, writes the clicks row, freezes ttclid for the CAPI forward, and
      picks the destination from this page's landing_pages.geo — not the visitor's IP, which is
      spoofable and would let traffic shop into a higher-paying geo. */
-  /* THE DOOR. Never the network URL directly -- api/_lib/_tracking-audit.test.mjs fails the build
-     on any lander that names a network host. The destination lives in OFFER_LINKS under the slug
-     `mgfc-off` and nowhere else. */
-  var DOOR = '/c/mgfc-off';
+  /* The gate's `u` must be an ABSOLUTE https URL on GATE_DEST_HOST_RE -- isAllowedGateDestination
+     runs `new URL(raw)`, which throws on a relative path, so a '/c/...' value 404s at the gate.
+     pcbdfv7trk.com is on that allowlist (added 2026-08-24 with Swagbucks iOS). This matches how
+     every other live lander wires its CTA. */
+  var OFFER_URL = 'https://www.pcbdfv7trk.com/22PLLSZ/335X896/';
 
   /* SPRK-S1-ONLY v5 -- one param out: the affiliate code, nothing else.
      The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
@@ -202,11 +203,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     var _t = _p.get('ttclid') || '';
     if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
-    var _dest = DOOR + (_send1 ? '?s1=' + encodeURIComponent(_send1) : '');
-    var _s3 = _p.get('s3') || '', _sid = _p.get('sid') || '';
-    if (_s3)  _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 's3=' + encodeURIComponent(_s3);
-    if (_sid) _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 'sid=' + encodeURIComponent(_sid);
-    if (_t)   _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 'ttclid=' + encodeURIComponent(_t);
+    var _dest = !_send1 ? OFFER_URL
+              : OFFER_URL + (OFFER_URL.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
 
     /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
        unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
