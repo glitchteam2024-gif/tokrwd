@@ -264,6 +264,22 @@
       "destination": "/acashusa-sammy.html"
     },
     {
+      "source": "/AS51/:c(US\\d+)/go",
+      "destination": "/swagbucksusa-sammy.html"
+    },
+    {
+      "source": "/AS51/:c(US\\d+)",
+      "destination": "/swagbucksusa-sammy-pre.html"
+    },
+    {
+      "source": "/swagbucksusa-sammy-pre",
+      "destination": "/swagbucksusa-sammy-pre.html"
+    },
+    {
+      "source": "/swagbucksusa-sammy",
+      "destination": "/swagbucksusa-sammy.html"
+    },
+    {
       "source": "/CA150/:c(US\\d+)",
       "destination": "/cash750usa.html"
     },

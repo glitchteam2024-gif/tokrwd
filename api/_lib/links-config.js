@@ -1843,9 +1843,17 @@ export function isSafeDestination(url) {
  * host is pinned. The allowlist below is every network family a deployed lander
  * actually names in its declaration (census 2026-08-21); our own hosts are refused
  * outright so a crafted `u` can never loop the gate into itself.
+ *
+ * ⚠️ A NEW NETWORK NEEDS A LINE HERE OR EVERY CLICK 404s AT OUR OWN GATE. That failure is
+ * invisible from the lander: the page is perfect, the destination is right, and the visitor
+ * never reaches it. _offer-link.test.mjs asserts every deployed lander's `u` passes this
+ * allowlist, which is what caught pcbdfv7trk on intake — keep that check green rather than
+ * discovering it from a dead campaign.
+ *   pcbdfv7trk.com — Prescott (everflow), added 2026-08-24 with Swagbucks iOS, the first
+ *   lander on that network. Taken from offers.destination_by_geo, not from the supplied page.
  */
 export const GATE_DEST_HOST_RE =
-  /^(?:www\.)?(?:(?:monetisetrk|montrk)\d{0,2}\.co\.uk|fkn8s74mztrk\.com|phef6trk\.com|giftclick\.org)$/i;
+  /^(?:www\.)?(?:(?:monetisetrk|montrk)\d{0,2}\.co\.uk|fkn8s74mztrk\.com|phef6trk\.com|pcbdfv7trk\.com|giftclick\.org)$/i;
 
 export function isAllowedGateDestination(url) {
   try {
