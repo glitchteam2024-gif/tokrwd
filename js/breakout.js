@@ -112,6 +112,7 @@
     // DIFFERENT OFFER: its door is freecash-us-f, not playful-us-f. Kept as its own
     // pair rather than repointing PlayfulM so the Playful funnel stays runnable.
     'fcm.html', 'fcm-pre.html',
+    'mgfc.html', 'mgfc-pre.html',
     'shrtl', 'sr50',
     'sp50', 'tsup',
     'tu', 'uber', 'ue50', 'trt'

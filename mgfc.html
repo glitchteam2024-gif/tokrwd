@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8" />
+<!-- MGFC — Migi's own Freecash lander. Single-tenant: this page belongs to one operator and is
+     not in any SPRK picker, not shared, not routable by `lp=`.
+
+     No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
+     every visitor, including TikTok's crawler. The breakout happens ONCE, on /mgfc-pre.html,
+     which is the reviewed prelander. Attribution does not need a gate — the door 404s any click
+     without a valid spark code. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Start Earning — Freecash</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff}
+.lp-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;position:relative;overflow-x:hidden}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(160,100%,30%,0.12) 0%,transparent 60%),radial-gradient(ellipse at center,hsla(160,100%,20%,0.08) 0%,transparent 80%),hsl(160,20%,5%);z-index:0}
+.container{position:relative;z-index:1;width:100%;max-width:480px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.brand .mark{width:52px;height:52px;border-radius:14px;object-fit:cover;box-shadow:0 0 20px hsla(160,100%,50%,0.25)}
+.brand .name{font-size:20px;font-weight:800;letter-spacing:-0.02em}
+.pill{display:inline-flex;align-items:center;gap:7px;background:hsla(160,100%,50%,0.1);border:1px solid hsla(160,100%,50%,0.35);color:hsl(160,100%,60%);font-size:12px;font-weight:700;letter-spacing:0.08em;padding:7px 14px;border-radius:999px;margin-bottom:16px}
+.pill .live{width:7px;height:7px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+.hero-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:800;line-height:1.15;letter-spacing:-0.02em;color:#fff;margin-bottom:8px;text-wrap:balance}
+.hero-title .grad{background:linear-gradient(180deg,hsl(160,100%,60%) 0%,hsl(160,100%,42%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:hsla(0,0%,100%,0.55);font-size:14px;line-height:1.5;max-width:340px;margin-bottom:22px}
+.qualify-list{display:flex;flex-direction:column;gap:12px;width:100%;margin-bottom:20px}
+.qualify-item{position:relative;display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,hsl(160,12%,11%) 0%,hsl(160,10%,9%) 100%);border:1px solid hsl(160,20%,20%);border-radius:16px;padding:16px;text-align:left;overflow:hidden}
+.qualify-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:hsl(160,100%,50%)}
+.qualify-icon{width:46px;height:46px;border-radius:12px;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qualify-text{flex:1;min-width:0}
+.qualify-text h2{font-size:clamp(1.05rem,4vw,1.3rem);font-weight:800;letter-spacing:-0.01em;color:#fff;margin-bottom:2px}
+.qualify-text p{font-size:12px;color:hsla(0,0%,100%,0.5);line-height:1.35}
+.qualify-badge{flex-shrink:0;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.3);color:hsl(160,100%,55%);font-size:12px;font-weight:800;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.btn-activate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:20px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,0.5),0 0 60px hsla(160,100%,50%,0.25),0 4px 15px hsla(0,0%,0%,0.3);transition:all 0.2s ease}
+.btn-activate:hover{transform:translateY(-2px);box-shadow:0 0 40px hsla(160,100%,50%,0.6),0 0 80px hsla(160,100%,50%,0.3),0 8px 25px hsla(0,0%,0%,0.4)}
+.btn-activate:active{transform:translateY(1px) scale(0.98)}
+.btn-activate span{font-size:16px;font-weight:700;color:hsl(160,20%,5%);letter-spacing:0.05em}
+.btn-activate svg{flex-shrink:0}
+.reassure{margin-top:14px;font-size:12px;color:hsla(0,0%,100%,0.4);line-height:1.4}
+.anim{opacity:0;animation:fadeSlideUp 0.5s ease forwards}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card-dark{background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:20px 18px;width:100%;text-align:left;margin-bottom:16px}
+.card-dark h3{text-align:center;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:18px}
+.step{position:relative;display:flex;gap:14px;padding-bottom:18px}
+.step:not(:last-child)::after{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:hsl(160,15%,18%)}
+.step:last-child{padding-bottom:0}
+.step-num{width:28px;height:28px;border-radius:50%;background:hsl(160,100%,50%);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:hsl(160,20%,5%);flex-shrink:0;z-index:1}
+.step h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.step p{font-size:12px;color:hsla(0,0%,100%,0.55);line-height:1.45}
+.step p .accent{color:hsl(160,100%,55%);font-weight:600}
+.section-label{width:100%;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:12px}
+.reward{width:100%;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:16px;margin-bottom:12px;text-align:left}
+.reward-top{display:flex;align-items:center;gap:12px}
+.reward-tile{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid hsla(0,0%,100%,0.12);background:hsl(160,12%,14%);font-size:20px}
+.reward-info{flex:1;min-width:0}
+.reward-info h4{font-size:15px;font-weight:800}
+.reward-info p{font-size:12px;color:hsla(0,0%,100%,0.5)}
+.reward-prize{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;font-size:15px;font-weight:800;color:hsl(160,100%,55%)}
+.reward-prize span{font-size:10px;font-weight:600;color:hsla(0,0%,100%,0.45);letter-spacing:0.02em;margin-top:2px}
+.mini-note{font-size:11px;color:hsla(0,0%,100%,0.35);margin-top:4px;text-align:center;line-height:1.4}
+.overlay{position:fixed;inset:0;z-index:10;background:hsla(160,25%,3%,0.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex;animation:fadeIn 0.25s ease forwards}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{position:relative;width:100%;max-width:400px;background:hsl(160,12%,10%);border:1px solid hsl(160,20%,20%);border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 20px 60px hsla(0,0%,0%,0.5);animation:pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes pop{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.modal-icon{width:64px;height:64px;border-radius:18px;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.modal h3{font-size:20px;font-weight:800;letter-spacing:-0.01em;margin-bottom:10px}
+.modal .lead{font-size:14px;color:hsla(0,0%,100%,0.6);line-height:1.5;margin-bottom:20px}
+.modal-note{display:flex;gap:12px;align-items:flex-start;text-align:left;background:hsl(160,10%,8%);border:1px solid hsl(160,15%,18%);border-radius:14px;padding:14px 16px;margin-bottom:22px}
+.modal-note .num{width:24px;height:24px;border-radius:50%;background:hsl(160,100%,50%);color:hsl(160,20%,5%);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-note p{font-size:13px;color:hsla(0,0%,100%,0.75);line-height:1.45}
+.modal-note .accent{color:hsl(160,100%,55%);font-weight:700}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:hsl(160,10%,16%);color:hsla(0,0%,100%,0.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s ease}
+.modal-close:hover{background:hsl(160,10%,22%);color:#fff}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+</style>
+</head>
+<body>
+<div class="lp-wrap">
+  <div class="bg-glow"></div>
+  <div class="container">
+
+    <!-- House mark, not a third-party lockup. build.py STRUCTURE E rule 3: pairing two
+         third-party logos reads as a partnership between them, and there is no such
+         partnership. -->
+    <div class="brand anim">
+      <img class="mark" src="/images/freecash-logo.webp" alt="Freecash" width="52" height="52" />
+      <div class="name">Freecash</div>
+    </div>
+
+    <div class="pill anim" style="animation-delay:0.08s"><span class="live"></span>OFFERS AVAILABLE NOW</div>
+    <h1 class="hero-title anim" style="animation-delay:0.12s">Get paid for the time you <span class="grad">already spend</span></h1>
+    <p class="hero-sub anim" style="animation-delay:0.16s">Freecash pays real money for completing games, apps and surveys. Free to join, payouts to PayPal, bank transfer or crypto.</p>
+
+    <div class="qualify-list anim" style="animation-delay:0.2s">
+      <div class="qualify-item">
+        <div class="qualify-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M6 11h4M8 9v4M15 11.5h.01M18 10h.01" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M17.5 6h-11A4.5 4.5 0 002 10.5v3A4.5 4.5 0 006.5 18c1.2 0 1.9-.5 2.7-1.2.6-.5 1.2-.8 2.8-.8s2.2.3 2.8.8c.8.7 1.5 1.2 2.7 1.2a4.5 4.5 0 004.5-4.5v-3A4.5 4.5 0 0017.5 6z" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="qualify-text"><h2>Get Paid To Game</h2><p>Play mobile games and hit in-game milestones</p></div>
+        <div class="qualify-badge">Earn $$$</div>
+      </div>
+      <div class="qualify-item">
+        <div class="qualify-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="6" y="2" width="12" height="20" rx="3" stroke="hsl(160,100%,55%)" stroke-width="2"/>
+            <path d="M10.5 18.5h3" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M9 6.5h6M9 9.5h4" stroke="hsl(160,100%,55%)" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="qualify-text"><h2>Get Paid For Apps &amp; Surveys</h2><p>Try apps and answer surveys, no skills needed</p></div>
+        <div class="qualify-badge">Earn $$$</div>
+      </div>
+    </div>
+
+    <button class="btn-activate anim" style="animation-delay:0.3s" id="continueBtn">
+      <span>CONTINUE</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="hsl(160,20%,5%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <p class="reassure anim" style="animation-delay:0.4s">Free to join • Payouts to PayPal, bank transfer &amp; crypto</p>
+
+    <div class="card-dark anim" style="animation-delay:0.45s;margin-top:24px">
+      <h3>HOW IT WORKS</h3>
+      <div class="step"><div class="step-num">1</div><div><h4>Create your free Freecash account</h4><p>Tap <span class="accent">Continue</span> and sign up — it takes under a minute and costs nothing.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div><h4>Pick an offer from the wall</h4><p>Games, apps and surveys, each showing <span class="accent">what it pays</span> before you start.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Complete it and get paid</h4><p>Your balance updates as offers clear. Cash out to <span class="accent">PayPal, bank transfer or crypto</span>.</p></div></div>
+    </div>
+
+    <div class="section-label anim" style="animation-delay:0.5s">POPULAR ON FREECASH</div>
+    <div class="reward anim" style="animation-delay:0.52s">
+      <div class="reward-top">
+        <div class="reward-tile">🎮</div>
+        <div class="reward-info"><h4>Mobile games</h4><p>Reach a level or milestone</p></div>
+        <div class="reward-prize">Varies<span>per offer</span></div>
+      </div>
+    </div>
+    <div class="reward anim" style="animation-delay:0.55s">
+      <div class="reward-top">
+        <div class="reward-tile">📱</div>
+        <div class="reward-info"><h4>App trials</h4><p>Install and try a new app</p></div>
+        <div class="reward-prize">Varies<span>per offer</span></div>
+      </div>
+    </div>
+    <div class="reward anim" style="animation-delay:0.58s">
+      <div class="reward-top">
+        <div class="reward-tile">📝</div>
+        <div class="reward-info"><h4>Surveys</h4><p>Share your opinion</p></div>
+        <div class="reward-prize">Varies<span>per offer</span></div>
+      </div>
+    </div>
+
+    <p class="mini-note anim" style="animation-delay:0.6s">Payout amounts are set by Freecash and shown on each offer before you start. Earnings depend on which offers you complete.</p>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <button class="modal-close" aria-label="Close" id="modalClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+    <div class="modal-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="hsl(160,100%,55%)" stroke-width="2"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.5.8-2.5 1.9 0 1 .8 1.5 2.5 1.9 1.7.4 2.6.9 2.6 2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.4-2.6-1.3M12 6.5v11" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h3 id="modal-title">Start Earning Now</h3>
+    <p class="lead">Create your free Freecash account and start earning from games, apps and surveys.</p>
+    <div class="modal-note"><div class="num">!</div><p>Use your <span class="accent">real details</span> when you sign up so your earnings can be paid out.</p></div>
+    <button class="btn-activate" id="goBtn"><span>CONTINUE TO FREECASH</span></button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* THE DOOR. Never the network URL directly — api/_lib/_tracking-audit.test.mjs fails the build
+     on any lander that names a network host, because a hop we do not run is a hop we cannot cap,
+     kill, or reconcile against CAKE. The network destination lives in OFFER_LINKS under the
+     slug `mgfc-off` and nowhere else.
+
+     The door mints the click_id, writes the clicks row, freezes ttclid for the CAPI forward, and
+     picks the destination from this page's landing_pages.geo — not the visitor's IP, which is
+     spoofable and would let traffic shop into a higher-paying geo. */
+  var DOOR = 'https://www.tokrwd.co/c/mgfc-off';
+
+  /* WHAT RIDES THE WIRE, AND WHAT MUST NOT.
+     s1 is NOT set here. The door owns it: stampAffiliateSubids() drops every inbound
+     s1/sub1/s2/sub2/s5/sub5 and writes its own. A page-supplied value is pointless on the
+     resolved path and actively harmful on the fail-open path, where it would ride through to the
+     network verbatim and land every conversion `unmatched`. The source page shipped
+     sub1=3rdslander and a "split" default; both are gone for that reason.
+
+     ttclid — TikTok's click id, drives CAPI match quality, nothing else sets it.
+     s3     — ad account / campaign id, not in the door's drop list, so it survives.
+     sid    — the prelander's journey id, ties pre_tap to this arrival. */
+  function doorUrl() {
+    var q = new URLSearchParams(location.search);
+    var out = new URLSearchParams();
+    ['ttclid', 's3', 'sid'].forEach(function (k) {
+      var v = q.get(k);
+      if (v) out.set(k, v);
+    });
+    var qs = out.toString();
+    return DOOR + (qs ? '?' + qs : '');
+  }
+
+  var overlay = document.getElementById('overlay');
+
+  document.getElementById('continueBtn').addEventListener('click', function () {
+    overlay.classList.add('open');
+  });
+  document.getElementById('modalClose').addEventListener('click', function () {
+    overlay.classList.remove('open');
+  });
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+  document.getElementById('goBtn').addEventListener('click', function () {
+    location.href = doorUrl();
+  });
+})();
+</script>
+</body>
+</html>

@@ -951,6 +951,9 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // Owner scaler FREECASH pair, 2026-08-13 — door freecash-us-f, not playful-us-f.
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'fcm.html', 'fcm-pre.html',
+  // MGFC single-tenant Freecash pair (Migi), 2026-08-25. Green prelander /mgfc-pre.html
+  // forwards to /mgfc.html via its sprk-lander meta. Added to BOTH lists in this commit.
+  'mgfc.html', 'mgfc-pre.html',
   'shrtl', 'sr50',
   'sp50', 'tsup',
   'tu', 'uber', 'ue50', 'trt',
@@ -1141,6 +1144,16 @@ export const OFFER_LINKS = [
     slug: 'testerup-us-mon-off',
     mode: 'direct',
     destination: 'https://montrk.co.uk/?a=26648&c=56132',
+    forwardParam: 's1',
+    enabled: true,
+  },
+  // MGFC — Migi's OWN Freecash link, fired only by the /mgfc.html lander. Single-tenant.
+  // mode:'direct' because this is not a SPRK offer: no clicks row, no minted click_id, so
+  // conversions match only on what the network echoes back to /postback.
+  {
+    slug: 'mgfc-off',
+    mode: 'direct',
+    destination: 'https://www.pcbdfv7trk.com/22PLLSZ/335X896/',
     forwardParam: 's1',
     enabled: true,
   },

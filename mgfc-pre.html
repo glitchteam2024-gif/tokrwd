@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" data-slice="MGFC" data-geo="US">
+<head>
+<meta charset="UTF-8">
+<meta name="sprk-lander" content="/mgfc.html">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#062012">
+<title>Open in Browser</title>
+<meta name="robots" content="noindex,nofollow">
+<!-- THE SANCTION MARKER. tokrwd's api/_lib/_tracking-audit.test.mjs fails the build on breakout
+     code (x-safari-https / intent://) in any file that is not a REVIEWED prelander, because
+     breakout code spread across ~1000 landers is what got this domain flagged in the first place
+     and was stripped out on 2026-07-23. This marker is how a file declares itself one of those
+     reviewed pages — and the audit does NOT take it on trust: it also requires every marked file
+     to be byte-identical to every other, so the exemption cannot be pasted onto a page that has
+     been edited. Remove the marker and this page correctly fails the audit. -->
+<meta name="sprk-prelander" content="1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+        --bg: #062012;
+        --card: #111312;
+        --border: rgba(255,255,255,0.06);
+        --accent: #3ee07d;
+        --accent-dim: rgba(62,224,125,0.15);
+        --accent-glow: rgba(62,224,125,0.4);
+        --text: #f4f5f4;
+        --muted: #6f746f;
+        --muted2: #8b908d;
+    }
+
+    html, body {
+        height: 100%;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 28px 24px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* Background glow — matches lander */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 60% 40% at 50% 0%, rgba(62,224,125,0.12) 0%, transparent 65%),
+            radial-gradient(ellipse 40% 30% at 100% 100%, rgba(62,224,125,0.06) 0%, transparent 60%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .wrap {
+        position: relative;
+        z-index: 1;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        animation: fadeUp .5s ease both;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Icon box */
+    .icon-wrap {
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 28px;
+        border-radius: 22px;
+        border: 1px solid rgba(62,224,125,0.25);
+        background: var(--accent-dim);
+        display: grid;
+        place-items: center;
+        animation: iconGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes iconGlow {
+        0%, 100% { box-shadow: 0 0 30px rgba(62,224,125,0.2); }
+        50%       { box-shadow: 0 0 60px rgba(62,224,125,0.4); }
+    }
+
+    .icon-wrap svg {
+        width: 36px;
+        height: 36px;
+        color: var(--accent);
+        stroke-width: 2.5;
+    }
+
+    /* Heading */
+    h1 {
+        font-family: "Inter", sans-serif;
+        font-size: 48px;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -1.5px;
+        margin-bottom: 12px;
+        color: var(--text);
+    }
+
+    h1 .hl {
+        color: var(--accent);
+    }
+
+    /* Sub */
+    .sub {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--muted2);
+        line-height: 1.55;
+        margin-bottom: 36px;
+    }
+
+    /* CTA */
+    .cta {
+        display: block;
+        width: 100%;
+        background: var(--accent);
+        color: #ffffff;
+        font-family: "Inter", sans-serif;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        padding: 18px 24px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 20px;
+        transition: transform 0.1s ease;
+        animation: ctaPulse 2.5s ease-in-out infinite;
+    }
+
+    .cta:active { transform: scale(0.97); }
+
+    @keyframes ctaPulse {
+        0%, 100% { box-shadow: 0 0 40px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
+        50%       { box-shadow: 0 0 70px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
+    }
+
+    /* Chips */
+    .chips {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.3px;
+    }
+
+    .chips .dot {
+        width: 3px;
+        height: 3px;
+        background: var(--muted);
+        border-radius: 50%;
+        opacity: 0.4;
+    }
+
+    @media (max-height: 640px) {
+        .icon-wrap { width: 70px; height: 70px; margin-bottom: 20px; }
+        .icon-wrap svg { width: 28px; height: 28px; }
+        h1 { font-size: 38px; }
+        .sub { margin-bottom: 24px; }
+    }
+
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        body { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+    }
+
+    /* The three infinite animations above start at a non-default state, so suppressing motion has
+       to restore that state explicitly or the page renders wrong rather than merely still. */
+    @media (prefers-reduced-motion: reduce) {
+        .wrap { animation: none; opacity: 1; transform: none; }
+        .icon-wrap, .cta { animation: none; }
+        .cta { transition: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    }
+</style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7"></path>
+                <path d="M7 7h10v10"></path>
+            </svg>
+        </div>
+        <h1>Open in <span class="hl">Browser</span></h1>
+        <p class="sub">Tap Continue to open this page in your browser for the full experience.</p>
+        <button class="cta" id="ctaBtn" type="button">Continue</button>
+        <div class="chips">
+            <span>Safari</span>
+            <span class="dot"></span>
+            <span>Chrome</span>
+            <span class="dot"></span>
+            <span>Secure</span>
+        </div>
+    </div>
+
+    <script>
+    /* ═══ THE PRELANDER ═══════════════════════════════════════════════════════════════════════
+       ONE canonical file, installed byte-identically into every clone of every slice by
+       landers/prelander/install.py (SPRKNetworkAds). Do NOT hand-edit a deployed copy — edit this
+       source and re-install, or the copies drift and only one of them is the page you tested.
+
+       WHAT IT DOES. Hands the visitor to a real browser, then forwards to the lander at ./go with
+       the query intact. It is a transport hop, not a sales page.
+
+       WHY. TikTok opens links in its own in-app webview, where the reward-offer signup and
+       app-install flows are degraded and Apple Pay does not offer itself at all — so the offer the
+       ad promises is not reachable on the page the ad opens.
+
+       ⚠️ IT DERIVES NOTHING AND REWRITES NOTHING. The ad link is stamped at launch with
+       s1=<SPK> (the creative) and s2=<affiliate id> — see launchSubidStamps in
+       api/_lib/subid.js — and this page's ONLY job on the tracking side is to forward the whole
+       query byte for byte. There is deliberately no code below that reads a SubID. Rewriting one
+       here is exactly how attribution breaks.
+
+       ⚠️ THE DESTINATION IS NEVER A QUERY PARAM, IN EITHER SHAPE. landerUrl() below supports two,
+       and which one applies is decided by the MARKUP, not by the visitor:
+         · a numbered clone (/PG50/US7/) has no sprk-lander meta and takes the RELATIVE ./go/ hop —
+           clone 7's prelander reaches clone 7's lander because they are the same directory;
+         · a flat page (/frcusa-pre.html) carries <meta name="sprk-lander" content="/frcusa.html">,
+           written at generation time, and forwards there.
+       Neither can drift, because both ship WITH the page.
+
+       The shape both exist to avoid is a shared prelander taking a destination param
+       (/pre?to=/some/lander), which is what tokrwd's own /pre does. That needs an ALLOWLIST of
+       forwardable roots, and it has already broken live traffic twice (slices 51/52 on
+       2026-07-30, 53/54 on 2026-08-09: the tree deployed, the root was never allowlisted, /pre
+       refused to forward, and the click was paid for anyway — the second ran ~46h). Both times
+       BOTH copies of the list were simply never updated, so "keep one list instead of two" would
+       not have helped either. Do not "simplify" this back into ?to=.
+
+       ⚠️ NO SUBID GATE HERE, DELIBERATELY. The landers blank themselves without an s1. Applying
+       that rule here would defeat the page: the visitors this exists to rescue are precisely the
+       ones whose query was stripped on an in-app hop, and blanking them at the FIRST hop means the
+       breakout — the thing that would have let the query survive — never runs. The gate still
+       holds one hop later, where it costs nothing.
+
+       NO UA SNIFFING beyond picking the scheme, and ONE destination for everyone: this page renders
+       and forwards identically for a crawler, an ad reviewer and a buyer. Serving review a
+       different page is what gets a DOMAIN flagged, and a flag takes every campaign on it.
+       ═════════════════════════════════════════════════════════════════════════════════════════ */
+    (function () {
+        'use strict';
+        var btn = document.getElementById('ctaBtn');
+        if (!btn) return;
+
+        /* ── THE FUNNEL BEACON ────────────────────────────────────────────────────────────────
+           Removing the door removed the only place SPRK saw a click. These four events are the
+           whole first-party funnel: pre_view -> pre_tap -> lp_view -> offer_click, plus pre_rescue
+           when the scheme escape is swallowed and the watchdog has to step in.
+
+           sendBeacon, never fetch: the browser sends it asynchronously and keeps it alive across
+           the page unloading, so it cannot delay the tap or be cancelled by the navigation that
+           immediately follows it. Every call is wrapped — analytics must never be able to throw on
+           the path to the offer.
+
+           NO UA SNIFFING HERE, deliberately. Whether this is an in-app webview is classified
+           SERVER-SIDE by /api/funnel-beacon from the request's own User-Agent. Putting that test in
+           the page would trip tokrwd's _tracking-audit, and rightly: a page that can tell it is
+           being reviewed is a page that can behave differently for a reviewer. */
+        var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+        var q = new URLSearchParams(location.search);
+
+        /* The journey id. Minted here, carried to the lander, and the ONLY thing that makes the
+           four events one story: without it you have four counters and cannot tell a failed
+           breakout from a lander bounce. Rides the query and is stripped before the network URL. */
+        var sid = q.get('sid') || '';
+        if (!sid) {
+            try { sid = (crypto.randomUUID ? crypto.randomUUID() : '').replace(/-/g, ''); } catch (e) { sid = ''; }
+            if (!sid) sid = Date.now().toString(36) + Math.random().toString(36).slice(2);
+            sid = sid.slice(0, 32);
+            q.set('sid', sid);
+        }
+
+        /* Slice/clone labels. Read from the markup when the page declares them, falling back to
+           the path for clone directories that do not. Flat pages have ONE path segment, so
+           positional parsing would report clone='' forever — but the fix must not be a constant in
+           this script: _tracking-audit hashes these bodies, and a per-page constant here is what
+           gives 7 geos 7 different "identical" prelanders. Same rule as landerUrl above: per-page
+           values live in the markup, behaviour lives in the script. */
+        var root = document.documentElement;
+        var seg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+        var pgSlice = root.getAttribute('data-slice') || seg[0] || '';
+        var pgClone = root.getAttribute('data-geo') || seg[1] || '';
+        function beacon(event) {
+            try {
+                var b = new Blob([JSON.stringify({
+                    event: event, sid: sid,
+                    s1: q.get('s1') || '', s2: q.get('s2') || '', s3: q.get('s3') || '',
+                    ttclid: q.get('ttclid') || '',
+                    slice: pgSlice, clone: pgClone, path: location.pathname
+                })], { type: 'text/plain' });   /* see the note in lander-beacon.py: text/plain skips
+                       the CORS preflight that was blocking every beacon on the first live test */
+                navigator.sendBeacon(BEACON, b);
+            } catch (e) { /* analytics must never break the funnel */ }
+        }
+        beacon('pre_view');
+
+        /* The lander. TWO page shapes, ONE code path — which is the whole point.
+
+           · Clone directories (50FC/FC7/, AC54/US1/, …): no meta tag, so it resolves against THIS
+             clone's own directory, exactly as before. `new URL`-free on purpose so it behaves the
+             same on old in-app webviews; the two replaces normalise a path with or without its
+             trailing slash, and a literal /index.html, to the same base.
+           · Flat pages (/frcusa-pre -> /frcusa): a <meta name="sprk-lander"> names the destination.
+
+           ⚠️ THE DESTINATION IS DATA, NOT CODE, AND THAT IS DELIBERATE. Baking the path into this
+           function instead would give every flat page its own script body, and _tracking-audit
+           hashes these script bodies to prove the breakout is ONE reviewed behaviour rather than
+           1,410 individually-editable ones. A per-page constant in the markup keeps that guarantee;
+           a per-page constant in the script destroys it. (Tried the other way first — the audit
+           caught it, which is what it is for.)
+
+           It is still not a ?to= param: the value is written into the file at generation time and
+           cannot be set by a visitor, so there is no allowlist and nothing to keep in sync. */
+        /* `q`, not location.search, so the sid minted above rides to the lander. */
+        function landerUrl() {
+            var m = document.querySelector('meta[name="sprk-lander"]');
+            var flat = m && m.getAttribute('content');
+            var qs = q.toString();
+            if (flat && flat.charAt(0) === '/') {
+                return location.origin + flat + (qs ? '?' + qs : '');
+            }
+            var base = location.pathname.replace(/\/index\.html$/, '/').replace(/\/?$/, '/');
+            return location.origin + base + 'go/' + (qs ? '?' + qs : '');
+        }
+
+        /* ── ESCALATING BREAKOUT ──────────────────────────────────────────────────────────────
+           One scheme is not enough. Measured live 2026-08-11: a link tapped from TikTok Messages
+           opened the in-app webview and `x-safari-https://` alone did nothing at all — no Safari,
+           no error, no visible failure. That is the normal case for a webview that refuses unknown
+           schemes: the navigation is simply dropped on the floor.
+
+           So we try the handlers in order, ~350ms apart, and stop the moment the page goes hidden
+           (which is the only reliable signal that another app took over):
+
+             iOS      x-safari-https://   Safari's own scheme
+                      googlechromes://    Chrome for iOS, if it is installed
+             Android  intent:// + package=com.android.chrome   explicitly names Chrome, rather
+                                                                than letting the webview claim it
+                      intent:// with no package                 the default browser
+
+           WHY THE PACKAGE MATTERS ON ANDROID: an intent with no package lets the SYSTEM pick a
+           handler, and inside an in-app browser the host app frequently is one — so the "escape"
+           hands the URL straight back to the app it was escaping. Naming Chrome removes that.
+
+           ⚠️ AND IF NONE OF THEM WORK, WE SAY SO RATHER THAN PRETENDING. Some webviews block every
+           scheme jump; no JavaScript can defeat that, and quietly forwarding to the lander would
+           hide the failure while the visitor sits inside the very browser that breaks the offer.
+           After the last attempt the page shows the manual instruction instead. Honest beats
+           silent: a visitor who is told to tap "Open in browser" can still convert. */
+        function go() {
+            var dest = landerUrl();
+            var url;
+
+            var bare = dest.replace(/^https?:\/\//, '');
+            var attempts = /Android/i.test(navigator.userAgent)
+                ? [
+                    /* Chrome BY NAME first. An intent with no package lets the system choose a
+                       handler, and inside an in-app browser the host app is often one — so the
+                       "escape" hands the URL back to the app it was escaping. */
+                    'intent://' + bare + '#Intent;scheme=https;package=com.android.chrome;'
+                        + 'S.browser_fallback_url=' + encodeURIComponent(dest) + ';end',
+                    /* Then whatever the default browser is. S.browser_fallback_url keeps a device
+                       with no handler from landing on a dead page, on a click already paid for. */
+                    'intent://' + bare + '#Intent;scheme=https;'
+                        + 'S.browser_fallback_url=' + encodeURIComponent(dest) + ';end',
+                  ]
+                : [
+                    /* Safari's own scheme. Harmless when already in Safari — it just opens the URL. */
+                    dest.replace(/^https:\/\//, 'x-safari-https://'),
+                    /* Chrome for iOS, if installed. googlechromes:// is the https variant. */
+                    dest.replace(/^https:\/\//, 'googlechromes://'),
+                  ];
+
+            /* LAST-RESORT FALLBACK, ARMED BEFORE THE NAVIGATION — never after.
+               If the scheme escape is silently swallowed (a webview that blocks unknown schemes
+               without erroring) the visitor is stranded here with nothing happening. After a beat
+               we navigate normally: still inside the webview, which is worse than Safari but is not
+               a dead end.
+
+               ⚠️ ORDER IS THE BUG THIS AVOIDS. Arming the timer and attaching the cancel listeners
+               AFTER kicking off the navigation leaves a window in which the app switch can complete
+               before the listener exists, so the cancel never runs and the visitor is forwarded
+               TWICE — once into Safari and once inside the webview behind it, double-firing the
+               lander's pixel. Registering first closes that window.
+
+               ⚠️ visibilitychange, NOT pagehide alone — this is the case that actually matters on
+               iOS. x-safari-https:// opens Safari as a SEPARATE APP; this page is backgrounded, not
+               unloaded, so pagehide may never fire and a pagehide-only cancel would fire the
+               fallback on every SUCCESSFUL breakout. Going hidden is the reliable signal that
+               another app took over. */
+            /* THE RESCUE GOES TO THE LANDER, NOT THE OFFER (Migi, 2026-08-11). `dest` is ./go.
+               Sending a rescued visitor straight to the network would put them on the offer inside
+               the very webview this page exists to escape — the failure would be hidden rather than
+               fixed, and the offer flow is what degrades there. The lander still works in-app, so
+               they keep a usable page and the click is not thrown away.
+
+               pre_rescue is beaconed when this fires: it is the DIRECT measurement of how often the
+               scheme escape is swallowed, which is the number that tells you whether the breakout
+               is working on real phones. */
+            var done = false, timers = [];
+            function cancel() {
+                if (done) return;
+                done = true;
+                timers.forEach(clearTimeout);
+            }
+            window.addEventListener('pagehide', cancel, { once: true });
+            window.addEventListener('blur', cancel, { once: true });
+            document.addEventListener('visibilitychange', function () {
+                if (document.hidden) cancel();
+            }, { once: true });
+
+            function jump(u) {
+                if (done) return;
+                try { (window.top || window).location.href = u; }
+                catch (e) { window.location.href = u; }
+            }
+
+            /* First attempt fires SYNCHRONOUSLY, inside the tap. iOS only honours a scheme jump
+               while the user gesture is still active, so anything deferred is already too late. */
+            jump(attempts[0]);
+            for (var i = 1; i < attempts.length; i++) {
+                (function (u, n) { timers.push(setTimeout(function () { jump(u); }, 350 * n)); })(attempts[i], i);
+            }
+
+            /* Nothing took over -> every scheme was refused. Say so instead of silently forwarding:
+               dropping them on the lander inside this webview hides the failure while leaving the
+               visitor in the browser that breaks the offer. pre_rescue is beaconed either way, and
+               it is the direct measurement of how often the escape is swallowed. */
+            timers.push(setTimeout(function () {
+                if (done) return;
+                cancel();
+                beacon('pre_rescue');
+                var s = document.querySelector('.sub'), b = document.getElementById('ctaBtn');
+                if (s) s.innerHTML = 'Your app blocked the browser hand-off. Tap the <b>•••</b> menu '
+                    + 'at the top of this screen and choose <b>Open in browser</b>.';
+                if (b) { b.disabled = false; b.textContent = 'Continue anyway'; }
+                /* A second tap now goes straight through in-app rather than retrying the schemes —
+                   they have already been refused, and a visitor who insists should not be stuck. */
+                if (b) b.onclick = function (e) { e.preventDefault(); location.replace(dest); };
+            }, 350 * attempts.length + 900));
+        }
+
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            btn.disabled = true;
+            beacon('pre_tap');   /* fired BEFORE go(), so it is sent even if the app switch is instant */
+            go();
+        });
+    })();
+    </script>
+</body>
+</html>
