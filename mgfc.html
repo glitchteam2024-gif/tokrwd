@@ -184,27 +184,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
      The door mints the click_id, writes the clicks row, freezes ttclid for the CAPI forward, and
      picks the destination from this page's landing_pages.geo — not the visitor's IP, which is
      spoofable and would let traffic shop into a higher-paying geo. */
-  var DOOR = 'https://www.tokrwd.co/c/mgfc-off';
+  /* THE DOOR. Never the network URL directly -- api/_lib/_tracking-audit.test.mjs fails the build
+     on any lander that names a network host. The destination lives in OFFER_LINKS under the slug
+     `mgfc-off` and nowhere else. */
+  var DOOR = '/c/mgfc-off';
 
-  /* WHAT RIDES THE WIRE, AND WHAT MUST NOT.
-     s1 is NOT set here. The door owns it: stampAffiliateSubids() drops every inbound
-     s1/sub1/s2/sub2/s5/sub5 and writes its own. A page-supplied value is pointless on the
-     resolved path and actively harmful on the fail-open path, where it would ride through to the
-     network verbatim and land every conversion `unmatched`. The source page shipped
-     sub1=3rdslander and a "split" default; both are gone for that reason.
+  /* SPRK-S1-ONLY v5 -- one param out: the affiliate code, nothing else.
+     The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+     code identifies the creative and the creative identifies the affiliate. `|| _s1` keeps a value
+     with NO code in it going out verbatim -- a scaler's own free-form label is their attribution
+     key and blanking it would pay them nothing. Case-insensitive: an ad platform that lowercases
+     the URL would otherwise match nothing and ship the entire wire. */
+  function offerUrl() {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || '';
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _t = _p.get('ttclid') || '';
+    if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
-     ttclid — TikTok's click id, drives CAPI match quality, nothing else sets it.
-     s3     — ad account / campaign id, not in the door's drop list, so it survives.
-     sid    — the prelander's journey id, ties pre_tap to this arrival. */
-  function doorUrl() {
-    var q = new URLSearchParams(location.search);
-    var out = new URLSearchParams();
-    ['ttclid', 's3', 'sid'].forEach(function (k) {
-      var v = q.get(k);
-      if (v) out.set(k, v);
-    });
-    var qs = out.toString();
-    return DOOR + (qs ? '?' + qs : '');
+    var _dest = DOOR + (_send1 ? '?s1=' + encodeURIComponent(_send1) : '');
+    var _s3 = _p.get('s3') || '', _sid = _p.get('sid') || '';
+    if (_s3)  _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 's3=' + encodeURIComponent(_s3);
+    if (_sid) _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 'sid=' + encodeURIComponent(_sid);
+    if (_t)   _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 'ttclid=' + encodeURIComponent(_t);
+
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
+       unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
+    return '/click?u=' + encodeURIComponent(_dest)
+         + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+         + '&lp=' + encodeURIComponent(location.pathname)
+         + (_t ? '&t=' + encodeURIComponent(_t) : '');
   }
 
   var overlay = document.getElementById('overlay');
@@ -219,7 +228,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     if (e.target === overlay) overlay.classList.remove('open');
   });
   document.getElementById('goBtn').addEventListener('click', function () {
-    location.href = doorUrl();
+    location.href = offerUrl();
   });
 })();
 </script>
