@@ -207,23 +207,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
      runs `new URL(raw)`, which throws on a relative path, so a '/c/...' value 404s at the gate.
      pcbdfv7trk.com is on that allowlist (added 2026-08-24 with Swagbucks iOS). This matches how
      every other live lander wires its CTA. */
-  var OFFER_URL = 'https://www.pcbdfv7trk.com/22PLLSZ/335X896/';
+  var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/335X896/';
 
-  /* SPRK-S1-ONLY v5 -- one param out: the affiliate code, nothing else.
-     The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
-     code identifies the creative and the creative identifies the affiliate. `|| _s1` keeps a value
-     with NO code in it going out verbatim -- a scaler's own free-form label is their attribution
-     key and blanking it would pay them nothing. Case-insensitive: an ad platform that lowercases
-     the URL would otherwise match nothing and ship the entire wire. */
-  function offerUrl() {
+  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else.
+     Inbound may be ?s1= or ?sub1=; whatever carries the value. If it contains an
+     SPK-XXXX-XXXX code only that leaves, otherwise the value goes out verbatim -- so a plain
+     TikTok label (or macros like __CAMPAIGN_ID__/__CID__) survives intact for segmenting.
+     `|| _s1` keeps a value with NO code in it going out whole; case-insensitive match so an ad
+     platform that lowercases the URL still finds the code.
+
+     ⚠️ OUTBOUND PARAM IS `sub1`, NOT `s1`. pcbdfv7trk.com is an EVERFLOW endpoint and Everflow
+     reads sub1..sub5 -- it silently DISCARDS anything named s1, so an s1= here would zero out
+     attribution. Same wiring as swagbucksusa-sammy.html, which hits this same offer. The gate
+     param below stays `s1` on purpose: that is OUR first-party /click log, not the network. */
+  function buildOfferUrl() {
     var _p = new URLSearchParams(location.search);
     var _s1 = _p.get('s1') || _p.get('sub1') || '';
     var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
     var _t = _p.get('ttclid') || '';
     if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
-    var _dest = !_send1 ? OFFER_URL
-              : OFFER_URL + (OFFER_URL.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+    var _dest = !_send1 ? OFFER_LINK
+              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
 
     /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
        unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
@@ -245,13 +250,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     if (e.target === overlay) overlay.classList.remove('open');
   });
   document.getElementById('goBtn').addEventListener('click', function () {
-    location.href = offerUrl();
+    location.href = buildOfferUrl();
   });
 
   /* The reward "UNLOCK" buttons walk the SAME /click gate to the SAME offer link as the main
      CTA — no per-reward destinations, so the money path is unchanged. */
   Array.prototype.forEach.call(document.querySelectorAll('.reward-btn[data-reward]'), function (b) {
-    b.addEventListener('click', function () { location.href = offerUrl(); });
+    b.addEventListener('click', function () { location.href = buildOfferUrl(); });
   });
 })();
 </script>
