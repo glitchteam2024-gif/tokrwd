@@ -1000,6 +1000,10 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // Added to BOTH lists in this commit; a lander missing here silently loses its prelander hop.
   'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
   'gravypassusa2.html', 'gravypassusa2-pre.html', 'gps',
+  // MGRECO — Migi's OWN Reco Social page, 2026-08-28. Single-tenant: no clone pool, no
+  // landing_pages row, not self_serve, so no affiliate can be assigned it. Flat pair, so each
+  // NAME is its own root. Added to BOTH lists in this commit.
+  'mgreco.html', 'mgreco-pre.html',
   'shrtl', 'sr50',
   // STT/US — a second Shein $750 US design, override-only via lp=stt. Canonical page,
   // no clone pool, so it stays a folder lander like SHEIN/US.

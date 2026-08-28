@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8" />
+<!-- MGRECO — Migi's OWN Reco Social lander, cloned from the house Gravy Pass design.
+     SINGLE-TENANT: this page belongs to one operator. It is deliberately NOT in landing_pages,
+     NOT self_serve, and NOT in any SPRK picker, so no affiliate can be assigned it.
+
+     No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
+     every visitor, including TikTok's crawler. The breakout happens ONCE, on
+     /mgreco-pre.html, which is the reviewed prelander. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!-- Paid-traffic lander: it should never be indexed or archived. Both shipped Gravy Pass pages
+     (GP/index.html and Mggrvy/index.html) carry exactly this. -->
+<meta name="robots" content="noindex,nofollow" />
+<title>Start Earning — Reco Social</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff}
+.lp-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;position:relative;overflow-x:hidden}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(160,100%,30%,0.12) 0%,transparent 60%),radial-gradient(ellipse at center,hsla(160,100%,20%,0.08) 0%,transparent 80%),hsl(160,20%,5%);z-index:0}
+.container{position:relative;z-index:1;width:100%;max-width:480px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.brand .mark{width:52px;height:52px;border-radius:14px;object-fit:cover;background:hsl(0,0%,8%);box-shadow:0 0 20px hsla(160,100%,50%,0.18)}
+.brand .x{color:hsla(0,0%,100%,0.45);font-size:20px;font-weight:500}
+.pill{display:inline-flex;align-items:center;gap:7px;background:hsla(160,100%,50%,0.1);border:1px solid hsla(160,100%,50%,0.35);color:hsl(160,100%,60%);font-size:12px;font-weight:700;letter-spacing:0.08em;padding:7px 14px;border-radius:999px;margin-bottom:16px}
+.pill .live{width:7px;height:7px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+.hero-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:800;line-height:1.15;letter-spacing:-0.02em;color:#fff;margin-bottom:8px;text-wrap:balance}
+.hero-title .grad{background:linear-gradient(180deg,hsl(160,100%,60%) 0%,hsl(160,100%,42%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:hsla(0,0%,100%,0.55);font-size:14px;line-height:1.5;max-width:340px;margin-bottom:22px}
+.hero-sub .accent{color:hsl(160,100%,55%);font-weight:600}
+.qualify-list{display:flex;flex-direction:column;gap:12px;width:100%;margin-bottom:20px}
+.qualify-item{position:relative;display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,hsl(160,12%,11%) 0%,hsl(160,10%,9%) 100%);border:1px solid hsl(160,20%,20%);border-radius:16px;padding:16px;text-align:left;overflow:hidden}
+.qualify-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:hsl(160,100%,50%)}
+.qualify-icon{width:46px;height:46px;border-radius:12px;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qualify-text{flex:1;min-width:0}
+.qualify-text h2{font-size:clamp(1.05rem,4vw,1.3rem);font-weight:800;letter-spacing:-0.01em;color:#fff;margin-bottom:2px}
+.qualify-text p{font-size:12px;color:hsla(0,0%,100%,0.5);line-height:1.35}
+.qualify-badge{flex-shrink:0;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.3);color:hsl(160,100%,55%);font-size:12px;font-weight:800;padding:6px 10px;border-radius:8px;white-space:nowrap}
+.btn-activate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:20px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,0.5),0 0 60px hsla(160,100%,50%,0.25),0 4px 15px hsla(0,0%,0%,0.3);transition:all 0.2s ease}
+.btn-activate:hover{transform:translateY(-2px);box-shadow:0 0 40px hsla(160,100%,50%,0.6),0 0 80px hsla(160,100%,50%,0.3),0 8px 25px hsla(0,0%,0%,0.4)}
+.btn-activate:active{transform:translateY(1px) scale(0.98)}
+.btn-activate span{font-size:16px;font-weight:700;color:hsl(160,20%,5%);letter-spacing:0.05em}
+.btn-activate svg{flex-shrink:0}
+.reassure{margin-top:14px;font-size:12px;color:hsla(0,0%,100%,0.4);line-height:1.4}
+.anim{opacity:0;animation:fadeSlideUp 0.5s ease forwards}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card-dark{background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:20px 18px;width:100%;text-align:left;margin-bottom:16px}
+.card-dark h3{text-align:center;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:18px}
+.step{position:relative;display:flex;gap:14px;padding-bottom:18px}
+.step:not(:last-child)::after{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:hsl(160,15%,18%)}
+.step:last-child{padding-bottom:0}
+.step-num{width:28px;height:28px;border-radius:50%;background:hsl(160,100%,50%);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:hsl(160,20%,5%);flex-shrink:0;z-index:1}
+.step h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.step p{font-size:12px;color:hsla(0,0%,100%,0.55);line-height:1.45}
+.step p .accent{color:hsl(160,100%,55%);font-weight:600}
+.section-label{width:100%;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:12px}
+.reward{width:100%;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:16px;margin-bottom:12px;text-align:left}
+.reward-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.reward-tile{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid hsla(0,0%,100%,0.12);background:hsl(160,12%,14%);font-size:20px;overflow:hidden}
+.reward-tile img{width:30px;height:30px;object-fit:contain}
+/* Was a "Tasks completed 3/3" bar filled to 100% in static markup — a statement about the
+   VISITOR's own account that was false for every visitor, on a page that also tells them to sign
+   up. Replaced with the REQUIREMENT, which is true for everyone and claims nothing on their
+   behalf. The button stays live: it takes them to Reco to go and do the tasks. */
+.reward-req{display:flex;align-items:center;gap:7px;font-size:11.5px;color:hsla(0,0%,100%,0.5);margin-bottom:12px}
+.reward-req svg{flex-shrink:0}
+.reward-btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:0.03em;cursor:pointer;text-align:center;color:hsl(160,20%,5%);background:linear-gradient(180deg,hsl(160,100%,55%),hsl(160,100%,45%));box-shadow:0 0 20px hsla(160,100%,50%,0.4);transition:transform 0.15s ease}
+.reward-btn:active{transform:scale(0.98)}
+.reward-info{flex:1;min-width:0}
+.reward-info h4{font-size:15px;font-weight:800}
+.reward-info p{font-size:12px;color:hsla(0,0%,100%,0.5)}
+.reward-prize{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;font-size:15px;font-weight:800;color:hsl(160,100%,55%)}
+.reward-prize span{font-size:10px;font-weight:600;color:hsla(0,0%,100%,0.45);letter-spacing:0.02em;margin-top:2px}
+/* The earnings caveat. Mggrvy/index.html measured its own version of this at 11px/35% white =
+   2.66:1 and raised it, with the reason recorded: "A disclaimer nobody can read is worse than no
+   disclaimer: it looks like compliance without doing any." Same numbers here (11.5px at 62% clears
+   the 4.5:1 AA floor for small text) so the fix does not regress on the clone. */
+.mini-note{font-size:11.5px;color:hsla(0,0%,100%,0.62);margin-top:4px;text-align:center;line-height:1.65}
+.foot{margin-top:18px;padding-top:14px;border-top:1px solid hsl(160,15%,14%);width:100%;text-align:center;font-size:11px;color:hsla(0,0%,100%,0.3);line-height:1.5}
+.foot a{color:hsla(0,0%,100%,0.45);text-decoration:underline}
+.overlay{position:fixed;inset:0;z-index:10;background:hsla(160,25%,3%,0.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex;animation:fadeIn 0.25s ease forwards}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{position:relative;width:100%;max-width:400px;background:hsl(160,12%,10%);border:1px solid hsl(160,20%,20%);border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 20px 60px hsla(0,0%,0%,0.5);animation:pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes pop{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.modal-icon{width:64px;height:64px;border-radius:18px;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
+.modal h3{font-size:20px;font-weight:800;letter-spacing:-0.01em;margin-bottom:10px}
+.modal .lead{font-size:14px;color:hsla(0,0%,100%,0.6);line-height:1.5;margin-bottom:20px}
+.modal-note{display:flex;gap:12px;align-items:flex-start;text-align:left;background:hsl(160,10%,8%);border:1px solid hsl(160,15%,18%);border-radius:14px;padding:14px 16px;margin-bottom:22px}
+.modal-note .num{width:24px;height:24px;border-radius:50%;background:hsl(160,100%,50%);color:hsl(160,20%,5%);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-note p{font-size:13px;color:hsla(0,0%,100%,0.75);line-height:1.45}
+.modal-note .accent{color:hsl(160,100%,55%);font-weight:700}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:hsl(160,10%,16%);color:hsla(0,0%,100%,0.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s ease}
+.modal-close:hover{background:hsl(160,10%,22%);color:#fff}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+</style>
+</head>
+<body>
+<div class="lp-wrap">
+  <div class="bg-glow"></div>
+  <div class="container">
+
+    <!-- TikTok x Reco lockup. The shape is carried over from Mggrvy/index.html, where the owner ruled on
+         2026-08-10 after the concern was raised twice: an "A x B" lockup is the visual grammar of a
+         partnership, and TikTok is the traffic source here, not a partner. Kept as ONE line so it is
+         a single edit to reverse — drop the first <img> and the .x span. aria-hidden with empty alt
+         because the marks are decorative; the copy and the disclaimer name Reco.
+
+         ⚠️ CHECK THE PICTURE, NEVER THE FILENAME. /images/reco-logo.svg is the real Reco Social
+         mark - opened and confirmed: a rounded tile carrying the gold->teal->blue->violet->fuchsia
+         gradient (#C9A54B #4CC5BC #5B86E5 #8B5CF6 #D946EF) with a white bookmark and a heart cut
+         out of it. It is the same file RS/index.html ships. -->
+    <div class="brand anim" aria-hidden="true">
+      <img class="mark" src="/images/tiktok-icon-free-png.png" alt="" width="52" height="52" />
+      <span class="x">&times;</span>
+      <img class="mark" src="/images/reco-logo.svg" alt="" width="52" height="52" />
+    </div>
+
+    <div class="pill anim" style="animation-delay:0.08s"><span class="live"></span>OFFERS AVAILABLE NOW</div>
+    <h1 class="hero-title anim" style="animation-delay:0.12s">Get paid for the time you <span class="grad">already spend</span></h1>
+    <p class="hero-sub anim" style="animation-delay:0.16s">Reco pays real money for completing offers, playing games and testing apps. Free to join, cash out to <span class="accent">PayPal, Cash App or gift cards</span>.</p>
+
+    <div class="qualify-list anim" style="animation-delay:0.2s">
+      <div class="qualify-item">
+        <div class="qualify-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M6 11h4M8 9v4M15 11.5h.01M18 10h.01" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M17.5 6h-11A4.5 4.5 0 002 10.5v3A4.5 4.5 0 006.5 18c1.2 0 1.9-.5 2.7-1.2.6-.5 1.2-.8 2.8-.8s2.2.3 2.8.8c.8.7 1.5 1.2 2.7 1.2a4.5 4.5 0 004.5-4.5v-3A4.5 4.5 0 0017.5 6z" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="qualify-text"><h2>Get Paid To Game</h2><p>Play Roblox, Subway Surfers &amp; more</p></div>
+        <div class="qualify-badge">Earn $$$</div>
+      </div>
+      <div class="qualify-item">
+        <div class="qualify-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="6" y="2" width="12" height="20" rx="3" stroke="hsl(160,100%,55%)" stroke-width="2"/>
+            <path d="M10.5 18.5h3" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M9 6.5h6M9 9.5h4" stroke="hsl(160,100%,55%)" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="qualify-text"><h2>Get Paid For Offers &amp; Apps</h2><p>Complete offers and test apps, no skills needed</p></div>
+        <div class="qualify-badge">Earn $$$</div>
+      </div>
+    </div>
+
+    <button class="btn-activate anim" style="animation-delay:0.3s" id="continueBtn">
+      <span>CONTINUE</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="hsl(160,20%,5%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <p class="reassure anim" style="animation-delay:0.4s">Free to join • Cash out to PayPal, Cash App or gift cards</p>
+
+    <div class="card-dark anim" style="animation-delay:0.45s;margin-top:24px">
+      <h3>HOW IT WORKS</h3>
+      <div class="step"><div class="step-num">1</div><div><h4>Create your free Reco account</h4><p>Tap <span class="accent">Continue</span> and sign up — it takes under a minute and costs nothing.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div><h4>Pick an offer from the wall</h4><p>Games, apps and offers, each showing <span class="accent">what it pays</span> before you start.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Complete it and get paid</h4><p>Your balance updates as offers clear. Cash out to <span class="accent">PayPal, Cash App or gift cards</span>.</p></div></div>
+    </div>
+
+    <div class="section-label anim" style="animation-delay:0.5s">REWARDS TO UNLOCK</div>
+    <div class="reward anim" style="animation-delay:0.52s">
+      <div class="reward-top">
+        <div class="reward-tile" style="background:hsl(215,60%,22%)"><img src="/images/clash-royale.png" alt="Clash Royale" /></div>
+        <div class="reward-info"><h4>Clash Royale</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-prize">$28/hr<span>per hour</span></div>
+      </div>
+      <div class="reward-req"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Unlocks after 3 tasks inside Reco</div>
+      <button class="reward-btn" data-reward>UNLOCK CLASH ROYALE</button>
+    </div>
+    <div class="reward anim" style="animation-delay:0.55s">
+      <div class="reward-top">
+        <div class="reward-tile" style="background:hsl(0,0%,15%)"><img src="/images/roblox.jpg" alt="Roblox" /></div>
+        <div class="reward-info"><h4>Roblox</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-prize">$35/hr<span>per hour</span></div>
+      </div>
+      <div class="reward-req"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Unlocks after 3 tasks inside Reco</div>
+      <button class="reward-btn" data-reward>UNLOCK ROBLOX</button>
+    </div>
+    <div class="reward anim" style="animation-delay:0.58s">
+      <div class="reward-top">
+        <div class="reward-tile" style="background:hsl(270,45%,22%)"><img src="/images/subway-surfers.jpg" alt="Subway Surfers" /></div>
+        <div class="reward-info"><h4>Subway Surfers</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-prize">Varies<span>per offer</span></div>
+      </div>
+      <div class="reward-req"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Unlocks after 3 tasks inside Reco</div>
+      <button class="reward-btn" data-reward>UNLOCK SUBWAY SURFERS</button>
+    </div>
+
+    <!-- Disclaimer taken from Reco's own shipped page (RS/index.html) rather than invented. It is
+         load-bearing on this page for two reasons: the cards quote per-hour figures, and the page
+         names three third-party game brands. -->
+    <p class="mini-note anim" style="animation-delay:0.6s">Availability, rewards and eligibility may vary by user, location and completed activity. Results are not guaranteed and are based on individual participation; earnings vary by offer. Reco is not affiliated with any game publisher named on this page, and this page is not affiliated with, sponsored or endorsed by TikTok.</p>
+
+    <div class="foot anim" style="animation-delay:0.62s">
+      <a href="/Rewards/terms">Terms</a> &nbsp;·&nbsp; <a href="/Rewards/privacy">Privacy</a>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <button class="modal-close" aria-label="Close" id="modalClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+    <div class="modal-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="hsl(160,100%,55%)" stroke-width="2"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.5.8-2.5 1.9 0 1 .8 1.5 2.5 1.9 1.7.4 2.6.9 2.6 2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.4-2.6-1.3M12 6.5v11" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h3 id="modal-title">Start Earning Now</h3>
+    <p class="lead">Create your free Reco account and start earning from offers, games and apps.</p>
+    <div class="modal-note"><div class="num">!</div><p>Use your <span class="accent">real details</span> when you sign up so your earnings can be paid out.</p></div>
+    <button class="btn-activate" id="goBtn"><span>CONTINUE TO RECO</span></button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* THE RAW MONETISE LINK for Reco Social, named directly on the page - exactly the
+     `reco-social-off` destination in api/_lib/links-config.js (montrk3, a=26648, c=56065).
+
+     ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
+     keeping both would ship "&s1=&s1=CODE", where the network reads the EMPTY first one. It must
+     also stay an ABSOLUTE https URL: isAllowedGateDestination runs `new URL(raw)`, which throws on
+     a relative path, so a "/c/..." value 404s at our own gate. montrk3.co.uk is already on
+     GATE_DEST_HOST_RE, so nothing needs adding there. */
+  var OFFER_LINK = 'https://montrk3.co.uk/?a=26648&c=56065';
+
+  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else.
+     Inbound may be ?s1= or ?sub1=; whatever carries the value. If it contains an SPK-XXXX-XXXX
+     code only that leaves, otherwise the value goes out verbatim -- so a plain TikTok label
+     survives intact for segmenting. `|| _s1` keeps a value with NO code in it going out whole: a
+     scaler's free-form label IS their attribution key and blanking it would pay them nothing.
+     Case-insensitive, because an ad platform that lowercases the URL would otherwise match nothing
+     and ship the entire compound wire to the network.
+
+     ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. montrk3.co.uk is MONETISE/CAKE, which reads s1..s5
+     and silently DISCARDS sub1 -- the exact reverse of the Everflow hosts (pcbdfv7trk.com et al).
+     Copying an Everflow lander's builder onto this base zeroes attribution with no error: the link
+     looks healthy and every conversion lands unmatched. The dialect follows the DESTINATION.
+     The gate param below stays `s1` on every lander regardless of network -- that one is OUR
+     first-party /click log carrying the RAW wire, not the network's field. */
+  function buildOfferUrl() {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || '';
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _t = _p.get('ttclid') || '';
+    if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+
+    var _dest = !_send1 ? OFFER_LINK
+              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
+       unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
+    return '/click?u=' + encodeURIComponent(_dest)
+         + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+         + '&lp=' + encodeURIComponent(location.pathname)
+         + (_t ? '&t=' + encodeURIComponent(_t) : '');
+  }
+
+  var overlay = document.getElementById('overlay');
+
+  document.getElementById('continueBtn').addEventListener('click', function () {
+    overlay.classList.add('open');
+  });
+  document.getElementById('modalClose').addEventListener('click', function () {
+    overlay.classList.remove('open');
+  });
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+  document.getElementById('goBtn').addEventListener('click', function () {
+    location.href = buildOfferUrl();
+  });
+
+  /* The reward "UNLOCK" buttons walk the SAME /click gate to the SAME offer link as the main
+     CTA — no per-reward destinations, so the money path is unchanged. */
+  Array.prototype.forEach.call(document.querySelectorAll('.reward-btn[data-reward]'), function (b) {
+    b.addEventListener('click', function () { location.href = buildOfferUrl(); });
+  });
+})();
+</script>
+</body>
+</html>

@@ -117,6 +117,9 @@
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
     'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
     'gravypassusa2.html', 'gravypassusa2-pre.html', 'gps',
+    // MGRECO - the owner Reco Social page, single-tenant, no clone pool.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    'mgreco.html', 'mgreco-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',

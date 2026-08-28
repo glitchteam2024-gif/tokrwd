@@ -448,6 +448,14 @@
       "destination": "/gravypassusa2.html"
     },
     {
+      "source": "/mgreco-pre",
+      "destination": "/mgreco-pre.html"
+    },
+    {
+      "source": "/mgreco",
+      "destination": "/mgreco.html"
+    },
+    {
       "source": "/PR50/:c(AU\\d+)/go",
       "destination": "/playfulau.html"
     },
