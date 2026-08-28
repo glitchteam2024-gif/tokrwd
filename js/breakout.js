@@ -113,6 +113,10 @@
     // pair rather than repointing PlayfulM so the Playful funnel stays runnable.
     'fcm.html', 'fcm-pre.html',
     'mgfc.html', 'mgfc-pre.html',
+    // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
+    'gravypassusa2.html', 'gravypassusa2-pre.html', 'gps',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',

@@ -416,6 +416,38 @@
       "destination": "/gravypassusa-ravi.html"
     },
     {
+      "source": "/GPR/:c(US\\d+)/go",
+      "destination": "/gravypassusa.html"
+    },
+    {
+      "source": "/GPR/:c(US\\d+)",
+      "destination": "/gravypassusa-pre.html"
+    },
+    {
+      "source": "/gravypassusa-pre",
+      "destination": "/gravypassusa-pre.html"
+    },
+    {
+      "source": "/gravypassusa",
+      "destination": "/gravypassusa.html"
+    },
+    {
+      "source": "/GPS/:c(US\\d+)/go",
+      "destination": "/gravypassusa2.html"
+    },
+    {
+      "source": "/GPS/:c(US\\d+)",
+      "destination": "/gravypassusa2-pre.html"
+    },
+    {
+      "source": "/gravypassusa2-pre",
+      "destination": "/gravypassusa2-pre.html"
+    },
+    {
+      "source": "/gravypassusa2",
+      "destination": "/gravypassusa2.html"
+    },
+    {
       "source": "/PR50/:c(AU\\d+)/go",
       "destination": "/playfulau.html"
     },

@@ -995,6 +995,11 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // MGFC single-tenant Freecash pair (Migi), 2026-08-25. Green prelander /mgfc-pre.html
   // forwards to /mgfc.html via its sprk-lander meta. Added to BOTH lists in this commit.
   'mgfc.html', 'mgfc-pre.html',
+  // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
+  // Prelander /gravypassusa-pre.html forwards to /gravypassusa.html via its sprk-lander meta.
+  // Added to BOTH lists in this commit; a lander missing here silently loses its prelander hop.
+  'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
+  'gravypassusa2.html', 'gravypassusa2-pre.html', 'gps',
   'shrtl', 'sr50',
   // STT/US — a second Shein $750 US design, override-only via lp=stt. Canonical page,
   // no clone pool, so it stays a folder lander like SHEIN/US.
