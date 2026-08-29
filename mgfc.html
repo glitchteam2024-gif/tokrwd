@@ -2,15 +2,19 @@
 <html lang="en" data-geo="US">
 <head>
 <meta charset="UTF-8" />
-<!-- MGFC — Migi's own Freecash lander. Single-tenant: this page belongs to one operator and is
+<!-- MGFC — Migi's own lander. Single-tenant: this page belongs to one operator and is
      not in any SPRK picker, not shared, not routable by `lp=`.
+
+     WALLET FLOW (2026-08-29, owner request): one page, ONE TAP. The old two-step overlay
+     (tap CONTINUE -> modal -> tap again) is deliberately gone — every CTA now goes straight
+     to the offer on the first tap. Do not reintroduce a popup in front of the money path.
 
      No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
      every visitor, including TikTok's crawler. The breakout happens ONCE, on /mgfc-pre.html,
      which is the reviewed prelander. Attribution does not need a gate — the door 404s any click
      without a valid spark code. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Start Earning — Freecash</title>
+<title>Start Earning — Gravy Pass</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff}
@@ -21,26 +25,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .brand .mark{width:52px;height:52px;border-radius:14px;object-fit:cover;background:hsl(0,0%,8%);box-shadow:0 0 20px hsla(160,100%,50%,0.18)}
 .brand .name{font-size:20px;font-weight:800;letter-spacing:-0.02em}
 .brand .x{color:hsla(0,0%,100%,0.45);font-size:20px;font-weight:500}
-.pill{display:inline-flex;align-items:center;gap:7px;background:hsla(160,100%,50%,0.1);border:1px solid hsla(160,100%,50%,0.35);color:hsl(160,100%,60%);font-size:12px;font-weight:700;letter-spacing:0.08em;padding:7px 14px;border-radius:999px;margin-bottom:16px}
-.pill .live{width:7px;height:7px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);animation:pulse 1.8s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
-.hero-title{font-size:clamp(1.5rem,6vw,2rem);font-weight:800;line-height:1.15;letter-spacing:-0.02em;color:#fff;margin-bottom:8px;text-wrap:balance}
-.hero-title .grad{background:linear-gradient(180deg,hsl(160,100%,60%) 0%,hsl(160,100%,42%) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-sub{color:hsla(0,0%,100%,0.55);font-size:14px;line-height:1.5;max-width:340px;margin-bottom:22px}
-.qualify-list{display:flex;flex-direction:column;gap:12px;width:100%;margin-bottom:20px}
-.qualify-item{position:relative;display:flex;align-items:center;gap:14px;background:linear-gradient(180deg,hsl(160,12%,11%) 0%,hsl(160,10%,9%) 100%);border:1px solid hsl(160,20%,20%);border-radius:16px;padding:16px;text-align:left;overflow:hidden}
-.qualify-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:hsl(160,100%,50%)}
-.qualify-icon{width:46px;height:46px;border-radius:12px;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.qualify-text{flex:1;min-width:0}
-.qualify-text h2{font-size:clamp(1.05rem,4vw,1.3rem);font-weight:800;letter-spacing:-0.01em;color:#fff;margin-bottom:2px}
-.qualify-text p{font-size:12px;color:hsla(0,0%,100%,0.5);line-height:1.35}
-.qualify-badge{flex-shrink:0;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.3);color:hsl(160,100%,55%);font-size:12px;font-weight:800;padding:6px 10px;border-radius:8px;white-space:nowrap}
 .btn-activate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:20px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,0.5),0 0 60px hsla(160,100%,50%,0.25),0 4px 15px hsla(0,0%,0%,0.3);transition:all 0.2s ease}
 .btn-activate:hover{transform:translateY(-2px);box-shadow:0 0 40px hsla(160,100%,50%,0.6),0 0 80px hsla(160,100%,50%,0.3),0 8px 25px hsla(0,0%,0%,0.4)}
 .btn-activate:active{transform:translateY(1px) scale(0.98)}
 .btn-activate span{font-size:16px;font-weight:700;color:hsl(160,20%,5%);letter-spacing:0.05em}
 .btn-activate svg{flex-shrink:0}
-.reassure{margin-top:14px;font-size:12px;color:hsla(0,0%,100%,0.4);line-height:1.4}
 .anim{opacity:0;animation:fadeSlideUp 0.5s ease forwards}
 @keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .card-dark{background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:20px 18px;width:100%;text-align:left;margin-bottom:16px}
@@ -63,28 +53,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .reward-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,hsl(160,100%,50%),hsl(160,100%,42%))}
 .reward-btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:0.03em;cursor:pointer;text-align:center;color:hsl(160,20%,5%);background:linear-gradient(180deg,hsl(160,100%,55%),hsl(160,100%,45%));box-shadow:0 0 20px hsla(160,100%,50%,0.4);transition:transform 0.15s ease}
 .reward-btn:active{transform:scale(0.98)}
-.reward-unavailable{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:12px;background:hsla(0,70%,50%,0.12);border:1px solid hsla(0,70%,55%,0.4);color:hsl(0,80%,70%);font-size:13px;font-weight:700}
 .reward-info{flex:1;min-width:0}
 .reward-info h4{font-size:15px;font-weight:800}
 .reward-info p{font-size:12px;color:hsla(0,0%,100%,0.5)}
 .reward-prize{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;font-size:15px;font-weight:800;color:hsl(160,100%,55%)}
 .reward-prize span{font-size:10px;font-weight:600;color:hsla(0,0%,100%,0.45);letter-spacing:0.02em;margin-top:2px}
 .mini-note{font-size:11px;color:hsla(0,0%,100%,0.35);margin-top:4px;text-align:center;line-height:1.4}
-.overlay{position:fixed;inset:0;z-index:10;background:hsla(160,25%,3%,0.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
-.overlay.open{display:flex;animation:fadeIn 0.25s ease forwards}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{position:relative;width:100%;max-width:400px;background:hsl(160,12%,10%);border:1px solid hsl(160,20%,20%);border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 20px 60px hsla(0,0%,0%,0.5);animation:pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards}
-@keyframes pop{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-.modal-icon{width:64px;height:64px;border-radius:18px;background:hsla(160,100%,50%,0.12);border:1px solid hsla(160,100%,50%,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
-.modal h3{font-size:20px;font-weight:800;letter-spacing:-0.01em;margin-bottom:10px}
-.modal .lead{font-size:14px;color:hsla(0,0%,100%,0.6);line-height:1.5;margin-bottom:20px}
-.modal-note{display:flex;gap:12px;align-items:flex-start;text-align:left;background:hsl(160,10%,8%);border:1px solid hsl(160,15%,18%);border-radius:14px;padding:14px 16px;margin-bottom:22px}
-.modal-note .num{width:24px;height:24px;border-radius:50%;background:hsl(160,100%,50%);color:hsl(160,20%,5%);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.modal-note p{font-size:13px;color:hsla(0,0%,100%,0.75);line-height:1.45}
-.modal-note .accent{color:hsl(160,100%,55%);font-weight:700}
-.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:hsl(160,10%,16%);color:hsla(0,0%,100%,0.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s ease}
-.modal-close:hover{background:hsl(160,10%,22%);color:#fff}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+
+/* Wallet-flow additions (2026-08-29) — status strip, wallet CTA, activation notice. */
+.status{display:flex;align-items:center;gap:9px;width:100%;background:hsla(160,100%,50%,0.07);border:1px solid hsla(160,100%,50%,0.3);border-radius:14px;padding:12px 15px;margin-bottom:18px;font-size:12.5px;font-weight:600;color:hsl(160,100%,60%);line-height:1.35;text-align:left}
+.status .dot{width:8px;height:8px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);flex-shrink:0;animation:pulse 1.8s ease-in-out infinite}
+.subnote{margin-top:12px;font-size:12px;color:hsla(0,0%,100%,0.4);text-align:center;line-height:1.45}
+.important{position:relative;width:100%;background:hsla(0,70%,45%,0.07);border:1px solid hsla(0,75%,58%,0.45);border-radius:16px;padding:18px 16px 14px;margin-top:20px;text-align:left}
+.important .flag{position:absolute;top:-10px;right:14px;background:hsl(0,75%,52%);color:#fff;font-size:10px;font-weight:800;letter-spacing:0.08em;padding:4px 9px;border-radius:6px}
+.important .hd{display:flex;align-items:flex-start;gap:11px;margin-bottom:6px}
+.important h4{font-size:15px;font-weight:800;color:#fff}
+.important p{font-size:12.5px;color:hsla(0,0%,100%,0.62);line-height:1.5}
+.important .accent{color:hsl(160,100%,55%);font-weight:700}
+.important .rule{height:1px;background:hsla(0,0%,100%,0.09);margin:13px 0 11px}
+.important .ok{display:flex;align-items:center;gap:9px;font-size:12.5px;color:hsla(0,0%,100%,0.62);line-height:1.4}
+
 </style>
 </head>
 <body>
@@ -92,99 +81,76 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   <div class="bg-glow"></div>
   <div class="container">
 
-    <!-- TikTok x Freecash lockup — the marks the owner asked for (2026-08-25). The right-hand
-         mark is Freecash's own S-glyph (/images/freecash-mark-green-on-dark.png), so this is the
-         advertiser's brand beside the TikTok "Paid to Scroll" angle, not two unrelated parties. -->
+    <!-- TikTok x Freecash lockup — the marks the owner asked for. The right-hand mark is
+         /images/freecash-mark-green-on-dark.png (Freecash's green S-glyph). -->
     <div class="brand anim">
       <img class="mark" src="/images/tiktok-icon-free-png.png" alt="TikTok" width="52" height="52" />
-      <span class="x">×</span>
-      <img class="mark" src="/images/freecash-mark-green-on-dark.png" alt="Freecash" width="52" height="52" />
+      <span class="x">&times;</span>
+      <img class="mark" src="/images/freecash-mark-green-on-dark.png" alt="" width="52" height="52" />
     </div>
 
-    <div class="pill anim" style="animation-delay:0.08s"><span class="live"></span>OFFERS AVAILABLE NOW</div>
-    <h1 class="hero-title anim" style="animation-delay:0.12s">Get paid for the time you <span class="grad">already spend</span></h1>
-    <p class="hero-sub anim" style="animation-delay:0.16s">Freecash pays real money for completing games, apps and surveys. Free to join, payouts to PayPal, bank transfer or crypto.</p>
+    <div class="status anim" style="animation-delay:0.06s"><span class="dot"></span>All rewards unlocked — checking availability…</div>
 
-    <div class="qualify-list anim" style="animation-delay:0.2s">
-      <div class="qualify-item">
-        <div class="qualify-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M6 11h4M8 9v4M15 11.5h.01M18 10h.01" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M17.5 6h-11A4.5 4.5 0 002 10.5v3A4.5 4.5 0 006.5 18c1.2 0 1.9-.5 2.7-1.2.6-.5 1.2-.8 2.8-.8s2.2.3 2.8.8c.8.7 1.5 1.2 2.7 1.2a4.5 4.5 0 004.5-4.5v-3A4.5 4.5 0 0017.5 6z" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="qualify-text"><h2>Get Paid To Game</h2><p>Play mobile games and hit in-game milestones</p></div>
-        <div class="qualify-badge">Earn $$$</div>
-      </div>
-      <div class="qualify-item">
-        <div class="qualify-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <rect x="6" y="2" width="12" height="20" rx="3" stroke="hsl(160,100%,55%)" stroke-width="2"/>
-            <path d="M10.5 18.5h3" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round"/>
-            <path d="M9 6.5h6M9 9.5h4" stroke="hsl(160,100%,55%)" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div class="qualify-text"><h2>Get Paid For Apps &amp; Surveys</h2><p>Try apps and answer surveys, no skills needed</p></div>
-        <div class="qualify-badge">Earn $$$</div>
-      </div>
+    <div class="card-dark anim" style="animation-delay:0.1s">
+      <h3>HOW TO START EARNING</h3>
+      <div class="step"><div class="step-num">1</div><div><h4>Activate &amp; open your Gravy Pass</h4><p>Tap <span class="accent">Activate Wallet Pass</span> below, then open your Gravy Pass in <span class="accent">Apple Wallet</span> to get started.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div><h4>Complete games &amp; tasks for money</h4><p>Follow the instructions in your pass and complete <span class="accent">games and tasks</span> to start earning real money.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Complete 3 tasks to unlock top offers</h4><p>Complete <span class="accent">3 tasks</span> to unlock high-paying popular offers like <span class="accent">Paid to Scroll</span>, Roblox and more.</p></div></div>
     </div>
 
-    <button class="btn-activate anim" style="animation-delay:0.3s" id="continueBtn">
-      <span>CONTINUE</span>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="hsl(160,20%,5%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <button class="btn-activate anim" style="animation-delay:0.16s" data-go>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5" stroke="hsl(160,20%,5%)" stroke-width="2"/><path d="M2.5 10h19" stroke="hsl(160,20%,5%)" stroke-width="2"/></svg>
+      <span>ACTIVATE WALLET PASS</span>
     </button>
-    <p class="reassure anim" style="animation-delay:0.4s">Free to join • Payouts to PayPal, bank transfer &amp; crypto</p>
+    <p class="subnote anim" style="animation-delay:0.2s">Didn&apos;t add it yet? Tap above to add your pass again.</p>
 
-    <div class="card-dark anim" style="animation-delay:0.45s;margin-top:24px">
-      <h3>HOW IT WORKS</h3>
-      <div class="step"><div class="step-num">1</div><div><h4>Create your free Freecash account</h4><p>Tap <span class="accent">Continue</span> and sign up — it takes under a minute and costs nothing.</p></div></div>
-      <div class="step"><div class="step-num">2</div><div><h4>Pick an offer from the wall</h4><p>Games, apps and surveys, each showing <span class="accent">what it pays</span> before you start.</p></div></div>
-      <div class="step"><div class="step-num">3</div><div><h4>Complete it and get paid</h4><p>Your balance updates as offers clear. Cash out to <span class="accent">PayPal, bank transfer or crypto</span>.</p></div></div>
+    <div class="important anim" style="animation-delay:0.24s">
+      <span class="flag">IMPORTANT</span>
+      <div class="hd">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="hsl(0,80%,66%)" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="hsl(0,80%,66%)" stroke-width="2" stroke-linecap="round"/></svg>
+        <h4>Activation Required to Unlock</h4>
+      </div>
+      <p>Top offers stay locked until your wallet pass is active and you&apos;ve completed <span class="accent">3 tasks</span>. Keep completing tasks in your Gravy Pass to unlock them.</p>
+      <div class="rule"></div>
+      <div class="ok">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M5 13l4 4L19 7" stroke="hsl(160,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Complete tasks inside your Gravy Pass to make progress.
+      </div>
     </div>
 
-    <div class="section-label anim" style="animation-delay:0.5s">REWARDS TO UNLOCK</div>
-    <div class="reward anim" style="animation-delay:0.52s">
+    <div class="section-label anim" style="animation-delay:0.3s;margin-top:26px">REWARDS TO UNLOCK</div>
+
+    <div class="reward anim" style="animation-delay:0.32s">
       <div class="reward-top">
         <div class="reward-tile" style="background:hsl(0,0%,8%)"><img src="/images/tiktok-icon-free-png.png" alt="TikTok" /></div>
         <div class="reward-info"><h4>TikTok</h4><p>Paid to Scroll</p></div>
         <div class="reward-prize">$32/hr<span>per hour</span></div>
       </div>
       <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
-      <button class="reward-btn" data-reward>UNLOCK PAID TO SCROLL</button>
+      <button class="reward-btn" data-go>UNLOCK TIKTOK</button>
     </div>
-    <div class="reward anim" style="animation-delay:0.55s">
+
+    <div class="reward anim" style="animation-delay:0.35s">
       <div class="reward-top">
         <div class="reward-tile" style="background:hsl(215,60%,22%)"><img src="/images/clash-royale.png" alt="Clash Royale" /></div>
         <div class="reward-info"><h4>Clash Royale</h4><p>Play &amp; Earn</p></div>
         <div class="reward-prize">$28/hr<span>per hour</span></div>
       </div>
       <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
-      <button class="reward-btn" data-reward>UNLOCK CLASH ROYALE</button>
+      <button class="reward-btn" data-go>UNLOCK CLASH ROYALE</button>
     </div>
-    <div class="reward anim" style="animation-delay:0.58s">
+
+    <div class="reward anim" style="animation-delay:0.38s">
       <div class="reward-top">
         <div class="reward-tile" style="background:hsl(0,0%,15%)"><img src="/images/roblox.jpg" alt="Roblox" /></div>
         <div class="reward-info"><h4>Roblox</h4><p>Play &amp; Earn</p></div>
         <div class="reward-prize">$35/hr<span>per hour</span></div>
       </div>
       <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
-      <button class="reward-btn" data-reward>UNLOCK ROBLOX</button>
+      <button class="reward-btn" data-go>UNLOCK ROBLOX</button>
     </div>
 
-    <p class="mini-note anim" style="animation-delay:0.6s">Rates shown are examples and depend on the offer. Payout amounts are shown on each offer before you start and depend on which offers you complete.</p>
-  </div>
-</div>
-
-<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-  <div class="modal">
-    <button class="modal-close" aria-label="Close" id="modalClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
-    <div class="modal-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="hsl(160,100%,55%)" stroke-width="2"/><path d="M14.5 9.2c-.5-.8-1.4-1.2-2.5-1.2-1.5 0-2.5.8-2.5 1.9 0 1 .8 1.5 2.5 1.9 1.7.4 2.6.9 2.6 2 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.4-2.6-1.3M12 6.5v11" stroke="hsl(160,100%,55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <h3 id="modal-title">Start Earning Now</h3>
-    <p class="lead">Create your free Freecash account and start earning from games, apps and surveys.</p>
-    <div class="modal-note"><div class="num">!</div><p>Use your <span class="accent">real details</span> when you sign up so your earnings can be paid out.</p></div>
-    <button class="btn-activate" id="goBtn"><span>CONTINUE TO FREECASH</span></button>
+    <p class="mini-note anim" style="animation-delay:0.42s">Rewards are credited to your Apple Wallet. One reward set per verified account.</p>
   </div>
 </div>
 
@@ -192,31 +158,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 (function () {
   'use strict';
 
-  /* THE DOOR. Never the network URL directly — api/_lib/_tracking-audit.test.mjs fails the build
-     on any lander that names a network host, because a hop we do not run is a hop we cannot cap,
-     kill, or reconcile against CAKE. The network destination lives in OFFER_LINKS under the
-     slug `mgfc-off` and nowhere else.
-
-     The door mints the click_id, writes the clicks row, freezes ttclid for the CAPI forward, and
-     picks the destination from this page's landing_pages.geo — not the visitor's IP, which is
-     spoofable and would let traffic shop into a higher-paying geo. */
-  /* The gate's `u` must be an ABSOLUTE https URL on GATE_DEST_HOST_RE -- isAllowedGateDestination
-     runs `new URL(raw)`, which throws on a relative path, so a '/c/...' value 404s at the gate.
-     pcbdfv7trk.com is on that allowlist (added 2026-08-24 with Swagbucks iOS). This matches how
-     every other live lander wires its CTA. */
+  /* The offer, named directly. www.pcbdfv7trk.com is an EVERFLOW endpoint, which reads sub1..sub5
+     and silently DISCARDS s1 -- so the outbound param below is sub1. The dialect follows the
+     DESTINATION; the gate's own s1 is OUR first-party log, not the network's field. */
   var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/335X896/';
 
-  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else.
-     Inbound may be ?s1= or ?sub1=; whatever carries the value. If it contains an
-     SPK-XXXX-XXXX code only that leaves, otherwise the value goes out verbatim -- so a plain
-     TikTok label (or macros like __CAMPAIGN_ID__/__CID__) survives intact for segmenting.
-     `|| _s1` keeps a value with NO code in it going out whole; case-insensitive match so an ad
-     platform that lowercases the URL still finds the code.
-
-     ⚠️ OUTBOUND PARAM IS `sub1`, NOT `s1`. pcbdfv7trk.com is an EVERFLOW endpoint and Everflow
-     reads sub1..sub5 -- it silently DISCARDS anything named s1, so an s1= here would zero out
-     attribution. Same wiring as swagbucksusa-sammy.html, which hits this same offer. The gate
-     param below stays `s1` on purpose: that is OUR first-party /click log, not the network. */
+  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else. If it carries an
+     SPK-XXXX-XXXX code only that leaves, otherwise the value goes out verbatim, so a plain TikTok
+     label survives for segmenting. Case-insensitive so a platform that lowercases the URL still
+     matches; `|| _s1` keeps a code-less label whole rather than blanking it. */
   function buildOfferUrl() {
     var _p = new URLSearchParams(location.search);
     var _s1 = _p.get('s1') || _p.get('sub1') || '';
@@ -235,24 +185,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
          + (_t ? '&t=' + encodeURIComponent(_t) : '');
   }
 
-  var overlay = document.getElementById('overlay');
-
-  document.getElementById('continueBtn').addEventListener('click', function () {
-    overlay.classList.add('open');
-  });
-  document.getElementById('modalClose').addEventListener('click', function () {
-    overlay.classList.remove('open');
-  });
-  overlay.addEventListener('click', function (e) {
-    if (e.target === overlay) overlay.classList.remove('open');
-  });
-  document.getElementById('goBtn').addEventListener('click', function () {
-    location.href = buildOfferUrl();
-  });
-
-  /* The reward "UNLOCK" buttons walk the SAME /click gate to the SAME offer link as the main
-     CTA — no per-reward destinations, so the money path is unchanged. */
-  Array.prototype.forEach.call(document.querySelectorAll('.reward-btn[data-reward]'), function (b) {
+  /* ONE TAP, EVERY CTA. There is deliberately no overlay/modal in front of the offer: the old
+     build opened a popup on the first tap and only left on the second, which ate the first tap
+     on every visit. Every [data-go] control navigates immediately. */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function (b) {
     b.addEventListener('click', function () { location.href = buildOfferUrl(); });
   });
 })();
