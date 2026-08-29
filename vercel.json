@@ -280,6 +280,22 @@
       "destination": "/swagbucksusa-sammy.html"
     },
     {
+      "source": "/AS52/:c(US\\d+)/go",
+      "destination": "/recousa-sammy.html"
+    },
+    {
+      "source": "/AS52/:c(US\\d+)",
+      "destination": "/recousa-sammy-pre.html"
+    },
+    {
+      "source": "/recousa-sammy-pre",
+      "destination": "/recousa-sammy-pre.html"
+    },
+    {
+      "source": "/recousa-sammy",
+      "destination": "/recousa-sammy.html"
+    },
+    {
       "source": "/CA150/:c(US\\d+)",
       "destination": "/cash750usa.html"
     },

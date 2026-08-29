@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Get Paid To Play Games</title>
+<meta name="description" content="Earn real cash playing games, testing apps, and completing quick surveys with Reco. Cash out to PayPal, Cash App, or gift cards.">
+<style>
+  :root{
+    --bg-0:#0a0714;
+    --bg-1:#100b1c;
+    --surface:#151024;
+    --surface-2:#1b1530;
+    --border:rgba(255,255,255,0.08);
+    --border-strong:rgba(255,255,255,0.16);
+    --text:#f5f4f8;
+    --text-muted:#9992a8;
+    --text-faint:#625a72;
+    --brand-1:#f2994a;
+    --brand-2:#ef5da8;
+    --brand-3:#9b57e8;
+    --brand-grad:linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 55%, var(--brand-3) 100%);
+    --gold:#f2994a;
+    --gold-2:#ffb066;
+    --green:#34d399;
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-sm:11px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:var(--bg-0);}
+  body{
+    min-height:100vh;
+    min-height:100svh;
+    background:
+      radial-gradient(520px 380px at 12% -6%, rgba(91,124,240,0.20), transparent 60%),
+      radial-gradient(460px 340px at 92% 8%, rgba(239,93,168,0.14), transparent 60%),
+      linear-gradient(to bottom, var(--bg-1) 0%, var(--bg-0) 45%, #050309 100%);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  a{color:inherit;}
+  .wrap{max-width:460px;margin:0 auto;padding:0 18px 40px;}
+
+  /* ================= LIVE TICKER ================= */
+  .ticker{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text-muted);
+    padding:12px 14px;
+    border-bottom:1px solid var(--border);
+    text-align:center;
+  }
+  .ticker .amt{color:var(--green);font-weight:800;}
+  .ticker .flag{font-size:13px;}
+
+  /* ================= HERO ================= */
+  .hero{text-align:center;padding:26px 4px 8px;}
+  .urgency-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.03em;
+    color:var(--gold);
+    background:rgba(242,153,74,0.10);
+    border:1px solid rgba(242,153,74,0.35);
+    padding:6px 13px;
+    border-radius:999px;
+    margin-bottom:18px;
+  }
+  .app-icon{
+    width:76px;height:76px;
+    margin:0 auto 16px;
+    border-radius:20px;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 16px 34px -14px rgba(155,87,232,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset;
+  }
+  .app-icon img{width:100%;height:100%;object-fit:cover;display:block;}
+  .rating-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:700;
+    color:#d7c9f7;
+    background:rgba(155,87,232,0.12);
+    border:1px solid rgba(155,87,232,0.35);
+    padding:6px 13px;
+    border-radius:999px;
+    margin-bottom:20px;
+  }
+  .rating-chip .stars{color:var(--gold);letter-spacing:1px;}
+  h1{
+    font-size:clamp(1.7rem,8.4vw,2.3rem);
+    font-weight:800;
+    letter-spacing:-0.01em;
+    line-height:1.1;
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  h1 span{display:block;}
+  h1 .l1{color:#fff;}
+  h1 .l2{
+    background:var(--brand-grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .subhead{
+    font-size:14.5px;
+    color:var(--text-muted);
+    line-height:1.55;
+    max-width:360px;
+    margin:0 auto 20px;
+  }
+  .live-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text-muted);
+    background:var(--surface);
+    border:1px solid var(--border);
+    padding:8px 14px;
+    border-radius:999px;
+  }
+  .live-chip b{color:var(--text);}
+  .dot-live{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 0 0 rgba(52,211,153,0.6);
+    animation:pulse 1.8s ease-in-out infinite;
+    flex-shrink:0;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(52,211,153,0.5);}
+    70%{box-shadow:0 0 0 6px rgba(52,211,153,0);}
+    100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}
+  }
+
+  /* ================= BONUS SPOTS BOX ================= */
+  .bonus-card{
+    margin-top:22px;
+    background:linear-gradient(155deg, rgba(242,153,74,0.10), rgba(239,93,168,0.05));
+    border:1px solid rgba(242,153,74,0.35);
+    border-radius:var(--radius-lg);
+    padding:16px 18px;
+  }
+  .bonus-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .bonus-label{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);}
+  .bonus-count{font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin-top:4px;}
+  .bonus-count small{font-size:12px;font-weight:700;color:var(--text-faint);}
+  .bonus-fill-chip{
+    display:inline-flex;align-items:center;gap:4px;
+    font-size:10.3px;font-weight:800;color:var(--gold);
+    background:rgba(242,153,74,0.16);
+    padding:4px 9px;border-radius:999px;
+    white-space:nowrap;
+  }
+  .bonus-reset{font-size:10px;color:var(--text-faint);margin-top:5px;}
+  .bonus-bar{height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:12px;}
+  .bonus-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg, var(--gold), var(--brand-2));transition:width .6s ease;}
+
+  .cta-block{margin-top:18px;}
+
+  /* ================= PAYOUT STAT CARD ================= */
+  .payout-card{
+    margin-top:26px;
+    background:var(--surface);
+    border:1px solid rgba(242,153,74,0.35);
+    border-radius:var(--radius-lg);
+    padding:20px 20px 22px;
+  }
+  .payout-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .payout-label{font-size:10.8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+  .payout-trend{
+    display:flex;align-items:center;gap:3px;
+    font-size:11px;font-weight:800;color:var(--green);
+    background:rgba(52,211,153,0.12);
+    padding:3px 8px;border-radius:999px;
+  }
+  .payout-amount{font-size:clamp(1.7rem,8vw,2.1rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:10px;}
+  .payout-chart{width:100%;height:34px;display:block;margin-bottom:16px;}
+  .cta-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    border:none;
+    cursor:pointer;
+    background:var(--brand-grad);
+    color:#fff;
+    font-size:16px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    padding:16px 20px;
+    border-radius:14px;
+    box-shadow:
+      0 14px 30px -8px rgba(155,87,232,0.45),
+      0 2px 0 0 rgba(255,255,255,0.25) inset;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .cta-btn:hover{transform:translateY(-1px);box-shadow:0 18px 36px -8px rgba(155,87,232,0.55), 0 2px 0 0 rgba(255,255,255,0.25) inset;}
+  .cta-btn:active{transform:translateY(0) scale(.99);}
+  .cta-btn svg{width:17px;height:17px;flex-shrink:0;}
+  .cta-micro{
+    text-align:center;
+    font-size:12px;
+    color:var(--text-faint);
+    margin-top:11px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+
+  /* ================= TRUST STATS STRIP ================= */
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-top:16px;
+  }
+  .stat-item{
+    text-align:center;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:14px 6px;
+  }
+  .stat-item .num{
+    font-size:1.05rem;font-weight:800;letter-spacing:-0.01em;
+    background:var(--brand-grad);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .stat-item .lbl{font-size:10.2px;color:var(--text-faint);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.03em;}
+
+  /* ================= SECTION SHELL ================= */
+  section.body-section{margin-top:40px;}
+  .section-head{margin-bottom:18px;text-align:center;}
+  .section-eyebrow{
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+  .section-title{font-size:1.3rem;font-weight:800;letter-spacing:-0.02em;}
+  .section-sub{font-size:13px;color:var(--text-muted);margin-top:6px;}
+
+  /* ================= HOW IT WORKS ================= */
+  .steps{display:flex;flex-direction:column;gap:10px;}
+  .step{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    background:var(--surface);
+    border:1px solid rgba(242,153,74,0.35);
+    border-radius:var(--radius-md);
+    padding:15px 16px;
+  }
+  .step-num{
+    flex:0 0 auto;
+    width:28px;height:28px;
+    border-radius:50%;
+    background:var(--brand-grad);
+    color:#fff;
+    font-size:13px;
+    font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+    margin-top:1px;
+  }
+  .step-body{flex:1;min-width:0;}
+  .step-title{font-size:14.5px;font-weight:700;margin-bottom:2px;}
+  .step-desc{font-size:12.5px;color:var(--text-muted);line-height:1.4;}
+  .step-tip{font-size:12px;color:var(--gold);font-weight:600;line-height:1.4;margin-top:6px;}
+
+  /* ================= CORNER EARNINGS POPUP ================= */
+  .toast-wrap{
+    position:fixed;
+    left:14px;
+    bottom:14px;
+    z-index:60;
+    max-width:250px;
+    pointer-events:none;
+  }
+  .toast{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface-2);
+    border:1px solid var(--border-strong);
+    border-radius:14px;
+    padding:10px 12px;
+    box-shadow:0 14px 30px -10px rgba(0,0,0,0.55);
+    opacity:0;
+    transform:translateY(12px);
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.boost{
+    border-color:rgba(242,153,74,0.5);
+    background:linear-gradient(155deg, rgba(242,153,74,0.16), var(--surface-2));
+  }
+  .toast-avatar{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:800;color:#fff;
+    background:var(--brand-grad);
+    flex-shrink:0;
+  }
+  .toast-body{min-width:0;}
+  .toast-name{font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:4px;}
+  .toast-flame{font-size:11px;}
+  .toast-sub{font-size:10.3px;color:var(--text-muted);margin-top:1px;white-space:nowrap;}
+  .toast-amt{font-size:13px;font-weight:800;color:var(--green);margin-top:2px;}
+  .toast.boost .toast-amt{color:var(--gold);}
+  @media (max-width:400px){
+    .toast-wrap{max-width:210px;}
+  }
+
+  /* ================= FOOTER ================= */
+  footer{margin-top:38px;padding-top:22px;border-top:1px solid var(--border);}
+  .store-badges{display:flex;gap:10px;margin-bottom:18px;}
+  .store-btn{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    border:none;
+    cursor:pointer;
+    border-radius:12px;
+    padding:10px 12px;
+    color:#fff;
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .store-btn:hover{transform:translateY(-1px);opacity:.94;}
+  .store-btn:active{transform:translateY(0) scale(.98);}
+  .store-btn.apple{background:#000;border:1px solid rgba(255,255,255,0.22);}
+  .store-btn.google{background:var(--brand-grad);}
+  .store-btn svg{width:21px;height:21px;flex-shrink:0;color:#fff;}
+  .store-text{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;}
+  .store-text small{font-size:9px;font-weight:500;color:rgba(255,255,255,0.8);}
+  .store-text strong{font-size:14px;font-weight:700;letter-spacing:-0.01em;}
+  .disclaimer{
+    font-size:10.3px;
+    line-height:1.6;
+    color:var(--text-faint);
+    text-align:center;
+    max-width:400px;
+    margin:0 auto;
+  }
+  .disclaimer a{text-decoration:underline;color:var(--text-faint);}
+  .disclaimer .links{display:flex;justify-content:center;gap:14px;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="ticker"><span class="flag">🇺🇸</span> <span id="ticker-text">Carlos T. just earned <span class="amt">$9.80</span> — paid instantly</span></div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="urgency-chip">⚡ Limited spots — instant welcome bonus</div>
+    <div class="app-icon"><img src="/images/reco-app-icon.jpg" alt="Reco Social app icon" width="76" height="76"></div>
+    <div class="rating-chip"><span class="stars">★★★★★</span> 4.7 · App Store (25K+ reviews)</div>
+    <h1><span class="l1">Get Paid</span><span class="l2">To Play Games</span></h1>
+    <p class="subhead">Earn real cash with Reco by playing games, testing apps, and completing quick surveys. Cash out to PayPal, Cash App, or gift cards.</p>
+    <div class="live-chip"><span class="dot-live"></span> <b id="live-count">8,124</b>&nbsp;people earning right now</div>
+  </div>
+
+  <div class="bonus-card">
+    <div class="bonus-head">
+      <div>
+        <div class="bonus-label">Today's Bonus Spots</div>
+        <div class="bonus-count"><span id="bonus-count">147</span> <small>/ 500</small></div>
+      </div>
+      <div style="text-align:right;">
+        <span class="bonus-fill-chip">▲ Filling fast</span>
+        <div class="bonus-reset">Resets at midnight</div>
+      </div>
+    </div>
+    <div class="bonus-bar"><span id="bonus-bar-fill" style="width:29%"></span></div>
+  </div>
+
+  <div class="cta-block">
+    <button class="cta-btn" id="cta-hero" type="button">
+      Start Earning
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+    <div class="cta-micro"><span>Takes 20 seconds</span><span>·</span><span>No credit card</span><span>·</span><span>Instant welcome bonus</span></div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="body-section" id="how">
+    <div class="section-head">
+      <div class="section-eyebrow">How it works</div>
+      <div class="section-title">Three Steps To Your First Payout</div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Sign up</div>
+          <div class="step-desc">Takes a few minutes. No credit card required.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Play, tap, earn</div>
+          <div class="step-desc">Test apps, play games, and take surveys to complete deals.</div>
+          <div class="step-tip">Optional: for a limited time, spend $5 on any game for up to $150 back.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Cash out</div>
+          <div class="step-desc">PayPal, Cash App, or gift cards.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="payout-card">
+    <div class="payout-head">
+      <span class="payout-label">Total Paid Out Today</span>
+      <span class="payout-trend">▲ 12%</span>
+    </div>
+    <div class="payout-amount" id="payout-amount">$71,204.56</div>
+    <svg class="payout-chart" viewBox="0 0 300 40" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="chartGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#f2994a"/>
+          <stop offset="55%" stop-color="#ef5da8"/>
+          <stop offset="100%" stop-color="#9b57e8"/>
+        </linearGradient>
+      </defs>
+      <polyline points="0,32 40,29 80,30 120,24 160,20 200,15 240,10 300,4" fill="none" stroke="url(#chartGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-item"><div class="num">2M+</div><div class="lbl">Active Members</div></div>
+    <div class="stat-item"><div class="num">200+</div><div class="lbl">Reward Options</div></div>
+    <div class="stat-item"><div class="num">4.7★</div><div class="lbl">Member Rating</div></div>
+  </div>
+
+  <footer>
+    <div class="store-badges">
+      <button class="store-btn apple offer-link" type="button" id="store-apple">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.415 2.06-1.244 2.76-.83.7-1.83 1.06-3.02.97-.024-1.11.43-2.06 1.235-2.76.8-.7 1.85-1.09 3.03-.97zm3.85 16.4c-.34.76-.5 1.1-.94 1.77-.62.94-1.49 2.11-2.57 2.12-1.03.01-1.3-.68-2.7-.68-1.4 0-1.72.67-2.75.7-1.08.03-1.9-1.03-2.53-1.97-1.36-2.02-2.4-5.72-1-8.22.7-1.24 1.94-2.03 3.28-2.05 1.06-.02 2.06.72 2.7.72.63 0 1.85-.9 3.13-.77.53.02 2.03.21 2.99 1.6-2.6 1.5-2.18 5.4.39 6.78z"/></svg>
+        <span class="store-text"><small>Download on the</small><strong>App Store</strong></span>
+      </button>
+      <button class="store-btn google offer-link" type="button" id="store-google">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.6 2.3c-.3.3-.5.7-.5 1.2v17c0 .5.2.9.5 1.2l.1.1L13.5 12 3.7 2.2l-.1.1z"/><path d="M16.8 15.3l-3.3-3.3 3.3-3.3 4 2.3c.7.4.7 1.5 0 1.9l-4 2.4z" opacity=".7"/><path d="M13.5 12l3.3 3.3-11.2 6.4c-.5.3-1.1.2-1.5-.1L13.5 12z" opacity=".85"/><path d="M13.5 12L4.1 2.4c.4-.3 1-.4 1.5-.1l11.2 6.4-3.3 3.3z" opacity=".55"/></svg>
+        <span class="store-text"><small>Get it on</small><strong>Google Play</strong></span>
+      </button>
+    </div>
+    <p class="disclaimer">
+      Availability, rewards, and eligibility may vary by user, location, and completed activity. Results are not guaranteed and are based on individual participation. Earnings vary by offer. This page is not sponsored or endorsed by Apple Inc. or Google LLC.
+      <span class="links"><a href="/Rewards/privacy">Privacy Policy</a><a href="/Rewards/terms">Terms of Service</a></span>
+    </p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  /* THE RAW MONETISE LINK for Reco Social — exactly the `reco-social-off` destination in
+     api/_lib/links-config.js (montrk3, a=26648, c=56065). The comp shipped an
+     example-domain placeholder on this line.
+
+     ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
+     keeping both would ship "&s1=&s1=CODE", where the network reads the EMPTY first one. It must
+     also stay an ABSOLUTE https URL: isAllowedGateDestination runs `new URL(raw)`, which throws on
+     a relative path, so a "/c/..." value 404s at our own gate. montrk3.co.uk already matches
+     GATE_DEST_HOST_RE, so nothing needs adding there. */
+  var OFFER_LINK = "https://montrk3.co.uk/?a=26648&c=56065";
+
+  // Carry EVERY incoming param through. His original did window.location.href = URL with no query
+
+  var q = new URLSearchParams(location.search);
+
+
+  if (!q.get("s1") && q.get("campid")) q.set("s1", q.get("campid"));
+
+
+
+  if (!q.get("s1")) {
+    var mc = q.get("mc_attr") || "", f = {};
+    mc.split("..").forEach(function (kv) { var i = kv.indexOf("="); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+    var d = f.e || f.c; if (d) q.set("s1", d);
+  }
+
+  function offerUrl(){
+
+    /* His Swagbucks page carries three more lines here — it builds a `qs` of every param
+       EXCEPT s1/campid/lg and then never reads it. That is the vestige of the pre-2026-08-20
+       contract, where the leftover query rode along to the network; SPRK-S1-ONLY v5 replaced
+       it with "one param out, nothing else". Dropped rather than lifted: dead param-forwarding
+       machinery sitting next to the leak-prevention logic is what invites a later edit to
+       "use" it and quietly reopen the leak. `s1` is the only one of the three that was read. */
+    var s1 = q.get("s1") || "";
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    var url = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+         The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+         code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+         already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+         `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+         is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+         platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      /* ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1` — and that is the ONE line that differs from his
+         Swagbucks page, which this wiring is otherwise lifted from verbatim. montrk3.co.uk is
+         MONETISE/CAKE, which reads s1..s5 and silently DISCARDS sub1; pcbdfv7trk.com (Prescott,
+         Swagbucks) is Everflow and does the exact reverse. Copying the sibling's builder without
+         switching the dialect zeroes attribution with no error: the link looks healthy and every
+         conversion lands unmatched. The dialect follows the DESTINATION. */
+      var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* Drop an UNEXPANDED TikTok macro rather than logging it. When an ad link ships with the
+         literal __CLICKID__ (or braces from a mis-pasted template), TikTok never substitutes it and
+         the raw token would land in our own gate log as if it were a real click id. It never
+         reaches the network — `t` is a /click param, not a forwarded one — so this is log hygiene,
+         not attribution. Carried over from mgreco.html, the sibling page on this same offer; his
+         Swagbucks page predates the guard. */
+      if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+      /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
+    return url;
+  }
+
+  function handleClaim(){
+    window.location.href = offerUrl();
+  }
+  ["cta-hero","store-apple","store-google"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener("click", handleClaim);
+  });
+
+  // ---- rotating live ticker ----
+  var tickerMessages = [
+    { name:"Carlos T.", amt:"$9.80" },
+    { name:"Ashley M.", amt:"$37.00" },
+    { name:"Jake R.", amt:"$75.00" },
+    { name:"Maria S.", amt:"$128.00" }
+  ];
+  var flags = ["🇺🇸","🇬🇧","🇨🇦","🇦🇺"];
+  var tickerEl = document.getElementById("ticker-text");
+  var flagEl = document.querySelector(".ticker .flag");
+  var ti = 0;
+  function rotateTicker(){
+    ti = (ti + 1) % tickerMessages.length;
+    var m = tickerMessages[ti];
+    tickerEl.innerHTML = m.name + ' just earned <span class="amt">' + m.amt + '</span> — paid instantly';
+    flagEl.textContent = flags[ti];
+  }
+  setInterval(rotateTicker, 4200);
+
+  // ---- live earner count drift ----
+  var liveCountEl = document.getElementById("live-count");
+  var liveBase = 8124;
+  setInterval(function(){
+    liveBase += Math.floor(Math.random()*7) - 2;
+    liveCountEl.textContent = liveBase.toLocaleString();
+  }, 3000);
+
+  // ---- payout amount drift (irregular cadence, not a fixed tick) ----
+  var payoutEl = document.getElementById("payout-amount");
+  var payoutBase = 71204.56;
+  function schedulePayoutTick(){
+    var delay = 900 + Math.random()*3600;
+    setTimeout(function(){
+      payoutBase += 2 + Math.random()*34;
+      payoutEl.textContent = "$" + payoutBase.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+      schedulePayoutTick();
+    }, delay);
+  }
+  schedulePayoutTick();
+
+  // ---- bonus spots counter (slow climb toward the cap) ----
+  var bonusCountEl = document.getElementById("bonus-count");
+  var bonusBarEl = document.getElementById("bonus-bar-fill");
+  var bonusCount = 147;
+  function scheduleBonusTick(){
+    var delay = 4000 + Math.random()*6000;
+    setTimeout(function(){
+      if(bonusCount < 480){
+        bonusCount += 1;
+        bonusCountEl.textContent = bonusCount;
+        bonusBarEl.style.width = Math.min(100, (bonusCount/500)*100) + "%";
+      }
+      scheduleBonusTick();
+    }, delay);
+  }
+  scheduleBonusTick();
+
+  // ---- corner earnings popups ----
+  var toastWrap = document.createElement("div");
+  toastWrap.className = "toast-wrap";
+  document.body.appendChild(toastWrap);
+
+  var toastFirstNames = ["Jake","Tyler","Devon","Marcus","Priya","Sofia","Emily","Ashley","Carlos","Jordan","Casey","Amara","Maria","David","Ryan","Olivia","Noah","Liam","Ava","Grace","Ethan","Zoe","Mason","Chloe"];
+  var toastLastInitials = ["T.","R.","K.","S.","P.","M.","W.","B.","D.","J.","C.","G.","H.","L.","N.","F."];
+  var toastCities = ["Denver, CO","Miami, FL","Austin, TX","Seattle, WA","Phoenix, AZ","Chicago, IL","Atlanta, GA","Boston, MA","Portland, OR","Dallas, TX","San Diego, CA","Nashville, TN","Columbus, OH","Charlotte, NC","Tampa, FL","Sacramento, CA"];
+
+  var lastToastKey = "";
+  function randPick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function randRange(min, max){ return min + Math.random()*(max-min); }
+
+  function generateToast(tier){
+    var name, loc, key, attempts = 0;
+    do{
+      name = randPick(toastFirstNames) + " " + randPick(toastLastInitials);
+      loc = randPick(toastCities);
+      key = name + "|" + loc;
+      attempts++;
+    } while(key === lastToastKey && attempts < 8);
+    lastToastKey = key;
+
+    var amt, spent;
+    if(tier === 10){
+      amt = randRange(90, 155);
+      spent = 10;
+    } else if(tier === 5){
+      amt = randRange(45, 74);
+      spent = 5;
+    } else {
+      amt = randRange(12, 42);
+    }
+    return { name:name, loc:loc, amt:amt, spent:spent };
+  }
+
+  var regularStreak = 0;
+  var nextBoostAt = 3 + Math.floor(Math.random()*3); // 3, 4, or 5
+
+  function showToast(){
+    var t;
+    if(regularStreak >= nextBoostAt){
+      t = generateToast(Math.random() < 0.5 ? 5 : 10);
+      regularStreak = 0;
+      nextBoostAt = 3 + Math.floor(Math.random()*3);
+    } else {
+      t = generateToast(null);
+      regularStreak++;
+    }
+
+    var isBoost = !!t.spent;
+    var el = document.createElement("div");
+    el.className = "toast" + (isBoost ? " boost" : "");
+    var initials = t.name.split(" ").map(function(w){ return w[0]; }).join("").slice(0,2);
+    var subText = isBoost ? ("Spent $" + t.spent + " in-app · just now") : (t.loc + " · just now");
+    el.innerHTML =
+      '<div class="toast-avatar">' + initials + '</div>' +
+      '<div class="toast-body">' +
+        '<div class="toast-name">' + t.name + (isBoost ? ' <span class="toast-flame">🔥</span>' : '') + '</div>' +
+        '<div class="toast-sub">' + subText + '</div>' +
+        '<div class="toast-amt">+$' + t.amt.toFixed(2) + '</div>' +
+      '</div>';
+    toastWrap.innerHTML = "";
+    toastWrap.appendChild(el);
+    requestAnimationFrame(function(){ el.classList.add("show"); });
+    setTimeout(function(){ el.classList.remove("show"); }, 4300);
+  }
+  function scheduleToast(){
+    var delay = 5000 + Math.random()*4000;
+    setTimeout(function(){ showToast(); scheduleToast(); }, delay);
+  }
+  scheduleToast();
+
+  // ---- scroll reveal ----
+  var reveal = document.querySelectorAll(".body-section:not(#how), .hero, .payout-card, .stats-row");
+  if("IntersectionObserver" in window){
+    reveal.forEach(function(el){ el.style.opacity = 0; el.style.transform = "translateY(14px)"; el.style.transition = "opacity .5s ease, transform .5s ease"; });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.style.opacity = 1;
+          entry.target.style.transform = "translateY(0)";
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.12 });
+    reveal.forEach(function(el){ io.observe(el); });
+  }
+
+/* SPRK-FUNNEL-BEACON v2 */
+  /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
+     analytics cannot throw on the path to the offer. No UA test here -- /api/funnel-beacon
+     classifies in-app server-side, which keeps this page identical for every visitor. */
+  (function(){
+    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    var bseg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+    function bsend(ev, extra){
+      try {
+        var d = { event: ev, sid: bq.get('sid') || '',
+                  s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                  ttclid: bq.get('ttclid') || '',
+                  slice: 'RECOUSA-SAMMY', clone: 'US', path: location.pathname };
+        if (extra) for (var k in extra) d[k] = extra[k];
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify(d)], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    /* Bound to the CTA, not to the URL builder — binding to the exit control is what keeps a
+       'click' meaning the same thing on every lander generation. Fires once. */
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'ctaBtn' || el.id === 'tipGo' || el.id === 'doorClaim' || el.id === 'cta-hero'
+            || (el.classList && (el.classList.contains('offer-link') || el.classList.contains('store-combo')))) {
+          fired = true;
+          bsend('offer_click', { s5: (window.__SPRK_S5 || '') });
+          return;
+        }
+      }
+    }, true);
+  })();
+})();
+</script>
+
+</body>
+</html>

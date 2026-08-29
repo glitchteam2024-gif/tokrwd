@@ -1004,6 +1004,15 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // landing_pages row, not self_serve, so no affiliate can be assigned it. Flat pair, so each
   // NAME is its own root. Added to BOTH lists in this commit.
   'mgreco.html', 'mgreco-pre.html',
+  // RECOUSA-SAMMY — the Sammy Reco Social page, 2026-08-29. His supplied design on the same
+  // offer the house /recousa page runs, reserved to him and routed on his own AS52 family.
+  // Flat pair, so each NAME is its own root. Added to BOTH lists in this commit.
+  'recousa-sammy.html', 'recousa-sammy-pre.html',
+  // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
+  // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as
+  // /pre?to=/AS52/US<n> and the visitor would cross a prelander twice. Leaving it out makes
+  // wrapPrelander return the URL untouched, which is the single correct hop. 096c728 left
+  // as51 out for the same route shape; as50 predates the split. Do not "fix" this by adding it.
   'shrtl', 'sr50',
   // STT/US — a second Shein $750 US design, override-only via lp=stt. Canonical page,
   // no clone pool, so it stays a folder lander like SHEIN/US.

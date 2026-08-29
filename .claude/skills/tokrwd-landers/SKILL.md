@@ -1064,6 +1064,14 @@ done
 `<meta name="sprk-lander">`. Pre-existing; do not attribute it to a lander change. Everything else
 must be green.
 
+⚠️ **Never put an apostrophe in a comment inside `ALLOWED_ROOTS` in `js/breakout.js`.** The
+`_prelander-page` sync check lifts that array out of the file by pairing quote characters, so a
+lone `'` in a comment ("Sammy's page") opens a phantom string literal and every entry after it is
+read as garbage. The failure does not name the comment — it prints two corrupted arrays and says
+`…identical to PRELANDER_ALLOWED_ROOTS` / `…and lowercase`, which reads like a genuine drift
+between the two lists. `PRELANDER_ALLOWED_ROOTS` in `links-config.js` strips comments properly and
+is unaffected, so only one side looks wrong. Write the comment without the apostrophe.
+
 ⚠️ **`git clean -fd` will delete new untracked test files** — `git add` them first. Learned the
 hard way here: it removed `_offer-link.test.mjs` and `_guard.js` mid-session.
 
