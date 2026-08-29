@@ -472,6 +472,14 @@
       "destination": "/mgreco.html"
     },
     {
+      "source": "/mgfc-pre",
+      "destination": "/mgfc-pre.html"
+    },
+    {
+      "source": "/mgfc",
+      "destination": "/mgfc.html"
+    },
+    {
       "source": "/PR50/:c(AU\\d+)/go",
       "destination": "/playfulau.html"
     },
