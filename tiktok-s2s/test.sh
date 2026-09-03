@@ -24,7 +24,7 @@ step_token () {
   local resp
   resp=$(curl -s -X POST "$EVENTS_API" \
     -H "Access-Token: $ACCESS_TOKEN" -H 'Content-Type: application/json' \
-    -d '{"event_source":"web","event_source_id":"'"$PIXEL_ID"'",'"$test_field"'"data":[{"event":"ClickButton","event_time":'"$RUN"',"event_id":"cc-test-'"$RUN"'","user":{"ttclid":"cc-test-ttclid-'"$RUN"'"},"properties":{"value":1,"currency":"USD"}}]}')
+    -d '{"event_source":"web","event_source_id":"'"$PIXEL_ID"'",'"$test_field"'"data":[{"event":"CompleteRegistration","event_time":'"$RUN"',"event_id":"cc-test-'"$RUN"'","user":{"ttclid":"cc-test-ttclid-'"$RUN"'"},"properties":{"value":1,"currency":"USD"}}]}')
   echo "$resp"
   if echo "$resp" | grep -q '"code": *0'; then echo "✓ code:0"; else echo "✗ NOT code:0 — stop here, show this response"; exit 1; fi
 }

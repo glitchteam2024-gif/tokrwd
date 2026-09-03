@@ -1,6 +1,6 @@
-# TikTok server-to-server — ClickButton on `mgfc`
+# TikTok server-to-server — CompleteRegistration on `mgfc`
 
-Every CTA tap on the personal lander is reported to TikTok's Events API as a `ClickButton` worth
+Every CTA tap on the personal lander is reported to TikTok's Events API as a `CompleteRegistration` worth
 $1.00 USD, matched on `ttclid`, through an n8n webhook. Two paths feed the same four-node workflow:
 
 | Path | Fires from | Carries | Status |
@@ -13,7 +13,7 @@ Both share one `event_id`, so when both arrive TikTok collapses them into a sing
 ## What is already in place
 
 - `https://www.myrewardscorner.com/mgfc.html` carries the TikTok pixel (`DAD03V3C77UC8FLJKCOG`) and
-  the Path B script in `<head>`. On every CTA tap it fires `ttq.track('ClickButton')` from the
+  the Path B script in `<head>`. On every CTA tap it fires `ttq.track('CompleteRegistration')` from the
   browser **now**, and the server beacon the moment `N8N_HOST` is filled in.
 - The page's offer builder forwards the click id to the network as `s2` and the shared event id as
   `s3` (Monetise/CAKE reads `s1..s5`), so the network can echo them back to n8n. Both are gated on a
@@ -42,7 +42,7 @@ Both share one `event_id`, so when both arrive TikTok collapses them into a sing
 ```
 
 Then in n8n open the execution: every node green, the TikTok node's output shows `"code": 0`.
-Then Events Manager → the pixel → Test Events shows `ClickButton` with `value: 1`.
+Then Events Manager → the pixel → Test Events shows `CompleteRegistration` with `value: 1`.
 Then remove `test_event_code` from the Node 4 body, **check for the trailing comma it leaves**, republish.
 
 `test.sh` stamps every id with the run time. TikTok dedupes on `event_id`; a re-sent id is
@@ -82,5 +82,5 @@ places: the `Access-Token` header on the **TikTok Events API** node in n8n (repu
 ## Optimisation note
 
 TikTok's value-based bidding ("Maximize Value") only unlocks on `CompletePayment` / `PlaceAnOrder`
-type events with roughly 20 valued events in a rolling 7 days. `ClickButton` optimises on count.
+type events with roughly 20 valued events in a rolling 7 days. `CompleteRegistration` optimises on count.
 If that ever matters, `EVENT_NAME` on the **Config** node is the only switch.

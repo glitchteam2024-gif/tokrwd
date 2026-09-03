@@ -1,5 +1,5 @@
 {
-  "name": "TikTok S2S \u2014 ClickButton (mgfc)",
+  "name": "TikTok S2S \u2014 CompleteRegistration (mgfc)",
   "nodes": [
     {
       "parameters": {
@@ -27,7 +27,7 @@
             {
               "id": "EVENT_NAME",
               "name": "EVENT_NAME",
-              "value": "ClickButton",
+              "value": "CompleteRegistration",
               "type": "string"
             },
             {
