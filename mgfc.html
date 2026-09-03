@@ -158,11 +158,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 (function () {
   'use strict';
 
-  /* The offer, named directly. Campaign swapped 2026-08-31: 335X896 -> 324QNSF, same advertiser
-     path (22PLLSZ). www.pcbdfv7trk.com is an EVERFLOW endpoint, which reads sub1..sub5 and
-     silently DISCARDS s1 -- so the outbound param below is sub1. The dialect follows the
-     DESTINATION; the gate's own s1 is OUR first-party log, not the network's field. */
-  var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/324QNSF/';
+  /* The offer, named directly. Moved off PRESCOTT to MONETISE 2026-09-03: this link now runs the
+     Gravypass campaign on Monetise (a=26648, c=56278) instead of Prescott's 22PLLSZ/324QNSF, so the
+     conversion event fires on Monetise. monetisetrk4.co.uk is a MONETISE/CAKE endpoint, which reads
+     s1..s5 and silently DISCARDS sub1 -- so the outbound param below is s1, not sub1. The dialect
+     follows the DESTINATION; the gate's own s1 is OUR first-party log, not the network's field.
+     NOTE the stored URL deliberately has NO trailing '&s1=' even though the network link is quoted
+     with one. buildOfferUrl() appends '&s1=<value>' itself, and a URL carrying TWO s1 keys is read
+     first-match by the tracker -- i.e. it would read the EMPTY one and lose the label entirely. */
+  var OFFER_LINK = 'https://monetisetrk4.co.uk/?a=26648&c=56278';
 
   /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else. If it carries an
      SPK-XXXX-XXXX code only that leaves, otherwise the value goes out verbatim, so a plain TikTok
@@ -176,7 +180,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
     var _dest = !_send1 ? OFFER_LINK
-              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
 
     /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
        unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
