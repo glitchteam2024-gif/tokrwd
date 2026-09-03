@@ -14,3 +14,7 @@ _lp-generator/
 # architecture, the door domains and the spark-code scheme to anyone who guessed the path. Nothing
 # on the site references .claude/, so excluding it cannot break a page.
 .claude/
+
+# TikTok server-to-server pipeline (README, importable n8n workflow, test script). These carry
+# the Events API access token — ops tooling, NEVER served from the live domain.
+tiktok-s2s/

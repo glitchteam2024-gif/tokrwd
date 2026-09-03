@@ -1,0 +1,28 @@
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+# Network postback URL — paste into the network's postback / pixel field
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+#
+# ⚠️  TWO THINGS STILL NEED THE NETWORK'S ANSWER (Section 2, Q2):
+#   1. Their exact subid MACRO SYNTAX. Both forms are below — keep the one that matches.
+#      Monetise / CAKE most commonly uses  #s2#  style; the spec's template uses  {s2}  style.
+#   2. Whether the postback fires on CLICK-THROUGH or only on LEAD/CONVERSION. If only on lead,
+#      Path A cannot produce click-level events — Path B (the page beacon, already live) is the
+#      click path, and Path A then reports real conversions as a separate, higher-value event.
+#
+# Reconciliation with the spec's §3b template: on Path B the page sends the EVENT ID to the
+# network in s3 (spec §4b: "s3 round-trips through the network as txid"). So {s3} is txid, not
+# campaign_id. Campaign / adgroup / creative reach n8n from the page beacon instead, and are not
+# expected from the network.
+#
+# Replace <N8N_HOST>. Use  /webhook/  — NOT  /webhook-test/  (that path only exists while
+# "Execute step" is listening in the n8n editor).
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+
+# {brace} syntax (spec form):
+https://<N8N_HOST>/webhook/tiktok-click?ttclid={s2}&txid={s3}&payout={payout}&status={status}
+
+# #hash# syntax (CAKE / Monetise form):
+https://<N8N_HOST>/webhook/tiktok-click?ttclid=#s2#&txid=#s3#&payout=#payout#&status=#status#
+
+# If the network cannot echo a transaction id at all, n8n falls back to  ttclid + '-' + timestamp
+# as the event_id (Edit Fields node). Dedup with the browser event then does not apply — say so.

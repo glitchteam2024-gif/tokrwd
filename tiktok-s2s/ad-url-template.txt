@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+# TikTok ad URL — paste into the ad's landing-page / tracking URL field
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+#
+# TikTok appends `ttclid=...` to this URL itself on every ad click. DO NOT add
+# `ttclid=__CLICKID__` — that produces a duplicate parameter and degrades attribution silently.
+#
+# The click id goes into a free subid slot instead (s2), so the network can echo it back:
+#
+#   macro             actually contains                          lands on the page as
+#   ─────────────     ─────────────────────────────────────────  ────────────────────
+#   __CLICKID__       the ttclid                                 s2   (belt-and-braces copy; the page
+#                                                                      trusts it only if it has the
+#                                                                      E.C.P. click-id shape)
+#   __CAMPAIGN_ID__   campaign ID                                s3   → beacon campaign_id
+#   __AID__           ad GROUP ID  — not "ad"                    s4   → beacon adgroup_id
+#   __CID__           CREATIVE ID  — not "campaign"              s5   → beacon creative_id
+#   __ADID_V2__       ad ID — Smart+ campaigns only              (not used)
+#
+# If the network exposes fewer sub slots: s2=__CLICKID__ is the one that matters. The rest is
+# nice-to-have — and on Path B it reaches n8n from the page beacon anyway, so the network never
+# has to carry it.
+#
+# What the page then sends ONWARD to the network (Monetise/CAKE, s1..s5 dialect):
+#   s1 = your code   s2 = ttclid   s3 = the shared event id
+# so the network's postback echoes {s2} → ttclid and {s3} → txid.
+#
+# s1 keeps the exact spelling below.
+# ─────────────────────────────────────────────────────────────────────────────────────────────
+
+https://www.myrewardscorner.com/mgfc-pre?s1=NewEmplyment-Test&s2=__CLICKID__&s3=__CAMPAIGN_ID__&s4=__AID__&s5=__CID__

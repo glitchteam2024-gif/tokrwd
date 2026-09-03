@@ -1,0 +1,60 @@
+<!--
+  Path B — page-side beacon. THIS IS ALREADY LIVE on https://www.myrewardscorner.com/mgfc.html
+  (in <head>, after the TikTok pixel). Kept here as the reference copy.
+
+  Differences from the spec's §4a snippet, and why:
+    • matches [data-go] BUTTONS, not <a data-offer> — the live page has no anchor CTAs; every
+      control is a <button data-go> that navigates via location.href = buildOfferUrl().
+    • no "rewrite a.href" step — the offer URL is built at click time by buildOfferUrl(), which
+      appends s2 (ttclid) and s3 (the shared event id) itself. Same effect, one source of truth.
+    • N8N_HOST is a single constant; empty = the beacon is a no-op, pixel event still fires.
+    • campaign_id / adgroup_id / creative_id ride the beacon from the ad URL's s3/s4/s5.
+    • runs in CAPTURE phase so it fires before the navigation handler; sendBeacon survives it.
+    • it lives on the LANDER, not the prelander: mgfc-pre.html must stay script-identical to its
+      family (the audit hashes script bodies), and the prelander forwards the whole query anyway.
+-->
+<script>
+(function () {
+  var N8N_HOST = '';   /* ← set this. bare host or full origin */
+
+  var qs = new URLSearchParams(location.search);
+  var ttclid = qs.get('ttclid') || '';
+  if (!ttclid && /^E\.C\.P\./.test(qs.get('s2') || '')) ttclid = qs.get('s2');
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(ttclid)) ttclid = '';
+  try {
+    if (ttclid) sessionStorage.setItem('ttclid', ttclid);
+    else ttclid = sessionStorage.getItem('ttclid') || '';
+  } catch (e) {}
+
+  var eventId = 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  window.__ttEvent = { id: eventId, ttclid: ttclid };
+
+  function getCookie(n) {
+    var m = document.cookie.match('(^|;)\\s*' + n + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
+  function beaconUrl() {
+    var origin = /^https?:\/\//i.test(N8N_HOST) ? N8N_HOST.replace(/\/+$/, '') : 'https://' + N8N_HOST;
+    var u = new URL(origin + '/webhook/tiktok-click');
+    u.searchParams.set('ttclid', ttclid);
+    u.searchParams.set('txid', eventId);
+    u.searchParams.set('ttp', getCookie('_ttp'));
+    u.searchParams.set('src', 'page');
+    u.searchParams.set('campaign_id', qs.get('s3') || '');
+    u.searchParams.set('adgroup_id',  qs.get('s4') || '');
+    u.searchParams.set('creative_id', qs.get('s5') || '');
+    return u.toString();
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('[data-go]') : null;
+    if (!el) return;
+    if (window.ttq) {
+      try { ttq.track('ClickButton', { value: 1.00, currency: 'USD', content_id: 'mgfc-pre' }, { event_id: eventId }); } catch (x) {}
+    }
+    if (N8N_HOST) {
+      try { navigator.sendBeacon(beaconUrl()); } catch (x) {}
+    }
+  }, true);
+})();
+</script>

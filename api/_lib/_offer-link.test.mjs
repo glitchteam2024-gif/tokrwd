@@ -130,6 +130,20 @@ const TTCLID = 'TT_TEST_1';
 const SEARCH = `?s1=${WIRE}&s2=pub9&s3=acct7&s4=&s5=zz&sub2=q&ttclid=${TTCLID}&lg=US&campid=${WIRE}&sid=abc&mc_attr=e%3Dx`;
 const BANNED = ['s2', 's3', 's4', 's5', 'sub2', 'sub3', 'sub4', 'sub5', 'ttclid', 'lg', 'campid', 'sid', 'mc_attr'];
 
+/**
+ * ROUND-TRIP EXCEPTIONS — printed on every run, so a carve-out can never quietly become
+ * permanent (same discipline as the audit's EXCEPTIONS). A page listed here may add these keys
+ * to the offer URL IN ADDITION to its one s1/sub1, each with the value it must carry (a string is
+ * exact, a RegExp is a shape). Nothing else relaxes: s1 must still be present and correct, and
+ * every other BANNED key still fails.
+ *   mgfc.html — the owner's TikTok S2S spec (2026-09-03, tiktok-s2s/README.md): the click id rides
+ *   to the network as s2 and the shared event id as s3, so the network's postback can echo them
+ *   to n8n for matching and dedup. Both are gated on a real ttclid in the page.
+ */
+const ROUNDTRIP_EXTRAS = {
+  'mgfc.html': { s2: TTCLID, s3: /^c-\d+-[a-z0-9]+$/ },
+};
+
 const bad = { threw: [], notGate: [], gateExtra: [], gateWire: [], gatePath: [], gateT: [],
               doubleQ: [], extra: [], wrongVal: [], wrongName: [], hostRefused: [],
               bareAppends: [], door: [], unbound: [], unswept: [], lowercased: [], scaler: [] };
@@ -169,11 +183,18 @@ for (const [rel, ex] of landers) {
   const baseKeys = new Set([...new URL(ex.base).searchParams.keys()]);
   const added = [...u.searchParams.keys()].filter(k => !baseKeys.has(k));
 
-  if (added.length !== 1) { bad.extra.push(`${rel}: added ${JSON.stringify(added)}`); continue; }
-  const name = added[0];
+  const extras = ROUNDTRIP_EXTRAS[rel] || null;
+  const core = added.filter(k => !(extras && Object.prototype.hasOwnProperty.call(extras, k)));
+  if (core.length !== 1) { bad.extra.push(`${rel}: added ${JSON.stringify(added)}`); continue; }
+  if (extras) for (const [k, want] of Object.entries(extras)) {
+    const got = u.searchParams.get(k);
+    const okv = got !== null && (want instanceof RegExp ? want.test(got) : got === want);
+    if (!okv) bad.extra.push(`${rel}: round-trip ${k}=${got}`);
+  }
+  const name = core[0];
   if (name !== 's1' && name !== 'sub1') bad.wrongName.push(`${rel}: ${name}`);
   if (u.searchParams.get(name) !== S1) bad.wrongVal.push(`${rel}: ${name}=${u.searchParams.get(name)}`);
-  for (const b of BANNED) if (!baseKeys.has(b) && u.searchParams.has(b)) bad.extra.push(`${rel}: leaked ${b}`);
+  for (const b of BANNED) if (!baseKeys.has(b) && !(extras && Object.prototype.hasOwnProperty.call(extras, b)) && u.searchParams.has(b)) bad.extra.push(`${rel}: leaked ${b}`);
 
   // Untagged visit: u is the bare offer link, and the gate URL carries no s1 and no t at all.
   let bare;
@@ -206,6 +227,11 @@ for (const [rel, ex] of landers) {
 const rep = (name, arr) => ok(name, arr.length === 0,
   arr.slice(0, 6).join('\n         ') + (arr.length > 6 ? `\n         …and ${arr.length - 6} more` : ''));
 
+if (Object.keys(ROUNDTRIP_EXTRAS).length) {
+  console.log('\n  round-trip exceptions (printed every run, never silent):');
+  for (const [f, ex] of Object.entries(ROUNDTRIP_EXTRAS)) console.log(`    ${f}: ${Object.keys(ex).join(', ')}`);
+  console.log('');
+}
 rep('every builder runs', bad.threw);
 rep('every CTA walks the first-party /click stamp', bad.notGate);
 rep('every swept page carries the SPRK-GATE v1 marker', bad.unswept);

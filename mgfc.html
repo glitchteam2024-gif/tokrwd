@@ -15,6 +15,74 @@
      without a valid spark code. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Start Earning — Gravy Pass</title>
+<!-- TikTok Pixel Code Start -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for( var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script") ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('DAD03V3C77UC8FLJKCOG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+<!-- TikTok Pixel Code End -->
+<!-- TIKTOK S2S, PATH B (2026-09-03, owner spec, tiktok-s2s/README.md). Fires from the BROWSER on
+     every CTA tap, so it carries the _ttp cookie, real IP and real UA. It lives on THIS page, not
+     the prelander: mgfc-pre.html must stay script-identical to its family (the audit hashes
+     script bodies), and the prelander forwards the whole query, so ttclid arrives here anyway. -->
+<script>
+(function () {
+  /* THE ONE CONSTANT TO SET. Bare host or full origin, e.g. 'n8n.example.com'. While it is empty
+     the server beacon is a no-op and everything else (pixel event, s2/s3 round-trip) still works. */
+  var N8N_HOST = '';
+
+  var qs = new URLSearchParams(location.search);
+  var ttclid = qs.get('ttclid') || '';
+  /* TikTok appends ttclid itself; s2=__CLICKID__ on the ad URL is a second copy. Trust it only
+     when it has a real click-id shape, so a legacy publisher label in s2 can never pose as one. */
+  if (!ttclid && /^E\.C\.P\./.test(qs.get('s2') || '')) ttclid = qs.get('s2');
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(ttclid)) ttclid = '';   /* unsubstituted macro is not an id */
+  try {
+    if (ttclid) sessionStorage.setItem('ttclid', ttclid);
+    else ttclid = sessionStorage.getItem('ttclid') || '';
+  } catch (e) {}
+
+  var eventId = 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  /* Shared with buildOfferUrl(): the SAME id rides the browser event, the server beacon and the
+     network round-trip (s3), so TikTok collapses the three into one event. */
+  window.__ttEvent = { id: eventId, ttclid: ttclid };
+
+  function getCookie(n) {
+    var m = document.cookie.match('(^|;)\\s*' + n + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
+  function beaconUrl() {
+    var origin = /^https?:\/\//i.test(N8N_HOST) ? N8N_HOST.replace(/\/+$/, '') : 'https://' + N8N_HOST;
+    var u = new URL(origin + '/webhook/tiktok-click');
+    u.searchParams.set('ttclid', ttclid);
+    u.searchParams.set('txid', eventId);
+    u.searchParams.set('ttp', getCookie('_ttp'));
+    u.searchParams.set('src', 'page');
+    /* The ad URL carries these in s3/s4/s5 (see tiktok-s2s/ad-url-template.txt). They reach n8n
+       from the page, so the network never has to echo them. */
+    u.searchParams.set('campaign_id', qs.get('s3') || '');
+    u.searchParams.set('adgroup_id',  qs.get('s4') || '');
+    u.searchParams.set('creative_id', qs.get('s5') || '');
+    return u.toString();
+  }
+
+  /* CAPTURE phase on purpose: it runs before the [data-go] handler below sets location.href.
+     sendBeacon survives the navigation; ttq.track queues to the pixel. */
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('[data-go]') : null;
+    if (!el) return;
+    if (window.ttq) {
+      try { ttq.track('ClickButton', { value: 1.00, currency: 'USD', content_id: 'mgfc-pre' }, { event_id: eventId }); } catch (x) {}
+    }
+    if (N8N_HOST) {
+      try { navigator.sendBeacon(beaconUrl()); } catch (x) {}
+    }
+  }, true);
+})();
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff}
@@ -177,10 +245,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     var _s1 = _p.get('s1') || _p.get('sub1') || '';
     var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
     var _t = _p.get('ttclid') || '';
+    if (!_t && /^E\.C\.P\./.test(_p.get('s2') || '')) _t = _p.get('s2');      /* ad-URL copy, id-shaped only */
+    if (!_t && window.__ttEvent && window.__ttEvent.ttclid) _t = window.__ttEvent.ttclid;  /* sessionStorage carry-over */
     if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
     var _dest = !_send1 ? OFFER_LINK
               : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+
+    /* TIKTOK S2S ROUND-TRIP (2026-09-03, owner spec) -- the ONE deliberate exception to
+       SPRK-S1-ONLY, on this page alone. When a real click id is present it rides to the network
+       as s2 and the shared event id as s3 (CAKE dialect, s1..s5), so the network's postback can
+       echo {s2}/{s3} back to n8n and TikTok can match and dedupe the event. Both are gated on the
+       click id: with none, nothing can be matched, so an untagged or code-less visit still ships
+       the bare link. api/_lib/_offer-link.test.mjs carries a matching, printed exception for
+       exactly this file and exactly these two keys. */
+    /* ⚠️ GUARD SHAPE: keep these as single-line statements with NO `{ }` block. The guard's parser
+       ends the builder at the first line that is only a `}` — a block here would truncate it. */
+    var _ev = (window.__ttEvent && window.__ttEvent.id) || ('c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
+    if (_t) _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 's2=' + encodeURIComponent(_t) + '&s3=' + encodeURIComponent(_ev);
 
     /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
        unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
