@@ -995,6 +995,11 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // MGFC single-tenant Freecash pair (Migi), 2026-08-25. Green prelander /mgfc-pre.html
   // forwards to /mgfc.html via its sprk-lander meta. Added to BOTH lists in this commit.
   'mgfc.html', 'mgfc-pre.html',
+  // MGFC2 — the same single-tenant pair pointed at PLAYFUL REWARDS (Fluent) instead of
+  // Monetise, 2026-09-04. Its own pair rather than a repoint of mgfc so both offers stay
+  // runnable at once. Ad link: myrewardscorner.com/mgfc-pre2?s1=<subid>.
+  // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
+  'mgfc2.html', 'mgfc-pre2.html',
   // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
   // Prelander /gravypassusa-pre.html forwards to /gravypassusa.html via its sprk-lander meta.
   // Added to BOTH lists in this commit; a lander missing here silently loses its prelander hop.

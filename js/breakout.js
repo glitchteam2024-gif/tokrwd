@@ -113,6 +113,9 @@
     // pair rather than repointing PlayfulM so the Playful funnel stays runnable.
     'fcm.html', 'fcm-pre.html',
     'mgfc.html', 'mgfc-pre.html',
+    // MGFC2 - the same single-tenant pair on PLAYFUL REWARDS (Fluent), 2026-09-04.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    'mgfc2.html', 'mgfc-pre2.html',
     // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
     'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',

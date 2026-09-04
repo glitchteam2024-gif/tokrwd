@@ -480,6 +480,14 @@
       "destination": "/mgfc.html"
     },
     {
+      "source": "/mgfc-pre2",
+      "destination": "/mgfc-pre2.html"
+    },
+    {
+      "source": "/mgfc2",
+      "destination": "/mgfc2.html"
+    },
+    {
       "source": "/PR50/:c(AU\\d+)/go",
       "destination": "/playfulau.html"
     },

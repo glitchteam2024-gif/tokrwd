@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8" />
+<!-- MGFC2 — Migi's own PLAYFUL REWARDS lander, 2026-09-04. Single-tenant: this page belongs
+     to one operator and is not in any SPRK picker, not shared, not routable by `lp=`.
+
+     WHAT THIS IS. A clone of /mgfc.html — same layout, same one-tap CTA rule, same guards —
+     pointed at PLAYFUL REWARDS on FLUENT instead of Monetise. It exists as its own pair
+     (/mgfc-pre2.html -> /mgfc2.html) rather than a repoint of mgfc so BOTH offers stay
+     runnable side by side and their numbers never blend.
+
+     ⚠️ DIFFERENT NETWORK, DIFFERENT DIALECT. mgfc.html is Monetise/CAKE and sends `s1`.
+     This page is Fluent/Everflow and MUST send `sub1` — see the note on OFFER_LINK below.
+
+     ⚠️ NO TIKTOK S2S ROUND-TRIP HERE. mgfc.html rides the click id out as `s2` and the event
+     id as `s3` (CAKE dialect) under a printed exception in api/_lib/_offer-link.test.mjs.
+     Everflow's equivalents (`sub2`/`sub3`) are BANNED keys in that guard, and Fluent has no
+     postback configured to echo them back to n8n, so the round-trip would be dead weight that
+     also fails the build. This page stays pure SPRK-S1-ONLY: one param out, the code, nothing
+     else. The browser-side beacon below still fires — only the server echo is absent.
+
+     WALLET FLOW (2026-08-29, owner request): one page, ONE TAP. The old two-step overlay
+     (tap CONTINUE -> modal -> tap again) is deliberately gone — every CTA now goes straight
+     to the offer on the first tap. Do not reintroduce a popup in front of the money path.
+
+     No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
+     every visitor, including TikTok's crawler. The breakout happens ONCE, on /mgfc-pre.html,
+     which is the reviewed prelander. Attribution does not need a gate — the door 404s any click
+     without a valid spark code. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Start Earning — Playful Rewards</title>
+<!-- TikTok Pixel Code Start -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for( var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script") ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('DAD03V3C77UC8FLJKCOG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+<!-- TikTok Pixel Code End -->
+<!-- TIKTOK S2S, PATH B (2026-09-03, owner spec, tiktok-s2s/README.md). Fires from the BROWSER on
+     every CTA tap, so it carries the _ttp cookie, real IP and real UA. It lives on THIS page, not
+     the prelander: mgfc-pre.html must stay script-identical to its family (the audit hashes
+     script bodies), and the prelander forwards the whole query, so ttclid arrives here anyway. -->
+<script>
+(function () {
+  /* THE ONE CONSTANT TO SET. Bare host or full origin, e.g. 'n8n.example.com'. While it is empty
+     the server beacon is a no-op and everything else (pixel event, s2/s3 round-trip) still works. */
+  var N8N_HOST = 'n8n-42az.srv1783583.hstgr.cloud';
+
+  var qs = new URLSearchParams(location.search);
+  var ttclid = qs.get('ttclid') || '';
+  /* TikTok appends ttclid itself; s2=__CLICKID__ on the ad URL is a second copy. Trust it only
+     when it has a real click-id shape, so a legacy publisher label in s2 can never pose as one. */
+  if (!ttclid && /^E[._]C[._]P[._]/.test(qs.get('s2') || '')) ttclid = qs.get('s2');
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(ttclid)) ttclid = '';   /* unsubstituted macro is not an id */
+  try {
+    if (ttclid) sessionStorage.setItem('ttclid', ttclid);
+    else ttclid = sessionStorage.getItem('ttclid') || '';
+  } catch (e) {}
+
+  var eventId = 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  /* Shared with buildOfferUrl(): the SAME id rides the browser event, the server beacon and the
+     network round-trip (s3), so TikTok collapses the three into one event. */
+  window.__ttEvent = { id: eventId, ttclid: ttclid };
+
+  function getCookie(n) {
+    var m = document.cookie.match('(^|;)\\s*' + n + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
+  function beaconUrl() {
+    var origin = /^https?:\/\//i.test(N8N_HOST) ? N8N_HOST.replace(/\/+$/, '') : 'https://' + N8N_HOST;
+    var u = new URL(origin + '/webhook/tiktok-click');
+    u.searchParams.set('ttclid', ttclid);
+    u.searchParams.set('txid', eventId);
+    u.searchParams.set('ttp', getCookie('_ttp'));
+    u.searchParams.set('src', 'page');
+    /* The ad URL carries these in s3/s4/s5 (see tiktok-s2s/ad-url-template.txt). They reach n8n
+       from the page, so the network never has to echo them. */
+    u.searchParams.set('campaign_id', qs.get('s3') || '');
+    u.searchParams.set('adgroup_id',  qs.get('s4') || '');
+    u.searchParams.set('creative_id', qs.get('s5') || '');
+    return u.toString();
+  }
+
+  /* CAPTURE phase on purpose: it runs before the [data-go] handler below sets location.href.
+     sendBeacon survives the navigation; ttq.track queues to the pixel. */
+  document.addEventListener('click', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest('[data-go]') : null;
+    if (!el) return;
+    if (window.ttq) {
+      try { ttq.track('CompleteRegistration', { value: 1.00, currency: 'USD', content_id: 'mgfc-pre' }, { event_id: eventId }); } catch (x) {}
+    }
+    if (N8N_HOST) {
+      /* GET, not sendBeacon. sendBeacon ALWAYS issues a POST, and the n8n Webhook node is
+         registered for GET only, so every real tap 404'd at the webhook while the pixel event
+         went through — 246 taps, 0 executions, found 2026-09-04. keepalive gives a fetch the
+         same survives-the-navigation property sendBeacon has. no-cors because we never read the
+         reply; the request is still sent. sendBeacon stays as a last-ditch fallback for engines
+         without keepalive, where a POST 404 is no worse than sending nothing. */
+      var _bu = beaconUrl();
+      var _sent = false;
+      try {
+        if (window.fetch) { fetch(_bu, { method: 'GET', mode: 'no-cors', keepalive: true, credentials: 'omit' }).catch(function () {}); _sent = true; }
+      } catch (x) {}
+      if (!_sent) { try { navigator.sendBeacon(_bu); } catch (x) {} }
+    }
+  }, true);
+})();
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff}
+.lp-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;position:relative;overflow-x:hidden}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(160,100%,30%,0.12) 0%,transparent 60%),radial-gradient(ellipse at center,hsla(160,100%,20%,0.08) 0%,transparent 80%),hsl(160,20%,5%);z-index:0}
+.container{position:relative;z-index:1;width:100%;max-width:480px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.brand .mark{width:52px;height:52px;border-radius:14px;object-fit:cover;background:hsl(0,0%,8%);box-shadow:0 0 20px hsla(160,100%,50%,0.18)}
+.brand .name{font-size:20px;font-weight:800;letter-spacing:-0.02em}
+.brand .x{color:hsla(0,0%,100%,0.45);font-size:20px;font-weight:500}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+.btn-activate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:20px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,0.5),0 0 60px hsla(160,100%,50%,0.25),0 4px 15px hsla(0,0%,0%,0.3);transition:all 0.2s ease}
+.btn-activate:hover{transform:translateY(-2px);box-shadow:0 0 40px hsla(160,100%,50%,0.6),0 0 80px hsla(160,100%,50%,0.3),0 8px 25px hsla(0,0%,0%,0.4)}
+.btn-activate:active{transform:translateY(1px) scale(0.98)}
+.btn-activate span{font-size:16px;font-weight:700;color:hsl(160,20%,5%);letter-spacing:0.05em}
+.btn-activate svg{flex-shrink:0}
+.anim{opacity:0;animation:fadeSlideUp 0.5s ease forwards}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card-dark{background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:20px 18px;width:100%;text-align:left;margin-bottom:16px}
+.card-dark h3{text-align:center;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:18px}
+.step{position:relative;display:flex;gap:14px;padding-bottom:18px}
+.step:not(:last-child)::after{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:hsl(160,15%,18%)}
+.step:last-child{padding-bottom:0}
+.step-num{width:28px;height:28px;border-radius:50%;background:hsl(160,100%,50%);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:hsl(160,20%,5%);flex-shrink:0;z-index:1}
+.step h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.step p{font-size:12px;color:hsla(0,0%,100%,0.55);line-height:1.45}
+.step p .accent{color:hsl(160,100%,55%);font-weight:600}
+.section-label{width:100%;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:12px}
+.reward{width:100%;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:16px;margin-bottom:12px;text-align:left}
+.reward-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.reward-tile{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid hsla(0,0%,100%,0.12);background:hsl(160,12%,14%);font-size:20px;overflow:hidden}
+/* Full-bleed + rounded: the sources are all square, so cover crops nothing. At 30px/contain
+   the art floated inside the tile with its own square corners showing (Roblox read as a hard
+   blue square) and Clash Royale looked smaller for having baked-in padding. */
+.reward-tile img{width:100%;height:100%;object-fit:cover;border-radius:11px;display:block}
+.reward-progress{margin-bottom:12px}
+.reward-progress-head{display:flex;justify-content:space-between;font-size:11px;color:hsla(0,0%,100%,0.5);margin-bottom:6px}
+.reward-bar{height:6px;border-radius:999px;background:hsl(160,15%,16%);overflow:hidden}
+.reward-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,hsl(160,100%,50%),hsl(160,100%,42%))}
+.reward-btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:0.03em;cursor:pointer;text-align:center;color:hsl(160,20%,5%);background:linear-gradient(180deg,hsl(160,100%,55%),hsl(160,100%,45%));box-shadow:0 0 20px hsla(160,100%,50%,0.4);transition:transform 0.15s ease}
+.reward-btn:active{transform:scale(0.98)}
+.reward-info{flex:1;min-width:0}
+.reward-info h4{font-size:15px;font-weight:800}
+.reward-info p{font-size:12px;color:hsla(0,0%,100%,0.5)}
+.reward-prize{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;font-size:15px;font-weight:800;color:hsl(160,100%,55%)}
+.reward-prize span{font-size:10px;font-weight:600;color:hsla(0,0%,100%,0.45);letter-spacing:0.02em;margin-top:2px}
+.mini-note{font-size:11px;color:hsla(0,0%,100%,0.35);margin-top:4px;text-align:center;line-height:1.4}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+
+/* Wallet-flow additions (2026-08-29) — status strip, wallet CTA, activation notice. */
+.status{display:flex;align-items:center;gap:9px;width:100%;background:hsla(160,100%,50%,0.07);border:1px solid hsla(160,100%,50%,0.3);border-radius:14px;padding:12px 15px;margin-bottom:18px;font-size:12.5px;font-weight:600;color:hsl(160,100%,60%);line-height:1.35;text-align:left}
+.status .dot{width:8px;height:8px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);flex-shrink:0;animation:pulse 1.8s ease-in-out infinite}
+.subnote{margin-top:12px;font-size:12px;color:hsla(0,0%,100%,0.4);text-align:center;line-height:1.45}
+.important{position:relative;width:100%;background:hsla(0,70%,45%,0.07);border:1px solid hsla(0,75%,58%,0.45);border-radius:16px;padding:18px 16px 14px;margin-top:20px;text-align:left}
+.important .flag{position:absolute;top:-10px;right:14px;background:hsl(0,75%,52%);color:#fff;font-size:10px;font-weight:800;letter-spacing:0.08em;padding:4px 9px;border-radius:6px}
+.important .hd{display:flex;align-items:flex-start;gap:11px;margin-bottom:6px}
+.important h4{font-size:15px;font-weight:800;color:#fff}
+.important p{font-size:12.5px;color:hsla(0,0%,100%,0.62);line-height:1.5}
+.important .accent{color:hsl(160,100%,55%);font-weight:700}
+.important .rule{height:1px;background:hsla(0,0%,100%,0.09);margin:13px 0 11px}
+.important .ok{display:flex;align-items:center;gap:9px;font-size:12.5px;color:hsla(0,0%,100%,0.62);line-height:1.4}
+
+</style>
+</head>
+<body>
+<div class="lp-wrap">
+  <div class="bg-glow"></div>
+  <div class="container">
+
+    <!-- TikTok x Playful Rewards lockup. ⚠️ CHECK THE PICTURE, NOT THE FILENAME, before
+         swapping the right-hand mark: /images/freecash-mark-green-on-dark.png (Freecash's green
+         S-glyph) shipped under a Gravy Pass alt for weeks because the filename read as
+         authoritative. /images/playful-rewards-logo.png is Playful's own mark, and is the one
+         already used by playfulusa.html and PlayfulM.html. -->
+    <div class="brand anim">
+      <img class="mark" src="/images/tiktok-icon-free-png.png" alt="TikTok" width="52" height="52" />
+      <span class="x">&times;</span>
+      <img class="mark" src="/images/playful-rewards-logo.png" alt="" width="52" height="52" />
+    </div>
+
+    <div class="status anim" style="animation-delay:0.06s"><span class="dot"></span>All rewards unlocked — checking availability…</div>
+
+    <div class="card-dark anim" style="animation-delay:0.1s">
+      <h3>HOW TO START EARNING</h3>
+      <div class="step"><div class="step-num">1</div><div><h4>Activate &amp; open Playful Rewards</h4><p>Tap <span class="accent">Activate Highest Offers</span> below, then open <span class="accent">Playful Rewards</span> to get started.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div><h4>Complete games &amp; tasks for money</h4><p>Pick a starter offer and complete <span class="accent">games and tasks</span> to start earning real money.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Complete 3 offers to unlock the top ones</h4><p>Finish <span class="accent">3 offers</span> to unlock the highest-paying ones like <span class="accent">Paid to Scroll</span>, Roblox and more.</p></div></div>
+    </div>
+
+    <button class="btn-activate anim" style="animation-delay:0.16s" data-go>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5" stroke="hsl(160,20%,5%)" stroke-width="2"/><path d="M2.5 10h19" stroke="hsl(160,20%,5%)" stroke-width="2"/></svg>
+      <span>ACTIVATE HIGHEST OFFERS</span>
+    </button>
+    <p class="subnote anim" style="animation-delay:0.2s">Didn&apos;t unlock yet? Tap above to activate again.</p>
+
+    <div class="important anim" style="animation-delay:0.24s">
+      <span class="flag">IMPORTANT</span>
+      <div class="hd">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="hsl(0,80%,66%)" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="hsl(0,80%,66%)" stroke-width="2" stroke-linecap="round"/></svg>
+        <h4>Activation Required to Unlock</h4>
+      </div>
+      <p>Exclusive offers stay locked until your account is active and you&apos;ve completed <span class="accent">3 offers</span>. Higher payouts open up as you clear more tasks.</p>
+      <div class="rule"></div>
+      <div class="ok">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M5 13l4 4L19 7" stroke="hsl(160,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Completing your first offers is what unlocks the highest-paying ones.
+      </div>
+    </div>
+
+    <div class="section-label anim" style="animation-delay:0.3s;margin-top:26px">REWARDS TO UNLOCK</div>
+
+    <div class="reward anim" style="animation-delay:0.32s">
+      <div class="reward-top">
+        <div class="reward-tile" style="background:hsl(0,0%,8%)"><img src="/images/tiktok-icon-free-png.png" alt="TikTok" /></div>
+        <div class="reward-info"><h4>TikTok</h4><p>Paid to Scroll</p></div>
+        <div class="reward-prize">$32/hr<span>per hour</span></div>
+      </div>
+      <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
+      <button class="reward-btn" data-go>UNLOCK TIKTOK</button>
+    </div>
+
+    <div class="reward anim" style="animation-delay:0.35s">
+      <div class="reward-top">
+        <div class="reward-tile" style="background:hsl(215,60%,22%)"><img src="/images/clash-royale.png" alt="Clash Royale" /></div>
+        <div class="reward-info"><h4>Clash Royale</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-prize">$28/hr<span>per hour</span></div>
+      </div>
+      <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
+      <button class="reward-btn" data-go>UNLOCK CLASH ROYALE</button>
+    </div>
+
+    <div class="reward anim" style="animation-delay:0.38s">
+      <div class="reward-top">
+        <div class="reward-tile" style="background:hsl(0,0%,15%)"><img src="/images/roblox.jpg" alt="Roblox" /></div>
+        <div class="reward-info"><h4>Roblox</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-prize">$35/hr<span>per hour</span></div>
+      </div>
+      <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
+      <button class="reward-btn" data-go>UNLOCK ROBLOX</button>
+    </div>
+
+    <p class="mini-note anim" style="animation-delay:0.42s">Earnings depend on which offers you complete and how much you play. The figures above are an estimate from the rates shown, not a guarantee. Playful Rewards is not affiliated with any game publisher named on this page, and this page is not affiliated with, sponsored or endorsed by TikTok. Individual results vary.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* The offer, named directly: PLAYFUL REWARDS (US) on FLUENT, owner link supplied 2026-09-04.
+     Same campaign id the shipped Playful pages already use -- playfulusa.html, PlayfulM.html and
+     PLAY/US all point at F2R45HNR/GS3NQC1D, and links-config.js pins it as `playful`.
+
+     ⚠️ THE OUTBOUND PARAM IS `sub1`, NOT `s1`, AND THAT IS THE WHOLE POINT OF THIS FILE.
+     fkn8s74mztrk.com is an EVERFLOW/Fluent endpoint: it reads sub1..sub5 and silently DISCARDS
+     s1. Copying mgfc.html's `s1` here would forward a live link that looks perfectly healthy in
+     every check that stops at the redirect, while every conversion lands unattributed. The
+     dialect follows the DESTINATION. The gate's own `s1` further down is OUR first-party /click
+     log carrying the RAW wire -- that one stays `s1` on every lander whatever the network.
+
+     ⚠️ NO TRAILING '&sub1=' ON THE BASE. buildOfferUrl() appends the param itself; a URL carrying
+     TWO sub1 keys is read first-match by the tracker, so it would read the EMPTY one and lose the
+     label entirely -- with no error anywhere. The path ends in '/' and carries no query, so the
+     builder's '?' branch is the one that fires. */
+  var OFFER_LINK = 'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/';
+
+  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else. If it carries an
+     SPK-XXXX-XXXX code only that leaves, otherwise the value goes out verbatim, so a plain TikTok
+     label survives for segmenting. Case-insensitive so a platform that lowercases the URL still
+     matches; `|| _s1` keeps a code-less label whole rather than blanking it. */
+  function buildOfferUrl() {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || '';
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    var _t = _p.get('ttclid') || '';
+    if (!_t && /^E[._]C[._]P[._]/.test(_p.get('s2') || '')) _t = _p.get('s2');      /* ad-URL copy, id-shaped only */
+    if (!_t && window.__ttEvent && window.__ttEvent.ttclid) _t = window.__ttEvent.ttclid;  /* sessionStorage carry-over */
+    if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+
+    var _dest = !_send1 ? OFFER_LINK
+              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+
+    /* NO S2S ROUND-TRIP ON THIS PAGE -- deliberate, do not "restore" it from mgfc.html.
+       mgfc.html rides the click id out as `s2` and the event id as `s3`; those are CAKE keys and
+       Monetise echoes them back to n8n. The Everflow equivalents `sub2`/`sub3` are on the BANNED
+       list in api/_lib/_offer-link.test.mjs (line ~131), so adding them here fails the build --
+       and Fluent has no postback wired to echo them anyway, so they would buy nothing. One param
+       leaves this page: the code, in sub1. */
+
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
+       unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
+    return '/click?u=' + encodeURIComponent(_dest)
+         + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+         + '&lp=' + encodeURIComponent(location.pathname)
+         + (_t ? '&t=' + encodeURIComponent(_t) : '');
+  }
+
+  /* ONE TAP, EVERY CTA. There is deliberately no overlay/modal in front of the offer: the old
+     build opened a popup on the first tap and only left on the second, which ate the first tap
+     on every visit. Every [data-go] control navigates immediately. */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function (b) {
+    b.addEventListener('click', function () { location.href = buildOfferUrl(); });
+  });
+})();
+</script>
+</body>
+</html>
