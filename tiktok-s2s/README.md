@@ -84,3 +84,4 @@ places: the `Access-Token` header on the **TikTok Events API** node in n8n (repu
 TikTok's value-based bidding ("Maximize Value") only unlocks on `CompletePayment` / `PlaceAnOrder`
 type events with roughly 20 valued events in a rolling 7 days. `CompleteRegistration` optimises on count.
 If that ever matters, `EVENT_NAME` on the **Config** node is the only switch.
+- **Real ttclids are `E_C_P_…` (underscores), ~230 chars.** TikTok issues both `E_C_P_` and `E.C.P.`; the preview link uses dots. Every guard here (page `s2` fallback, n8n preview reject) accepts both. A guard that only knows `E.C.P.` silently drops every real click.

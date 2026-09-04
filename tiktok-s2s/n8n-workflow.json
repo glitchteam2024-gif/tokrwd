@@ -186,10 +186,10 @@
             {
               "id": "c2",
               "leftValue": "={{ $json.ttclid }}",
-              "rightValue": "E.C.P.Preview",
+              "rightValue": "^E[._]C[._]P[._]Preview",
               "operator": {
                 "type": "string",
-                "operation": "notStartsWith"
+                "operation": "notRegex"
               }
             }
           ],

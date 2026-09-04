@@ -38,7 +38,7 @@
   var ttclid = qs.get('ttclid') || '';
   /* TikTok appends ttclid itself; s2=__CLICKID__ on the ad URL is a second copy. Trust it only
      when it has a real click-id shape, so a legacy publisher label in s2 can never pose as one. */
-  if (!ttclid && /^E\.C\.P\./.test(qs.get('s2') || '')) ttclid = qs.get('s2');
+  if (!ttclid && /^E[._]C[._]P[._]/.test(qs.get('s2') || '')) ttclid = qs.get('s2');
   if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(ttclid)) ttclid = '';   /* unsubstituted macro is not an id */
   try {
     if (ttclid) sessionStorage.setItem('ttclid', ttclid);
@@ -245,7 +245,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     var _s1 = _p.get('s1') || _p.get('sub1') || '';
     var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
     var _t = _p.get('ttclid') || '';
-    if (!_t && /^E\.C\.P\./.test(_p.get('s2') || '')) _t = _p.get('s2');      /* ad-URL copy, id-shaped only */
+    if (!_t && /^E[._]C[._]P[._]/.test(_p.get('s2') || '')) _t = _p.get('s2');      /* ad-URL copy, id-shaped only */
     if (!_t && window.__ttEvent && window.__ttEvent.ttclid) _t = window.__ttEvent.ttclid;  /* sessionStorage carry-over */
     if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 

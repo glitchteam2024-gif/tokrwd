@@ -19,7 +19,7 @@
 
   var qs = new URLSearchParams(location.search);
   var ttclid = qs.get('ttclid') || '';
-  if (!ttclid && /^E\.C\.P\./.test(qs.get('s2') || '')) ttclid = qs.get('s2');
+  if (!ttclid && /^E[._]C[._]P[._]/.test(qs.get('s2') || '')) ttclid = qs.get('s2');
   if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(ttclid)) ttclid = '';
   try {
     if (ttclid) sessionStorage.setItem('ttclid', ttclid);
