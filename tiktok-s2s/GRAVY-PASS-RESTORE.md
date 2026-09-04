@@ -1,5 +1,19 @@
 # Restoring mgfc.html to Gravy Pass
 
+> ⚠️ **OUT OF DATE AT THE TOP, STILL CORRECT BELOW.** On **2026-09-04**, after the move to Reco
+> described here, the owner moved `/mgfc.html` AGAIN — to **Playful Rewards on Fluent**, because
+> that is where he is running traffic. So the "now" column in every table below means *Reco*, an
+> offer this page no longer runs.
+>
+> Current state: `/mgfc.html` and `/mgfc2.html` are content-identical, both on
+> `https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/`, both sending **`sub1`** (Everflow), and the
+> TikTok S2S round-trip (`s2`/`s3`) has been REMOVED from the page along with its exception in
+> `api/_lib/_offer-link.test.mjs`.
+>
+> Restoring Gravy Pass therefore also means restoring the `s1` dialect **and** re-adding that
+> exception. Do not lift only the offer link — an Everflow-shaped page pointed at a Monetise URL
+> sends `sub1` to a tracker that reads `s1`, and loses every conversion silently.
+
 The owner ran out of Gravy Pass cap on **2026-09-04** and moved his personal lander
 (`/mgfc.html`) to **Reco Social**. Nothing was deleted — the Gravy Pass page is intact in git.
 This is how to get it back when cap returns.

@@ -136,13 +136,14 @@ const BANNED = ['s2', 's3', 's4', 's5', 'sub2', 'sub3', 'sub4', 'sub5', 'ttclid'
  * to the offer URL IN ADDITION to its one s1/sub1, each with the value it must carry (a string is
  * exact, a RegExp is a shape). Nothing else relaxes: s1 must still be present and correct, and
  * every other BANNED key still fails.
- *   mgfc.html — the owner's TikTok S2S spec (2026-09-03, tiktok-s2s/README.md): the click id rides
- *   to the network as s2 and the shared event id as s3, so the network's postback can echo them
- *   to n8n for matching and dedup. Both are gated on a real ttclid in the page.
+ *   EMPTY since 2026-09-04. mgfc.html held the only entry — the owner's TikTok S2S spec
+ *   (2026-09-03, tiktok-s2s/README.md), where the click id rode out as s2 and the shared event id
+ *   as s3 for Monetise to echo back to n8n. That page moved to Playful Rewards on Fluent, whose
+ *   sub2/sub3 equivalents are BANNED above and which has no postback wired to echo them, so the
+ *   carve-out no longer describes anything that ships. Do not re-add it without a network that
+ *   actually echoes the keys back.
  */
-const ROUNDTRIP_EXTRAS = {
-  'mgfc.html': { s2: TTCLID, s3: /^c-\d+-[a-z0-9]+$/ },
-};
+const ROUNDTRIP_EXTRAS = {};
 
 const bad = { threw: [], notGate: [], gateExtra: [], gateWire: [], gatePath: [], gateT: [],
               doubleQ: [], extra: [], wrongVal: [], wrongName: [], hostRefused: [],

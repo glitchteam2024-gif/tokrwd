@@ -5,6 +5,25 @@
 <!-- MGFC — Migi's own lander. Single-tenant: this page belongs to one operator and is
      not in any SPRK picker, not shared, not routable by `lp=`.
 
+     ⚠️ THIS PAGE IS NOW PLAYFUL REWARDS (2026-09-04, owner's call — he is running traffic to it).
+     Its history in one line: Gravy Pass -> Reco Social (cap ran out, same day) -> Playful Rewards.
+     It is content-identical to /mgfc2.html, so /mgfc-pre and /mgfc-pre2 are interchangeable ad
+     links pointing at the same offer. The Reco revision is not lost — it is this file at the
+     commit before this one, and tiktok-s2s/GRAVY-PASS-RESTORE.md still describes the walk-back.
+
+     ⚠️ DIFFERENT NETWORK, DIFFERENT DIALECT than this page used to have. Fluent/Everflow reads
+     sub1..sub5 and DISCARDS s1, so the outbound param MUST be `sub1` — not the `s1` this page
+     sent on Gravy Pass and on Reco. See the note on OFFER_LINK below.
+
+     ⚠️ THE TIKTOK S2S ROUND-TRIP IS GONE, deliberately. On Monetise this page rode the click id
+     out as `s2` and the event id as `s3` under a printed exception in api/_lib/_offer-link.test.mjs
+     (that exception was removed in the same commit as this change). Everflow's equivalents
+     `sub2`/`sub3` are BANNED keys in that guard, and Fluent has no postback wired to echo them
+     back to n8n, so the round-trip would be dead weight that also fails the build. Pure
+     SPRK-S1-ONLY now: one param out, the code, nothing else. The browser-side beacon below still
+     fires — only the SERVER echo is absent, so TikTok gets the browser event only. Re-wiring S2S
+     on Fluent is its own job.
+
      WALLET FLOW (2026-08-29, owner request): one page, ONE TAP. The old two-step overlay
      (tap CONTINUE -> modal -> tap again) is deliberately gone — every CTA now goes straight
      to the offer on the first tap. Do not reintroduce a popup in front of the money path.
@@ -14,7 +33,7 @@
      which is the reviewed prelander. Attribution does not need a gate — the door 404s any click
      without a valid spark code. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Start Earning — Reco</title>
+<title>Start Earning — Playful Rewards</title>
 <!-- TikTok Pixel Code Start -->
 <script>
 !function (w, d, t) {
@@ -163,8 +182,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   <div class="bg-glow"></div>
   <div class="container">
 
-    <!-- TikTok x Freecash lockup — the marks the owner asked for. The right-hand mark is
-         /images/freecash-mark-green-on-dark.png (Freecash's green S-glyph). -->
+    <!-- TikTok x Freecash lockup. ⚠️ THE RIGHT-HAND MARK IS DELIBERATELY *NOT* PLAYFUL'S.
+         The owner asked to keep /images/freecash-mark-green-on-dark.png here on 2026-09-04, after
+         seeing the Playful mark in place — do not "correct" it to /images/playful-rewards-logo.png
+         on the grounds that this page runs the Playful offer. That swap has been made and reverted
+         once already. alt="" because the mark is decorative; the offer is named in the copy. -->
     <div class="brand anim">
       <img class="mark" src="/images/tiktok-icon-free-png.png" alt="TikTok" width="52" height="52" />
       <span class="x">&times;</span>
@@ -175,9 +197,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
     <div class="card-dark anim" style="animation-delay:0.1s">
       <h3>HOW TO START EARNING</h3>
-      <div class="step"><div class="step-num">1</div><div><h4>Activate &amp; open the Reco App</h4><p>Tap <span class="accent">Activate Highest Offers</span> below, then open the <span class="accent">Reco App</span> to get started.</p></div></div>
-      <div class="step"><div class="step-num">2</div><div><h4>Complete games &amp; tasks for money</h4><p>Follow the instructions in your pass and complete <span class="accent">games and tasks</span> to start earning real money.</p></div></div>
-      <div class="step"><div class="step-num">3</div><div><h4>Download games &amp; complete 3 offers</h4><p>Download the games and finish <span class="accent">3 offers</span> to unlock the exclusive ones like <span class="accent">Subway Surfers</span>, Roblox and more.</p></div></div>
+      <div class="step"><div class="step-num">1</div><div><h4>Download Playful Rewards</h4><p>Tap <span class="accent">Activate Highest Offers</span> below, then open <span class="accent">Playful Rewards</span> to get started.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div><h4>Complete games &amp; tasks for money</h4><p>Pick a starter offer and complete <span class="accent">games and tasks</span> to start earning real money.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Complete 3 offers to unlock the top ones</h4><p>Finish <span class="accent">3 offers</span> to unlock the highest-paying ones like <span class="accent">Paid to Scroll</span>, Roblox and more.</p></div></div>
     </div>
 
     <button class="btn-activate anim" style="animation-delay:0.16s" data-go>
@@ -192,11 +214,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="hsl(0,80%,66%)" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="hsl(0,80%,66%)" stroke-width="2" stroke-linecap="round"/></svg>
         <h4>Activation Required to Unlock</h4>
       </div>
-      <p>Exclusive offers stay locked until your account is active and you&apos;ve downloaded the games and completed <span class="accent">3 offers</span>. The highest-paying ones open up after about <span class="accent">3 hours</span> of play &mdash; or instantly once you&apos;ve spent a total of <span class="accent">$20</span> in any one game.</p>
+      <p>Exclusive offers stay locked until your account is active and you&apos;ve completed <span class="accent">3 offers</span>. Higher payouts open up as you clear more tasks.</p>
       <div class="rule"></div>
       <div class="ok">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M5 13l4 4L19 7" stroke="hsl(160,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Spending $20 total in any one game unlocks the highest-paying offers straight away.
+        Completing your first offers is what unlocks the highest-paying ones.
       </div>
     </div>
 
@@ -204,12 +226,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
     <div class="reward anim" style="animation-delay:0.32s">
       <div class="reward-top">
-        <div class="reward-tile" style="background:hsl(28,85%,42%)"><img src="/images/subway-surfers.jpg" alt="Subway Surfers" /></div>
-        <div class="reward-info"><h4>Subway Surfers</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-tile" style="background:hsl(0,0%,8%)"><img src="/images/tiktok-icon-free-png.png" alt="TikTok" /></div>
+        <div class="reward-info"><h4>TikTok</h4><p>Paid to Scroll</p></div>
         <div class="reward-prize">$32/hr<span>per hour</span></div>
       </div>
       <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
-      <button class="reward-btn" data-go>UNLOCK SUBWAY SURFERS</button>
+      <button class="reward-btn" data-go>UNLOCK TIKTOK</button>
     </div>
 
     <div class="reward anim" style="animation-delay:0.35s">
@@ -232,7 +254,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
       <button class="reward-btn" data-go>UNLOCK ROBLOX</button>
     </div>
 
-    <p class="mini-note anim" style="animation-delay:0.42s">Rewards are credited to your Apple Wallet. One reward set per verified account.</p>
+    <p class="mini-note anim" style="animation-delay:0.42s">Earnings depend on which offers you complete and how much you play. The figures above are an estimate from the rates shown, not a guarantee. Playful Rewards is not affiliated with any game publisher named on this page, and this page is not affiliated with, sponsored or endorsed by TikTok. Individual results vary.</p>
   </div>
 </div>
 
@@ -240,14 +262,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 (function () {
   'use strict';
 
-  /* The offer, named directly. Switched from GRAVY PASS to RECO SOCIAL 2026-09-04 (owner ran out of
-     Gravy Pass cap): Monetise a=26648, c=56065. monetisetrk8.co.uk is a MONETISE/CAKE endpoint, which reads
-     s1..s5 and silently DISCARDS sub1 -- so the outbound param below is s1, not sub1. The dialect
-     follows the DESTINATION; the gate's own s1 is OUR first-party log, not the network's field.
-     NOTE the stored URL deliberately has NO trailing '&s1=' even though the network link is quoted
-     with one. buildOfferUrl() appends '&s1=<value>' itself, and a URL carrying TWO s1 keys is read
-     first-match by the tracker -- i.e. it would read the EMPTY one and lose the label entirely. */
-  var OFFER_LINK = 'https://monetisetrk8.co.uk/?a=26648&c=56065';
+  /* The offer, named directly: PLAYFUL REWARDS (US) on FLUENT, owner link supplied 2026-09-04.
+     Same campaign id the shipped Playful pages already use -- playfulusa.html, PlayfulM.html and
+     PLAY/US all point at F2R45HNR/GS3NQC1D, and links-config.js pins it as `playful`.
+
+     ⚠️ THE OUTBOUND PARAM IS `sub1`, NOT `s1`, AND THAT IS THE WHOLE POINT OF THIS FILE.
+     fkn8s74mztrk.com is an EVERFLOW/Fluent endpoint: it reads sub1..sub5 and silently DISCARDS
+     s1. Copying mgfc.html's `s1` here would forward a live link that looks perfectly healthy in
+     every check that stops at the redirect, while every conversion lands unattributed. The
+     dialect follows the DESTINATION. The gate's own `s1` further down is OUR first-party /click
+     log carrying the RAW wire -- that one stays `s1` on every lander whatever the network.
+
+     ⚠️ NO TRAILING '&sub1=' ON THE BASE. buildOfferUrl() appends the param itself; a URL carrying
+     TWO sub1 keys is read first-match by the tracker, so it would read the EMPTY one and lose the
+     label entirely -- with no error anywhere. The path ends in '/' and carries no query, so the
+     builder's '?' branch is the one that fires. */
+  var OFFER_LINK = 'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/';
 
   /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else. If it carries an
      SPK-XXXX-XXXX code only that leaves, otherwise the value goes out verbatim, so a plain TikTok
@@ -263,19 +293,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
     var _dest = !_send1 ? OFFER_LINK
-              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
 
-    /* TIKTOK S2S ROUND-TRIP (2026-09-03, owner spec) -- the ONE deliberate exception to
-       SPRK-S1-ONLY, on this page alone. When a real click id is present it rides to the network
-       as s2 and the shared event id as s3 (CAKE dialect, s1..s5), so the network's postback can
-       echo {s2}/{s3} back to n8n and TikTok can match and dedupe the event. Both are gated on the
-       click id: with none, nothing can be matched, so an untagged or code-less visit still ships
-       the bare link. api/_lib/_offer-link.test.mjs carries a matching, printed exception for
-       exactly this file and exactly these two keys. */
-    /* ⚠️ GUARD SHAPE: keep these as single-line statements with NO `{ }` block. The guard's parser
-       ends the builder at the first line that is only a `}` — a block here would truncate it. */
-    var _ev = (window.__ttEvent && window.__ttEvent.id) || ('c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
-    if (_t) _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 's2=' + encodeURIComponent(_t) + '&s3=' + encodeURIComponent(_ev);
+    /* NO S2S ROUND-TRIP ON THIS PAGE -- deliberate, do not "restore" it from mgfc.html.
+       On Monetise this page rode the click id out as `s2` and the event id as `s3`; those are
+       CAKE keys and Monetise echoed them to n8n. The Everflow `sub2`/`sub3` are on the BANNED
+       list in api/_lib/_offer-link.test.mjs (line ~131), so adding them here fails the build --
+       and Fluent has no postback wired to echo them anyway, so they would buy nothing. One param
+       leaves this page: the code, in sub1. */
 
     /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
        unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
