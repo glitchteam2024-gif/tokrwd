@@ -78,7 +78,18 @@
       try { ttq.track('CompleteRegistration', { value: 1.00, currency: 'USD', content_id: 'mgfc-pre' }, { event_id: eventId }); } catch (x) {}
     }
     if (N8N_HOST) {
-      try { navigator.sendBeacon(beaconUrl()); } catch (x) {}
+      /* GET, not sendBeacon. sendBeacon ALWAYS issues a POST, and the n8n Webhook node is
+         registered for GET only, so every real tap 404'd at the webhook while the pixel event
+         went through — 246 taps, 0 executions, found 2026-09-04. keepalive gives a fetch the
+         same survives-the-navigation property sendBeacon has. no-cors because we never read the
+         reply; the request is still sent. sendBeacon stays as a last-ditch fallback for engines
+         without keepalive, where a POST 404 is no worse than sending nothing. */
+      var _bu = beaconUrl();
+      var _sent = false;
+      try {
+        if (window.fetch) { fetch(_bu, { method: 'GET', mode: 'no-cors', keepalive: true, credentials: 'omit' }).catch(function () {}); _sent = true; }
+      } catch (x) {}
+      if (!_sent) { try { navigator.sendBeacon(_bu); } catch (x) {} }
     }
   }, true);
 })();
