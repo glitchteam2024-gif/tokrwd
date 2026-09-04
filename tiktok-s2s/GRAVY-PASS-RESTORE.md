@@ -1,18 +1,25 @@
 # Restoring mgfc.html to Gravy Pass
 
-> ⚠️ **OUT OF DATE AT THE TOP, STILL CORRECT BELOW.** On **2026-09-04**, after the move to Reco
-> described here, the owner moved `/mgfc.html` AGAIN — to **Playful Rewards on Fluent**, because
-> that is where he is running traffic. So the "now" column in every table below means *Reco*, an
-> offer this page no longer runs.
+> ✅ **ALREADY DONE — this restore was carried out on 2026-09-04.** `/mgfc.html` is Gravy Pass
+> again. You do not need to run the command below unless the page moves off Gravy a third time.
 >
-> Current state: `/mgfc.html` and `/mgfc2.html` are content-identical, both on
-> `https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/`, both sending **`sub1`** (Everflow), and the
-> TikTok S2S round-trip (`s2`/`s3`) has been REMOVED from the page along with its exception in
+> The page's full history in one day: Gravy Pass -> Reco Social (cap ran out) -> Playful Rewards
+> (owner ran traffic there) -> **back to Gravy Pass**. The restore used `d96c011` plus the rounded
+> full-bleed reward icons from `a4fe34f`, exactly as the "KEEP these four" section below prescribes.
+>
+> So the **"Reco (now)" column in every table below is historical** — it describes a state this
+> page passed through, not where it is.
+>
+> Current state of `/mgfc.html`: `https://monetisetrk4.co.uk/?a=26648&c=56278`, **`s1`** dialect,
+> TikTok S2S round-trip present, and its `ROUNDTRIP_EXTRAS` entry restored in
 > `api/_lib/_offer-link.test.mjs`.
 >
-> Restoring Gravy Pass therefore also means restoring the `s1` dialect **and** re-adding that
-> exception. Do not lift only the offer link — an Everflow-shaped page pointed at a Monetise URL
-> sends `sub1` to a tracker that reads `s1`, and loses every conversion silently.
+> ⚠️ **The offer link is the MONETISE one, not Prescott's** (`pcbdfv7trk.com/22PLLSZ/324QNSF/`,
+> Everflow, reads `sub1`). Commit `9e84149` made that swap once; the owner restated it on
+> 2026-09-04. The two are not interchangeable — the dialect follows the destination.
+>
+> **Playful Rewards did not go away.** It runs on the separate `/mgfc-pre2` -> `/mgfc2` pair,
+> which this change does not touch. Both offers are live, one link each.
 
 The owner ran out of Gravy Pass cap on **2026-09-04** and moved his personal lander
 (`/mgfc.html`) to **Reco Social**. Nothing was deleted — the Gravy Pass page is intact in git.
