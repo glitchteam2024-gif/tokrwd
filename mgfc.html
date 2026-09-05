@@ -111,60 +111,60 @@
 </script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(272,20%,5%);color:#fff}
 .lp-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;position:relative;overflow-x:hidden}
-.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(160,100%,30%,0.12) 0%,transparent 60%),radial-gradient(ellipse at center,hsla(160,100%,20%,0.08) 0%,transparent 80%),hsl(160,20%,5%);z-index:0}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(272,100%,30%,0.12) 0%,transparent 60%),radial-gradient(ellipse at center,hsla(272,100%,20%,0.08) 0%,transparent 80%),hsl(272,20%,5%);z-index:0}
 .container{position:relative;z-index:1;width:100%;max-width:480px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-.brand .mark{width:52px;height:52px;border-radius:14px;object-fit:cover;background:hsl(0,0%,8%);box-shadow:0 0 20px hsla(160,100%,50%,0.18)}
+.brand .mark{width:52px;height:52px;border-radius:14px;object-fit:cover;background:hsl(0,0%,8%);box-shadow:0 0 20px hsla(272,100%,50%,0.18)}
 .brand .name{font-size:20px;font-weight:800;letter-spacing:-0.02em}
 .brand .x{color:hsla(0,0%,100%,0.45);font-size:20px;font-weight:500}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
-.btn-activate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:20px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,0.5),0 0 60px hsla(160,100%,50%,0.25),0 4px 15px hsla(0,0%,0%,0.3);transition:all 0.2s ease}
-.btn-activate:hover{transform:translateY(-2px);box-shadow:0 0 40px hsla(160,100%,50%,0.6),0 0 80px hsla(160,100%,50%,0.3),0 8px 25px hsla(0,0%,0%,0.4)}
+.btn-activate{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:20px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(180deg,hsl(272,100%,55%) 0%,hsl(272,100%,45%) 100%);box-shadow:0 0 30px hsla(272,100%,50%,0.5),0 0 60px hsla(272,100%,50%,0.25),0 4px 15px hsla(0,0%,0%,0.3);transition:all 0.2s ease}
+.btn-activate:hover{transform:translateY(-2px);box-shadow:0 0 40px hsla(272,100%,50%,0.6),0 0 80px hsla(272,100%,50%,0.3),0 8px 25px hsla(0,0%,0%,0.4)}
 .btn-activate:active{transform:translateY(1px) scale(0.98)}
-.btn-activate span{font-size:16px;font-weight:700;color:hsl(160,20%,5%);letter-spacing:0.05em}
+.btn-activate span{font-size:16px;font-weight:700;color:hsl(272,20%,5%);letter-spacing:0.05em}
 .btn-activate svg{flex-shrink:0}
 .anim{opacity:0;animation:fadeSlideUp 0.5s ease forwards}
 @keyframes fadeSlideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.card-dark{background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:20px 18px;width:100%;text-align:left;margin-bottom:16px}
+.card-dark{background:hsl(272,10%,10%);border:1px solid hsl(272,15%,18%);border-radius:16px;padding:20px 18px;width:100%;text-align:left;margin-bottom:16px}
 .card-dark h3{text-align:center;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:18px}
 .step{position:relative;display:flex;gap:14px;padding-bottom:18px}
-.step:not(:last-child)::after{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:hsl(160,15%,18%)}
+.step:not(:last-child)::after{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:hsl(272,15%,18%)}
 .step:last-child{padding-bottom:0}
-.step-num{width:28px;height:28px;border-radius:50%;background:hsl(160,100%,50%);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:hsl(160,20%,5%);flex-shrink:0;z-index:1}
+.step-num{width:28px;height:28px;border-radius:50%;background:hsl(272,100%,50%);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:hsl(272,20%,5%);flex-shrink:0;z-index:1}
 .step h4{font-size:14px;font-weight:700;margin-bottom:3px}
 .step p{font-size:12px;color:hsla(0,0%,100%,0.55);line-height:1.45}
-.step p .accent{color:hsl(160,100%,55%);font-weight:600}
+.step p .accent{color:hsl(272,100%,55%);font-weight:600}
 .section-label{width:100%;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.2em;color:hsla(0,0%,100%,0.5);margin-bottom:12px}
-.reward{width:100%;background:hsl(160,10%,10%);border:1px solid hsl(160,15%,18%);border-radius:16px;padding:16px;margin-bottom:12px;text-align:left}
+.reward{width:100%;background:hsl(272,10%,10%);border:1px solid hsl(272,15%,18%);border-radius:16px;padding:16px;margin-bottom:12px;text-align:left}
 .reward-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.reward-tile{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid hsla(0,0%,100%,0.12);background:hsl(160,12%,14%);font-size:20px;overflow:hidden}
+.reward-tile{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid hsla(0,0%,100%,0.12);background:hsl(272,12%,14%);font-size:20px;overflow:hidden}
 .reward-tile img{width:100%;height:100%;object-fit:cover;border-radius:11px;display:block}
 .reward-progress{margin-bottom:12px}
 .reward-progress-head{display:flex;justify-content:space-between;font-size:11px;color:hsla(0,0%,100%,0.5);margin-bottom:6px}
-.reward-bar{height:6px;border-radius:999px;background:hsl(160,15%,16%);overflow:hidden}
-.reward-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,hsl(160,100%,50%),hsl(160,100%,42%))}
-.reward-btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:0.03em;cursor:pointer;text-align:center;color:hsl(160,20%,5%);background:linear-gradient(180deg,hsl(160,100%,55%),hsl(160,100%,45%));box-shadow:0 0 20px hsla(160,100%,50%,0.4);transition:transform 0.15s ease}
+.reward-bar{height:6px;border-radius:999px;background:hsl(272,15%,16%);overflow:hidden}
+.reward-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,hsl(272,100%,50%),hsl(272,100%,42%))}
+.reward-btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:0.03em;cursor:pointer;text-align:center;color:hsl(272,20%,5%);background:linear-gradient(180deg,hsl(272,100%,55%),hsl(272,100%,45%));box-shadow:0 0 20px hsla(272,100%,50%,0.4);transition:transform 0.15s ease}
 .reward-btn:active{transform:scale(0.98)}
 .reward-info{flex:1;min-width:0}
 .reward-info h4{font-size:15px;font-weight:800}
 .reward-info p{font-size:12px;color:hsla(0,0%,100%,0.5)}
-.reward-prize{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;font-size:15px;font-weight:800;color:hsl(160,100%,55%)}
+.reward-prize{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;font-size:15px;font-weight:800;color:hsl(272,100%,55%)}
 .reward-prize span{font-size:10px;font-weight:600;color:hsla(0,0%,100%,0.45);letter-spacing:0.02em;margin-top:2px}
 .mini-note{font-size:11px;color:hsla(0,0%,100%,0.35);margin-top:4px;text-align:center;line-height:1.4}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 
 /* Wallet-flow additions (2026-08-29) — status strip, wallet CTA, activation notice. */
-.status{display:flex;align-items:center;gap:9px;width:100%;background:hsla(160,100%,50%,0.07);border:1px solid hsla(160,100%,50%,0.3);border-radius:14px;padding:12px 15px;margin-bottom:18px;font-size:12.5px;font-weight:600;color:hsl(160,100%,60%);line-height:1.35;text-align:left}
-.status .dot{width:8px;height:8px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);flex-shrink:0;animation:pulse 1.8s ease-in-out infinite}
+.status{display:flex;align-items:center;gap:9px;width:100%;background:hsla(272,100%,50%,0.07);border:1px solid hsla(272,100%,50%,0.3);border-radius:14px;padding:12px 15px;margin-bottom:18px;font-size:12.5px;font-weight:600;color:hsl(272,100%,60%);line-height:1.35;text-align:left}
+.status .dot{width:8px;height:8px;border-radius:50%;background:hsl(272,100%,50%);box-shadow:0 0 8px hsl(272,100%,50%);flex-shrink:0;animation:pulse 1.8s ease-in-out infinite}
 .subnote{margin-top:12px;font-size:12px;color:hsla(0,0%,100%,0.4);text-align:center;line-height:1.45}
 .important{position:relative;width:100%;background:hsla(0,70%,45%,0.07);border:1px solid hsla(0,75%,58%,0.45);border-radius:16px;padding:18px 16px 14px;margin-top:20px;text-align:left}
 .important .flag{position:absolute;top:-10px;right:14px;background:hsl(0,75%,52%);color:#fff;font-size:10px;font-weight:800;letter-spacing:0.08em;padding:4px 9px;border-radius:6px}
 .important .hd{display:flex;align-items:flex-start;gap:11px;margin-bottom:6px}
 .important h4{font-size:15px;font-weight:800;color:#fff}
 .important p{font-size:12.5px;color:hsla(0,0%,100%,0.62);line-height:1.5}
-.important .accent{color:hsl(160,100%,55%);font-weight:700}
+.important .accent{color:hsl(272,100%,55%);font-weight:700}
 .important .rule{height:1px;background:hsla(0,0%,100%,0.09);margin:13px 0 11px}
 .important .ok{display:flex;align-items:center;gap:9px;font-size:12.5px;color:hsla(0,0%,100%,0.62);line-height:1.4}
 
@@ -193,7 +193,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     </div>
 
     <button class="btn-activate anim" style="animation-delay:0.16s" data-go>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5" stroke="hsl(160,20%,5%)" stroke-width="2"/><path d="M2.5 10h19" stroke="hsl(160,20%,5%)" stroke-width="2"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5" stroke="hsl(272,20%,5%)" stroke-width="2"/><path d="M2.5 10h19" stroke="hsl(272,20%,5%)" stroke-width="2"/></svg>
       <span>ACTIVATE WALLET PASS</span>
     </button>
     <p class="subnote anim" style="animation-delay:0.2s">Didn&apos;t add it yet? Tap above to add your pass again.</p>
@@ -207,7 +207,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
       <p>Top offers stay locked until your wallet pass is active and you&apos;ve completed <span class="accent">3 tasks</span>. Keep completing tasks in your Gravy Pass to unlock them.</p>
       <div class="rule"></div>
       <div class="ok">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M5 13l4 4L19 7" stroke="hsl(160,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M5 13l4 4L19 7" stroke="hsl(272,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Complete tasks inside your Gravy Pass to make progress.
       </div>
     </div>
