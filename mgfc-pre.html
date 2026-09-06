@@ -79,7 +79,7 @@
     body::after {
         bottom: -26vw;
         left: -28vw;
-        animation: driftS 19s ease-in-out infinite alternate-reverse, breathe 7.5s ease-in-out 1.8s infinite;
+        animation: driftSUp 19s ease-in-out infinite alternate, breathe 7.5s ease-in-out 1.8s infinite;
     }
 
     @keyframes driftS {
@@ -88,6 +88,16 @@
         50%  { transform: translate(0, 19vh) scale(1); }
         75%  { transform: translate(14vw, 29vh) scale(1.08); }
         100% { transform: translate(0, 38vh) scale(1); }
+    }
+
+    /* The bottom blob mirrors the path UPWARD, so it rises into the lower half of the screen
+       instead of drifting off the bottom edge. */
+    @keyframes driftSUp {
+        0%   { transform: translate(0, 0) scale(1); }
+        25%  { transform: translate(14vw, -9vh) scale(1.08); }
+        50%  { transform: translate(0, -19vh) scale(1); }
+        75%  { transform: translate(-14vw, -29vh) scale(1.08); }
+        100% { transform: translate(0, -38vh) scale(1); }
     }
 
     @keyframes breathe {
