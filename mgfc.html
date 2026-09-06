@@ -131,6 +131,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .important .rule{height:1px;background:hsla(0,0%,100%,0.09);margin:13px 0 11px}
 .important .ok{display:flex;align-items:center;gap:9px;font-size:12.5px;color:hsla(0,0%,100%,0.62);line-height:1.4}
 
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:24px}
+.modal.open{display:flex}
+.modal-backdrop{position:absolute;inset:0;background:hsla(160,20%,3%,0.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:mFade .25s ease both}
+.modal-card{position:relative;margin:0;max-width:440px;background:linear-gradient(hsla(0,70%,45%,0.07),hsla(0,70%,45%,0.07)),hsl(160,10%,9%);box-shadow:0 24px 60px hsla(0,0%,0%,0.6);animation:mPop .55s cubic-bezier(.2,1.5,.4,1) both}
+.modal-card::after{content:"";position:absolute;inset:-1px;border-radius:16px;pointer-events:none;opacity:0;animation:stFlash .9s .1s ease-out forwards}
+.modal-start{display:block;width:100%;margin:18px auto 0;padding:16px 24px;border:none;border-radius:14px;cursor:pointer;font-size:16px;font-weight:800;letter-spacing:0.06em;color:hsl(160,20%,5%);background:linear-gradient(180deg,hsl(160,100%,55%) 0%,hsl(160,100%,45%) 100%);box-shadow:0 0 30px hsla(160,100%,50%,0.5),0 4px 15px hsla(0,0%,0%,0.3);transition:transform .15s ease}
+.modal-start:active{transform:scale(0.98)}
+@keyframes mFade{from{opacity:0}to{opacity:1}}
+@keyframes mPop{0%{opacity:0;transform:translateY(14px) scale(.6)}60%{opacity:1;transform:translateY(0) scale(1.06)}100%{opacity:1;transform:translateY(0) scale(1)}}
+
 </style>
 </head>
 <body>
@@ -158,25 +168,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
       <div class="step"><div class="step-num">3</div><div><h4>Complete 3 tasks to unlock top offers</h4><p>Complete <span class="accent">3 tasks</span> to unlock high-paying popular offers like <span class="accent">Paid to Scroll</span>, Roblox and more.</p></div></div>
     </div>
 
-    <button class="btn-activate anim" style="animation-delay:0.16s" data-go>
+    <button class="btn-activate anim" style="animation-delay:0.16s" data-open>
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5" stroke="hsl(160,20%,5%)" stroke-width="2"/><path d="M2.5 10h19" stroke="hsl(160,20%,5%)" stroke-width="2"/></svg>
       <span>ACTIVATE WALLET PASS</span>
     </button>
     <p class="subnote anim" style="animation-delay:0.2s">Didn&apos;t add it yet? Tap above to add your pass again.</p>
-
-    <div class="important anim" style="animation-delay:0.24s">
-      <span class="flag">IMPORTANT</span>
-      <div class="hd">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="hsl(0,80%,66%)" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="hsl(0,80%,66%)" stroke-width="2" stroke-linecap="round"/></svg>
-        <h4>Activation Required to Unlock</h4>
-      </div>
-      <p>Top offers stay locked until your wallet pass is active and you&apos;ve completed <span class="accent">3 tasks</span>. Keep completing tasks in your Gravy Pass to unlock them.</p>
-      <div class="rule"></div>
-      <div class="ok">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M5 13l4 4L19 7" stroke="hsl(160,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Complete tasks inside your Gravy Pass to make progress.
-      </div>
-    </div>
 
     <div class="section-label anim" style="animation-delay:0.3s;margin-top:26px">REWARDS TO UNLOCK</div>
 
@@ -214,6 +210,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   </div>
 </div>
 
+<div class="modal" id="activateModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="important modal-card" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <span class="flag">IMPORTANT</span>
+    <div class="hd">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="hsl(0,80%,66%)" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="hsl(0,80%,66%)" stroke-width="2" stroke-linecap="round"/></svg>
+      <h4 id="mTitle">Activation Required to Unlock</h4>
+    </div>
+    <p>Top offers stay locked until your wallet pass is active and you&apos;ve completed <span class="accent">3 tasks</span>. Keep completing tasks in your Gravy Pass to unlock them.</p>
+    <div class="rule"></div>
+    <div class="ok">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M5 13l4 4L19 7" stroke="hsl(160,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Complete tasks inside your Gravy Pass to make progress.
+    </div>
+    <button class="modal-start" data-go>START</button>
+  </div>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -244,6 +258,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function (b) {
     b.addEventListener('click', function () { location.href = buildOfferUrl(); });
   });
+
+  var modal = document.getElementById('activateModal');
+  function openModal() { modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false'); }
+  function closeModal() { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-open]'), function (b) { b.addEventListener('click', openModal); });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (b) { b.addEventListener('click', closeModal); });
 })();
 </script>
 </body>
