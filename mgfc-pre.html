@@ -56,18 +56,43 @@
         position: relative;
     }
 
-    /* SOFT GLOW (owner's pick from four backgrounds, 2026-09-04): two lavender glows in opposite
-       corners and a faint one behind the content. Fixed, behind everything, never interactive. */
-    body::before {
+    /* LIVE GLOW (owner, 2026-09-04): two soft purple blobs behind everything. Each breathes —
+       glows out and in — and drifts along an S-shaped path, mirrored so the two never move in
+       step. Fixed, behind the content, never interactive; still under prefers-reduced-motion. */
+    body::before, body::after {
         content: '';
         position: fixed;
-        inset: 0;
-        background:
-            radial-gradient(circle at 88% 10%, rgba(124,58,237,0.20) 0%, rgba(124,58,237,0) 42%),
-            radial-gradient(circle at 8% 92%, rgba(124,58,237,0.14) 0%, rgba(124,58,237,0) 40%),
-            radial-gradient(circle at 50% 55%, rgba(124,58,237,0.06) 0%, rgba(124,58,237,0) 38%);
+        width: 78vw;
+        height: 78vw;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(124,58,237,0.34) 0%, rgba(124,58,237,0.12) 38%, rgba(124,58,237,0) 68%);
+        filter: blur(18px);
         pointer-events: none;
         z-index: 0;
+        will-change: transform, opacity;
+    }
+    body::before {
+        top: -22vw;
+        right: -26vw;
+        animation: driftS 16s ease-in-out infinite alternate, breathe 6s ease-in-out infinite;
+    }
+    body::after {
+        bottom: -26vw;
+        left: -28vw;
+        animation: driftS 19s ease-in-out infinite alternate-reverse, breathe 7.5s ease-in-out 1.8s infinite;
+    }
+
+    @keyframes driftS {
+        0%   { transform: translate(0, 0) scale(1); }
+        25%  { transform: translate(-14vw, 9vh) scale(1.08); }
+        50%  { transform: translate(0, 19vh) scale(1); }
+        75%  { transform: translate(14vw, 29vh) scale(1.08); }
+        100% { transform: translate(0, 38vh) scale(1); }
+    }
+
+    @keyframes breathe {
+        0%, 100% { opacity: 0.55; }
+        50%      { opacity: 1; }
     }
 
     /* ONE TAP: CONTINUE *is* #ctaBtn — the one element the breakout script binds — so tapping
@@ -131,7 +156,7 @@
     /* CONTINUE — purple fill, white letters. The script disables it for the ~1.6 s the escape
        attempts run, then the watchdog re-enables it as "Continue anyway"; the dim state is that
        window. */
-    .ask-cta { margin-top: 26px; background: var(--purple); color: #ffffff; animation: ctaPulse 2.5s ease-in-out infinite; }
+    .ask-cta { margin-top: 36px; background: var(--purple); color: #ffffff; animation: ctaPulse 2.5s ease-in-out infinite; }
     .ask-cta:disabled { animation: none; opacity: 0.7; cursor: default; box-shadow: 0 6px 18px rgba(124,58,237,0.25); }
 
     @keyframes ctaPulse {
@@ -146,7 +171,7 @@
 
     @media (max-height: 640px) {
         .ask-title { font-size: 28px; }
-        .ask-cta { margin-top: 20px; }
+        .ask-cta { margin-top: 28px; }
         .ask-points { margin-top: 14px; gap: 7px; }
     }
 
@@ -158,6 +183,7 @@
        restore that state explicitly or the page renders wrong rather than merely still. */
     @media (prefers-reduced-motion: reduce) {
         .ask { animation: none; opacity: 1; transform: none; }
+        body::before, body::after { animation: none; opacity: 0.75; }
         .ask-cta { animation: none; box-shadow: 0 6px 18px rgba(124,58,237,0.25); }
         .ask-btn { transition: none; }
     }
@@ -167,11 +193,11 @@
     <div class="ask">
         <div class="ask-card">
             <h1 class="ask-title">Begin Below</h1>
+            <button type="button" class="ask-btn ask-cta" id="ctaBtn">Continue</button>
             <ul class="ask-points">
                 <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.3 2.3L15.5 10"></path></svg>Secure Chrome Browser</li>
                 <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.3 2.3L15.5 10"></path></svg>Secure Safari Browser</li>
             </ul>
-            <button type="button" class="ask-btn ask-cta" id="ctaBtn">Continue</button>
             <p class="sub"></p>
         </div>
     </div>
