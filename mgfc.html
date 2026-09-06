@@ -2,32 +2,8 @@
 <html lang="en" data-geo="US">
 <head>
 <meta charset="UTF-8" />
-<!-- MGFC — Migi's own lander. Single-tenant: this page belongs to one operator and is
-     not in any SPRK picker, not shared, not routable by `lp=`.
+<!-- MGFC — single-tenant page. Notes and history live in the repo, deliberately not here. -->
 
-     ⚠️ THIS PAGE IS GRAVY PASS AGAIN (2026-09-04). Full history in one day: Gravy Pass -> Reco
-     Social (cap ran out) -> Playful Rewards (owner ran traffic there) -> BACK TO GRAVY PASS.
-     Restored from commit d96c011 — the last Gravy state — plus the rounded full-bleed reward
-     icons that landed after it (a4fe34f), per tiktok-s2s/GRAVY-PASS-RESTORE.md's "KEEP these".
-
-     ⚠️ THE OFFER LINK IS THE **MONETISE** ONE, NOT PRESCOTT'S. Owner's explicit instruction.
-       · CORRECT: https://monetisetrk4.co.uk/?a=26648&c=56278   (Monetise/CAKE, reads s1)
-       · WRONG:   https://www.pcbdfv7trk.com/22PLLSZ/324QNSF/   (Prescott, Everflow, reads sub1)
-     Commit 9e84149 already made this exact swap once. The dialect follows the destination, so
-     the two are NOT interchangeable: the Monetise link with `sub1` loses every conversion
-     silently, and so does the Prescott link with `s1`.
-
-     ⚠️ PLAYFUL REWARDS DID NOT GO AWAY — it lives on the /mgfc-pre2 -> /mgfc2 pair, which is
-     untouched by this change. Both offers are runnable at once, one link each.
-
-     WALLET FLOW (2026-08-29, owner request): one page, ONE TAP. The old two-step overlay
-     (tap CONTINUE -> modal -> tap again) is deliberately gone — every CTA now goes straight
-     to the offer on the first tap. Do not reintroduce a popup in front of the money path.
-
-     No SubID gate, no UA sniffing, no browser breakout: this page renders the SAME markup for
-     every visitor, including TikTok's crawler. The breakout happens ONCE, on /mgfc-pre.html,
-     which is the reviewed prelander. Attribution does not need a gate — the door 404s any click
-     without a valid spark code. -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Start Earning — Gravy Pass</title>
 <!-- TikTok Pixel Code Start -->
@@ -39,30 +15,20 @@
 }(window, document, 'ttq');
 </script>
 <!-- TikTok Pixel Code End -->
-<!-- TIKTOK S2S, PATH B (2026-09-03, owner spec, tiktok-s2s/README.md). Fires from the BROWSER on
-     every CTA tap, so it carries the _ttp cookie, real IP and real UA. It lives on THIS page, not
-     the prelander: mgfc-pre.html must stay script-identical to its family (the audit hashes
-     script bodies), and the prelander forwards the whole query, so ttclid arrives here anyway. -->
+
 <script>
 (function () {
-  /* THE ONE CONSTANT TO SET. Bare host or full origin, e.g. 'n8n.example.com'. While it is empty
-     the server beacon is a no-op and everything else (pixel event, s2/s3 round-trip) still works. */
   var N8N_HOST = 'n8n-42az.srv1783583.hstgr.cloud';
 
   var qs = new URLSearchParams(location.search);
   var ttclid = qs.get('ttclid') || '';
-  /* TikTok appends ttclid itself; s2=__CLICKID__ on the ad URL is a second copy. Trust it only
-     when it has a real click-id shape, so a legacy publisher label in s2 can never pose as one. */
   if (!ttclid && /^E[._]C[._]P[._]/.test(qs.get('s2') || '')) ttclid = qs.get('s2');
-  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(ttclid)) ttclid = '';   /* unsubstituted macro is not an id */
-  try {
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(ttclid)) ttclid = '';  try {
     if (ttclid) sessionStorage.setItem('ttclid', ttclid);
     else ttclid = sessionStorage.getItem('ttclid') || '';
   } catch (e) {}
 
   var eventId = 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
-  /* Shared with buildOfferUrl(): the SAME id rides the browser event, the server beacon and the
-     network round-trip (s3), so TikTok collapses the three into one event. */
   window.__ttEvent = { id: eventId, ttclid: ttclid };
 
   function getCookie(n) {
@@ -76,16 +42,12 @@
     u.searchParams.set('txid', eventId);
     u.searchParams.set('ttp', getCookie('_ttp'));
     u.searchParams.set('src', 'page');
-    /* The ad URL carries these in s3/s4/s5 (see tiktok-s2s/ad-url-template.txt). They reach n8n
-       from the page, so the network never has to echo them. */
     u.searchParams.set('campaign_id', qs.get('s3') || '');
     u.searchParams.set('adgroup_id',  qs.get('s4') || '');
     u.searchParams.set('creative_id', qs.get('s5') || '');
     return u.toString();
   }
 
-  /* CAPTURE phase on purpose: it runs before the [data-go] handler below sets location.href.
-     sendBeacon survives the navigation; ttq.track queues to the pixel. */
   document.addEventListener('click', function (e) {
     var el = e.target && e.target.closest ? e.target.closest('[data-go]') : null;
     if (!el) return;
@@ -93,12 +55,6 @@
       try { ttq.track('CompleteRegistration', { value: 1.00, currency: 'USD', content_id: 'mgfc-pre' }, { event_id: eventId }); } catch (x) {}
     }
     if (N8N_HOST) {
-      /* GET, not sendBeacon. sendBeacon ALWAYS issues a POST, and the n8n Webhook node is
-         registered for GET only, so every real tap 404'd at the webhook while the pixel event
-         went through — 246 taps, 0 executions, found 2026-09-04. keepalive gives a fetch the
-         same survives-the-navigation property sendBeacon has. no-cors because we never read the
-         reply; the request is still sent. sendBeacon stays as a last-ditch fallback for engines
-         without keepalive, where a POST 404 is no worse than sending nothing. */
       var _bu = beaconUrl();
       var _sent = false;
       try {
@@ -155,9 +111,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 .mini-note{font-size:11px;color:hsla(0,0%,100%,0.35);margin-top:4px;text-align:center;line-height:1.4}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 
-/* Wallet-flow additions (2026-08-29) — status strip, wallet CTA, activation notice. */
 .status{display:flex;align-items:center;gap:9px;width:100%;background:hsla(160,100%,50%,0.07);border:1px solid hsla(160,100%,50%,0.3);border-radius:14px;padding:12px 15px;margin-bottom:18px;font-size:12.5px;font-weight:600;color:hsl(160,100%,60%);line-height:1.35;text-align:left}
-.status .dot{width:8px;height:8px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);flex-shrink:0;animation:pulse 1.8s ease-in-out infinite}
+.status{position:relative}
+.status .dot{width:8px;height:8px;border-radius:50%;background:hsl(160,100%,50%);box-shadow:0 0 8px hsl(160,100%,50%);flex-shrink:0;animation:pulse 1.8s ease-in-out infinite,dotSolid .3s 1.6s ease forwards}
+.status .st-check{animation:stOut .3s 1.5s ease forwards}
+.status .st-avail{position:absolute;left:32px;top:50%;display:flex;align-items:center;gap:7px;font-weight:800;font-size:13px;color:hsl(160,100%,62%);opacity:0;transform:translateY(-50%) scale(.6);animation:stPop .6s 1.6s cubic-bezier(.2,1.5,.4,1) forwards}
+.status::after{content:"";position:absolute;inset:-1px;border-radius:14px;pointer-events:none;opacity:0;animation:stFlash .9s 1.6s ease-out forwards}
+@keyframes dotSolid{to{opacity:1;box-shadow:0 0 14px hsl(160,100%,55%)}}
+@keyframes stOut{to{opacity:0;transform:translateY(-4px)}}
+@keyframes stPop{0%{opacity:0;transform:translateY(-50%) scale(.6)}60%{opacity:1;transform:translateY(-50%) scale(1.12)}100%{opacity:1;transform:translateY(-50%) scale(1)}}
+@keyframes stFlash{0%{opacity:1;box-shadow:0 0 0 0 hsla(160,100%,50%,.55),inset 0 0 0 1px hsla(160,100%,55%,.9);background:hsla(160,100%,50%,.14)}100%{opacity:0;box-shadow:0 0 0 24px hsla(160,100%,50%,0),inset 0 0 0 1px hsla(160,100%,55%,0);background:hsla(160,100%,50%,0)}}
 .subnote{margin-top:12px;font-size:12px;color:hsla(0,0%,100%,0.4);text-align:center;line-height:1.45}
 .important{position:relative;width:100%;background:hsla(0,70%,45%,0.07);border:1px solid hsla(0,75%,58%,0.45);border-radius:16px;padding:18px 16px 14px;margin-top:20px;text-align:left}
 .important .flag{position:absolute;top:-10px;right:14px;background:hsl(0,75%,52%);color:#fff;font-size:10px;font-weight:800;letter-spacing:0.08em;padding:4px 9px;border-radius:6px}
@@ -175,15 +138,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   <div class="bg-glow"></div>
   <div class="container">
 
-    <!-- TikTok x Freecash lockup — the marks the owner asked for. The right-hand mark is
-         /images/freecash-mark-green-on-dark.png (Freecash's green S-glyph). -->
+    
     <div class="brand anim">
       <img class="mark" src="/images/tiktok-icon-free-png.png" alt="TikTok" width="52" height="52" />
       <span class="x">&times;</span>
       <img class="mark" src="/images/freecash-mark-green-on-dark.png" alt="" width="52" height="52" />
     </div>
 
-    <div class="status anim" style="animation-delay:0.06s"><span class="dot"></span>All rewards unlocked — checking availability…</div>
+    <div class="status anim" style="animation-delay:0.06s">
+      <span class="dot"></span>
+      <span class="st-check">Checking availability…</span>
+      <span class="st-avail"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>Available spot</span>
+    </div>
 
     <div class="card-dark anim" style="animation-delay:0.1s">
       <h3>HOW TO START EARNING</h3>
@@ -252,55 +218,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 (function () {
   'use strict';
 
-  /* The offer, named directly. Moved off PRESCOTT to MONETISE 2026-09-03: this link now runs the
-     Gravypass campaign on Monetise (a=26648, c=56278) instead of Prescott's 22PLLSZ/324QNSF, so the
-     conversion event fires on Monetise. monetisetrk4.co.uk is a MONETISE/CAKE endpoint, which reads
-     s1..s5 and silently DISCARDS sub1 -- so the outbound param below is s1, not sub1. The dialect
-     follows the DESTINATION; the gate's own s1 is OUR first-party log, not the network's field.
-     NOTE the stored URL deliberately has NO trailing '&s1=' even though the network link is quoted
-     with one. buildOfferUrl() appends '&s1=<value>' itself, and a URL carrying TWO s1 keys is read
-     first-match by the tracker -- i.e. it would read the EMPTY one and lose the label entirely. */
   var OFFER_LINK = 'https://monetisetrk4.co.uk/?a=26648&c=56278';
 
-  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else. If it carries an
-     SPK-XXXX-XXXX code only that leaves, otherwise the value goes out verbatim, so a plain TikTok
-     label survives for segmenting. Case-insensitive so a platform that lowercases the URL still
-     matches; `|| _s1` keeps a code-less label whole rather than blanking it. */
+  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else. */
   function buildOfferUrl() {
     var _p = new URLSearchParams(location.search);
     var _s1 = _p.get('s1') || _p.get('sub1') || '';
     var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
     var _t = _p.get('ttclid') || '';
-    if (!_t && /^E[._]C[._]P[._]/.test(_p.get('s2') || '')) _t = _p.get('s2');      /* ad-URL copy, id-shaped only */
-    if (!_t && window.__ttEvent && window.__ttEvent.ttclid) _t = window.__ttEvent.ttclid;  /* sessionStorage carry-over */
-    if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+    if (!_t && /^E[._]C[._]P[._]/.test(_p.get('s2') || '')) _t = _p.get('s2');    if (!_t && window.__ttEvent && window.__ttEvent.ttclid) _t = window.__ttEvent.ttclid;    if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
     var _dest = !_send1 ? OFFER_LINK
               : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
 
-    /* TIKTOK S2S ROUND-TRIP (2026-09-03, owner spec) -- the ONE deliberate exception to
-       SPRK-S1-ONLY, on this page alone. When a real click id is present it rides to the network
-       as s2 and the shared event id as s3 (CAKE dialect, s1..s5), so the network's postback can
-       echo {s2}/{s3} back to n8n and TikTok can match and dedupe the event. Both are gated on the
-       click id: with none, nothing can be matched, so an untagged or code-less visit still ships
-       the bare link. api/_lib/_offer-link.test.mjs carries a matching, printed exception for
-       exactly this file and exactly these two keys. */
-    /* ⚠️ GUARD SHAPE: keep these as single-line statements with NO `{ }` block. The guard's parser
-       ends the builder at the first line that is only a `}` — a block here would truncate it. */
     var _ev = (window.__ttEvent && window.__ttEvent.id) || ('c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
     if (_t) _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 's2=' + encodeURIComponent(_t) + '&s3=' + encodeURIComponent(_ev);
 
-    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
-       unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
+    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 onward unchanged. */
     return '/click?u=' + encodeURIComponent(_dest)
          + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
          + '&lp=' + encodeURIComponent(location.pathname)
          + (_t ? '&t=' + encodeURIComponent(_t) : '');
   }
 
-  /* ONE TAP, EVERY CTA. There is deliberately no overlay/modal in front of the offer: the old
-     build opened a popup on the first tap and only left on the second, which ate the first tap
-     on every visit. Every [data-go] control navigates immediately. */
   Array.prototype.forEach.call(document.querySelectorAll('[data-go]'), function (b) {
     b.addEventListener('click', function () { location.href = buildOfferUrl(); });
   });
