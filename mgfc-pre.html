@@ -78,29 +78,32 @@
 
     .ask-card { text-align: center; }
 
+    /* THE ARCH (owner, 2026-09-04): the arrow leaves from the end of the "w" in Below, rises in
+       an arch and comes down onto the button. .ask-head is an inline-block exactly as wide as the
+       headline, so an arrow anchored at its right edge starts at the last letter whatever font
+       the device has. The type is sized down so the arch has room and the arrowhead lands inside
+       the button's right end on a 375-wide screen. The bob is the one motion cue. */
+    .ask-head { display: inline-block; position: relative; }
+
     .ask-title {
         font-family: "Inter", sans-serif;
-        font-size: 44px;
+        font-size: 32px;
         font-weight: 900;
         line-height: 1;
-        letter-spacing: -1.4px;
+        letter-spacing: -1.1px;
         margin: 0;
         color: var(--purple);
     }
 
-    /* THE ARROW sits to the RIGHT: it starts just under the end of "Below" and sweeps down to
-       the right end of the button, hand-drawn style. Absolutely placed inside a fixed-height
-       band so it never pushes the button around. The bob is the one motion cue. */
-    .ask-arrow { position: relative; height: 76px; margin: 2px 0 6px; }
-    .ask-arrow svg {
+    .ask-arrow {
         position: absolute;
-        right: 4px;
-        top: 0;
-        width: 96px;
-        height: 76px;
+        left: calc(100% - 4px);
+        top: -10px;
+        width: 72px;
+        height: 100px;
         color: var(--ink);
-        animation: arrowBob 1.6s ease-in-out infinite;
     }
+    .ask-arrow svg { width: 72px; height: 100px; display: block; animation: arrowBob 1.6s ease-in-out infinite; }
 
     @keyframes arrowBob {
         0%, 100% { transform: translateY(0); }
@@ -111,7 +114,7 @@
         display: block;
         width: 100%;
         font-family: "Inter", sans-serif;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 900;
         letter-spacing: 0.3px;
         text-transform: uppercase;
@@ -130,7 +133,7 @@
     /* CONTINUE — purple fill, white letters. The script disables it for the ~1.6 s the escape
        attempts run, then the watchdog re-enables it as "Continue anyway"; the dim state is that
        window. */
-    .ask-cta { background: var(--purple); color: #ffffff; animation: ctaPulse 2.5s ease-in-out infinite; }
+    .ask-cta { margin-top: 56px; background: var(--purple); color: #ffffff; animation: ctaPulse 2.5s ease-in-out infinite; }
     .ask-cta:disabled { animation: none; opacity: 0.7; cursor: default; box-shadow: 0 6px 18px rgba(124,58,237,0.25); }
 
     @keyframes ctaPulse {
@@ -144,9 +147,10 @@
     .sub b { color: var(--ink); }
 
     @media (max-height: 640px) {
-        .ask-title { font-size: 36px; }
-        .ask-arrow { height: 60px; }
-        .ask-arrow svg { width: 78px; height: 60px; }
+        .ask-title { font-size: 28px; }
+        .ask-arrow { width: 62px; height: 86px; top: -8px; }
+        .ask-arrow svg { width: 62px; height: 86px; }
+        .ask-cta { margin-top: 46px; }
     }
 
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
@@ -166,12 +170,14 @@
 <body>
     <div class="ask">
         <div class="ask-card">
-            <h1 class="ask-title">Begin Below</h1>
-            <div class="ask-arrow" aria-hidden="true">
-                <svg viewBox="0 0 96 76" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 10 C 58 2, 90 26, 80 64"></path>
-                    <path d="M70 55 L80 66 L90 55"></path>
-                </svg>
+            <div class="ask-head">
+                <h1 class="ask-title">Begin Below</h1>
+                <div class="ask-arrow" aria-hidden="true">
+                    <svg viewBox="0 0 72 100" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 26 C 14 -4, 54 -4, 60 88"></path>
+                        <path d="M51 79 L60 90 L69 79"></path>
+                    </svg>
+                </div>
             </div>
             <button type="button" class="ask-btn ask-cta" id="ctaBtn">Continue</button>
             <p class="sub"></p>
