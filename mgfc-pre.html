@@ -5,7 +5,7 @@
 <meta name="sprk-lander" content="/mgfc.html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#062012">
+<meta name="theme-color" content="#ffffff">
 <title>Open in Browser</title>
 <meta name="robots" content="noindex,nofollow">
 <!-- THE SANCTION MARKER. tokrwd's api/_lib/_tracking-audit.test.mjs fails the build on breakout
@@ -25,16 +25,15 @@
 <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+    /* WHITE PAGE, PURPLE TYPE + BUTTON (owner, 2026-09-04): the whole background is white; the
+       only purple is the headline and the button fill; the button's letters are white; the
+       arrow is ink. */
     :root {
-        --bg: #062012;
-        --card: #111312;
-        --border: rgba(255,255,255,0.06);
-        --accent: #3ee07d;
-        --accent-dim: rgba(62,224,125,0.15);
-        --accent-glow: rgba(62,224,125,0.4);
-        --text: #f4f5f4;
-        --muted: #6f746f;
-        --muted2: #8b908d;
+        --bg: #ffffff;
+        --purple: #7c3aed;
+        --ink: #1a1a1a;
+        --muted: #6b7280;
+        --cta-glow: rgba(124,58,237,0.35);
     }
 
     html, body {
@@ -46,7 +45,7 @@
     body {
         font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         background: var(--bg);
-        color: var(--text);
+        color: var(--ink);
         min-height: 100vh;
         min-height: 100dvh;
         display: flex;
@@ -57,24 +56,10 @@
         position: relative;
     }
 
-    /* Background glow — matches lander */
-    body::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        background:
-            radial-gradient(ellipse 60% 40% at 50% 0%, rgba(62,224,125,0.12) 0%, transparent 65%),
-            radial-gradient(ellipse 40% 30% at 100% 100%, rgba(62,224,125,0.06) 0%, transparent 60%);
-        pointer-events: none;
-        z-index: 0;
-    }
-
-    /* ONE TAP (2026-09-04, owner: "Yes is the only button that prompts a redirect").
-       The page is a single question card. YES *is* #ctaBtn — the one element the breakout
-       script binds — so tapping it runs the script's go(): the escape attempts, then on failure
-       the watchdog, which writes its "your app blocked the hand-off" hint into .sub (empty and
-       therefore hidden until then) and relabels this same button "Continue anyway". Nothing
-       fires on load — the script only beacons pre_view there. NO IS INERT by design.
+    /* ONE TAP: CONTINUE *is* #ctaBtn — the one element the breakout script binds — so tapping
+       it runs the script's go(): the escape attempts, then on failure the watchdog, which writes
+       its "your app blocked the hand-off" hint into .sub (empty and therefore hidden until
+       then) and relabels this same button "Continue anyway". Nothing fires on load.
        Markup + CSS only: the script block is hashed by the tracking audit and is byte-identical
        to every sibling prelander. (Never write a literal script tag in a comment here — the
        hasher would read it as one.) */
@@ -91,32 +76,35 @@
         to   { opacity: 1; transform: translateY(0); }
     }
 
-    .ask-card {
-        background: #0f1a14;
-        border: 1px solid rgba(62,224,125,0.25);
-        border-radius: 24px;
-        padding: 36px 24px 28px;
-        text-align: center;
-        box-shadow: 0 0 40px rgba(62,224,125,0.12);
-    }
-
-    /* "Begin Below" is the headline; a smooth arrow swoops from it down to the one button
-       (owner, 2026-09-04 — the question and Yes/No are gone). The bob is the one motion cue. */
-    .ask-arrow { display: flex; justify-content: center; margin-bottom: 22px; color: var(--accent); }
-    .ask-arrow svg { width: 40px; height: 60px; animation: arrowBob 1.6s ease-in-out infinite; }
-    @keyframes arrowBob {
-        0%, 100% { transform: translateY(0); }
-        50%       { transform: translateY(6px); }
-    }
+    .ask-card { text-align: center; }
 
     .ask-title {
         font-family: "Inter", sans-serif;
-        font-size: 40px;
+        font-size: 44px;
         font-weight: 900;
-        line-height: 1.02;
-        letter-spacing: -1.2px;
-        margin: 0 0 10px;
-        color: var(--text);
+        line-height: 1;
+        letter-spacing: -1.4px;
+        margin: 0;
+        color: var(--purple);
+    }
+
+    /* THE ARROW sits to the RIGHT: it starts just under the end of "Below" and sweeps down to
+       the right end of the button, hand-drawn style. Absolutely placed inside a fixed-height
+       band so it never pushes the button around. The bob is the one motion cue. */
+    .ask-arrow { position: relative; height: 76px; margin: 2px 0 6px; }
+    .ask-arrow svg {
+        position: absolute;
+        right: 4px;
+        top: 0;
+        width: 96px;
+        height: 76px;
+        color: var(--ink);
+        animation: arrowBob 1.6s ease-in-out infinite;
+    }
+
+    @keyframes arrowBob {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(6px); }
     }
 
     .ask-btn {
@@ -139,40 +127,38 @@
 
     .ask-btn:active { transform: scale(0.97); }
 
-    /* CONTINUE — the CTA, white with purple type (owner's spec). #7c3aed keeps ~4.7:1 on white;
-       the lighter orchid from earlier passes did not. The pulse reads its glow colour from
-       --accent-glow, so the button overrides that var locally to glow purple, not green. The
-       script disables it for the ~1.6 s the escape attempts run, then the watchdog re-enables
-       it as "Continue anyway"; the dim state is that window. */
-    .ask-cta { --accent-glow: rgba(124,58,237,0.5); background: #ffffff; color: #7c3aed; animation: ctaPulse 2.5s ease-in-out infinite; }
-    .ask-cta:disabled { animation: none; opacity: 0.7; cursor: default; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    /* CONTINUE — purple fill, white letters. The script disables it for the ~1.6 s the escape
+       attempts run, then the watchdog re-enables it as "Continue anyway"; the dim state is that
+       window. */
+    .ask-cta { background: var(--purple); color: #ffffff; animation: ctaPulse 2.5s ease-in-out infinite; }
+    .ask-cta:disabled { animation: none; opacity: 0.7; cursor: default; box-shadow: 0 6px 18px rgba(124,58,237,0.25); }
 
     @keyframes ctaPulse {
-        0%, 100% { box-shadow: 0 0 40px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
-        50%       { box-shadow: 0 0 70px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
+        0%, 100% { box-shadow: 0 0 30px var(--cta-glow), 0 6px 18px rgba(124,58,237,0.25); }
+        50%       { box-shadow: 0 0 50px var(--cta-glow), 0 6px 18px rgba(124,58,237,0.25); }
     }
 
     /* The watchdog's fallback line. Empty — and so hidden — until the script fills it. */
-    .sub { display: none; margin-top: 18px; font-size: 13px; font-weight: 600; color: var(--muted2); line-height: 1.5; }
+    .sub { display: none; margin-top: 18px; font-size: 13px; font-weight: 600; color: var(--muted); line-height: 1.5; }
     .sub:not(:empty) { display: block; }
-    .sub b { color: var(--text); }
+    .sub b { color: var(--ink); }
 
     @media (max-height: 640px) {
-        .ask-title { font-size: 34px; }
-        .ask-arrow svg { width: 32px; height: 48px; }
-        .ask-card { padding: 28px 20px 22px; }
+        .ask-title { font-size: 36px; }
+        .ask-arrow { height: 60px; }
+        .ask-arrow svg { width: 78px; height: 60px; }
     }
 
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
         body { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
     }
 
-    /* The two infinite animations start at a non-default state, so suppressing motion has to
+    /* The infinite animations start at a non-default state, so suppressing motion has to
        restore that state explicitly or the page renders wrong rather than merely still. */
     @media (prefers-reduced-motion: reduce) {
         .ask { animation: none; opacity: 1; transform: none; }
         .ask-arrow svg { animation: none; }
-        .ask-cta { animation: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .ask-cta { animation: none; box-shadow: 0 6px 18px rgba(124,58,237,0.25); }
         .ask-btn { transition: none; }
     }
 </style>
@@ -182,15 +168,16 @@
         <div class="ask-card">
             <h1 class="ask-title">Begin Below</h1>
             <div class="ask-arrow" aria-hidden="true">
-                <svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 4 C 34 16, 6 30, 20 49"></path>
-                    <path d="M11 41 L20 50 L29 41"></path>
+                <svg viewBox="0 0 96 76" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 10 C 58 2, 90 26, 80 64"></path>
+                    <path d="M70 55 L80 66 L90 55"></path>
                 </svg>
             </div>
             <button type="button" class="ask-btn ask-cta" id="ctaBtn">Continue</button>
             <p class="sub"></p>
         </div>
     </div>
+
 
 
     <script>
