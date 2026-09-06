@@ -100,7 +100,15 @@
         box-shadow: 0 0 40px rgba(62,224,125,0.12);
     }
 
-    .ask-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: #6f8a7a; margin-bottom: 18px; }
+    /* "Begin Below" + a smooth arrow down to the question (owner, 2026-09-04) — the arrow is
+       the pointer, so the lead is a real line, not an eyebrow. The bob is the one motion cue. */
+    .ask-lead { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; color: var(--text); margin-bottom: 6px; }
+    .ask-arrow { display: flex; justify-content: center; margin-bottom: 12px; color: var(--accent); }
+    .ask-arrow svg { width: 40px; height: 60px; animation: arrowBob 1.6s ease-in-out infinite; }
+    @keyframes arrowBob {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(6px); }
+    }
 
     .ask-title {
         font-family: "Inter", sans-serif;
@@ -153,6 +161,7 @@
 
     @media (max-height: 640px) {
         .ask-title { font-size: 34px; margin-bottom: 24px; }
+        .ask-arrow svg { width: 32px; height: 48px; }
         .ask-card { padding: 28px 20px 22px; }
     }
 
@@ -164,6 +173,7 @@
        restore that state explicitly or the page renders wrong rather than merely still. */
     @media (prefers-reduced-motion: reduce) {
         .ask { animation: none; opacity: 1; transform: none; }
+        .ask-arrow svg { animation: none; }
         .ask-yes { animation: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
         .ask-btn { transition: none; }
     }
@@ -172,7 +182,13 @@
 <body>
     <div class="ask">
         <div class="ask-card">
-            <div class="ask-eyebrow">QUICK QUESTION</div>
+            <div class="ask-lead">Begin Below</div>
+            <div class="ask-arrow" aria-hidden="true">
+                <svg viewBox="0 0 40 60" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 4 C 34 16, 6 30, 20 49"></path>
+                    <path d="M11 41 L20 50 L29 41"></path>
+                </svg>
+            </div>
             <h1 class="ask-title">Are you looking to make income?</h1>
             <div class="ask-actions">
                 <button type="button" class="ask-btn ask-yes" id="ctaBtn">Yes</button>
