@@ -69,12 +69,20 @@
         z-index: 0;
     }
 
-    .wrap {
+    /* ONE TAP (2026-09-04, owner: "Yes is the only button that prompts a redirect").
+       The page is a single question card. YES *is* #ctaBtn — the one element the breakout
+       script binds — so tapping it runs the script's go(): the escape attempts, then on failure
+       the watchdog, which writes its "your app blocked the hand-off" hint into .sub (empty and
+       therefore hidden until then) and relabels this same button "Continue anyway". Nothing
+       fires on load — the script only beacons pre_view there. NO IS INERT by design.
+       Markup + CSS only: the script block is hashed by the tracking audit and is byte-identical
+       to every sibling prelander. (Never write a literal script tag in a comment here — the
+       hasher would read it as one.) */
+    .ask {
         position: relative;
         z-index: 1;
         max-width: 400px;
         width: 100%;
-        text-align: center;
         animation: fadeUp .5s ease both;
     }
 
@@ -83,61 +91,32 @@
         to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Icon box */
-    .icon-wrap {
-        width: 88px;
-        height: 88px;
-        margin: 0 auto 28px;
-        border-radius: 22px;
+    .ask-card {
+        background: #0f1a14;
         border: 1px solid rgba(62,224,125,0.25);
-        background: var(--accent-dim);
-        display: grid;
-        place-items: center;
-        animation: iconGlow 3s ease-in-out infinite;
+        border-radius: 24px;
+        padding: 36px 24px 28px;
+        text-align: center;
+        box-shadow: 0 0 40px rgba(62,224,125,0.12);
     }
 
-    @keyframes iconGlow {
-        0%, 100% { box-shadow: 0 0 30px rgba(62,224,125,0.2); }
-        50%       { box-shadow: 0 0 60px rgba(62,224,125,0.4); }
-    }
+    .ask-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: #6f8a7a; margin-bottom: 18px; }
 
-    .icon-wrap svg {
-        width: 36px;
-        height: 36px;
-        color: var(--accent);
-        stroke-width: 2.5;
-    }
-
-    /* Heading */
-    h1 {
+    .ask-title {
         font-family: "Inter", sans-serif;
-        font-size: 48px;
+        font-size: 40px;
         font-weight: 900;
-        line-height: 1;
-        letter-spacing: -1.5px;
-        margin-bottom: 12px;
+        line-height: 1.02;
+        letter-spacing: -1.2px;
+        margin: 0 0 32px;
         color: var(--text);
     }
 
-    h1 .hl {
-        color: var(--accent);
-    }
+    .ask-actions { display: flex; flex-direction: column; gap: 12px; }
 
-    /* Sub */
-    .sub {
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--muted2);
-        line-height: 1.55;
-        margin-bottom: 36px;
-    }
-
-    /* CTA */
-    .cta {
+    .ask-btn {
         display: block;
         width: 100%;
-        background: var(--accent);
-        color: #ffffff;
         font-family: "Inter", sans-serif;
         font-size: 18px;
         font-weight: 900;
@@ -146,114 +125,63 @@
         padding: 18px 24px;
         border-radius: 14px;
         border: none;
+        text-align: center;
         cursor: pointer;
-        margin-bottom: 20px;
-        transition: transform 0.1s ease;
-        animation: ctaPulse 2.5s ease-in-out infinite;
+        -webkit-user-select: none;
+        user-select: none;
+        transition: transform 0.1s ease, opacity 0.2s ease;
     }
 
-    .cta:active { transform: scale(0.97); }
+    .ask-btn:active { transform: scale(0.97); }
+
+    /* YES — the CTA. The script disables it for the ~1.6 s the escape attempts run, then the
+       watchdog re-enables it as "Continue anyway"; the dim state is that window. */
+    .ask-yes { background: var(--accent); color: #062012; animation: ctaPulse 2.5s ease-in-out infinite; }
+    .ask-yes:disabled { animation: none; opacity: 0.7; cursor: default; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+
+    .ask-no { background: transparent; color: rgba(255,255,255,0.7); border: 1.5px solid rgba(255,255,255,0.18); padding: 17px 24px; }
 
     @keyframes ctaPulse {
         0%, 100% { box-shadow: 0 0 40px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
         50%       { box-shadow: 0 0 70px var(--accent-glow), 0 4px 20px rgba(0,0,0,0.4); }
     }
 
-    /* Chips */
-    .chips {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 14px;
-        font-size: 12px;
-        font-weight: 700;
-        color: var(--muted);
-        letter-spacing: 0.3px;
-    }
-
-    .chips .dot {
-        width: 3px;
-        height: 3px;
-        background: var(--muted);
-        border-radius: 50%;
-        opacity: 0.4;
-    }
-
-    /* QUESTION STEP (2026-09-04, owner's pick from four mockups). The page now opens on
-       "Are you looking to make income?" with Yes / No; Yes reveals the existing open-in-browser
-       prompt below it. PURE MARKUP + CSS, deliberately: the breakout script block is hashed by
-       the tracking audit and must stay byte-identical to every sibling prelander, so the swap is
-       a hidden checkbox (#askYes) that Yes toggles as a label, and :checked ~ selectors do the
-       rest. The script keeps every hook it had — #ctaBtn and .sub live inside .wrap, unchanged —
-       and its on-load escape attempts still run first: a webview that CAN be broken out of never
-       sees the question, exactly as it never saw the prompt. NO IS INERT by design (owner spec
-       said only what Yes does); to send No through as well, make it a label for="askYes" too.
-       (Never write a literal script tag in a comment here — the hasher would read it as one.) */
-    .ask-toggle { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-    .ask { position: relative; z-index: 1; max-width: 400px; width: 100%; animation: fadeUp .5s ease both; }
-    .ask-card { background: #0f1a14; border: 1px solid rgba(62,224,125,0.25); border-radius: 24px; padding: 36px 24px 28px; text-align: center; box-shadow: 0 0 40px rgba(62,224,125,0.12); }
-    .ask-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; color: #6f8a7a; margin-bottom: 18px; }
-    .ask-title { font-size: 40px; font-weight: 900; line-height: 1.02; letter-spacing: -1.2px; margin: 0 0 32px; color: var(--text); }
-    .ask-actions { display: flex; flex-direction: column; gap: 12px; }
-    .ask-btn { display: block; width: 100%; font-family: "Inter", sans-serif; font-size: 18px; font-weight: 900; letter-spacing: 0.3px; text-transform: uppercase; padding: 18px 24px; border-radius: 14px; border: none; text-align: center; cursor: pointer; -webkit-user-select: none; user-select: none; transition: transform 0.1s ease; }
-    .ask-btn:active { transform: scale(0.97); }
-    .ask-yes { background: var(--accent); color: #062012; animation: ctaPulse 2.5s ease-in-out infinite; }
-    .ask-no { background: transparent; color: rgba(255,255,255,0.7); border: 1.5px solid rgba(255,255,255,0.18); padding: 17px 24px; }
-    .wrap { display: none; }
-    .ask-toggle:checked ~ .ask { display: none; }
-    .ask-toggle:checked ~ .wrap { display: block; }
+    /* The watchdog's fallback line. Empty — and so hidden — until the script fills it. */
+    .sub { display: none; margin-top: 18px; font-size: 13px; font-weight: 600; color: var(--muted2); line-height: 1.5; }
+    .sub:not(:empty) { display: block; }
+    .sub b { color: var(--text); }
 
     @media (max-height: 640px) {
-        .ask-title { font-size: 34px; }
-        .icon-wrap { width: 70px; height: 70px; margin-bottom: 20px; }
-        .icon-wrap svg { width: 28px; height: 28px; }
-        h1 { font-size: 38px; }
-        .sub { margin-bottom: 24px; }
+        .ask-title { font-size: 34px; margin-bottom: 24px; }
+        .ask-card { padding: 28px 20px 22px; }
     }
 
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
         body { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
     }
 
-    /* The three infinite animations above start at a non-default state, so suppressing motion has
-       to restore that state explicitly or the page renders wrong rather than merely still. */
+    /* The two infinite animations start at a non-default state, so suppressing motion has to
+       restore that state explicitly or the page renders wrong rather than merely still. */
     @media (prefers-reduced-motion: reduce) {
-        .wrap, .ask { animation: none; opacity: 1; transform: none; }
-        .icon-wrap, .cta, .ask-yes { animation: none; }
-        .cta { transition: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .ask { animation: none; opacity: 1; transform: none; }
+        .ask-yes { animation: none; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        .ask-btn { transition: none; }
     }
 </style>
 </head>
 <body>
-    <input type="checkbox" id="askYes" class="ask-toggle" aria-hidden="true" tabindex="-1">
     <div class="ask">
         <div class="ask-card">
             <div class="ask-eyebrow">QUICK QUESTION</div>
             <h1 class="ask-title">Are you looking to make income?</h1>
             <div class="ask-actions">
-                <label for="askYes" class="ask-btn ask-yes" role="button">Yes</label>
+                <button type="button" class="ask-btn ask-yes" id="ctaBtn">Yes</button>
                 <button type="button" class="ask-btn ask-no">No</button>
             </div>
+            <p class="sub"></p>
         </div>
     </div>
-    <div class="wrap">
-        <div class="icon-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M7 17L17 7"></path>
-                <path d="M7 7h10v10"></path>
-            </svg>
-        </div>
-        <h1>Open in <span class="hl">Browser</span></h1>
-        <p class="sub">Tap Continue to open this page in your browser for the full experience.</p>
-        <button class="cta" id="ctaBtn" type="button">Continue</button>
-        <div class="chips">
-            <span>Safari</span>
-            <span class="dot"></span>
-            <span>Chrome</span>
-            <span class="dot"></span>
-            <span>Secure</span>
-        </div>
-    </div>
+
 
     <script>
     
