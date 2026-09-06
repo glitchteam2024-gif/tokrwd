@@ -56,6 +56,20 @@
         position: relative;
     }
 
+    /* SOFT GLOW (owner's pick from four backgrounds, 2026-09-04): two lavender glows in opposite
+       corners and a faint one behind the content. Fixed, behind everything, never interactive. */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(circle at 88% 10%, rgba(124,58,237,0.20) 0%, rgba(124,58,237,0) 42%),
+            radial-gradient(circle at 8% 92%, rgba(124,58,237,0.14) 0%, rgba(124,58,237,0) 40%),
+            radial-gradient(circle at 50% 55%, rgba(124,58,237,0.06) 0%, rgba(124,58,237,0) 38%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
     /* ONE TAP: CONTINUE *is* #ctaBtn — the one element the breakout script binds — so tapping
        it runs the script's go(): the escape attempts, then on failure the watchdog, which writes
        its "your app blocked the hand-off" hint into .sub (empty and therefore hidden until
@@ -78,11 +92,12 @@
 
     .ask-card { text-align: center; }
 
-    /* THE ARCH (owner, 2026-09-04): the arrow leaves from the end of the "w" in Below, rises in
-       an arch and comes down onto the button. .ask-head is an inline-block exactly as wide as the
-       headline, so an arrow anchored at its right edge starts at the last letter whatever font
-       the device has. The type is sized down so the arch has room and the arrowhead lands inside
-       the button's right end on a 375-wide screen. The bob is the one motion cue. */
+    /* THE ARROW (owner, 2026-09-04, second pass): it connects the two RIGHT ENDS — out from the
+       end of the "w" in Below, round to the right, and back in to land on the right end of the
+       button, a C-curve that lives entirely on the right side. .ask-head is an inline-block
+       exactly as wide as the headline, so an arrow anchored at its right edge starts at the last
+       letter whatever font the device has; the curve's widest point stays ~10 px inside a
+       375-wide screen. The bob is the one motion cue. */
     .ask-head { display: inline-block; position: relative; }
 
     .ask-title {
@@ -97,13 +112,13 @@
 
     .ask-arrow {
         position: absolute;
-        left: calc(100% - 4px);
-        top: -10px;
-        width: 72px;
-        height: 100px;
+        left: calc(100% - 2px);
+        top: 6px;
+        width: 96px;
+        height: 96px;
         color: var(--ink);
     }
-    .ask-arrow svg { width: 72px; height: 100px; display: block; animation: arrowBob 1.6s ease-in-out infinite; }
+    .ask-arrow svg { width: 96px; height: 96px; display: block; animation: arrowBob 1.6s ease-in-out infinite; }
 
     @keyframes arrowBob {
         0%, 100% { transform: translateY(0); }
@@ -148,8 +163,8 @@
 
     @media (max-height: 640px) {
         .ask-title { font-size: 28px; }
-        .ask-arrow { width: 62px; height: 86px; top: -8px; }
-        .ask-arrow svg { width: 62px; height: 86px; }
+        .ask-arrow { width: 84px; height: 84px; top: 4px; }
+        .ask-arrow svg { width: 84px; height: 84px; }
         .ask-cta { margin-top: 46px; }
     }
 
@@ -173,9 +188,9 @@
             <div class="ask-head">
                 <h1 class="ask-title">Begin Below</h1>
                 <div class="ask-arrow" aria-hidden="true">
-                    <svg viewBox="0 0 72 100" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 26 C 14 -4, 54 -4, 60 88"></path>
-                        <path d="M51 79 L60 90 L69 79"></path>
+                    <svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 10 C 70 -4, 108 60, 66 80"></path>
+                        <path d="M76 83 L66 80 L72 70"></path>
                     </svg>
                 </div>
             </div>
