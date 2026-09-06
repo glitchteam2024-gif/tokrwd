@@ -102,6 +102,12 @@
         color: var(--purple);
     }
 
+    /* Two reassurance lines in the space between the headline and the button (owner,
+       2026-09-04) — the old prelander's Safari · Chrome · Secure chips, spelled out. */
+    .ask-points { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 9px; }
+    .ask-points li { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); line-height: 1.2; }
+    .ask-points svg { width: 17px; height: 17px; color: var(--purple); flex-shrink: 0; }
+
     .ask-btn {
         display: block;
         width: 100%;
@@ -125,7 +131,7 @@
     /* CONTINUE — purple fill, white letters. The script disables it for the ~1.6 s the escape
        attempts run, then the watchdog re-enables it as "Continue anyway"; the dim state is that
        window. */
-    .ask-cta { margin-top: 28px; background: var(--purple); color: #ffffff; animation: ctaPulse 2.5s ease-in-out infinite; }
+    .ask-cta { margin-top: 26px; background: var(--purple); color: #ffffff; animation: ctaPulse 2.5s ease-in-out infinite; }
     .ask-cta:disabled { animation: none; opacity: 0.7; cursor: default; box-shadow: 0 6px 18px rgba(124,58,237,0.25); }
 
     @keyframes ctaPulse {
@@ -140,7 +146,8 @@
 
     @media (max-height: 640px) {
         .ask-title { font-size: 28px; }
-        .ask-cta { margin-top: 22px; }
+        .ask-cta { margin-top: 20px; }
+        .ask-points { margin-top: 14px; gap: 7px; }
     }
 
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
@@ -160,6 +167,10 @@
     <div class="ask">
         <div class="ask-card">
             <h1 class="ask-title">Begin Below</h1>
+            <ul class="ask-points">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.3 2.3L15.5 10"></path></svg>Secure Chrome Browser</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12.5l2.3 2.3L15.5 10"></path></svg>Secure Safari Browser</li>
+            </ul>
             <button type="button" class="ask-btn ask-cta" id="ctaBtn">Continue</button>
             <p class="sub"></p>
         </div>
