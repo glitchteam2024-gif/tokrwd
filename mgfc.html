@@ -165,7 +165,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
       <h3>HOW TO START EARNING</h3>
       <div class="step"><div class="step-num">1</div><div><h4>Activate &amp; open your Gravy Pass</h4><p>Tap <span class="accent">Activate Wallet Pass</span> below, then open your Gravy Pass in <span class="accent">Apple Wallet</span> to get started.</p></div></div>
       <div class="step"><div class="step-num">2</div><div><h4>Complete games &amp; tasks for money</h4><p>Follow the instructions in your pass and complete <span class="accent">games and tasks</span> to start earning real money.</p></div></div>
-      <div class="step"><div class="step-num">3</div><div><h4>Complete 3 tasks to unlock top offers</h4><p>Complete <span class="accent">3 tasks</span> to unlock high-paying popular offers like <span class="accent">Subway Surfers</span>, Roblox and more.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Complete 3 tasks to unlock top offers</h4><p>Complete <span class="accent">3 tasks</span> to unlock high-paying popular offers like <span class="accent">Paid to Scroll</span>, Roblox and more.</p></div></div>
     </div>
 
     <button class="btn-activate anim" style="animation-delay:0.16s" data-open>
@@ -178,12 +178,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
     <div class="reward anim" style="animation-delay:0.32s">
       <div class="reward-top">
-        <div class="reward-tile" style="background:hsl(28,85%,42%)"><img src="/images/subway-surfers.jpg" alt="Subway Surfers" /></div>
-        <div class="reward-info"><h4>Subway Surfers</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-tile" style="background:hsl(0,0%,8%)"><img src="/images/tiktok-icon-free-png.png" alt="TikTok" /></div>
+        <div class="reward-info"><h4>TikTok</h4><p>Paid to Scroll</p></div>
         <div class="reward-prize">$32/hr<span>per hour</span></div>
       </div>
       <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
-      <button class="reward-btn" data-open>UNLOCK SUBWAY SURFERS</button>
+      <button class="reward-btn" data-open>UNLOCK TIKTOK</button>
     </div>
 
     <div class="reward anim" style="animation-delay:0.35s">
@@ -232,7 +232,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 (function () {
   'use strict';
 
-  var OFFER_LINK = 'https://monetisetrk8.co.uk/?a=26648&c=56065';
+  var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/324QNSF/';
 
   /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else. */
   function buildOfferUrl() {
@@ -243,10 +243,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     if (!_t && /^E[._]C[._]P[._]/.test(_p.get('s2') || '')) _t = _p.get('s2');    if (!_t && window.__ttEvent && window.__ttEvent.ttclid) _t = window.__ttEvent.ttclid;    if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
     var _dest = !_send1 ? OFFER_LINK
-              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
 
-    var _ev = (window.__ttEvent && window.__ttEvent.id) || ('c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
-    if (_t) _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 's2=' + encodeURIComponent(_t) + '&s3=' + encodeURIComponent(_ev);
 
     /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 onward unchanged. */
     return '/click?u=' + encodeURIComponent(_dest)
