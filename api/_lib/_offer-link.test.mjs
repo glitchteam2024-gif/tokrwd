@@ -136,13 +136,15 @@ const BANNED = ['s2', 's3', 's4', 's5', 'sub2', 'sub3', 'sub4', 'sub5', 'ttclid'
  * to the offer URL IN ADDITION to its one s1/sub1, each with the value it must carry (a string is
  * exact, a RegExp is a shape). Nothing else relaxes: s1 must still be present and correct, and
  * every other BANNED key still fails.
- *   EMPTY since 2026-09-07. mgfc.html held the only entry — the owner's TikTok S2S spec
- *   (2026-09-03, tiktok-s2s/README.md), s2 = click id and s3 = shared event id for Monetise to
- *   echo back to n8n. The page now points at an Everflow-family link, which reads sub1..sub5:
- *   s2/s3 would be dead keys there, sub2/sub3 are BANNED above, and no postback is wired to
- *   echo them. Re-add an entry only with a network that actually echoes the keys back.
+ *   mgfc.html — the owner's TikTok S2S spec (2026-09-03, tiktok-s2s/README.md): the click id rides
+ *   to the network as s2 and the shared event id as s3, so the network's postback can echo them
+ *   to n8n for matching and dedup. Both are gated on a real ttclid in the page. Valid only while
+ *   mgfc.html points at a CAKE endpoint that echoes the keys back (restored 2026-09-08 with the
+ *   move back to Monetise); delete it with the page if it moves to Everflow again.
  */
-const ROUNDTRIP_EXTRAS = {};
+const ROUNDTRIP_EXTRAS = {
+  'mgfc.html': { s2: TTCLID, s3: /^c-\d+-[a-z0-9]+$/ },
+};
 
 const bad = { threw: [], notGate: [], gateExtra: [], gateWire: [], gatePath: [], gateT: [],
               doubleQ: [], extra: [], wrongVal: [], wrongName: [], hostRefused: [],
