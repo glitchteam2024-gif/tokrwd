@@ -1013,6 +1013,12 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // offer the house /recousa page runs, reserved to him and routed on his own AS52 family.
   // Flat pair, so each NAME is its own root. Added to BOTH lists in this commit.
   'recousa-sammy.html', 'recousa-sammy-pre.html',
+  // RECOUSA-SHANNON - the Shannon Pruett Reco Social page, 2026-09-08. Her own supplied
+  // design on the same offer the house /recousa page runs, reserved to her. Flat pair with no
+  // clone family (unlike Sammy, who is routed on AS52), so there is no family root to leave
+  // out here - the two page NAMES are the whole registration.
+  // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
+  'recousa-shannon.html', 'recousa-shannon-pre.html',
   // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
   // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as
   // /pre?to=/AS52/US<n> and the visitor would cross a prelander twice. Leaving it out makes

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reco Social Landing Page</title>
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://montrk3.co.uk" crossorigin>
+<link rel="dns-prefetch" href="https://montrk3.co.uk">
+
+<!-- HER COMP SHIPPED TWO CDN <script> TAGS: cdn.tailwindcss.com and unpkg.com/lucide.
+     Both are gone and the utilities they generated are written out longhand below, pixel for
+     pixel. This is not a restyle — every value here is the Tailwind default her class names
+     resolved to (text-2xl = 1.5rem, leading-snug = 1.375, py-3.5 = .875rem, and so on) plus her
+     own tailwind.config palette verbatim.
+
+     WHY: the play CDN compiles the stylesheet in the browser, so a paid visitor on a phone gets
+     a render-blocking ~400KB download and a flash of unstyled text on the one page we bought the
+     click for — and if the CDN is slow or blocked, the page renders as raw stacked text. No
+     lander in this repo loads an external stylesheet or framework for exactly that reason. The
+     lucide tag was dead weight regardless: her design uses emoji, and createIcons() had no
+     [data-lucide] node to find. -->
+<style>
+    :root {
+        --accent: #2563EB;
+        --accent-dark: #1D4ED8;
+        --heading: #111111;
+        --body: #555555;
+        --divider: #E0E0E0;
+        --page-bg: #F0F2F5;
+        --card-bg: #FFFFFF;
+        --section-bg: #F7F8FA;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background-color: var(--page-bg);
+        color: var(--body);
+        /* Tailwind preflight put line-height:1.5 on <html>; every text node here overrides it, but
+           matching the base keeps any future line inheriting exactly what her comp did. */
+        line-height: 1.5;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* main: w-full max-w-[430px] mx-auto pb-8 */
+    .page {
+        width: 100%;
+        max-width: 430px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-bottom: 2rem;
+    }
+
+    /* section#hero-section: pt-10 px-4 pb-6 */
+    .hero-section { padding: 2.5rem 1rem 1.5rem; }
+
+    /* .hero-card: bg-cardBg rounded-2xl px-6 py-10 text-center */
+    .hero-card {
+        background-color: var(--card-bg);
+        border-radius: 1rem;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06), 0 0.5px 3px rgba(0,0,0,0.04);
+    }
+
+    /* h1: text-2xl font-bold text-heading leading-tight tracking-tight mb-3 */
+    .hero-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--heading);
+        line-height: 1.25;
+        letter-spacing: -0.025em;
+        margin-bottom: 0.75rem;
+    }
+
+    /* p: text-base font-bold text-accent mb-8 */
+    .hero-sub {
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 2rem;
+    }
+
+    /* the CTA: inline-block w-full bg-accent text-white font-semibold text-base py-3.5
+       rounded-xl transition-all duration-200 cursor-pointer no-underline.
+       A <button> rather than her <a>, because the destination is built at tap time from the
+       incoming query — see the wiring block at the foot of the page. Buttons do not inherit
+       type or font from the page, so both are set here. */
+    .cta {
+        display: inline-block;
+        width: 100%;
+        background-color: var(--accent);
+        color: #FFFFFF;
+        font-family: inherit;
+        font-weight: 600;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        padding: 0.875rem 0;
+        border: none;
+        border-radius: 0.75rem;
+        transition: all 200ms;
+        cursor: pointer;
+        text-decoration: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 8px rgba(37, 99, 235, 0.3), 0 0 20px rgba(37, 99, 235, 0.1); }
+        50% { box-shadow: 0 0 16px rgba(37, 99, 235, 0.5), 0 0 36px rgba(37, 99, 235, 0.2); }
+    }
+
+    .btn-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
+    .btn-glow:hover { transform: scale(1.03); background-color: var(--accent-dark) !important; }
+    .btn-glow:active { transform: scale(0.98); }
+
+    /* section#features-section: bg-sectionBg mt-2 rounded-t-2xl px-5 pt-8 pb-10 */
+    .features-section {
+        background-color: var(--section-bg);
+        margin-top: 0.5rem;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        padding: 2rem 1.25rem 2.5rem;
+    }
+
+    .section-heading-reveal { margin-bottom: 1.5rem; }
+
+    /* h2: text-lg font-bold text-heading leading-snug mb-2 */
+    .section-heading-reveal h2 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--heading);
+        line-height: 1.375;
+        margin-bottom: 0.5rem;
+    }
+
+    .accent-bar { width: 40px; height: 3px; background-color: var(--accent); border-radius: 2px; }
+
+    /* the list card: bg-cardBg rounded-xl overflow-hidden + her inline shadow */
+    .feature-card {
+        background-color: var(--card-bg);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    }
+
+    /* .fade-in-item: px-5 py-4 */
+    .fade-in-item { padding: 1rem 1.25rem; }
+
+    .fade-in-row { display: flex; align-items: flex-start; gap: 0.75rem; }
+
+    /* the emoji: text-[1.8rem] leading-none mt-0.5 shrink-0 */
+    .fade-in-row .emoji {
+        font-size: 1.8rem;
+        line-height: 1;
+        margin-top: 0.125rem;
+        flex-shrink: 0;
+    }
+
+    .fade-in-row .copy { min-width: 0; }
+
+    /* h3: text-[0.95rem] font-bold text-heading leading-snug mb-1 */
+    .fade-in-row h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--heading);
+        line-height: 1.375;
+        margin-bottom: 0.25rem;
+    }
+
+    /* p: text-sm text-body leading-relaxed */
+    .fade-in-row p {
+        font-size: 0.875rem;
+        color: var(--body);
+        line-height: 1.625;
+    }
+
+    .list-divider { border: none; border-top: 1px solid var(--divider); margin: 0 1.25rem; }
+
+    /* Reveal-on-scroll. Her animation, unchanged. */
+    .fade-in-item {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
+    .fade-in-item.visible { opacity: 1; transform: translateY(0); }
+
+    .section-heading-reveal {
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity 0.45s ease-out, transform 0.45s ease-out;
+    }
+    .section-heading-reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* The reveal starts at opacity 0 and the CTA glow starts mid-animation, so suppressing motion
+       has to restore both explicitly — otherwise the page renders BLANK rather than merely still,
+       which on a paid click is a dead page. */
+    @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .fade-in-item, .section-heading-reveal {
+            opacity: 1; transform: none; transition: none;
+        }
+        .btn-glow { animation: none; box-shadow: 0 0 8px rgba(37, 99, 235, 0.3); }
+        .btn-glow:hover, .btn-glow:active { transform: none; }
+        .cta { transition: none; }
+    }
+
+    /* Her comp had no footer. Estate legal block, matched to this page's light palette. */
+    .disclaimer {
+        margin-top: 1.5rem;
+        padding: 0 0.25rem;
+        font-size: 0.6875rem;
+        line-height: 1.6;
+        color: #8A8F96;
+        text-align: center;
+    }
+    .disclaimer .links { display: block; margin-top: 0.5rem; }
+    .disclaimer .links a {
+        color: #8A8F96;
+        text-decoration: underline;
+        margin: 0 0.4rem;
+    }
+</style>
+</head>
+<body>
+
+    <main class="page">
+
+        <!-- HERO CARD -->
+        <section id="hero-section" class="hero-section">
+            <div class="hero-card">
+                <h1 class="hero-title">
+                    Reco: Recommendations You Can Trust
+                </h1>
+                <p class="hero-sub">
+                    Real talk. Real recs. Go deeper.
+                </p>
+                <!-- Her comp pointed this at https://recosocial.com/ in a new tab. That is the
+                     brand's own site: it is not the tracked destination, it carries no sub-ID, and
+                     it pays nothing — every click would have been bought and then given away. The
+                     button now walks our own /click gate, which logs the click and forwards it to
+                     the network link with her code attached. -->
+                <button type="button"
+                        id="cta-hero"
+                        class="cta btn-glow offer-link">
+                    Explore Reco Social
+                </button>
+            </div>
+        </section>
+
+        <!-- THREE THINGS RECO GETS RIGHT -->
+        <section id="features-section" class="features-section">
+            <div class="section-heading-reveal">
+                <h2>Three things Reco gets right.</h2>
+                <div class="accent-bar"></div>
+            </div>
+
+            <div class="feature-card">
+
+                <!-- Item 1 -->
+                <div class="fade-in-item">
+                    <div class="fade-in-row">
+                        <span class="emoji" aria-hidden="true">💬</span>
+                        <div class="copy">
+                            <h3>Real Talk — Real conversations</h3>
+                            <p>RealTalk lets you ask anyone anything — the chef, the coach, the local, the enthusiast. The community votes the best questions up. Real people respond. Not comments. Conversations.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="list-divider" />
+
+                <!-- Item 2 -->
+                <div class="fade-in-item">
+                    <div class="fade-in-row">
+                        <span class="emoji" aria-hidden="true">⭐</span>
+                        <div class="copy">
+                            <h3>Real Recs — Real recommendations</h3>
+                            <p>Reco surfaces what's inside every post — the restaurants, films, games, places, and products that experts and opinion leaders actually stand behind. No sponsored noise. Just what's real.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="list-divider" />
+
+                <!-- Item 3 -->
+                <div class="fade-in-item">
+                    <div class="fade-in-row">
+                        <span class="emoji" aria-hidden="true">🔍</span>
+                        <div class="copy">
+                            <h3>Go Deeper</h3>
+                            <p>When something matters, it doesn't end in the feed. Save it. Explore it. Act on it. Everything in Reco is designed to be used — not just seen.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <p class="disclaimer">
+                Availability and features may vary by user, location, and device. This page is not sponsored or endorsed by Apple Inc. or Google LLC.
+                <span class="links"><a href="/Rewards/privacy">Privacy Policy</a><a href="/Rewards/terms">Terms of Service</a></span>
+            </p>
+        </section>
+
+    </main>
+
+<script>
+(function(){
+  /* THE RAW MONETISE LINK for Reco Social — the `reco-social-off` destination in
+     api/_lib/links-config.js (montrk3, a=26648, c=56065), the same base recousa-sammy.html and
+     mgreco.html run. Her comp shipped https://recosocial.com/ on the CTA instead.
+
+     ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
+     keeping both would ship "&s1=&s1=CODE", where the network reads the EMPTY first one. It must
+     also stay an ABSOLUTE https URL: isAllowedGateDestination runs `new URL(raw)`, which throws on
+     a relative path, so a "/c/..." value 404s at our own gate. montrk3.co.uk already matches
+     GATE_DEST_HOST_RE, so nothing needs adding there. */
+  var OFFER_LINK = "https://montrk3.co.uk/?a=26648&c=56065";
+
+  // Carry EVERY incoming param through. Her comp did href="https://recosocial.com/" with no query
+  // at all, so nothing about the click survived the tap.
+
+  var q = new URLSearchParams(location.search);
+
+
+  if (!q.get("s1") && q.get("campid")) q.set("s1", q.get("campid"));
+
+
+
+  if (!q.get("s1")) {
+    var mc = q.get("mc_attr") || "", f = {};
+    mc.split("..").forEach(function (kv) { var i = kv.indexOf("="); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+    var d = f.e || f.c; if (d) q.set("s1", d);
+  }
+
+  function offerUrl(){
+
+    var s1 = q.get("s1") || "";
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    var url = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+         The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
+         code identifies the creative and the creative identifies the affiliate. The funnel beacon has
+         already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
+         `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+         is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+         platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      /* ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. montrk3.co.uk is MONETISE/CAKE, which reads s1..s5
+         and silently DISCARDS sub1; the Everflow hosts (pcbdfv7trk.com and friends) do the exact
+         reverse. Copying a sibling lander's builder without switching the dialect zeroes
+         attribution with no error: the link looks healthy and every conversion lands unmatched.
+         The dialect follows the DESTINATION. */
+      var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* Drop an UNEXPANDED TikTok macro rather than logging it. When an ad link ships with the
+         literal __CLICKID__ (or braces from a mis-pasted template), TikTok never substitutes it and
+         the raw token would land in our own gate log as if it were a real click id. It never
+         reaches the network — `t` is a /click param, not a forwarded one — so this is log hygiene,
+         not attribution. */
+      if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+      /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
+    return url;
+  }
+
+  function handleClaim(){
+    window.location.href = offerUrl();
+  }
+  ["cta-hero"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener("click", handleClaim);
+  });
+
+  /* SPRK-FUNNEL-BEACON v2 */
+  /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
+     analytics cannot throw on the path to the offer. No UA test here -- /api/funnel-beacon
+     classifies in-app server-side, which keeps this page identical for every visitor. */
+  (function(){
+    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    function bsend(ev, extra){
+      try {
+        var d = { event: ev, sid: bq.get('sid') || '',
+                  s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                  ttclid: bq.get('ttclid') || '',
+                  slice: 'RECOUSA-SHANNON', clone: 'US', path: location.pathname };
+        if (extra) for (var k in extra) d[k] = extra[k];
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify(d)], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    /* Bound to the CTA, not to the URL builder, and fired once. */
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'cta-hero' || (el.classList && el.classList.contains('offer-link'))) {
+          fired = true;
+          bsend('offer_click');
+          return;
+        }
+      }
+    }, true);
+  })();
+
+  /* ---- her reveal-on-scroll, unchanged ---- */
+  var sectionHeader = document.querySelector('.section-heading-reveal');
+  var listItems = document.querySelectorAll('.fade-in-item');
+
+  if (!('IntersectionObserver' in window)) {
+      if (sectionHeader) sectionHeader.classList.add('visible');
+      Array.prototype.forEach.call(listItems, function (item) { item.classList.add('visible'); });
+      return;
+  }
+
+  var headerObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              headerObserver.unobserve(entry.target);
+          }
+      });
+  }, { threshold: 0.2 });
+
+  if (sectionHeader) headerObserver.observe(sectionHeader);
+
+  var itemObserver = new IntersectionObserver(function (entries) {
+      var visibleEntries = [];
+      entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+              visibleEntries.push(entry.target);
+              itemObserver.unobserve(entry.target);
+          }
+      });
+      visibleEntries.forEach(function (target) {
+          var idx = Array.prototype.indexOf.call(listItems, target);
+          setTimeout(function () { target.classList.add('visible'); }, idx * 150);
+      });
+  }, { threshold: 0.15 });
+
+  Array.prototype.forEach.call(listItems, function (item) { itemObserver.observe(item); });
+})();
+</script>
+
+</body>
+</html>

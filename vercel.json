@@ -468,6 +468,14 @@
       "destination": "/mgreco-pre.html"
     },
     {
+      "source": "/recousa-shannon-pre",
+      "destination": "/recousa-shannon-pre.html"
+    },
+    {
+      "source": "/recousa-shannon",
+      "destination": "/recousa-shannon.html"
+    },
+    {
       "source": "/mgreco",
       "destination": "/mgreco.html"
     },
