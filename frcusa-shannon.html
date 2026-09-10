@@ -390,7 +390,7 @@
 
 <script>
 (function(){
-  /* THE RAW MONETISE LINK for Freecash — byte-identical to the base every other Freecash lander
+  /* THE RAW DESTINATION LINK for Freecash — byte-identical to the base every other Freecash lander
      in this repo runs (frcusa/frcuk/frccana/frcnl/frcde/frcat/frcjp, FCTT, frcusa-ravi).
 
      ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
@@ -407,23 +407,23 @@
 
   function offerUrl(){
     var s1 = q.get("s1") || "";
-    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. */
     var url = (function () {
       var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
       if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
-      /* SPRK-SEND-SPK-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps
+      /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps
          a value with NO code in it going out verbatim: a scaler free-form label is their
          attribution key and blanking it would pay them nothing. */
       var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
-      /* ⚠️ OUTBOUND PARAM IS `s1`. This destination is MONETISE/CAKE, which reads s1..s5 and
-         silently DISCARDS sub1 - the Everflow hosts do the exact reverse, and the Playful page in
+      /* ⚠️ OUTBOUND PARAM IS `s1`. This destination is this destination family, which reads s1..s5 and
+         silently DISCARDS sub1 - the alternate family hosts do the exact reverse, and the Playful page in
          this same batch is on one of them. Copying the wrong sibling zeroes attribution with no
          error: the link looks healthy and every conversion lands unmatched. */
       var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
       var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
       /* Drop an UNEXPANDED TikTok macro rather than logging it as a real click id. */
       if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
-      /* SPRK-GATE v1 -- log the click at our own /click, then 302 to the offer unchanged. The
+      /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The
          gate's own `s1=` carries the FULL wire either way: that is our log, not the network's
          param, and the only place the username, AffID and geo survive. */
       return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
@@ -434,9 +434,9 @@
   var ctaBtn = document.getElementById('cta-hero');
   if (ctaBtn) ctaBtn.addEventListener('click', function(){ window.location.href = offerUrl(); });
 
-  /* SPRK-FUNNEL-BEACON v2 */
+  /* BEACON v2 */
   (function(){
-    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var BEACON = '/api/funnel-beacon';
     var bq = new URLSearchParams(location.search);
     function bsend(ev){
       try {

@@ -102,7 +102,7 @@ window.__STATS__     = window.__STATS__ || null;
             </span>
           </div>
           <!-- Trust chips. The earlier draft claimed "32,000+ cards claimed" and "4.9/5 user
-               rating" — neither is an approved SPRK stat, so both are gone. These three state
+               rating" — neither is an approved the platform stat, so both are gone. These three state
                only what the offer terms already say. -->
           <div class="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-xs text-slate-500 lg:justify-start">
             <span class="inline-flex items-center gap-1.5"><svg class="h-4 w-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-9 9-9 9s-9-4-9-9V5l9-3 9 3v7z"/></svg> No card needed to start</span>
@@ -127,7 +127,7 @@ window.__STATS__     = window.__STATS__ || null;
                 </div>
               </div>
               <!-- Reward card. The original comp used <img src="public/image.png"> for an Apple
-                   mark in three places; that file does not exist in this repo and no shipped SPRK
+                   mark in three places; that file does not exist in this repo and no shipped the platform
                    lander renders an Apple logo. Typographic mark instead — nothing to 404, and no
                    third-party mark on the page beyond the trademark notice in the footer. -->
               <div class="absolute bottom-10 left-5 z-10 w-60 -rotate-6 rounded-2xl border border-white/80 bg-gradient-to-br from-slate-950 to-slate-700 p-5 text-white shadow-2xl shadow-slate-900/30 sm:left-10 sm:w-72 sm:p-6">
@@ -295,7 +295,7 @@ var s1 = q.get('s1') || '';
 function buildOfferUrl() {
   var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
   if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
-  /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+  /* CODE-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
      The wire is <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the code
      identifies the creative and the creative identifies the affiliate. The funnel beacon has
      already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
@@ -305,7 +305,7 @@ function buildOfferUrl() {
   var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
   var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
   var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
-  /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+  /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
   return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
 }
 var target = buildOfferUrl();

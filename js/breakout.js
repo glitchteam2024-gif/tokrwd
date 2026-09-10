@@ -55,7 +55,7 @@
   /**
    * First path segment of every page /pre may forward to.
    *
-   * MUST STAY IN SYNC with PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js —
+   * MUST STAY IN SYNC with PRELANDER_ALLOWED_ROOTS in the shared config —
    * _links-config.test.mjs reads this file off disk and fails the build if the two
    * lists differ, because a drift is silent: /r would emit a `to` this page then
    * refuses, and the visitor would sit on a prelander that goes nowhere.
@@ -72,7 +72,7 @@
     '50fc', '50fcii', '50tu', 'ac50', 'acash', 'acsm', 'ah50', 'ashl', 'ashurl', 'as50', 'sasurl', 'af50', 'ak50', 'ap50', 'apay1k',
     'ac51', 'ac52', 'af51', 'af52', 'ak51', 'ak52', 'ap51', 'ap52',
     // Slices 53 + 54, added 2026-08-09. MUST stay in sync with PRELANDER_ALLOWED_ROOTS in
-    // api/_lib/links-config.js — _links-config.test.mjs reads this file off disk and fails the
+    // the shared config — _links-config.test.mjs reads this file off disk and fails the
     // build when the two lists differ.
     'ac53', 'ac54', 'af53', 'af54', 'ak53', 'ak54', 'ap53', 'ap54',
     'ac55', 'af55', 'ak55', 'ap55',
@@ -103,9 +103,9 @@
     'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
     'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'sh50', 'shb2s', 'shein',
     // The owner scaler Playful Rewards page, 2026-08-12. Flat pair: /PlayfulM-pre.html breaks the
-    // in-app webview, then forwards to /PlayfulM.html via its sprk-lander meta. cleanPath lowercases
+    // in-app webview, then forwards to /PlayfulM.html via its x-dest meta. cleanPath lowercases
     // the root and does NOT strip the extension, so the entry carries .html — same as fctt.html.
-    // MUST stay in sync with PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    // MUST stay in sync with PRELANDER_ALLOWED_ROOTS in the shared config.
     'playfulm.html', 'playfulm-pre.html',
     // The owner scaler FREECASH page, 2026-08-13. Same flat pair shape as PlayfulM
     // above (/FCM-pre.html breaks the webview, forwards to /FCM.html), but a
@@ -114,28 +114,28 @@
     'fcm.html', 'fcm-pre.html',
     'mgfc.html', 'mgfc-pre.html',
     // MGFC2 - the same single-tenant pair on PLAYFUL REWARDS (Fluent), 2026-09-04.
-    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'mgfc2.html', 'mgfc-pre2.html',
     // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
-    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
     'gravypassusa2.html', 'gravypassusa2-pre.html', 'gps',
     // MGRECO - the owner Reco Social page, single-tenant, no clone pool.
-    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'mgreco.html', 'mgreco-pre.html',
     // RECOUSA-SAMMY - the Sammy Reco Social page, reserved to him, routed on AS52.
-    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'recousa-sammy.html', 'recousa-sammy-pre.html',
     // RECOUSA-SHANNON - the Shannon Pruett Reco Social page, reserved to her. Flat pair, no
     // clone family, so each NAME is its own root.
-    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'recousa-shannon.html', 'recousa-shannon-pre.html',
     // BACKSPINUSA-SAMMY - Sammy Backspin Games page, 2026-09-10. First lander on that offer.
-    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'backspinusa-sammy.html', 'backspinusa-sammy-pre.html',
     // Shannon Pruett other three pages, 2026-09-09 - Gravy Pass USA, Freecash and Playful
     // Rewards, each her own supplied design reserved to her. Flat pairs, no clone families.
-    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'gravypassusa-shannon.html', 'gravypassusa-shannon-pre.html',
     'frcusa-shannon.html', 'frcusa-shannon-pre.html',
     'playfulusa-shannon.html', 'playfulusa-shannon-pre.html',
@@ -196,7 +196,7 @@
   }
 
   /* ── Target resolution ──────────────────────────────────────────────────────
-   * Mirrors cleanLanderPath() in api/_lib/links-config.js, and then some, because
+   * Mirrors cleanLanderPath() in the shared config, and then some, because
    * this runs on a public static page with no server in front of it.
    */
 

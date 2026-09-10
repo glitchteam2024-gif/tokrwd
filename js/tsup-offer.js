@@ -42,7 +42,7 @@
     s1 = f.e || f.c || '';
   }
 
-  /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else.
+  /* LINK-BUILD v5 — one param out: the affiliate code, nothing else.
      s3 used to ride along here for a per-ad-account breakdown; it does not any more.
      An empty code appends NOTHING — the old base ended in '?s1=' so an untagged visit shipped a
      blank s1=, which reads downstream as a real-but-empty sub-id rather than as no sub-id. */

@@ -40,7 +40,7 @@ const ok = (name, cond, detail = '') => {
   if (!cond) { if (detail) console.log(`   ${detail}`); fail++; } else pass++;
 };
 
-const PRELANDER   = /<meta\s+name=["']sprk-prelander["']/i;
+const PRELANDER   = /<meta\s+name=["']x-pre["']/i;
 const APP_ICON    = /class="[^"]*\bapp-icon\b[^"]*"/i;
 // NOT global: `.test()` on a /g regex is STATEFUL (lastIndex carries between calls), which
 // silently reported 5 landers as image-less on the first run of this file. The matchAll

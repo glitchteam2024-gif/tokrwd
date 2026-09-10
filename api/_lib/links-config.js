@@ -985,7 +985,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'cltu', 'cr50', 'cs50', 'esgp', 'fc', 'fcash', 'fctt.html', 'gp', 'pg50', 'pgrd',
   'play', 'pr50', 'rs', 'rs50', 'rewards', 'sb50', 'sh50', 'shb2s', 'shein',
   // The owner scaler Playful Rewards page, 2026-08-12. Flat pair: /PlayfulM-pre.html breaks the
-  // in-app webview, then forwards to /PlayfulM.html via its sprk-lander meta. cleanPath lowercases
+  // in-app webview, then forwards to /PlayfulM.html via its x-dest meta. cleanPath lowercases
   // the root and does NOT strip the extension, so the entry carries .html — same as fctt.html.
   // Added to BOTH lists in this commit; _links-config.test.mjs fails the build if they drift.
   'playfulm.html', 'playfulm-pre.html',
@@ -993,7 +993,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'fcm.html', 'fcm-pre.html',
   // MGFC single-tenant Freecash pair (Migi), 2026-08-25. Green prelander /mgfc-pre.html
-  // forwards to /mgfc.html via its sprk-lander meta. Added to BOTH lists in this commit.
+  // forwards to /mgfc.html via its x-dest meta. Added to BOTH lists in this commit.
   'mgfc.html', 'mgfc-pre.html',
   // MGFC2 — the same single-tenant pair pointed at PLAYFUL REWARDS (Fluent) instead of
   // Monetise, 2026-09-04. Its own pair rather than a repoint of mgfc so both offers stay
@@ -1001,7 +1001,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'mgfc2.html', 'mgfc-pre2.html',
   // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
-  // Prelander /gravypassusa-pre.html forwards to /gravypassusa.html via its sprk-lander meta.
+  // Prelander /gravypassusa-pre.html forwards to /gravypassusa.html via its x-dest meta.
   // Added to BOTH lists in this commit; a lander missing here silently loses its prelander hop.
   'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
   'gravypassusa2.html', 'gravypassusa2-pre.html', 'gps',

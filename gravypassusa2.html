@@ -163,9 +163,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
      isAllowedGateDestination runs `new URL(raw)`, which throws on a relative path. */
   var OFFER_LINK = 'https://monetisetrk2.co.uk/?a=26648&c=56278';
 
-  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else.
-     ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. monetisetrk2.co.uk is MONETISE/CAKE, which reads s1..s5
-     and silently DISCARDS sub1 -- the exact reverse of the Everflow hosts. The dialect follows the
+  /* LINK-BUILD v5 -- one param out: the tracking value, nothing else.
+     ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. monetisetrk2.co.uk is this destination family, which reads s1..s5
+     and silently DISCARDS sub1 -- the exact reverse of the alternate family hosts. The dialect follows the
      DESTINATION, never a global default. The gate param below stays `s1` on every lander whatever
      the network: that one is OUR first-party /click log carrying the RAW wire. */
   function buildOfferUrl() {
@@ -178,7 +178,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     var _dest = !_send1 ? OFFER_LINK
               : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
 
-    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
+    /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
        unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
     return '/click?u=' + encodeURIComponent(_dest)
          + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')

@@ -30,6 +30,52 @@ SPRKNetworkAds only.
 ⚠️ The local SPRKNetworkAds checkout often sits on a stale `codex/*` branch — verify door /
 postback behavior against **origin/main** (what Vercel deploys), never the working tree.
 
+## ⛔ HARD RULE — A LANDING PAGE NEVER NAMES OUR NETWORK OR US
+
+**Owner's instruction, 2026-09-10, after finding it in a lander's view-source:** *"go through ALL
+the landing pages and remove any hit of monetise // sprknetwork … Make this a hardrule to never
+overpass it."*
+
+A landing page is PUBLIC. Anyone — a competitor, an affiliate, an ad reviewer — can open
+view-source. Nothing served from the lander domain may tell them **which network we buy from**,
+**who we are**, or **how our attribution works**. That means none of the following in any
+deployed `.html`, or in `js/*.js` (which IS fetched by the browser):
+
+| Never appears | Examples |
+|---|---|
+| The network's NAME | `Monetise`, `CAKE`, `Everflow`, `Prescott` |
+| Our company | `SPRK`, `sprknetwork`, `sprknetwork.ad` |
+| Our protocol tags | `SPRK-GATE`, `SPRK-S1-ONLY`, `SPRK-SEND-SPK-ONLY`, `SPRK-FUNNEL-BEACON` |
+| Internal references | `api/_lib/...` paths, git SHAs, offer UUIDs, door slugs (`reco-social-off`) |
+| Affiliate identities | real names or handles — `Sammy`, `Shannon`, `ravi`, `kerman` … |
+| Commentary on the wire | anything explaining s1 vs sub1, the spark code, or the gate |
+
+**SCOPE: LANDING PAGES ONLY.** This rule does NOT apply to `api/` (404s publicly), to
+`api/_lib/*.test.mjs`, to migrations, to the admin panel, or to this repo's docs and skills
+(`.claude/` is in `.vercelignore` — it was served once, in 2026-07, and that is why it is
+excluded). Comments in build-time code are how the next session understands the estate; strip
+those and the estate gets worse, not safer. The line is: **does a browser fetch it from the
+lander domain?**
+
+### Writing a lander, in practice
+- Explain the *what* in comments, never the *who*: `/* one param out: the affiliate code */`,
+  never `/* SPRK-S1-ONLY v5 — MONETISE/CAKE reads s1 */`.
+- Put the reasoning in the **commit message** and in this skill, where it stays useful and stays
+  private.
+- Never `<link rel="preconnect">` a network host — it puts the hostname in the `<head>` for free.
+- The funnel beacon must be **same-origin** (`/api/funnel-beacon` on the lander domain), never an
+  absolute URL naming us.
+
+### It is enforced, not just documented
+`api/_lib/_lander-leak.test.mjs` fails the build on any of the above. It is deliberately scoped
+to deployed pages plus `js/*.js`. If a page legitimately needs a term, the fix is to change the
+page — not to widen the allowlist.
+
+⚠️ **Some marker comments are load-bearing.** `_offer-link.test.mjs` finds each lander's CTA
+builder by matching the literal comment before it, and asserts every swept page carries a gate
+marker. Renaming a marker means updating that parser in the SAME commit, or thousands of pages
+drop out of the guard that proves their money path works — silently, with the suite still green.
+
 ## Why this skill exists (the Copper "CB" incident, 2026-07-14)
 
 Ashlyn (ashlynn.brunelle@gmail.com, AffID 18) added a Copper creative at 19:48 UTC and got the

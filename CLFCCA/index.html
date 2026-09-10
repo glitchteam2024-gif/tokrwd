@@ -289,11 +289,11 @@
       var d = f.e || f.c; if (d) q.set('s1', d);  // no fabricated 's1' — untagged visit stays untagged; door 404s it (matches TU/CB)
     }
     var s1 = q.get('s1') || q.get('sub1') || '';
-    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. */
     var url = (function () {
       var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
       if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
-      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+      /* CODE-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
          `|| _s1` keeps a code-less value going out verbatim: a scaler's free-form label is their
          attribution key. Case-insensitive, so a lowercasing ad platform cannot ship the whole wire. */
       var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;

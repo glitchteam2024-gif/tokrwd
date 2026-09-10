@@ -14,8 +14,8 @@
      reviewed pages — and the audit does NOT take it on trust: it also requires every marked file
      to be byte-identical to every other, so the exemption cannot be pasted onto a page that has
      been edited. Remove the marker and this page correctly fails the audit. -->
-<meta name="sprk-prelander" content="1">
-<meta name="sprk-theme" content="PC50">
+<meta name="x-pre" content="1">
+<meta name="x-theme" content="PC50">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
@@ -227,7 +227,7 @@
         if (!btn) return;
 
         
-        var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+        var BEACON = '/api/funnel-beacon';
         var q = new URLSearchParams(location.search);
 
         /* The journey id. Minted here, carried to the lander, and the ONLY thing that makes the
@@ -271,7 +271,7 @@
              clone's own directory, exactly as before. `new URL`-free on purpose so it behaves the
              same on old in-app webviews; the two replaces normalise a path with or without its
              trailing slash, and a literal /index.html, to the same base.
-           · Flat pages (/frcusa-pre -> /frcusa): a <meta name="sprk-lander"> names the destination.
+           · Flat pages (/frcusa-pre -> /frcusa): a <meta name="x-dest"> names the destination.
 
            ⚠️ THE DESTINATION IS DATA, NOT CODE, AND THAT IS DELIBERATE. Baking the path into this
            function instead would give every flat page its own script body, and _tracking-audit
@@ -284,7 +284,7 @@
            cannot be set by a visitor, so there is no allowlist and nothing to keep in sync. */
         /* `q`, not location.search, so the sid minted above rides to the lander. */
         function landerUrl() {
-            var m = document.querySelector('meta[name="sprk-lander"]');
+            var m = document.querySelector('meta[name="x-dest"]');
             var flat = m && m.getAttribute('content');
             var qs = q.toString();
             if (flat && flat.charAt(0) === '/') {

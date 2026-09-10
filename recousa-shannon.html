@@ -316,8 +316,8 @@
 
 <script>
 (function(){
-  /* THE RAW MONETISE LINK for Reco Social — the `reco-social-off` destination in
-     api/_lib/links-config.js (montrk3, a=26648, c=56065), the same base recousa-sammy.html and
+  /* THE RAW DESTINATION LINK for Reco Social — the `<slug>` destination in
+     the shared config (montrk3, a=26648, c=56065), the same base recousa-sammy.html and
      mgreco.html run. Her comp shipped https://recosocial.com/ on the CTA instead.
 
      ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
@@ -346,11 +346,11 @@
   function offerUrl(){
 
     var s1 = q.get("s1") || "";
-    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. */
     var url = (function () {
       var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
       if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
-      /* SPRK-SEND-SPK-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+      /* CODE-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
          The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
          code identifies the creative and the creative identifies the affiliate. The funnel beacon has
          already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
@@ -358,8 +358,8 @@
          is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
          platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
       var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
-      /* ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. montrk3.co.uk is MONETISE/CAKE, which reads s1..s5
-         and silently DISCARDS sub1; the Everflow hosts (pcbdfv7trk.com and friends) do the exact
+      /* ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. montrk3.co.uk is this destination family, which reads s1..s5
+         and silently DISCARDS sub1; the alternate family hosts (pcbdfv7trk.com and friends) do the exact
          reverse. Copying a sibling lander's builder without switching the dialect zeroes
          attribution with no error: the link looks healthy and every conversion lands unmatched.
          The dialect follows the DESTINATION. */
@@ -371,7 +371,7 @@
          reaches the network — `t` is a /click param, not a forwarded one — so this is log hygiene,
          not attribution. */
       if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
-      /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+      /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
       return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
     })();
     return url;
@@ -385,12 +385,12 @@
     if(el) el.addEventListener("click", handleClaim);
   });
 
-  /* SPRK-FUNNEL-BEACON v2 */
+  /* BEACON v2 */
   /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
      analytics cannot throw on the path to the offer. No UA test here -- /api/funnel-beacon
      classifies in-app server-side, which keeps this page identical for every visitor. */
   (function(){
-    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var BEACON = '/api/funnel-beacon';
     var bq = new URLSearchParams(location.search);
     function bsend(ev, extra){
       try {

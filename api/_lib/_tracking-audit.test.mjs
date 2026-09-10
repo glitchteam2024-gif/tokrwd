@@ -299,7 +299,7 @@ report('no third-party tracking script on a deployed page', thirdPartyTrackers);
 // per-lander breakout code that got this domain flagged and was stripped from ~1000 pages on
 // 2026-07-23. So the exemption is not granted by PATH, it is granted by IDENTITY:
 //
-//   1. the file must declare itself with <meta name="sprk-prelander">, and
+//   1. the file must declare itself with <meta name="x-pre">, and
 //   2. every file that declares it must be BYTE-IDENTICAL to every other one.
 //
 // (2) is what makes (1) safe. The marker alone would be a sticker anyone could paste onto an edited
@@ -310,7 +310,7 @@ report('no third-party tracking script on a deployed page', thirdPartyTrackers);
 //
 // The non-escapable patterns below (blank-page gates, document.write) still apply to these files
 // exactly as they do to every other. The escape is sanctioned; cloaking is not.
-const PRELANDER_MARK = /<meta\s+name=["']sprk-prelander["']/i;
+const PRELANDER_MARK = /<meta\s+name=["']x-pre["']/i;
 const prelanderFiles = files.filter((rel) => PRELANDER_MARK.test(readFileSync(new URL(rel, REPO), 'utf8')));
 // WHAT IS PINNED IS THE BEHAVIOUR, NOT THE PIXELS (2026-08-11).
 //

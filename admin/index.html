@@ -302,7 +302,7 @@ td a:hover { color: var(--purple-hover); }
       Binds by <b>hostname</b>, so it applies to every ad link on that page — nothing to add to the
       URL. An <code>lp=</code> or <code>o=</code> on a link still wins over this (that is what makes
       them usable for a one-off test). Assignments live in <code>CARRD_ROUTES</code> in
-      <code>api/_lib/links-config.js</code> and <b>go live on deploy</b>; this screen resolves the
+      <code>the shared config</code> and <b>go live on deploy</b>; this screen resolves the
       pairing through the real router and hands you the line to commit.
       <br /><br />
       To assign a page to a <b>person</b> — with their own affiliate link, saved without a deploy —
@@ -1241,7 +1241,7 @@ function tlBuild() {
  * screen lists is what live traffic follows — not a browser-local wish list.
  *
  * There is deliberately no "Save" button. The admin store is per-lambda in-memory
- * (see api/_lib/store.js), so a save here would land in the admin lambda's heap
+ * (see the shared config), so a save here would land in the admin lambda's heap
  * and /api/r would never see it: the assignment would read as done and every
  * click would keep going to the default offer. A button that silently does
  * nothing is worse than no button, so this emits the config line instead.
@@ -1406,7 +1406,7 @@ async function asgCheck() {
       <div class="resolve-row"><span class="k">Status</span><span class="v">${status}</span></div>
       ${dupWarning}
       ${isLive ? '' : `
-        <div class="resolve-row" style="margin-top:10px;"><span class="k">Add to</span><span class="v">CARRD_ROUTES in api/_lib/links-config.js</span></div>
+        <div class="resolve-row" style="margin-top:10px;"><span class="k">Add to</span><span class="v">CARRD_ROUTES in the shared config</span></div>
         <div class="result-box" style="margin-top:8px;">
           <span id="asgLine">${esc(line)}</span>
           <button class="btn btn-copy" onclick="copyText(document.getElementById('asgLine').textContent)">📋 Copy</button>
@@ -1753,7 +1753,7 @@ function plRender() {
       box.innerHTML = '<div class="warn"><b>Live saving is off.</b> To turn it on: ' +
         esc(missing.join(', then ')) + ', then redeploy. Until then this tab still checks an ' +
         'assignment and hands you the exact row to paste into PARTNER_LINKS in ' +
-        'api/_lib/links-config.js, which goes live on deploy.</div>';
+        'the shared config, which goes live on deploy.</div>';
     }
   }
 
@@ -1866,7 +1866,7 @@ function plValidate(f) {
 
 
   if (/^SPK-[0-9A-F]{4}-[0-9A-F]{4}(-\d+)?$/i.test(f.code)) {
-    return 'That is a SPRK-minted spark code — it belongs to a network affiliate. Give this partner a code of their own.';
+    return 'That is a the platform-minted spark code — it belongs to a network affiliate. Give this partner a code of their own.';
   }
   if (!/^https:\/\//.test(f.destination)) return 'Their offer link must be an https:// URL.';
   const clash = plRows().find(r => r.key !== f.key && r.code.toUpperCase() === f.code.toUpperCase() && r.lander === f.lander);
@@ -2005,7 +2005,7 @@ async function plSave() {
     <div class="warn">${esc(data.error || 'Could not save.')}</div>
     ${data.config_line ? `
       <div class="resolve-row" style="margin-top:10px;"><span class="k">Add to</span>
-        <span class="v">PARTNER_LINKS in api/_lib/links-config.js</span></div>
+        <span class="v">PARTNER_LINKS in the shared config</span></div>
       <div class="result-box" style="margin-top:8px;">
         <pre id="plCfg" style="margin:0;white-space:pre;font-size:12px;">${esc(data.config_line)}</pre>
         <button class="btn btn-copy" onclick="copyText(document.getElementById('plCfg').textContent)">📋 Copy</button>

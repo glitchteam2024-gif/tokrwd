@@ -219,7 +219,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
   'use strict';
 
   /* The Gravy Pass offer, named directly. This is exactly OFFERS.gravypass.match in
-     api/_lib/links-config.js, and exactly what GP/index.html and gravypassusa-ravi.html ship.
+     the shared config, and exactly what GP/index.html and gravypassusa-ravi.html ship.
 
      ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
      keeping both would ship "&s1=&s1=CODE", where the network reads the EMPTY first one. It must
@@ -228,7 +228,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
      GATE_DEST_HOST_RE, so nothing needs adding there. */
   var OFFER_LINK = 'https://monetisetrk2.co.uk/?a=26648&c=56278';
 
-  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else.
+  /* LINK-BUILD v5 -- one param out: the tracking value, nothing else.
      Inbound may be ?s1= or ?sub1=; whatever carries the value. If it contains an SPK-XXXX-XXXX
      code only that leaves, otherwise the value goes out verbatim -- so a plain TikTok label
      survives intact for segmenting. `|| _s1` keeps a value with NO code in it going out whole: a
@@ -236,9 +236,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
      Case-insensitive, because an ad platform that lowercases the URL would otherwise match nothing
      and ship the entire compound wire to the network.
 
-     ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. monetisetrk2.co.uk is MONETISE/CAKE, which reads s1..s5
-     and silently DISCARDS sub1 -- the exact reverse of the Everflow hosts (pcbdfv7trk.com et al).
-     Copying an Everflow lander's builder onto this base zeroes attribution with no error: the link
+     ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. monetisetrk2.co.uk is this destination family, which reads s1..s5
+     and silently DISCARDS sub1 -- the exact reverse of the alternate family hosts (pcbdfv7trk.com et al).
+     Copying an the alternate family lander's builder onto this base zeroes attribution with no error: the link
      looks healthy and every conversion lands unmatched. The dialect follows the DESTINATION.
      The gate param below stays `s1` on every lander regardless of network -- that one is OUR
      first-party /click log carrying the RAW wire, not the network's field. */
@@ -252,7 +252,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     var _dest = !_send1 ? OFFER_LINK
               : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
 
-    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
+    /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
        unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
     return '/click?u=' + encodeURIComponent(_dest)
          + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')

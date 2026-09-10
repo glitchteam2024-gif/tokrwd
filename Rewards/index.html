@@ -212,8 +212,8 @@ var SIGNUP_URL = 'https://appflowconnect.com/c/frrcsh-us-off?s1=';
 (function(){
   var p = new URLSearchParams(window.location.search);
   var sub = p.get('s1') || p.get('campid') || p.get('s2') || '';
-  // Forward ONLY s3 (the TikTok ad account the SPRK launcher stamps on every ad link) so the
-  // per-account breakdown survives this hop. This CTA goes DIRECT to the network tracker (no SPRK
+  // Forward ONLY s3 (the TikTok ad account the platform launcher stamps on every ad link) so the
+  // per-account breakdown survives this hop. This CTA goes DIRECT to the network tracker (no the platform
 
   var s3v = p.get('s3') || '';
   var extra = s3v ? '&s3=' + encodeURIComponent(s3v) : '';

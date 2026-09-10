@@ -234,7 +234,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
   var OFFER_LINK = 'https://www.fkn8s74mztrk.com/F2R45HNR/GSLX3JXR/';
 
-  /* SPRK-S1-ONLY v5 -- one param out: the tracking value, nothing else. */
+  /* LINK-BUILD v5 -- one param out: the tracking value, nothing else. */
   function buildOfferUrl() {
     var _p = new URLSearchParams(location.search);
     var _s1 = _p.get('s1') || _p.get('sub1') || '';
@@ -246,7 +246,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
               : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
 
 
-    /* SPRK-GATE v1 -- first-party stamp: log the click at our own /click, then 302 onward unchanged. */
+    /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 onward unchanged. */
     return '/click?u=' + encodeURIComponent(_dest)
          + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
          + '&lp=' + encodeURIComponent(location.pathname)

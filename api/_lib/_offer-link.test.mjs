@@ -58,7 +58,7 @@ function extract(src) {
   if (m) return { base, kind: 'fn', body: m[1], src };
   m = src.match(/function __offerUrl\((\w+)\) \{([\s\S]*?)\n\s*\}\n/);
   if (m) return { base, kind: 'arg', arg: m[1], body: m[2], src };
-  m = src.match(/SPRK-S1-ONLY v5[^\n]*\n\s*(?:var|let|const)\s+\w+\s*=\s*(\(function[\s\S]*?\}\)\(\));/);
+  m = src.match(/LINK-BUILD v5[^\n]*\n\s*(?:var|let|const)\s+\w+\s*=\s*(\(function[\s\S]*?\}\)\(\));/);
   if (m) return { base, kind: 'iife', body: m[1], src };
   return null;
 }
@@ -117,7 +117,7 @@ for (const rel of C_ROUTED) {
   const src = readFileSync(new URL(rel, REPO), 'utf8');
   const links = [...src.matchAll(/['"](\/c\/[a-z0-9-]+|https?:\/\/[^'"]*\/c\/[a-z0-9-]+)['"]/gi)].length;
   ok(`${rel} still routes its CTA through our /c/ redirector`, links > 0, 'no /c/ hop found');
-  ok(`${rel} was not accidentally swept onto /click`, !/SPRK-GATE v1/.test(src));
+  ok(`${rel} was not accidentally swept onto /click`, !/CLICK-STAMP v1/.test(src));
   ok(`${rel} names no raw network host in its CTA builder`, !/montrk|monetisetrk|fkn8s74mztrk|phef6trk|giftclick/i.test(src.replace(/<!--[\s\S]*?-->/g, '')));
 }
 
@@ -150,7 +150,7 @@ const bad = { threw: [], notGate: [], gateExtra: [], gateWire: [], gatePath: [],
 
 for (const [rel, ex] of landers) {
   if (/sprktrax\.org/.test(ex.base)) bad.door.push(rel);
-  if (!/SPRK-GATE v1/.test(ex.src)) bad.unswept.push(rel);
+  if (!/CLICK-STAMP v1/.test(ex.src)) bad.unswept.push(rel);
 
   // The builder names a base identifier. The PAGE must declare it — this harness supplies the
   // binding when it executes the body, so without this check a builder referencing a variable
@@ -234,7 +234,7 @@ if (Object.keys(ROUNDTRIP_EXTRAS).length) {
 }
 rep('every builder runs', bad.threw);
 rep('every CTA walks the first-party /click stamp', bad.notGate);
-rep('every swept page carries the SPRK-GATE v1 marker', bad.unswept);
+rep('every swept page carries the CLICK-STAMP v1 marker', bad.unswept);
 rep('the gate URL carries only u / s1 / lp / t', bad.gateExtra);
 rep("the gate's s1 is the RAW wire, verbatim (the log keeps the wire)", bad.gateWire);
 rep("the gate's lp is the page's own pathname", bad.gatePath);
