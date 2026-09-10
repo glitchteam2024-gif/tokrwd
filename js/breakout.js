@@ -184,7 +184,7 @@
     try { if (typeof window.__trk === 'function') window.__trk(name, props); } catch (e) {}
   }
 
-  var SESSION_KEY = 'tokrwd_pre_';
+  var SESSION_KEY = 'xp_pre_';
 
   var ua = navigator.userAgent || '';
   var isAndroid = /Android/i.test(ua);
