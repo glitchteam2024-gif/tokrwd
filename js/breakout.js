@@ -130,6 +130,12 @@
     // clone family, so each NAME is its own root.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
     'recousa-shannon.html', 'recousa-shannon-pre.html',
+    // Shannon Pruett other three pages, 2026-09-09 - Gravy Pass USA, Freecash and Playful
+    // Rewards, each her own supplied design reserved to her. Flat pairs, no clone families.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in api/_lib/links-config.js.
+    'gravypassusa-shannon.html', 'gravypassusa-shannon-pre.html',
+    'frcusa-shannon.html', 'frcusa-shannon-pre.html',
+    'playfulusa-shannon.html', 'playfulusa-shannon-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',

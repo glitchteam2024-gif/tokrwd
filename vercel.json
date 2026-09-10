@@ -472,6 +472,30 @@
       "destination": "/recousa-shannon-pre.html"
     },
     {
+      "source": "/gravypassusa-shannon-pre",
+      "destination": "/gravypassusa-shannon-pre.html"
+    },
+    {
+      "source": "/gravypassusa-shannon",
+      "destination": "/gravypassusa-shannon.html"
+    },
+    {
+      "source": "/frcusa-shannon-pre",
+      "destination": "/frcusa-shannon-pre.html"
+    },
+    {
+      "source": "/frcusa-shannon",
+      "destination": "/frcusa-shannon.html"
+    },
+    {
+      "source": "/playfulusa-shannon-pre",
+      "destination": "/playfulusa-shannon-pre.html"
+    },
+    {
+      "source": "/playfulusa-shannon",
+      "destination": "/playfulusa-shannon.html"
+    },
+    {
       "source": "/recousa-shannon",
       "destination": "/recousa-shannon.html"
     },

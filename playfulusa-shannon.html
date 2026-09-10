@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="dark" />
+<title>Playful Rewards</title>
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://www.fkn8s74mztrk.com" crossorigin />
+<link rel="dns-prefetch" href="https://www.fkn8s74mztrk.com" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+<!-- Her comp loaded cdn.tailwindcss.com. It is gone; the utilities it generated are written out
+     longhand below at their Tailwind defaults, with her tailwind.config palette verbatim. The play
+     CDN builds the stylesheet in the browser, so on a paid click it costs a render-blocking
+     download and a flash of unstyled text — and raw stacked markup if it is slow or blocked. The
+     Inter link stays: a stylesheet degrades to the fallback stack, a JS framework does not. -->
+<style>
+    :root {
+        --bg: #0A0A0A;
+        --card: #141414;
+        --surface: #1A1A1A;
+        --purple-primary: #8B5CF6;
+        --purple-dark: #6D28D9;
+        --purple-light: #A78BFA;
+        --purple-deep: #6B21A8;
+        --purple-glow: #A855F7;
+        --txt-primary: #FFFFFF;
+        --txt-secondary: #9CA3AF;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg);
+        color: var(--txt-primary);
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* main: max-w-[600px] mx-auto px-5 py-12 md:py-20 flex flex-col items-center */
+    .page {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 3rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    @media (min-width: 768px) { .page { padding-top: 5rem; padding-bottom: 5rem; } }
+
+    /* wordmark: flex items-center gap-1.5 text-2xl mb-12, font-weight 800 */
+    .wordmark {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        font-size: 1.5rem;
+        line-height: 2rem;
+        font-weight: 800;
+        margin-bottom: 3rem;
+    }
+    .wordmark .spark { font-size: 1.125rem; line-height: 1.75rem; }
+    .wordmark .w { color: #FFFFFF; }
+    .wordmark .r { color: var(--purple-primary); }
+
+    .gradient-text {
+        background: linear-gradient(135deg, #6B21A8 0%, #8B5CF6 50%, #A855F7 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+
+    /* h1: text-3xl sm:text-4xl md:text-[44px] font-black text-center leading-tight mb-5 */
+    .hero-title {
+        font-size: 1.875rem;
+        font-weight: 900;
+        text-align: center;
+        line-height: 1.15;
+        margin-bottom: 1.25rem;
+    }
+    @media (min-width: 640px) { .hero-title { font-size: 2.25rem; } }
+    @media (min-width: 768px) { .hero-title { font-size: 44px; } }
+
+    /* p: text-base md:text-lg text-center mb-10 max-w-md */
+    .hero-sub {
+        color: var(--txt-secondary);
+        font-size: 1rem;
+        line-height: 1.5rem;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        max-width: 28rem;
+    }
+    @media (min-width: 768px) { .hero-sub { font-size: 1.125rem; line-height: 1.75rem; } }
+
+    /* steps block: w-full mb-14 */
+    .steps-block { width: 100%; margin-bottom: 3.5rem; }
+
+    /* h2: text-2xl md:text-3xl font-black text-center mb-10 */
+    .steps-block h2 {
+        font-size: 1.5rem;
+        line-height: 2rem;
+        font-weight: 900;
+        color: #FFFFFF;
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    @media (min-width: 768px) { .steps-block h2 { font-size: 1.875rem; line-height: 2.25rem; } }
+
+    /* ol: flex flex-col gap-8 w-full */
+    .steps {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        width: 100%;
+    }
+    /* li: flex items-start gap-3 */
+    .steps li { display: flex; align-items: flex-start; gap: 0.75rem; }
+
+    .step-number {
+        color: var(--purple-primary);
+        font-weight: 800;
+        font-size: 1.125rem;
+        min-width: 1.75rem;
+    }
+
+    /* h3: text-lg font-bold mb-1 */
+    .steps h3 {
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 0.25rem;
+    }
+    /* p: text-sm leading-relaxed */
+    .steps p {
+        color: var(--txt-secondary);
+        font-size: 0.875rem;
+        line-height: 1.625;
+    }
+
+    .cta-wrap { margin-bottom: 2.5rem; }
+
+    /* the CTA: inline-block px-10 py-4 rounded-full text-lg font-bold.
+       A <button> rather than her <a>: the destination is built at tap time from the incoming
+       query. Buttons inherit neither font nor type, so both are set here. */
+    .cta {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        border: none;
+        border-radius: 9999px;
+        color: #FFFFFF;
+        font-family: inherit;
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        background: linear-gradient(135deg, #6D28D9, #8B5CF6, #A855F7);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    .cta:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(139,92,246,0.4); }
+    .cta:active { transform: translateY(0); }
+
+    .fade-in { animation: fadeInUp 0.8s cubic-bezier(.22,1,.36,1) both; }
+    .fade-in-d1 { animation-delay: 0.1s; }
+    .fade-in-d2 { animation-delay: 0.2s; }
+    .fade-in-d3 { animation-delay: 0.35s; }
+    .fade-in-d4 { animation-delay: 0.5s; }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* `both` fill means every .fade-in element sits at opacity 0 until its animation runs, so
+       suppressing motion has to restore them explicitly or the whole page renders BLANK rather
+       than merely still — a dead page on a paid click. */
+    @media (prefers-reduced-motion: reduce) {
+        .fade-in { animation: none; opacity: 1; transform: none; }
+        .cta { transition: none; }
+        .cta:hover, .cta:active { transform: none; box-shadow: none; }
+    }
+
+    /* Her comp had no footer. Estate legal block. */
+    .disclaimer {
+        font-size: 0.6875rem;
+        line-height: 1.6;
+        color: var(--txt-secondary);
+        text-align: center;
+        max-width: 28rem;
+    }
+    .disclaimer .links { display: block; margin-top: 0.5rem; }
+    .disclaimer .links a { color: var(--txt-secondary); text-decoration: underline; margin: 0 0.4rem; }
+</style>
+</head>
+<body>
+
+    <main class="page">
+
+        <!-- Logo / Wordmark -->
+        <div class="fade-in wordmark">
+            <span class="spark" aria-hidden="true">✨</span>
+            <span class="w">Playful</span><span class="r">Rewards</span>
+        </div>
+
+        <!-- Hero Text -->
+        <h1 class="fade-in fade-in-d1 hero-title gradient-text">
+            Where Your Opinions Power Your Earnings!
+        </h1>
+        <p class="fade-in fade-in-d2 hero-sub">
+            Embark on a journey where your love for gaming and your valuable insights come together to reward you.
+        </p>
+
+        <!-- Three Steps to Earning -->
+        <div class="fade-in fade-in-d3 steps-block">
+            <h2>Three Steps to Earning</h2>
+            <ol class="steps">
+                <li>
+                    <span class="step-number">1.</span>
+                    <div>
+                        <h3>Download the App</h3>
+                        <p>Get Playful Rewards free from the App Store or Google Play. No cost, no catch — just download and start.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">2.</span>
+                    <div>
+                        <h3>Play &amp; Survey</h3>
+                        <p>Play free games from the App Store and answer 3 simple survey questions after each session. Your opinions help improve the gaming experience.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-number">3.</span>
+                    <div>
+                        <h3>Cash Out</h3>
+                        <p>Accumulate coins and redeem them for real cash or gift cards. Cash out as soon as you've earned $1.00 — no waiting weeks!</p>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <!-- Download Now Button -->
+        <div class="fade-in fade-in-d4 cta-wrap">
+            <!-- Her comp pointed this at https://www.playfulrewards.com/ in a new tab — the
+                 brand's own site. No sub-ID, no gate, no payout. It now walks /click. -->
+            <button id="cta-hero" type="button" class="cta offer-link">
+                Download Now
+            </button>
+        </div>
+
+        <p class="disclaimer">
+            Availability, rewards, and eligibility may vary by user, location, and completed activity. Results are not guaranteed and are based on individual participation. This page is not sponsored or endorsed by Apple Inc. or Google LLC.
+            <span class="links"><a href="/Rewards/privacy">Privacy Policy</a><a href="/Rewards/terms">Terms of Service</a></span>
+        </p>
+
+    </main>
+
+<script>
+(function(){
+  /* THE RAW EVERFLOW LINK for Playful Rewards — byte-identical to the base in playfulusa.html,
+     the house lander on this same offer, and to offers.destination_url. */
+  var OFFER_LINK = 'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/';
+
+  var q = new URLSearchParams(location.search);
+  if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+  if (!q.get('s1')) {
+    var mc = q.get('mc_attr') || '', f = {};
+    mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+    var d = f.e || f.c; if (d) q.set('s1', d);
+  }
+
+  function offerUrl(){
+    var s1 = q.get("s1") || "";
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    var url = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps
+         a value with NO code in it going out verbatim: a scaler free-form label is their
+         attribution key and blanking it would pay them nothing. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      /* ⚠️ OUTBOUND PARAM IS `sub1`, NOT `s1` - the ONE line that differs from the Gravy Pass
+         and Freecash pages built for her in the same batch. fkn8s74mztrk.com is an EVERFLOW host:
+         it reads sub1..sub5 and silently DISCARDS s1, while the Monetise *.co.uk hosts those two
+         pages use do the exact reverse. Verified with gateForwardParamFor(), not assumed. */
+      var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* Drop an UNEXPANDED TikTok macro rather than logging it as a real click id. */
+      if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+      /* SPRK-GATE v1 -- log the click at our own /click, then 302 to the offer unchanged. The
+         gate's own `s1=` carries the FULL wire either way: that is our log, not the network's
+         param, and the only place the username, AffID and geo survive. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
+    return url;
+  }
+
+  var ctaBtn = document.getElementById('cta-hero');
+  if (ctaBtn) ctaBtn.addEventListener('click', function(){ window.location.href = offerUrl(); });
+
+  /* SPRK-FUNNEL-BEACON v2 */
+  (function(){
+    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    function bsend(ev){
+      try {
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+          event: ev, sid: bq.get('sid') || '',
+          s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+          ttclid: bq.get('ttclid') || '',
+          slice: 'PLAYFULUSA-SHANNON', clone: 'US', path: location.pathname
+        })], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'cta-hero' || (el.classList && el.classList.contains('offer-link'))) { fired = true; bsend('offer_click'); return; }
+      }
+    }, true);
+  })();
+})();
+</script>
+</body>
+</html>

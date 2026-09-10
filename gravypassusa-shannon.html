@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gravy Pass Landing Page</title>
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://monetisetrk2.co.uk" crossorigin />
+<link rel="dns-prefetch" href="https://monetisetrk2.co.uk" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet" />
+
+<!-- Her comp loaded cdn.tailwindcss.com and unpkg.com/lucide. Both are gone; the utilities they
+     generated are written out longhand below at their Tailwind default values (text-3xl =
+     1.875rem, py-2.5 = .625rem, leading-snug = 1.375, and so on) with her tailwind.config palette
+     kept verbatim. The play CDN builds the stylesheet in the browser, which on a paid click means
+     a render-blocking download and a flash of unstyled text — and raw stacked markup if it is slow
+     or blocked. The lucide tag was dead: this design uses emoji, so createIcons() had nothing to
+     find. The DM Sans link stays — a stylesheet degrades to the fallback stack, a JS framework
+     does not. -->
+<style>
+    :root {
+        --gravy-bg: #C2EFF5;
+        --gravy-bg-alt: #D8F5F8;
+        --gravy-dark: #1A5C40;
+        --gravy-mid: #2E8B6A;
+        --gravy-light: #E8F7F0;
+        --gravy-muted: #4A7C65;
+        --gravy-white: #FFFFFF;
+        --gravy-divider: #B0E0CC;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+        font-family: 'DM Sans', system-ui, sans-serif;
+        background-color: var(--gravy-bg);
+        color: var(--gravy-dark);
+        margin: 0;
+        padding: 0;
+        line-height: 1.5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* #page-wrapper: w-full max-w-[430px] mx-auto flex flex-col min-h-screen */
+    .page-wrapper {
+        width: 100%;
+        max-width: 430px;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* #hero-section: relative overflow-hidden px-5 pt-14 pb-12 flex flex-col items-center text-center */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+        padding: 3.5rem 1.25rem 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        background-color: var(--gravy-bg);
+    }
+
+    /* h1: text-3xl font-extrabold leading-tight tracking-tight mb-3 */
+    .hero-title {
+        font-size: 1.875rem;
+        font-weight: 800;
+        line-height: 1.25;
+        letter-spacing: -0.025em;
+        margin: 0 0 0.75rem;
+        color: var(--gravy-dark);
+    }
+
+    /* p: text-base font-semibold mb-8 */
+    .hero-sub {
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 600;
+        margin: 0 0 2rem;
+        color: var(--gravy-mid);
+    }
+
+    /* the CTA: w-full max-w-[340px] inline-flex items-center justify-center px-6 py-4 rounded-xl
+       text-white font-bold text-base transition-all duration-200 ease-out.
+       A <button> rather than her <a>: the destination is built at tap time from the incoming
+       query. Buttons inherit neither font nor type, so both are set here. */
+    .cta {
+        width: 100%;
+        max-width: 340px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 1.5rem;
+        border: none;
+        border-radius: 0.75rem;
+        color: #FFFFFF;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 200ms ease-out;
+        background-color: var(--gravy-dark);
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(26, 92, 64, 0.45); }
+        50% { box-shadow: 0 0 20px 6px rgba(26, 92, 64, 0.2); }
+    }
+
+    .cta-pulse { animation: pulseGlow 2.5s ease-in-out infinite; }
+    .cta-pulse:hover { animation: none; box-shadow: 0 0 24px 8px rgba(26, 92, 64, 0.18); }
+    .cta-pulse:active { transform: scale(0.98); }
+
+    /* p: mt-4 text-xs font-medium */
+    .hero-note {
+        margin: 1rem 0 0;
+        font-size: 0.75rem;
+        line-height: 1rem;
+        font-weight: 500;
+        color: var(--gravy-muted);
+    }
+
+    /* the wave: absolute bottom-0 left-0 right-0 h-6 overflow-hidden */
+    .hero-wave {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 1.5rem;
+        overflow: hidden;
+    }
+    .hero-wave svg { width: 100%; display: block; }
+
+    /* #how-it-works: relative px-5 pt-8 pb-8 */
+    .how-section {
+        position: relative;
+        padding: 2rem 1.25rem;
+        background-color: var(--gravy-white);
+    }
+
+    .scroll-reveal { margin-bottom: 1rem; }
+
+    /* h2: text-xl font-extrabold tracking-tight mb-1.5 */
+    .how-section h2 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        line-height: 1.75rem;
+        letter-spacing: -0.025em;
+        margin: 0 0 0.375rem;
+        color: var(--gravy-dark);
+    }
+
+    .accent-bar {
+        width: 48px;
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #2E8B6A, #5BC4A0);
+    }
+
+    .steps { display: flex; flex-direction: column; }
+
+    /* .stagger-child: py-2.5 */
+    .stagger-child { padding: 0.625rem 0; }
+
+    .step-row { display: flex; align-items: flex-start; gap: 0.625rem; }
+
+    /* span: text-2xl flex-shrink-0 mt-0.5 */
+    .step-row .emoji {
+        font-size: 1.5rem;
+        line-height: 2rem;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+
+    /* h3: text-sm font-bold mb-0.5 */
+    .step-row h3 {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 700;
+        margin: 0 0 0.125rem;
+        color: var(--gravy-dark);
+    }
+
+    /* p: text-xs leading-snug */
+    .step-row p {
+        font-size: 0.75rem;
+        line-height: 1.375;
+        margin: 0;
+        color: var(--gravy-muted);
+    }
+
+    .step-divider {
+        height: 1px;
+        margin: 0.125rem 0;
+        background: linear-gradient(90deg, transparent, var(--gravy-divider), transparent);
+    }
+
+    .deco-circle {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.08;
+        background: var(--gravy-dark);
+        pointer-events: none;
+    }
+
+    .deco-ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid var(--gravy-dark);
+        opacity: 0.06;
+        pointer-events: none;
+    }
+
+    .scroll-reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .scroll-reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .stagger-child {
+        opacity: 0;
+        transform: translateY(22px);
+        transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .stagger-child.visible { opacity: 1; transform: translateY(0); }
+
+    /* Both reveals start at opacity 0, so suppressing motion has to restore them explicitly or
+       the page renders BLANK rather than merely still — a dead page on a paid click. */
+    @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .scroll-reveal, .stagger-child { opacity: 1; transform: none; transition: none; }
+        .cta-pulse { animation: none; box-shadow: 0 0 0 0 rgba(26,92,64,0.45); }
+        .cta { transition: none; }
+        .cta-pulse:active { transform: none; }
+    }
+
+    /* Her comp had no footer. Estate legal block, matched to this page's palette. */
+    .disclaimer {
+        margin: 1.25rem 0 0;
+        font-size: 0.6875rem;
+        line-height: 1.6;
+        color: var(--gravy-muted);
+        text-align: center;
+    }
+    .disclaimer .links { display: block; margin-top: 0.5rem; }
+    .disclaimer .links a { color: var(--gravy-muted); text-decoration: underline; margin: 0 0.4rem; }
+</style>
+</head>
+<body>
+
+    <div id="page-wrapper" class="page-wrapper">
+
+        <!-- HERO BANNER -->
+        <section id="hero-section" class="hero-section">
+            <div class="deco-circle" style="width:140px;height:140px;top:-40px;right:-50px;"></div>
+            <div class="deco-circle" style="width:80px;height:80px;bottom:30px;left:-30px;"></div>
+            <div class="deco-ring" style="width:100px;height:100px;top:60px;left:-20px;"></div>
+            <div class="deco-ring" style="width:60px;height:60px;bottom:60px;right:10px;"></div>
+
+            <h1 class="hero-title">
+                Gravy Pass: Earn in Your Wallet
+            </h1>
+
+            <p class="hero-sub">
+                Over $1M paid out and counting so far!
+            </p>
+
+            <!-- Her comp pointed this at https://gravypass.com/ in a new tab — the brand's own
+                 site. No sub-ID, no gate, no payout. It now walks /click. -->
+            <button id="cta-hero" type="button" class="cta cta-pulse offer-link">
+                Add Gravy Pass To Your Apple or Google Wallet
+            </button>
+
+            <p class="hero-note">
+                Free to join &middot; No app download required
+            </p>
+
+            <div class="hero-wave">
+                <svg viewBox="0 0 430 24" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M0 24V12C70 0 140 0 215 12C290 24 360 24 430 12V24H0Z" fill="#FFFFFF"/>
+                </svg>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section id="how-it-works" class="how-section">
+            <div class="scroll-reveal">
+                <h2>How Gravy Pass Works</h2>
+                <div class="accent-bar"></div>
+            </div>
+
+            <div class="steps">
+                <!-- Step 1 -->
+                <div class="stagger-child" data-stagger="0">
+                    <div class="step-row">
+                        <span class="emoji" aria-hidden="true">📲</span>
+                        <div>
+                            <h3>Install Your Pass</h3>
+                            <p>Click the link above to instantly add the Gravy Pass wallet to your iOS or Android phone. No app store needed!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-divider"></div>
+
+                <!-- Step 2 -->
+                <div class="stagger-child" data-stagger="1">
+                    <div class="step-row">
+                        <span class="emoji" aria-hidden="true">🎮</span>
+                        <div>
+                            <h3>Play for Points</h3>
+                            <p>Earn points for using popular mobile games &amp; apps!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-divider"></div>
+
+                <!-- Step 3 -->
+                <div class="stagger-child" data-stagger="2">
+                    <div class="step-row">
+                        <span class="emoji" aria-hidden="true">🎁</span>
+                        <div>
+                            <h3>Redeem Points Your Way</h3>
+                            <p>Redeem points for your favorite gift cards.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="disclaimer">
+                Availability, rewards, and eligibility may vary by user, location, and completed activity. Results are not guaranteed and are based on individual participation. This page is not sponsored or endorsed by Apple Inc. or Google LLC.
+                <span class="links"><a href="/Rewards/privacy">Privacy Policy</a><a href="/Rewards/terms">Terms of Service</a></span>
+            </p>
+        </section>
+
+    </div>
+
+<script>
+(function(){
+  /* THE RAW MONETISE LINK for Gravy Pass USA — byte-identical to the base in gravypassusa.html,
+     the house lander on this same offer, and to offers.destination_url minus its trailing slot.
+
+     ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
+     keeping both would ship "&s1=&s1=CODE", where the network reads the EMPTY first one. */
+  var OFFER_LINK = 'https://monetisetrk2.co.uk/?a=26648&c=56278';
+
+  var q = new URLSearchParams(location.search);
+  if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+  if (!q.get('s1')) {
+    var mc = q.get('mc_attr') || '', f = {};
+    mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+    var d = f.e || f.c; if (d) q.set('s1', d);
+  }
+
+  function offerUrl(){
+    var s1 = q.get("s1") || "";
+    /* SPRK-S1-ONLY v5 — one param out: the affiliate code, nothing else. */
+    var url = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* SPRK-SEND-SPK-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps
+         a value with NO code in it going out verbatim: a scaler free-form label is their
+         attribution key and blanking it would pay them nothing. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      /* ⚠️ OUTBOUND PARAM IS `s1`. This destination is MONETISE/CAKE, which reads s1..s5 and
+         silently DISCARDS sub1 - the Everflow hosts do the exact reverse, and the Playful page in
+         this same batch is on one of them. Copying the wrong sibling zeroes attribution with no
+         error: the link looks healthy and every conversion lands unmatched. */
+      var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* Drop an UNEXPANDED TikTok macro rather than logging it as a real click id. */
+      if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+      /* SPRK-GATE v1 -- log the click at our own /click, then 302 to the offer unchanged. The
+         gate's own `s1=` carries the FULL wire either way: that is our log, not the network's
+         param, and the only place the username, AffID and geo survive. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
+    return url;
+  }
+
+  var ctaBtn = document.getElementById('cta-hero');
+  if (ctaBtn) ctaBtn.addEventListener('click', function(){ window.location.href = offerUrl(); });
+
+  /* SPRK-FUNNEL-BEACON v2 */
+  (function(){
+    var BEACON = 'https://www.sprknetwork.ad/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    function bsend(ev){
+      try {
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+          event: ev, sid: bq.get('sid') || '',
+          s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+          ttclid: bq.get('ttclid') || '',
+          slice: 'GRAVYPASSUSA-SHANNON', clone: 'US', path: location.pathname
+        })], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'cta-hero' || (el.classList && el.classList.contains('offer-link'))) { fired = true; bsend('offer_click'); return; }
+      }
+    }, true);
+  })();
+
+  /* ---- her reveal animations, unchanged ---- */
+  function initScrollReveal() {
+      var revealEls = document.querySelectorAll('.scroll-reveal');
+      if (!('IntersectionObserver' in window)) {
+          Array.prototype.forEach.call(revealEls, function (el) { el.classList.add('visible'); });
+          Array.prototype.forEach.call(document.querySelectorAll('.stagger-child'), function (el) { el.classList.add('visible'); });
+          return;
+      }
+      var revealObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+              if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
+          });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      Array.prototype.forEach.call(revealEls, function (el) { revealObserver.observe(el); });
+
+      Array.prototype.forEach.call(document.querySelectorAll('section'), function (section) {
+          var children = section.querySelectorAll('.stagger-child');
+          if (children.length === 0) return;
+          var sectionObserver = new IntersectionObserver(function (entries) {
+              entries.forEach(function (entry) {
+                  if (entry.isIntersecting) {
+                      Array.prototype.forEach.call(children, function (child, index) {
+                          var staggerIndex = parseInt(child.getAttribute('data-stagger') || index, 10);
+                          setTimeout(function () { child.classList.add('visible'); }, staggerIndex * 150);
+                      });
+                      sectionObserver.unobserve(entry.target);
+                  }
+              });
+          }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+          sectionObserver.observe(section);
+      });
+  }
+  initScrollReveal();
+})();
+</script>
+</body>
+</html>

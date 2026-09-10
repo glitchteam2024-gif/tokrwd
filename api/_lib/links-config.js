@@ -1019,6 +1019,14 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // out here - the two page NAMES are the whole registration.
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'recousa-shannon.html', 'recousa-shannon-pre.html',
+  // Shannon Pruett other three pages, 2026-09-09. Her own supplied designs on Gravy Pass USA
+  // (Monetise, s1), Freecash (Monetise, s1) and Playful Rewards (EVERFLOW, sub1) - three offers
+  // on two different networks, so the three landers do NOT share an outbound dialect. Flat
+  // pairs with no clone family, so the two page NAMES are the whole registration each.
+  // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
+  'gravypassusa-shannon.html', 'gravypassusa-shannon-pre.html',
+  'frcusa-shannon.html', 'frcusa-shannon-pre.html',
+  'playfulusa-shannon.html', 'playfulusa-shannon-pre.html',
   // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
   // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as
   // /pre?to=/AS52/US<n> and the visitor would cross a prelander twice. Leaving it out makes
