@@ -717,9 +717,6 @@
           var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
           if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
           /* CODE-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
-             The wire carries <username>_<affId>_<SPK>_<GEO>_<campaign>; only the SPK leaves, because the
-             code identifies the creative and the creative identifies the affiliate. The funnel beacon has
-             already recorded the full value, so geo/campaign/affiliate stay recoverable on our side.
              `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
              is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
              platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
