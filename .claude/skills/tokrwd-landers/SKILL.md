@@ -1343,3 +1343,63 @@ off the live domain (note: `justincase/` is also untracked, so it wouldn't deplo
   New `traceOfferChain()` + `carrdHostsForLander()`; new admin action `trace_chain`. **`buildDirectUrl`
   moved from `api/c/[slug].js` into `links-config.js`** so the panel and the live redirect share one
   builder — verified byte-identical against the production redirect before and after the move.
+
+## Why js/breakout.js is not the cloaking that was removed
+
+Moved here 2026-09-10 out of the file itself: js/breakout.js is the one JS a visitor
+fetches, and this history has no business being readable by an ad reviewer. The four rules
+stay in the file as a short header; the reasoning is below.
+
+```
+/**
+ * /js/breakout.js — the ONLY file in this repo that performs an in-app-browser escape.
+ *
+ * It powers exactly one page, /pre (pre/index.html), which sits between /r and the
+ * lander. TikTok's in-app webview has been failing on real devices, so the job here is
+ * to hand the visitor to their real browser before they reach the offer page.
+ *
+ * ══ WHY THIS IS NOT THE CLOAKING THAT WAS REMOVED ON 2026-07-21 ══
+ *
+ * The archived prelanders in justincase/ were removed because of `looksLikeReview()`:
+ * they scored the visitor and served ad-review traffic a DIFFERENT PAGE with a
+ * DIFFERENT DESTINATION. That is cloaking and it is what gets a domain flagged.
+ *
+ * Nothing in this file does that. The rules it holds to, and which must survive any
+ * future edit:
+ *
+ *   1. ONE destination for everyone. `to` decides where the visitor goes. No user
+ *      agent, IP, device or bot check ever changes the destination — only which
+ *      MECHANISM opens it.
+ *   2. ONE page for everyone. The markup in pre/index.html is fully rendered before
+ *      this script runs and is never hidden, blanked or swapped. There is no
+ *      `display:none` gate and no `document.write`.
+ *   3. NO review detection of any kind. There is deliberately no `looksLikeReview()`,
+ *      no `navigator.webdriver` test, no plugin/WebGL fingerprint. A crawler that
+ *      loads /pre gets the same page and the same lander as a buyer.
+ *   4. The user agent is read for exactly one reason: an OS URL scheme only exists on
+ *      one OS, and firing `x-safari-https://` in real Safari produces a visible
+ *      "address is invalid" error page. So the scheme is attempted ONLY inside a
+ *      detected in-app webview; every real browser is sent straight through with
+ *      `location.replace`, which is also what a crawler gets.
+ *   5. A tap is never lost. Every path FROM A TAP ends at the lander — escape
+ *      succeeded, escape blocked and the 2s post-tap watchdog carried them, or they
+ *      pressed the fallback button themselves.
+ *      ⚠️ NARROWED 2026-08-10, deliberately: a visitor who never taps at all now STAYS
+ *      on this page. The strand net that used to carry them was an automatic redirect,
+ *      which rule 6 forbids. That is a real cost on paid traffic and the owner accepted
+ *      it — a page that moves people without asking was the thing being removed.
+ *   6. THE SCHEME IS ONLY EVER FIRED BY A TAP (2026-08-10). Nothing on this page
+ *      navigates to an OS scheme on a timer. A gesture is not decoration here: iOS
+ *      honours a custom scheme far more readily when it carries user activation, and
+ *      the auto-fire this replaced was the case most likely to be silently dropped.
+ *      A future edit that "helpfully" restores an automatic escape reverses that, and
+ *      re-adds the AUTO_FIRE signature below.
+ *
+ * Our own QA harness (api/signatures.js) scores this page over BLOCK_THRESHOLD on
+ * SCHEME_BREAKOUT + INAPP_UA_SNIFF (90). It USED to also trip AUTO_FIRE (weight 40,
+ * total 130); rule 6 removed it. That is expected and correct — the detector's job is
+ * to find this mechanism, and this is the one page that runs it on purpose. If it
+ * starts matching anywhere ELSE in the repo, that is a real finding;
+ * _tracking-audit.test.mjs fails the build when it does.
+ */
+```
