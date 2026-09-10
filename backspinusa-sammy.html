@@ -90,12 +90,6 @@
     position:relative;
     box-shadow:0 16px 34px -14px rgba(59,111,224,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset;
   }
-  /* Placeholder monogram standing in for the comp's base64 app icon - see the note in the body. */
-  .app-icon-fallback{
-    display:flex;align-items:center;justify-content:center;
-    background:var(--brand-grad);
-    color:#fff;font-size:26px;font-weight:800;letter-spacing:-0.02em;
-  }
   .app-icon img{width:100%;height:100%;object-fit:cover;display:block;}
   .rating-chip{
     display:inline-flex;
@@ -396,16 +390,12 @@
 
   <div class="hero">
     <div class="urgency-chip">⚡ Limited spots — instant welcome bonus</div>
-    <!-- ⚠️ PLACEHOLDER ICON, NOT THE ARTWORK FROM THE COMP.
-         The comp arrived pasted inline rather than as a file, and its 512x512 app icon was a
-         base64 data: URI. Retyping that blob byte-perfect is not something I can guarantee, and a
-         base64 JPEG fails SILENTLY in the worst possible way: a partly-correct string still starts
-         with SOI, still carries EOI, still reports 512x512 - and renders as a flat coloured square,
-         because the decoder pads the missing scan data with the last DC value. That is exactly what
-         happened on the first attempt, and nothing but looking at the pixels catches it.
-         So this is a deliberate monogram in the page's own brand gradient. Send the file (or just
-         the icon) and swapping it back is one line. -->
-    <div class="app-icon app-icon-fallback" role="img" aria-label="Backspin Games app icon">BG</div>
+    <!-- The Backspin app icon, cropped out of the offer's own house tile
+         (offers.thumbnail_url -> offer-thumbnails/offers/1787769509921-1a447b.jpg) and
+         squircle-masked so the tile's blurred backdrop does not ride along in the corners.
+         A FILE, not a base64 data: URI - see api/_lib/_lander-logo.test.mjs for why an
+         inline blob is the more dangerous option. -->
+    <div class="app-icon"><img src="/images/backspin-logo.png" alt="Backspin Games app icon" width="76" height="76"></div>
     <div class="rating-chip"><span class="stars">★★★★★</span> 4.7 · App Store (30K+ reviews)</div>
     <h1><span class="l1">Get Paid</span><span class="l2">To Play Games</span></h1>
     <p class="subhead">Earn real cash by playing games and completing tasks. Get paid straight to PayPal, Venmo, or your bank. No experience. No card. First payout in days.</p>
