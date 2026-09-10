@@ -67,9 +67,9 @@
 </script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:hsl(160,20%,5%);color:#fff}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#000;color:#fff}
 .lp-wrap{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;position:relative;overflow-x:hidden}
-.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse at center,hsla(160,100%,30%,0.12) 0%,transparent 60%),radial-gradient(ellipse at center,hsla(160,100%,20%,0.08) 0%,transparent 80%),hsl(160,20%,5%);z-index:0}
+.bg-glow{position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(162,28,175,0.26) 0%,rgba(162,28,175,0) 62%),radial-gradient(ellipse 70% 45% at 50% 110%,rgba(162,28,175,0.16) 0%,rgba(162,28,175,0) 60%),#000;filter:blur(28px);z-index:0}
 .container{position:relative;z-index:1;width:100%;max-width:480px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
 .brand .mark{width:52px;height:52px;border-radius:14px;object-fit:cover;background:hsl(0,0%,8%);box-shadow:0 0 20px hsla(160,100%,50%,0.18)}
@@ -152,7 +152,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     <div class="brand anim">
       <img class="mark" src="/images/tiktok-icon-free-png.png" alt="TikTok" width="52" height="52" />
       <span class="x">&times;</span>
-      <img class="mark" src="/images/freecash-mark-green-on-dark.png" alt="" width="52" height="52" />
+      <img class="mark" src="/images/reco-logo.svg" alt="" width="52" height="52" />
     </div>
 
     <div class="status anim" style="animation-delay:0.06s">
@@ -165,7 +165,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
       <h3>HOW TO START EARNING</h3>
       <div class="step"><div class="step-num">1</div><div><h4>Activate &amp; open your Gravy Pass</h4><p>Tap <span class="accent">Activate Wallet Pass</span> below, then open your Gravy Pass in <span class="accent">Apple Wallet</span> to get started.</p></div></div>
       <div class="step"><div class="step-num">2</div><div><h4>Complete games &amp; tasks for money</h4><p>Follow the instructions in your pass and complete <span class="accent">games and tasks</span> to start earning real money.</p></div></div>
-      <div class="step"><div class="step-num">3</div><div><h4>Complete 3 tasks to unlock top offers</h4><p>Complete <span class="accent">3 tasks</span> to unlock high-paying popular offers like <span class="accent">Roblox</span>, Paid to Scroll and more.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Complete 3 tasks to unlock top offers</h4><p>Complete <span class="accent">3 tasks</span> to unlock high-paying popular offers like <span class="accent">Roblox</span>, Watching Netflix and more.</p></div></div>
     </div>
 
     <button class="btn-activate anim" style="animation-delay:0.16s" data-open>
@@ -178,12 +178,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 
     <div class="reward anim" style="animation-delay:0.32s">
       <div class="reward-top">
-        <div class="reward-tile" style="background:hsl(0,0%,8%)"><img src="/images/tiktok-icon-free-png.png" alt="TikTok" /></div>
-        <div class="reward-info"><h4>TikTok</h4><p>Paid to Scroll</p></div>
+        <div class="reward-tile" style="background:hsl(0,0%,5%)"><img src="/images/netflix.png" alt="Netflix" /></div>
+        <div class="reward-info"><h4>Netflix</h4><p>Get paid to watch</p></div>
         <div class="reward-prize">$32/hr<span>per hour</span></div>
       </div>
       <div class="reward-progress"><div class="reward-progress-head"><span>Tasks completed</span><span>3/3</span></div><div class="reward-bar"><div class="reward-bar-fill" style="width:100%"></div></div></div>
-      <button class="reward-btn" data-open>UNLOCK TIKTOK</button>
+      <button class="reward-btn" data-open>UNLOCK NETFLIX</button>
     </div>
 
     <div class="reward anim" style="animation-delay:0.35s">
@@ -218,7 +218,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px"><rect x="4" y="10" width="16" height="11" rx="2.5" stroke="hsl(0,80%,66%)" stroke-width="2"/><path d="M8 10V7a4 4 0 018 0v3" stroke="hsl(0,80%,66%)" stroke-width="2" stroke-linecap="round"/></svg>
       <h4 id="mTitle">Activation Required to Unlock</h4>
     </div>
-    <p>To unlock <span class="accent">Roblox</span> you must add your <span class="accent">wallet pass</span>, complete <span class="accent">3 tasks</span>, and spend at least <span class="accent">$5</span> on your first game. Higher payouts like Paid to Scroll open up as you keep completing tasks in your Gravy Pass.</p>
+    <p>To unlock <span class="accent">Roblox</span> you must add your <span class="accent">wallet pass</span>, complete <span class="accent">3 tasks</span>, and spend at least <span class="accent">$5</span> on your first game. Higher payouts like Watching Netflix open up as you keep completing tasks in your Gravy Pass.</p>
     <div class="rule"></div>
     <div class="ok">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><path d="M5 13l4 4L19 7" stroke="hsl(160,100%,55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
