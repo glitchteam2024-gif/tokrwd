@@ -8,13 +8,6 @@
 <meta name="theme-color" content="#080a09">
 <title>Open in Browser</title>
 <meta name="robots" content="noindex,nofollow">
-<!-- THE SANCTION MARKER. tokrwd's api/_lib/_tracking-audit.test.mjs fails the build on breakout
-     code (x-safari-https / intent://) in any file that is not a REVIEWED prelander, because
-     breakout code spread across ~1000 landers is what got this domain flagged in the first place
-     and was stripped out on 2026-07-23. This marker is how a file declares itself one of those
-     reviewed pages — and the audit does NOT take it on trust: it also requires every marked file
-     to be byte-identical to every other, so the exemption cannot be pasted onto a page that has
-     been edited. Remove the marker and this page correctly fails the audit. -->
 <meta name="x-pre" content="1">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
 <meta http-equiv="Pragma" content="no-cache">

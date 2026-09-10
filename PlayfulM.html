@@ -11,7 +11,7 @@
 
 <!-- NOT a sanctioned prelander. This page carries NO breakout code (no x-safari-https / intent://)
      — that behaviour lives ONLY in /PlayfulM-pre.html, which is byte-identical in its scripts to
-     every other reviewed prelander. tokrwd's api/_lib/_tracking-audit.test.mjs fails the build if
+     every other reviewed prelander. the shared config fails the build if
      breakout code appears here, because breakout logic spread across landers is what got this
      domain flagged in the first place. Do not paste any part of the prelander into this file. -->
 
@@ -154,7 +154,7 @@ h1{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;letter-spacing:-
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* Screen toggle. Declared LAST and WITHOUT !important on purpose: the audit
-   (api/_lib/_tracking-audit.test.mjs, CLOAK_PATTERNS) refuses `display:none !important`
+   (the shared config, CLOAK_PATTERNS) refuses `display:none !important`
    anywhere outside a sanctioned prelander, because that is the shape of a blank-page
    cloak gate. Source order alone beats .sheet{display:flex}; the explicit .sheet[hidden]
    rule wins on specificity too, so neither needs the flag. */
@@ -382,7 +382,7 @@ var CLAIMS = {
     var url = (function () {
       var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
       if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
-      /* CODE-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+      /* CODE-ONLY v1 — the network receives the CODE, never the whole wire.
          `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
          is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
          platform that lowercases the URL would otherwise match nothing and ship the entire wire. */

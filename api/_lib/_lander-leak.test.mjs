@@ -24,6 +24,10 @@ import { join, relative } from 'node:path';
 
 const REPO = fileURLToPath(new URL('../../', import.meta.url));
 const SKIP_DIRS = new Set(['.git', '.claude', 'node_modules', 'dist', '_lp-generator', 'justincase', 'tiktok-s2s']);
+// Not landing pages: the owner scoped this rule to landers. Both are still PUBLICLY SERVED (200,
+// verified) and both name this repo and the door domain in readable source — reported below, not
+// failed here, because redacting an app is a different job from redacting a lander.
+const NOT_A_LANDER = /^(?:admin|portal)\//;
 
 let pass = 0, fail = 0;
 const ok = (name, cond, detail = '') => {
@@ -43,7 +47,8 @@ function served(dir = REPO, out = []) {
   }
   return out;
 }
-const files = served();
+const files = served().filter(f => !NOT_A_LANDER.test(relative(REPO, f)));
+const apps  = served().filter(f =>  NOT_A_LANDER.test(relative(REPO, f)));
 // js/*.js is fetched verbatim by every lander — it is as public as the HTML.
 for (const f of readdirSync(join(REPO, 'js'))) if (f.endsWith('.js')) files.push(join(REPO, 'js', f));
 console.log(`\nauditing ${files.length} browser-reachable files for disclosure\n`);
@@ -55,7 +60,16 @@ const BANNED = [
   ['the network by name',        /\b(?:monetise|everflow|prescott)\b/i,          'tells them who supplies the offers'],
   ['the network platform',       /\bCAKE\b/,                                     'names the tracking platform'],
   ['our company',                /\bSPRK\b|sprknetwork/i,                        'tells them who runs this'],
-  ['our internal file paths',    /api\/_lib\/[a-z-]+\.js/i,                      'maps our codebase'],
+  // ⚠️ THIS PATTERN HAD A HOLE AND REPORTED PASS WHILE 813 FILES LEAKED. It was
+  // /api\/_lib\/[a-z-]+\.js/ , which cannot match a LEADING UNDERSCORE or a .test.mjs
+  // extension — so `api/_lib/_tracking-audit.test.mjs`, quoted verbatim in 810 prelanders,
+  // sailed straight past it. A guard that is narrower than the thing it guards is worse than
+  // no guard, because it also reports success. Widened, and the SANCTION MARKER comment that
+  // carried it is gone.
+  ['our internal file paths',    /api\/_lib\/_?[a-z0-9-]+\.(?:test\.)?m?js/i,     'maps our codebase'],
+  ['our repo name',              /\btokrwd\b/i,                                  'names the private repo'],
+  ['a platform-flag admission',  /got this domain flagged|was flagged/i,          'volunteers to an ad reviewer that we were flagged'],
+  ['an internal doc filename',   /NOTES\.md|README\.md/i,                         'invites a probe for that path on the lander domain'],
   ['our door slugs',             /['"][a-z0-9-]+-off['"]/i,                      'names an internal offer slug'],
 ];
 
@@ -104,6 +118,17 @@ const named = files.filter(f => NAME_RX.test(readFileSync(f, 'utf8')));
 console.log(`\n  OUTSTANDING — ${named.length} pages carry an affiliate's name, almost all via the FILENAME.`);
 console.log('  Not a failure: renaming a lander file breaks the ads already pointing at it.');
 console.log('  Fixing it means a rename migration with redirects, not a text sweep.\n');
+
+// ── THE DOOR DOMAIN, AND THE TWO APP PAGES ──────────────────────────────────────────────────
+const DOOR_RX = /appflowconnect/i;
+const doorPages = files.filter(f => DOOR_RX.test(readFileSync(f, 'utf8')));
+console.log(`\n  OUTSTANDING — ${doorPages.length} landers name the door domain, as a LIVE destination`);
+console.log('  (trt/, Rewards/). Functional: it is where the CTA goes, so it cannot just be deleted.\n');
+const leakyApps = apps.filter(f => /\btokrwd\b|appflowconnect/i.test(readFileSync(f, 'utf8')));
+console.log(`  OUTSTANDING — ${leakyApps.length} of ${apps.length} app pages (admin/, portal/) name this repo`);
+console.log('  or the door domain, and BOTH ARE PUBLICLY SERVED (200). No credentials are embedded --');
+console.log('  checked for JWTs, supabase keys, bearer tokens and hardcoded passwords, all absent --');
+console.log('  but neither has any reason to be reachable from the lander domain. Consider .vercelignore.\n');
 
 const HOST_RX = /(?:monetisetrk|montrk)\d*\.co\.uk|fkn8s74mztrk\.com|pcbdfv7trk\.com|phef6trk\.com|giftclick\.org/i;
 const carriers = files.filter(f => HOST_RX.test(readFileSync(f, 'utf8')));

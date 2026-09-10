@@ -1117,7 +1117,7 @@ function tlNormalize(input) {
   if (/^https?:\/\//i.test(raw)) {
     try {
       const u = new URL(raw);
-      if (/^(www\.)?tokrwd\.co$/i.test(u.hostname)) return u.pathname.replace(/^\/+/, '');
+      if (/^(www\.)?this repo\.co$/i.test(u.hostname)) return u.pathname.replace(/^\/+/, '');
       return raw;
     } catch (e) { return raw; }
   }

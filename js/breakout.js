@@ -239,7 +239,7 @@
     }
     // The path form above cannot produce a foreign origin, but assert it anyway —
     // this is the single check standing between a public query param and an open
-    // redirect on www.tokrwd.co.
+    // redirect on this domain.
     if (u.origin !== location.origin) return '';
 
     var q = params();

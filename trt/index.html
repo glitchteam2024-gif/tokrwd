@@ -12,7 +12,7 @@
      then jumping to a native browser scheme is the cloaking pattern stripped from every
      deployed lander on 2026-07-23: it makes the page behave differently for ad review
      than for a real user, which gets the WHOLE domain flagged and blocked, not just this
-     page. Do not re-add it. See .claude/skills/tokrwd-landers (NO-CLOAKING rule). -->
+     page. Do not re-add it. -->
 
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -259,7 +259,7 @@
   }
   function offerUrl(){
     var campid = getCampid();
-    // OUR offer link, on OUR cloaker domain. Emits ?campid= (never ?s1=); the slug is
+    // OUR offer link, on OUR our own domain. Emits ?campid= (never ?s1=); the slug is
     // resolved by the shared config OFFER_LINKS, which forwards the sub-id as s1.
     // Was buenohoodies.com/c/… — a SEPARATE deploy we do not run, so it never picked up
 

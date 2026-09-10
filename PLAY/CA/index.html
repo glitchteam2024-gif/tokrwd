@@ -31,7 +31,7 @@
      deployed lander on 2026-07-23: it makes the page behave differently for ad review
      than for a real user, which gets the WHOLE domain flagged and blocked, not just this
      page. The breakout lives in ONE place — /pre, in front of every lander. Do not
-     re-add it here. See .claude/skills/tokrwd-landers (NO-CLOAKING rule). -->
+     re-add it here. -->
 
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -331,7 +331,7 @@
     var url = (function () {
       var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
       if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
-      /* CODE-ONLY v1 (ac2992a) — the network receives the CODE, never the whole wire.
+      /* CODE-ONLY v1 — the network receives the CODE, never the whole wire.
          `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
          is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
          platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
