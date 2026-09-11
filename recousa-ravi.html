@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en" data-geo="US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reco — Get paid to play the games you already play</title>
+    <meta name="robots" content="noindex,nofollow">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- The comp pulled these with an @import INSIDE the <style> block. A CSS @import is only
+         discovered after the stylesheet parses, so it serialises the fonts behind the CSS instead
+         of racing it — a visible text reflow on a paid click. A <link> in the head starts both at
+         once, which is how the rest of the estate loads fonts. -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <style>
+      :root { font-family: 'DM Sans', sans-serif; color: #f5f7f5; background: #06100e; font-synthesis: none; }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; min-width: 320px; background: #06100e; }
+      a { color: inherit; text-decoration: none; }
+      button { font: inherit; }
+
+      .page-shell { width: 100%; max-width: 480px; margin: 0 auto; overflow: hidden; background: #06100e; }
+      .section-pad { padding-left: 20px; padding-right: 20px; }
+      .hero { min-height: 600px; padding-top: 22px; padding-bottom: 31px; text-align: center; background: radial-gradient(circle at 50% 16%, rgba(13, 70, 56, .2), transparent 30%); }
+      .brand-header { display: flex; justify-content: center; align-items: center; gap: 7px; margin-bottom: 20px; }
+      .brand-logo { width: 33px; height: 33px; object-fit: cover; border-radius: 9px; }
+      .brand-name { font-family: 'Space Grotesk', sans-serif; font-size: 21px; font-weight: 700; letter-spacing: -.04em; }
+      .app-pair { display: flex; justify-content: center; align-items: center; gap: 13px; margin: 0 auto 16px; }
+      .app-icon { width: 52px; height: 52px; border-radius: 13px; display: grid; place-items: center; font-weight: 700; box-shadow: 0 8px 16px rgba(0,0,0,.24); }
+      .tiktok-icon { background: #000; border: 1px solid #242927; }
+      .tiktok-icon svg { width: 31px; height: 31px; fill: #fff; }
+      .rewards-icon { background: #fff; border: 1px solid #dce8e4; overflow: hidden; }
+      .rewards-icon img { display: block; width: 100%; height: 100%; object-fit: cover; }
+      .pair-x { color: #7c8985; font-size: 20px; font-weight: 700; }
+      .availability-pill { display: inline-flex; gap: 8px; align-items: center; border: 1px solid #00d99f; color: #00efa9; border-radius: 99px; padding: 6px 14px; font-size: 12px; font-weight: 700; letter-spacing: .07em; margin-bottom: 19px; }
+      h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(31px, 8vw, 42px); line-height: 1.02; letter-spacing: -.065em; margin: 0 auto 14px; max-width: 420px; }
+      h1 em { color: #08edb0; font-style: normal; }
+      .hero-copy { max-width: 390px; margin: 0 auto 20px; color: #a9b3af; font-size: 14px; line-height: 1.48; }
+      strong { color: #0af0b0; font-weight: 700; }
+      .bonus-card, .session-card, .steps-card { border: 1px solid #059a71; background: rgba(5, 52, 40, .65); border-radius: 18px; }
+      .bonus-card { padding: 17px 20px 18px; margin: 0 auto 18px; max-width: 420px; box-shadow: 0 8px 20px rgba(0, 236, 166, .08); }
+      .eyebrow { display: block; color: #8b9691; font-size: 11px; font-weight: 700; letter-spacing: .18em; }
+      .eyebrow.bright { display: inline-block; background: #08edb0; border-radius: 5px; color: #03110e; padding: 5px 8px; letter-spacing: .1em; }
+      .bonus-amount { margin: 5px 0 1px; color: #0af0b0; font-family: 'Space Grotesk', sans-serif; font-size: 46px; font-weight: 700; letter-spacing: -.06em; }
+      .bonus-card p, .session-card p { color: #aab5b0; font-size: 13px; line-height: 1.38; margin: 0; }
+      .primary-button { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; max-width: 420px; min-height: 59px; margin: 0 auto; border: 0; border-radius: 17px; background: #0be7aa; color: #03110e; font-family: inherit; font-size: 16px; font-weight: 700; letter-spacing: .12em; box-shadow: 0 12px 24px rgba(0, 226, 163, .23); transition: transform .2s ease, background .2s ease; cursor: pointer; -webkit-appearance: none; appearance: none; }
+      .primary-button:hover { transform: translateY(-2px); background: #20f3b8; }
+      .primary-button:active { transform: translateY(0) scale(.99); }
+      .microcopy { color: #7f8c87; font-size: 11px; margin: 15px 0 0; }
+      .stats-section { padding-top: 0; padding-bottom: 30px; }
+      .session-card { padding: 16px 20px 17px; text-align: center; border-color: #2d3d37; background: #151d1a; }
+      .session-value { font-family: 'Space Grotesk', sans-serif; color: #fff; font-size: 31px; font-weight: 700; letter-spacing: -.05em; margin: 6px 0 8px; }
+      .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 4px 23px; }
+      .stats-grid > div { padding: 15px 4px 13px; border: 1px solid #293832; border-radius: 15px; background: #151d1a; text-align: center; }
+      .stats-grid strong { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 17px; }
+      .stats-grid span { display: block; color: #8d9994; font-size: 11px; margin-top: 3px; }
+      .section-label { color: #87918d; font-size: 11px; letter-spacing: .18em; margin: 0 4px 12px; }
+      .games-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .game { color: #aab4af; text-align: center; font-size: 10px; }
+      .game-art { aspect-ratio: 1; margin-bottom: 7px; position: relative; overflow: hidden; border: 1px solid #33463e; border-radius: 14px; }
+      .block-art { display: grid; place-items: center; background: linear-gradient(145deg, #2d4bd7, #1130a9); }
+      .block-grid { display: grid; grid-template-columns: repeat(4, 17px); grid-template-rows: repeat(4, 17px); gap: 2px; }
+      .block-grid i { display: block; border-radius: 3px; background: #27c94c; box-shadow: inset 0 2px 0 rgba(255,255,255,.28), 0 1px 2px rgba(0,0,0,.35); }
+      .block-grid i:nth-child(1), .block-grid i:nth-child(2), .block-grid i:nth-child(5), .block-grid i:nth-child(6) { background: #e82e32; }
+      .block-grid i:nth-child(3), .block-grid i:nth-child(4), .block-grid i:nth-child(7), .block-grid i:nth-child(8) { background: #ffc21d; }
+      .block-grid i:nth-child(9), .block-grid i:nth-child(10), .block-grid i:nth-child(13), .block-grid i:nth-child(14) { background: #24c94d; }
+      .block-grid i:nth-child(11), .block-grid i:nth-child(12), .block-grid i:nth-child(15), .block-grid i:nth-child(16) { background: #3159df; }
+      .roblox-art { display: grid; place-items: center; background: #3767ed; }
+      .roblox-mark { width: 34px; height: 34px; transform: rotate(14deg); background: #f8fbff; }
+      .roblox-mark::after { content: ''; display: block; width: 9px; height: 9px; position: relative; top: 12px; left: 12px; background: #3767ed; }
+      .clash-art { display: grid; place-items: center; background: #172723; }
+      .clash-shield { width: 49px; height: 57px; display: grid; place-items: center; clip-path: polygon(50% 0, 94% 13%, 89% 74%, 50% 100%, 11% 74%, 6% 13%); background: #e3a92e; filter: drop-shadow(0 2px 2px #000); }
+      .clash-shield::before { content: ''; position: absolute; width: 39px; height: 48px; clip-path: polygon(50% 0, 94% 13%, 89% 74%, 50% 100%, 11% 74%, 6% 13%); background: #274f9c; }
+      .clash-shield span { position: relative; z-index: 1; color: #f8ca40; font-family: Georgia, serif; font-size: 30px; margin-top: -3px; }
+      .how-section { padding-top: 15px; padding-bottom: 24px; }
+      .steps-card { padding: 20px 18px 18px; border-color: #293932; background: #151d1a; }
+      .steps-card > .eyebrow { text-align: center; margin-bottom: 21px; }
+      .step { display: grid; grid-template-columns: 31px 1fr; gap: 12px; position: relative; padding-bottom: 18px; }
+      .step:last-child { padding-bottom: 0; }
+      .step:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 31px; bottom: 0; width: 1px; background: #31504a; }
+      .step-number { z-index: 1; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #08edb0; color: #03110e; font-weight: 700; }
+      .step h3 { margin: 2px 0 4px; font-size: 14px; line-height: 1.2; }
+      .step p { margin: 0; color: #aab5b0; font-size: 12px; line-height: 1.42; }
+      .how-section .primary-button { margin-top: 16px; }
+      .legal { color: #9ca7a2; font-size: 11px; line-height: 1.45; text-align: center; margin: 16px 0 20px; }
+      .footer-links { display: flex; justify-content: center; gap: 8px; padding-top: 18px; border-top: 1px solid #22312b; color: #909994; font-size: 11px; }
+      .footer-links a { text-decoration: underline; }
+      .faq-section { padding-top: 0; padding-bottom: 25px; }
+      .faq-toggle { display: flex; width: 100%; justify-content: space-between; align-items: center; padding: 16px 0; color: #aab5b0; background: none; border: 0; border-top: 1px solid #22312b; cursor: pointer; font-size: 13px; }
+      .faq-toggle span { display: flex; align-items: center; gap: 8px; }
+      .faq-toggle svg { color: #0af0b0; transition: transform .2s; }
+      .faq-toggle .rotate { transform: rotate(180deg); }
+      .faq-answer { color: #8e9b95; font-size: 12px; line-height: 1.5; margin: 0 0 10px 26px; display: none; }
+      .faq-answer.show { display: block; }
+      @media (min-width: 720px) { body { background: #020705; } .page-shell { box-shadow: 0 0 50px rgba(0,0,0,.35); } }
+      /* The CTA lifts on hover and the chevron rotates; neither should move for a visitor who
+         asked the OS to stop animation. Nothing here starts hidden, so suppressing motion leaves
+         the page fully readable. */
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        .primary-button, .faq-toggle svg { transition: none; }
+        .primary-button:hover, .primary-button:active { transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero section-pad">
+        <header class="brand-header">
+          <!-- The comp referenced /images/ChatGPT_Image_Aug_29,_2026,_02_40_17_PM.png, which is not
+               in this repo — it would have been a broken image on both the header and the app pair.
+               Pointed at the real Reco mark already here. -->
+          <img src="/images/reco-app-icon.jpg" alt="Reco" class="brand-logo" />
+          <span class="brand-name">Reco</span>
+        </header>
+
+        <div class="app-pair" aria-label="Reco works with your favorite apps">
+          <div class="app-icon tiktok-icon" aria-label="TikTok">
+            <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+              <path d="M30 8h9c0 8 3 13 9 17 4 3 9 5 15 6v10c-7 0-13-2-19-5v13c0 13-10 23-22 23S0 62 0 50s10-22 22-22v10c-6 0-12 5-12 12s6 12 12 12 12-5 12-12V8Z" />
+            </svg>
+          </div>
+          <span class="pair-x">&times;</span>
+          <div class="app-icon rewards-icon"><img src="/images/reco-app-icon.jpg" alt="Reco" /></div>
+        </div>
+        <div class="availability-pill">US <span>&middot;</span> FREE TO START</div>
+        <h1>Get paid to play the<br />games <em>you already play</em></h1>
+        <p class="hero-copy">Reco pays real money for playing games and completing app tasks. Cash out to <strong>Cash App, PayPal or a gift card.</strong></p>
+
+        <div class="bonus-card">
+          <span class="eyebrow bright">STARTER BONUS</span>
+          <div class="bonus-amount">$15</div>
+          <p>Paid once you get started on your first app &mdash; before you finish a single game.</p>
+        </div>
+        <button class="primary-button offer-link" id="cta-hero" type="button">START EARNING
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+        <p class="microcopy">Free to start &middot; No card required &middot; Takes about 2 minutes</p>
+      </section>
+
+      <section class="stats-section section-pad">
+        <div class="session-card">
+          <span class="eyebrow">TYPICAL SESSION</span>
+          <div class="session-value">$50 &ndash; $80</div>
+          <p>Per game session, including in-app purchases. The arithmetic is stated, not hidden &mdash; this is Reco's own per-session range, not a projection of what you will make.</p>
+        </div>
+        <div class="stats-grid">
+          <div><strong>1.3M+</strong><span>members</span></div>
+          <div><strong>$500M</strong><span>paid out</span></div>
+          <div><strong>4.7</strong><span>rated</span></div>
+        </div>
+
+        <h2 class="section-label">POPULAR INSIDE RECO</h2>
+        <div class="games-grid">
+          <div class="game">
+            <div class="game-art block-art" aria-label="Block Blast logo">
+              <div class="block-grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            </div>
+            <span>Block Blast</span>
+          </div>
+          <div class="game">
+            <div class="game-art roblox-art" aria-label="Roblox logo">
+              <div class="roblox-mark"></div>
+            </div>
+            <span>Roblox</span>
+          </div>
+          <div class="game">
+            <div class="game-art clash-art" aria-label="Clash Royale logo">
+              <div class="clash-shield"><span>&#9819;</span></div>
+            </div>
+            <span>Clash Royale</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="how-section section-pad" id="how-it-works">
+        <div class="steps-card">
+          <span class="eyebrow">HOW IT WORKS</span>
+          <div class="steps-list">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div>
+                <h3>Activate your Reco Pass</h3>
+                <p>Tap <strong>Start Earning</strong> and add your pass &mdash; about two minutes, no card required.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div>
+                <h3>Get started on your first app</h3>
+                <p>That is what triggers the <strong>$15 starter bonus</strong> and opens up the rest of the games.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div>
+                <h3>Play and cash out</h3>
+                <p>Transfer via <strong>Cash App, PayPal or a gift card.</strong></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="primary-button offer-link" id="cta-steps" type="button">ACTIVATE MY PASS
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+        <p class="legal">Earnings depend on which games you play and how much you play. The figures above are Reco's own published figures, not a guarantee of what you will earn. Reco is not affiliated with any game publisher named on this page, and this page is not affiliated with, sponsored or endorsed by TikTok. Individual results vary.</p>
+        <!-- The comp pointed both of these at #terms / #privacy, which are not anchors on this
+             page — they went nowhere. -->
+        <div class="footer-links"><a href="/Rewards/terms">Terms</a><span>&middot;</span><a href="/Rewards/privacy">Privacy</a></div>
+      </section>
+
+      <section class="faq-section section-pad">
+        <button class="faq-toggle" id="faqToggle" type="button">
+          <span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            Is Reco safe?
+          </span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="faqChevron"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <p class="faq-answer" id="faqAnswer">Reco is free to start, and you never need to enter a card to activate your pass.</p>
+      </section>
+    </main>
+    <script>
+      (function () {
+        /* The finished destination for this offer. The comp had no destination at all — both
+           buttons were in-page anchors (#how-it-works and #top), so every click scrolled and
+           nothing was ever sent anywhere.
+
+           ⚠️ No trailing empty slot on the base: the builder appends the param itself, and two of
+           them means a first-match reader takes the empty one and the label is lost. */
+        var OFFER_LINK = 'https://montrk3.co.uk/?a=26648&c=56065';
+
+        var q = new URLSearchParams(location.search);
+        if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+        if (!q.get('s1')) {
+          var mc = q.get('mc_attr') || '', f = {};
+          mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+          var d = f.e || f.c; if (d) q.set('s1', d);
+        }
+
+        function offerUrl() {
+          var s1 = q.get('s1') || '';
+          /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. */
+          var url = (function () {
+            var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+            if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+            /* CODE-ONLY v1 — only the extracted code leaves; the rest of the incoming value never
+               reaches the destination. `|| _s1` sends a code-less value out verbatim, because a
+               free-form label is somebody's attribution key and blanking it would pay them nothing. */
+            var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+            /* ⚠️ OUTBOUND PARAM IS `s1`. This destination family reads s1..s5 and silently discards
+               sub1; the other family does the exact reverse. Nothing errors when it is wrong — the
+               link looks healthy and every conversion comes back unattributed. */
+            var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+            var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+            /* Drop an unexpanded ad-platform macro rather than logging it as a real click id. */
+            if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+            /* CLICK-STAMP v1 — log the click on our own origin first, then forward unchanged. */
+            return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+          })();
+          return url;
+        }
+
+        function handleClaim() { window.location.href = offerUrl(); }
+        ['cta-hero', 'cta-steps'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.addEventListener('click', handleClaim);
+        });
+
+        /* BEACON v2 */
+        (function () {
+          var BEACON = '/api/funnel-beacon';
+          var bq = new URLSearchParams(location.search);
+          function bsend(ev) {
+            try {
+              navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+                event: ev, sid: bq.get('sid') || '',
+                s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                ttclid: bq.get('ttclid') || '',
+                slice: 'RECOUSA-RAVI', clone: 'US', path: location.pathname
+              })], { type: 'text/plain' }));
+            } catch (e) {}
+          }
+          bsend('lp_view');
+          var fired = false;
+          document.addEventListener('click', function (e) {
+            if (fired) return;
+            var el = e.target;
+            for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+              if ((el.classList && el.classList.contains('offer-link')) || el.id === 'cta-hero' || el.id === 'cta-steps') { fired = true; bsend('offer_click'); return; }
+            }
+          }, true);
+        })();
+
+        /* ---- his FAQ toggle, unchanged ---- */
+        var toggle = document.getElementById('faqToggle');
+        var answer = document.getElementById('faqAnswer');
+        var chevron = document.getElementById('faqChevron');
+        if (toggle) {
+          toggle.addEventListener('click', function () {
+            var isOpen = answer.classList.toggle('show');
+            if (isOpen) { chevron.classList.add('rotate'); } else { chevron.classList.remove('rotate'); }
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
