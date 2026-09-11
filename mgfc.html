@@ -232,7 +232,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 (function () {
   'use strict';
 
-  var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/324QNSF/';
+  var OFFER_LINK = 'https://monetisetrk8.co.uk/?a=26648&c=56065';
 
   /* LINK-BUILD v5 -- one param out: the tracking value, nothing else. */
   function buildOfferUrl() {
@@ -243,7 +243,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     if (!_t && /^E[._]C[._]P[._]/.test(_p.get('s2') || '')) _t = _p.get('s2');    if (!_t && window.__ttEvent && window.__ttEvent.ttclid) _t = window.__ttEvent.ttclid;    if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
     var _dest = !_send1 ? OFFER_LINK
-              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+
+    var _ev = (window.__ttEvent && window.__ttEvent.id) || ('c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10));
+    if (_t) _dest += (_dest.indexOf('?') > -1 ? '&' : '?') + 's2=' + encodeURIComponent(_t) + '&s3=' + encodeURIComponent(_ev);
 
 
     /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 onward unchanged. */
