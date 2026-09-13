@@ -156,18 +156,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
 (function () {
   'use strict';
 
-  /* The Gravy Pass offer, named directly — exactly OFFERS.gravypass.match in links-config.js and
-     exactly what /gravypassusa.html, GP/index.html and gravypassusa-ravi.html ship.
-     ⚠️ No trailing "&s1=" on the base: the builder appends the param, and shipping both would send
-     "&s1=&s1=CODE" where the network reads the EMPTY first one. Must stay an ABSOLUTE https URL —
-     isAllowedGateDestination runs `new URL(raw)`, which throws on a relative path. */
-  var OFFER_LINK = 'https://monetisetrk2.co.uk/?a=26648&c=56278';
+  /* The destination: the Gravy Pass offer that covers US and four more geos.
+     ⚠️ No query string and no trailing slot on the base: the builder adds the one param itself, and
+     a doubled param means a first-match reader takes the empty one. Must stay an ABSOLUTE https
+     URL — the gate parses it with `new URL(raw)`, which throws on a relative path. */
+  var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/335X896/';
 
   /* LINK-BUILD v5 -- one param out: the tracking value, nothing else.
-     ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1`. monetisetrk2.co.uk is this destination family, which reads s1..s5
-     and silently DISCARDS sub1 -- the exact reverse of the alternate family hosts. The dialect follows the
-     DESTINATION, never a global default. The gate param below stays `s1` on every lander whatever
-     the network: that one is OUR first-party /click log carrying the RAW wire. */
+     ⚠️ OUTBOUND PARAM IS `sub1`, NOT `s1`. This destination family reads sub1..sub5 and silently
+     DISCARDS s1 — the exact reverse of the family this page used to point at, which is why the link
+     and this param had to change TOGETHER. Swapping only the link would still convert, while every
+     conversion came back with no owner. The gate param below stays `s1` on every lander whatever
+     the destination: that one is our own click log carrying the raw wire. */
   function buildOfferUrl() {
     var _p = new URLSearchParams(location.search);
     var _s1 = _p.get('s1') || _p.get('sub1') || '';
@@ -176,7 +176,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Ro
     if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
 
     var _dest = !_send1 ? OFFER_LINK
-              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+              : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
 
     /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 to the offer
        unchanged. The gate adds NOTHING to the wire; it forwards `u` as given. */
