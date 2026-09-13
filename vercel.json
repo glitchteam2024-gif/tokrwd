@@ -464,6 +464,46 @@
       "destination": "/gravypassusa2.html"
     },
     {
+      "source": "/GPT/:c(US\\d+)/go",
+      "destination": "/gravypassusa3.html"
+    },
+    {
+      "source": "/GPT/:c(US\\d+)",
+      "destination": "/gravypassusa3-pre.html"
+    },
+    {
+      "source": "/gravypassusa3-pre",
+      "destination": "/gravypassusa3-pre.html"
+    },
+    {
+      "source": "/gravypassusa3",
+      "destination": "/gravypassusa3.html"
+    },
+    {
+      "source": "/GPU/:c(US\\d+)/go",
+      "destination": "/gravypassusa4.html"
+    },
+    {
+      "source": "/GPU/:c(US\\d+)",
+      "destination": "/gravypassusa4-pre.html"
+    },
+    {
+      "source": "/gravypassusa4-pre",
+      "destination": "/gravypassusa4-pre.html"
+    },
+    {
+      "source": "/gravypassusa4",
+      "destination": "/gravypassusa4.html"
+    },
+    {
+      "source": "/gravypassusa-shannon2-pre",
+      "destination": "/gravypassusa-shannon2-pre.html"
+    },
+    {
+      "source": "/gravypassusa-shannon2",
+      "destination": "/gravypassusa-shannon2.html"
+    },
+    {
       "source": "/mgreco-pre",
       "destination": "/mgreco-pre.html"
     },

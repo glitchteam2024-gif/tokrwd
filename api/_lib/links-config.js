@@ -1005,6 +1005,12 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // Added to BOTH lists in this commit; a lander missing here silently loses its prelander hop.
   'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
   'gravypassusa2.html', 'gravypassusa2-pre.html', 'gps',
+  // Gravy Pass twins, 2026-09-13: each design now exists on BOTH Gravy offers. GPX mirrors GP,
+  // GPT mirrors GPR and GPU mirrors GPS, plus a twin of the reserved pair. MUST stay identical
+  // with ALLOWED_ROOTS in js/breakout.js.
+  'gpx', 'gravypassusa3.html', 'gravypassusa3-pre.html', 'gpt',
+  'gravypassusa4.html', 'gravypassusa4-pre.html', 'gpu',
+  'gravypassusa-shannon2.html', 'gravypassusa-shannon2-pre.html',
   // MGRECO — Migi's OWN Reco Social page, 2026-08-28. Single-tenant: no clone pool, no
   // landing_pages row, not self_serve, so no affiliate can be assigned it. Flat pair, so each
   // NAME is its own root. Added to BOTH lists in this commit.

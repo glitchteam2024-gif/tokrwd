@@ -87,6 +87,12 @@
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
     'gravypassusa2.html', 'gravypassusa2-pre.html', 'gps',
+    // Gravy Pass twins, 2026-09-13: each design now exists on BOTH Gravy offers. GPX mirrors GP,
+    // GPT mirrors GPR and GPU mirrors GPS, plus a twin of the reserved pair. MUST stay identical
+    // with PRELANDER_ALLOWED_ROOTS in the shared config.
+    'gpx', 'gravypassusa3.html', 'gravypassusa3-pre.html', 'gpt',
+    'gravypassusa4.html', 'gravypassusa4-pre.html', 'gpu',
+    'gravypassusa-shannon2.html', 'gravypassusa-shannon2-pre.html',
     // MGRECO - the owner Reco Social page, single-tenant, no clone pool.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'mgreco.html', 'mgreco-pre.html',
