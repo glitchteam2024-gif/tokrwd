@@ -104,7 +104,10 @@
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'recousa-shannon.html', 'recousa-shannon-pre.html',
     'recousa-ravi.html', 'recousa-ravi-pre.html',
-    // BACKSPINUSA - Backspin Games page, 2026-09-10. First lander on that offer.
+    // BACKSPINUSA-SAMMY - Sammy Backspin Games page, 2026-09-10. First lander on that offer.
+    // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
+    'backspinusa-sammy.html', 'backspinusa-sammy-pre.html',
+    // BACKSPINUSA - the house Backspin Games page, 2026-09-14, open to every affiliate.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'backspinusa.html', 'backspinusa-pre.html',
     // Shannon Pruett other three pages, 2026-09-09 - Gravy Pass USA, Freecash and Playful

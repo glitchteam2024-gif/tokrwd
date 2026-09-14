@@ -520,27 +520,19 @@
       "destination": "/recousa-ravi.html"
     },
     {
+      "source": "/backspinusa-sammy-pre",
+      "destination": "/backspinusa-sammy-pre.html"
+    },
+    {
+      "source": "/backspinusa-sammy",
+      "destination": "/backspinusa-sammy.html"
+    },
+    {
       "source": "/backspinusa-pre",
       "destination": "/backspinusa-pre.html"
     },
     {
       "source": "/backspinusa",
-      "destination": "/backspinusa.html"
-    },
-    {
-      "source": "/backspinusa-sammy-pre",
-      "destination": "/backspinusa-pre.html"
-    },
-    {
-      "source": "/backspinusa-sammy-pre.html",
-      "destination": "/backspinusa-pre.html"
-    },
-    {
-      "source": "/backspinusa-sammy",
-      "destination": "/backspinusa.html"
-    },
-    {
-      "source": "/backspinusa-sammy.html",
       "destination": "/backspinusa.html"
     },
     {

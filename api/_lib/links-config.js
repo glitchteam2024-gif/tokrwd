@@ -1028,12 +1028,14 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // RECOUSA-RAVI - his own supplied design on the same offer, reserved to him, 2026-09-11.
   // Flat pair, no clone family. MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'recousa-ravi.html', 'recousa-ravi-pre.html',
-  // BACKSPINUSA - Backspin Games page, 2026-09-10. The FIRST lander on that offer
+  // BACKSPINUSA-SAMMY - Sammy Backspin Games page, 2026-09-10. The FIRST lander on that offer
   // (3efcb852-55fb-44e8-8072-ef2c14d0f092), so its base came off offers.destination_url rather
   // than a sibling page: monetisetrk8.co.uk, Monetise/CAKE, outbound s1.
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
-  // Renamed 2026-09-14 off the old per-affiliate file names; vercel.json redirects those URLs
-  // here (query kept) so ads already running on them still land.
+  'backspinusa-sammy.html', 'backspinusa-sammy-pre.html',
+  // BACKSPINUSA - the house Backspin Games page, 2026-09-14: the Button First layout, open to every
+  // affiliate. Same offer, destination and outbound s1 as the reserved page above, which stays as is.
+  // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'backspinusa.html', 'backspinusa-pre.html',
   // Shannon Pruett other three pages, 2026-09-09. Her own supplied designs on Gravy Pass USA
   // (Monetise, s1), Freecash (Monetise, s1) and Playful Rewards (EVERFLOW, sub1) - three offers
