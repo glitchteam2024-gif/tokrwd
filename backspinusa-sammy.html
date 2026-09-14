@@ -46,70 +46,76 @@
     text-rendering:optimizeLegibility;
   }
   a{color:inherit;}
-  .wrap{max-width:460px;margin:0 auto;padding:0 18px 40px;}
+  .wrap{
+    max-width:460px;
+    margin:0 auto;
+    padding:14px 18px calc(36px + env(safe-area-inset-bottom));
+  }
 
-  /* ================= LIVE TICKER ================= */
+  /* ================= LIVE TICKER (slim) ================= */
   .ticker{
     display:flex;
     align-items:center;
     justify-content:center;
     gap:6px;
-    font-size:12.5px;
+    font-size:11.5px;
     font-weight:600;
+    line-height:1.3;
     color:var(--text-muted);
-    padding:12px 14px;
+    padding:calc(6px + env(safe-area-inset-top)) 14px 6px;
+    background:rgba(255,255,255,0.02);
     border-bottom:1px solid var(--border);
     text-align:center;
   }
   .ticker .amt{color:var(--green);font-weight:800;}
-  .ticker .flag{font-size:13px;}
+  .ticker .flag{font-size:12px;}
 
-  /* ================= HERO ================= */
-  .hero{text-align:center;padding:26px 4px 8px;}
-  .urgency-chip{
-    display:inline-flex;
+  /* ================= APP HEADER ROW ================= */
+  .app-row{
+    display:flex;
     align-items:center;
-    gap:6px;
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:.03em;
-    color:var(--accent);
-    background:rgba(242,169,74,0.10);
-    border:1px solid rgba(242,169,74,0.35);
-    padding:6px 13px;
-    border-radius:999px;
-    margin-bottom:18px;
+    gap:12px;
   }
   .app-icon{
-    width:76px;height:76px;
-    margin:0 auto 16px;
-    border-radius:20px;
+    flex:0 0 auto;
+    width:56px;height:56px;
+    border-radius:15px;
     overflow:hidden;
     position:relative;
-    box-shadow:0 16px 34px -14px rgba(59,111,224,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset;
+    box-shadow:0 12px 26px -12px rgba(59,111,224,0.6), 0 0 0 1px rgba(255,255,255,0.08) inset;
   }
   .app-icon img{width:100%;height:100%;object-fit:cover;display:block;}
-  .rating-chip{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-size:12px;
-    font-weight:700;
-    color:#cfe4fb;
-    background:rgba(59,111,224,0.14);
-    border:1px solid rgba(59,111,224,0.35);
-    padding:6px 13px;
-    border-radius:999px;
-    margin-bottom:20px;
-  }
-  .rating-chip .stars{color:var(--accent);letter-spacing:1px;}
-  h1{
-    font-size:clamp(1.7rem,8.4vw,2.3rem);
+  .app-meta{min-width:0;}
+  .app-name{
+    font-size:17px;
     font-weight:800;
     letter-spacing:-0.01em;
-    line-height:1.1;
+    line-height:1.2;
+    color:var(--text);
+  }
+  .rating-chip{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    column-gap:5px;
+    row-gap:1px;
+    margin-top:4px;
+    font-size:11.5px;
+    font-weight:700;
+    line-height:1.3;
+    color:#cfe4fb;
+  }
+  .rating-chip .stars{color:var(--accent);letter-spacing:0;}
+  .rating-chip .rating-text{white-space:nowrap;}
+
+  /* ================= HEADLINE + SUBHEAD ================= */
+  h1{
+    font-size:clamp(1.75rem,9vw,2.35rem);
+    font-weight:800;
+    letter-spacing:-0.015em;
+    line-height:1.02;
     text-transform:uppercase;
-    margin-bottom:14px;
+    margin:18px 0 10px;
   }
   h1 span{display:block;}
   h1 .l1{color:#fff;}
@@ -120,23 +126,83 @@
     color:transparent;
   }
   .subhead{
-    font-size:14.5px;
+    font-size:14px;
     color:var(--text-muted);
-    line-height:1.55;
-    max-width:360px;
-    margin:0 auto 20px;
+    line-height:1.5;
+    text-wrap:pretty;
   }
-  .live-chip{
-    display:inline-flex;
+
+  /* ================= PRIMARY CTA ================= */
+  .cta-block{margin-top:16px;}
+  .cta-btn{
+    display:flex;
     align-items:center;
-    gap:7px;
-    font-size:12px;
-    font-weight:600;
-    color:var(--text-muted);
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    min-height:56px;
+    border:none;
+    cursor:pointer;
+    background:var(--brand-grad);
+    color:#fff;
+    font-family:inherit;
+    font-size:17px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    padding:16px 20px;
+    border-radius:15px;
+    box-shadow:
+      0 14px 30px -8px rgba(59,111,224,0.5),
+      0 2px 0 0 rgba(255,255,255,0.25) inset;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .cta-btn:hover{transform:translateY(-1px);box-shadow:0 18px 36px -8px rgba(59,111,224,0.6), 0 2px 0 0 rgba(255,255,255,0.25) inset;}
+  .cta-btn:active{transform:translateY(0) scale(.99);}
+  .cta-btn svg{width:18px;height:18px;flex-shrink:0;}
+  .cta-micro{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--text-faint);
+    margin-top:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    column-gap:5px;
+    row-gap:2px;
+    flex-wrap:wrap;
+  }
+  @media (max-width:380px){
+    .cta-micro{font-size:11px;column-gap:4px;}
+  }
+
+  /* ================= STATUS ROW (urgency + live) ================= */
+  .status-row{
+    display:grid;
+    grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);
+    margin-top:14px;
     background:var(--surface);
     border:1px solid var(--border);
-    padding:8px 14px;
-    border-radius:999px;
+    border-radius:var(--radius-sm);
+  }
+  .status-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-width:0;
+    padding:8px 10px;
+    font-size:11px;
+    line-height:1.35;
+  }
+  .status-item .st-text{min-width:0;text-wrap:balance;}
+  .status-item + .status-item{border-left:1px solid var(--border);}
+  .urgency-chip{
+    font-weight:700;
+    color:var(--accent);
+  }
+  .urgency-chip .bolt{flex-shrink:0;font-size:12px;}
+  .live-chip{
+    font-weight:600;
+    color:var(--text-muted);
   }
   .live-chip b{color:var(--text);}
   .dot-live{
@@ -154,16 +220,17 @@
 
   /* ================= BONUS SPOTS BOX ================= */
   .bonus-card{
-    margin-top:22px;
+    margin-top:14px;
     background:linear-gradient(155deg, rgba(242,169,74,0.10), rgba(59,111,224,0.08));
     border:1px solid rgba(242,169,74,0.35);
-    border-radius:var(--radius-lg);
-    padding:16px 18px;
+    border-radius:var(--radius-md);
+    padding:14px 16px;
   }
   .bonus-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
   .bonus-label{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);}
-  .bonus-count{font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin-top:4px;}
+  .bonus-count{font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-top:3px;}
   .bonus-count small{font-size:12px;font-weight:700;color:var(--text-faint);}
+  .bonus-side{text-align:right;}
   .bonus-fill-chip{
     display:inline-flex;align-items:center;gap:4px;
     font-size:10.3px;font-weight:800;color:var(--accent);
@@ -172,110 +239,57 @@
     white-space:nowrap;
   }
   .bonus-reset{font-size:10px;color:var(--text-faint);margin-top:5px;}
-  .bonus-bar{height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:12px;}
+  .bonus-bar{height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:10px;}
   .bonus-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg, var(--accent), var(--brand-2));transition:width .6s ease;}
-
-  .cta-block{margin-top:18px;}
-
-  /* ================= PAYOUT STAT CARD ================= */
-  .payout-card{
-    margin-top:26px;
-    background:var(--surface);
-    border:1px solid rgba(242,169,74,0.35);
-    border-radius:var(--radius-lg);
-    padding:20px 20px 22px;
-  }
-  .payout-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  .payout-label{font-size:10.8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
-  .payout-trend{
-    display:flex;align-items:center;gap:3px;
-    font-size:11px;font-weight:800;color:var(--green);
-    background:rgba(52,211,153,0.12);
-    padding:3px 8px;border-radius:999px;
-  }
-  .payout-amount{font-size:clamp(1.7rem,8vw,2.1rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:10px;}
-  .payout-chart{width:100%;height:34px;display:block;margin-bottom:16px;}
-  .cta-btn{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    width:100%;
-    border:none;
-    cursor:pointer;
-    background:var(--brand-grad);
-    color:#fff;
-    font-size:16px;
-    font-weight:800;
-    letter-spacing:-0.01em;
-    padding:16px 20px;
-    border-radius:14px;
-    box-shadow:
-      0 14px 30px -8px rgba(59,111,224,0.45),
-      0 2px 0 0 rgba(255,255,255,0.25) inset;
-    transition:transform .15s ease, box-shadow .15s ease;
-  }
-  .cta-btn:hover{transform:translateY(-1px);box-shadow:0 18px 36px -8px rgba(59,111,224,0.55), 0 2px 0 0 rgba(255,255,255,0.25) inset;}
-  .cta-btn:active{transform:translateY(0) scale(.99);}
-  .cta-btn svg{width:17px;height:17px;flex-shrink:0;}
-  .cta-micro{
-    text-align:center;
-    font-size:12px;
-    color:var(--text-faint);
-    margin-top:11px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:6px;
-    flex-wrap:wrap;
-  }
 
   /* ================= TRUST STATS STRIP ================= */
   .stats-row{
     display:grid;
     grid-template-columns:repeat(3,1fr);
-    gap:8px;
-    margin-top:16px;
+    margin-top:12px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
   }
   .stat-item{
     text-align:center;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius-sm);
-    padding:14px 6px;
+    padding:13px 4px;
   }
+  .stat-item + .stat-item{border-left:1px solid var(--border);}
   .stat-item .num{
-    font-size:1.05rem;font-weight:800;letter-spacing:-0.01em;
+    font-size:1.1rem;font-weight:800;letter-spacing:-0.01em;
     background:var(--brand-grad);
     -webkit-background-clip:text;background-clip:text;color:transparent;
   }
-  .stat-item .lbl{font-size:10.2px;color:var(--text-faint);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.03em;}
+  .stat-item .lbl{font-size:9.8px;color:var(--text-faint);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:.02em;}
 
   /* ================= SECTION SHELL ================= */
-  section.body-section{margin-top:40px;}
-  .section-head{margin-bottom:18px;text-align:center;}
+  section.body-section{margin-top:36px;}
+  .section-head{margin-bottom:14px;}
   .section-eyebrow{
     font-size:11.5px;
     font-weight:700;
     letter-spacing:.06em;
     text-transform:uppercase;
     color:var(--accent);
-    margin-bottom:8px;
+    margin-bottom:6px;
   }
-  .section-title{font-size:1.3rem;font-weight:800;letter-spacing:-0.02em;}
-  .section-sub{font-size:13px;color:var(--text-muted);margin-top:6px;}
+  .section-title{font-size:1.3rem;font-weight:800;letter-spacing:-0.02em;line-height:1.2;}
 
   /* ================= HOW IT WORKS ================= */
-  .steps{display:flex;flex-direction:column;gap:10px;}
+  .steps{
+    background:var(--surface);
+    border:1px solid rgba(242,169,74,0.35);
+    border-radius:var(--radius-lg);
+    padding:2px 16px;
+  }
   .step{
     display:flex;
     align-items:flex-start;
     gap:14px;
-    background:var(--surface);
-    border:1px solid rgba(242,169,74,0.35);
-    border-radius:var(--radius-md);
-    padding:15px 16px;
+    padding:15px 0;
   }
+  .step + .step{border-top:1px solid var(--border);}
   .step-num{
     flex:0 0 auto;
     width:28px;height:28px;
@@ -292,11 +306,33 @@
   .step-desc{font-size:12.5px;color:var(--text-muted);line-height:1.4;}
   .step-tip{font-size:12px;color:var(--accent);font-weight:600;line-height:1.4;margin-top:6px;}
 
+  /* ================= PAYOUT STAT CARD ================= */
+  .payout-card{
+    margin-top:14px;
+    background:var(--surface);
+    border:1px solid rgba(242,169,74,0.35);
+    border-radius:var(--radius-lg);
+    padding:18px 20px 20px;
+  }
+  .payout-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+  .payout-label{font-size:10.8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+  .payout-trend{
+    display:flex;align-items:center;gap:3px;
+    font-size:11px;font-weight:800;color:var(--green);
+    background:rgba(52,211,153,0.12);
+    padding:3px 8px;border-radius:999px;
+  }
+  .payout-amount{font-size:clamp(1.7rem,8vw,2.1rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:10px;}
+  .payout-chart{width:100%;height:34px;display:block;}
+
+  /* ================= REPEAT CTA ================= */
+  .cta-repeat{margin-top:18px;}
+
   /* ================= CORNER EARNINGS POPUP ================= */
   .toast-wrap{
     position:fixed;
     left:14px;
-    bottom:14px;
+    bottom:calc(14px + env(safe-area-inset-bottom));
     z-index:60;
     max-width:250px;
     pointer-events:none;
@@ -337,16 +373,19 @@
   }
 
   /* ================= FOOTER ================= */
-  footer{margin-top:38px;padding-top:22px;border-top:1px solid var(--border);}
+  footer{margin-top:32px;padding-top:22px;border-top:1px solid var(--border);}
   .store-badges{display:flex;gap:10px;margin-bottom:18px;}
   .store-btn{
     flex:1;
+    min-width:0;
+    min-height:48px;
     display:flex;
     align-items:center;
     justify-content:center;
     gap:10px;
     border:none;
     cursor:pointer;
+    font-family:inherit;
     border-radius:12px;
     padding:10px 12px;
     color:#fff;
@@ -359,7 +398,7 @@
   .store-btn svg{width:21px;height:21px;flex-shrink:0;color:#fff;}
   .store-text{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;}
   .store-text small{font-size:9px;font-weight:500;color:rgba(255,255,255,0.8);}
-  .store-text strong{font-size:14px;font-weight:700;letter-spacing:-0.01em;}
+  .store-text strong{font-size:14px;font-weight:700;letter-spacing:-0.01em;white-space:nowrap;}
   .disclaimer{
     font-size:10.3px;
     line-height:1.6;
@@ -369,7 +408,8 @@
     margin:0 auto;
   }
   .disclaimer a{text-decoration:underline;color:var(--text-faint);}
-  .disclaimer .links{display:flex;justify-content:center;gap:14px;margin-top:10px;}
+  .disclaimer .links{display:flex;justify-content:center;gap:6px;margin-top:4px;}
+  .disclaimer .links a{display:inline-flex;align-items:center;min-height:44px;padding:0 8px;}
 
   /* Every counter and toast below animates indefinitely; the reveal starts at opacity 0 via JS.
      Suppressing motion has to leave the page READABLE rather than blank or frozen mid-fade. */
@@ -377,6 +417,7 @@
     .dot-live,.toast{animation:none;}
     .cta-btn,.store-btn,.toast,.bonus-bar span{transition:none;}
     .cta-btn:hover,.cta-btn:active,.store-btn:hover,.store-btn:active{transform:none;}
+    .body-section,.payout-card{opacity:1 !important;transform:none !important;transition:none !important;}
   }
 </style>
 </head>
@@ -387,17 +428,33 @@
 <div class="wrap">
 
   <div class="hero">
-    <div class="urgency-chip">⚡ Limited spots — instant welcome bonus</div>
-    <!-- The Backspin app icon, cropped out of the offer's own house tile
-         (offers.thumbnail_url -> offer-thumbnails/offers/1787769509921-1a447b.jpg) and
-         squircle-masked so the tile's blurred backdrop does not ride along in the corners.
-         A FILE, not a base64 data: URI - see the shared config for why an
-         inline blob is the more dangerous option. -->
-    <div class="app-icon"><img src="/images/backspin-logo.png" alt="Backspin Games app icon" width="76" height="76"></div>
-    <div class="rating-chip"><span class="stars">★★★★★</span> 4.7 · App Store (30K+ reviews)</div>
+    <div class="app-row">
+      <!-- The Backspin app icon, cropped out of the offer's own house tile
+           (offers.thumbnail_url -> offer-thumbnails/offers/1787769509921-1a447b.jpg) and
+           squircle-masked so the tile's blurred backdrop does not ride along in the corners.
+           A FILE, not a base64 data: URI - see the shared config for why an
+           inline blob is the more dangerous option. -->
+      <div class="app-icon"><img src="/images/backspin-logo.png" alt="Backspin Games app icon" width="56" height="56"></div>
+      <div class="app-meta">
+        <div class="app-name">Backspin Games</div>
+        <div class="rating-chip"><span class="stars">★★★★★</span> <span class="rating-text">4.7 · App Store (30K+ reviews)</span></div>
+      </div>
+    </div>
     <h1><span class="l1">Get Paid</span><span class="l2">To Play Games</span></h1>
     <p class="subhead">Earn real cash by playing games and completing tasks. Get paid straight to PayPal, Venmo, or your bank. No experience. No card. First payout in days.</p>
-    <div class="live-chip"><span class="dot-live"></span> <b id="live-count">3,214</b>&nbsp;people playing right now</div>
+
+    <div class="cta-block">
+      <button class="cta-btn offer-link" id="cta-hero" type="button">
+        Start Earning
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="cta-micro"><span>Takes 20 seconds</span><span>·</span><span>No credit card</span><span>·</span><span>Instant welcome bonus</span></div>
+    </div>
+
+    <div class="status-row">
+      <div class="status-item urgency-chip"><span class="bolt">⚡</span><span class="st-text">Limited spots — instant welcome bonus</span></div>
+      <div class="status-item live-chip"><span class="dot-live"></span><span class="st-text"><b id="live-count">3,214</b>&nbsp;people playing right now</span></div>
+    </div>
   </div>
 
   <div class="bonus-card">
@@ -406,7 +463,7 @@
         <div class="bonus-label">Today's Bonus Spots</div>
         <div class="bonus-count"><span id="bonus-count">147</span> <small>/ 500</small></div>
       </div>
-      <div style="text-align:right;">
+      <div class="bonus-side">
         <span class="bonus-fill-chip">▲ Filling fast</span>
         <div class="bonus-reset">Resets at midnight</div>
       </div>
@@ -414,12 +471,10 @@
     <div class="bonus-bar"><span id="bonus-bar-fill" style="width:29%"></span></div>
   </div>
 
-  <div class="cta-block">
-    <button class="cta-btn offer-link" id="cta-hero" type="button">
-      Start Earning
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
-    <div class="cta-micro"><span>Takes 20 seconds</span><span>·</span><span>No credit card</span><span>·</span><span>Instant welcome bonus</span></div>
+  <div class="stats-row">
+    <div class="stat-item"><div class="num">500K+</div><div class="lbl">Active Players</div></div>
+    <div class="stat-item"><div class="num">200+</div><div class="lbl">Reward Options</div></div>
+    <div class="stat-item"><div class="num">4.7★</div><div class="lbl">App Rating</div></div>
   </div>
 
   <!-- HOW IT WORKS -->
@@ -472,10 +527,11 @@
     </svg>
   </div>
 
-  <div class="stats-row">
-    <div class="stat-item"><div class="num">500K+</div><div class="lbl">Active Players</div></div>
-    <div class="stat-item"><div class="num">200+</div><div class="lbl">Reward Options</div></div>
-    <div class="stat-item"><div class="num">4.7★</div><div class="lbl">App Rating</div></div>
+  <div class="cta-repeat">
+    <button class="cta-btn offer-link" id="cta-bottom" type="button">
+      Start Earning
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
   </div>
 
   <footer>
@@ -549,7 +605,7 @@
   function handleClaim(){
     window.location.href = offerUrl();
   }
-  ["cta-hero","store-apple","store-google"].forEach(function(id){
+  ["cta-hero","cta-bottom","store-apple","store-google"].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.addEventListener("click", handleClaim);
   });
@@ -710,8 +766,9 @@
   scheduleToast();
 
   // ---- scroll reveal ----
-  var reveal = document.querySelectorAll(".body-section:not(#how), .hero, .payout-card, .stats-row");
+  var reveal = document.querySelectorAll(".body-section, .payout-card");
   if("IntersectionObserver" in window){
+    reveal = Array.prototype.filter.call(reveal, function(el){ return el.getBoundingClientRect().top > window.innerHeight; });
     reveal.forEach(function(el){ el.style.opacity = 0; el.style.transform = "translateY(14px)"; el.style.transition = "opacity .5s ease, transform .5s ease"; });
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
