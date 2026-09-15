@@ -30,8 +30,18 @@ html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkM
 .step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.step:last-child{border-bottom:none}
 .num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
 .step h4{font-size:15px;font-weight:800}.step p{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px}.step p b{color:#ff8fc8;font-weight:800}
-.chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{padding:9px 13px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-size:13px;font-weight:700}
+.pay{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pay-card{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:0;min-height:112px;padding:12px;border:none;border-radius:16px;color:#fff;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 10px 24px rgba(0,0,0,.35);transition:transform .12s ease}
+.pay-card:active{transform:scale(.97)}
+.pay-ic{width:34px;height:34px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:auto}
+.pay-ic b{font-size:20px;font-weight:900;line-height:1}
+.cashapp{background:#00d54b}.cashapp .pay-ic b{color:#00d54b}
+.paypal{background:#0b3c8c}.paypal .pay-ic b{color:#0b3c8c;font-style:italic}
+.applecash{background:#0d0d0f}
+.applecash::before{content:"";position:absolute;inset:-40% -20% auto -20%;height:130%;background:radial-gradient(ellipse at 20% 30%,rgba(255,90,140,.45),transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(90,140,255,.4),transparent 55%),radial-gradient(ellipse at 60% 90%,rgba(80,220,200,.35),transparent 55%);filter:blur(14px);pointer-events:none}
+.applecash .pay-ic{background:transparent;color:#fff;position:relative}
+.pay-name{position:relative;font-size:13.5px;font-weight:800;margin-top:10px;letter-spacing:-.2px}
+.pay-sub{position:relative;font-size:10.5px;font-weight:600;opacity:.75;margin-top:2px}
 .cta{display:flex;align-items:center;justify-content:center;width:100%;padding:18px;border:none;border-radius:16px;background:var(--grad);color:#fff;font-size:17px;font-weight:900;letter-spacing:.3px;cursor:pointer;box-shadow:0 12px 30px rgba(239,93,168,.28);margin-top:18px}
 .cta:active{transform:scale(.98)}
 .micro{display:flex;justify-content:center;gap:10px;font-size:11.5px;color:var(--muted);margin:10px 0 6px;flex-wrap:wrap}
@@ -121,7 +131,11 @@ html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkM
   <div class="step"><div class="num">3</div><div><h4>Unlock the famous games</h4><p>That unlocks <b>Roblox, Clash Royale, Subway Surfers</b> and more. Cash out to PayPal, Cash App, or gift cards.</p></div></div>
 
   <div class="section">CASH OUT TO</div>
-  <div class="chips"><span class="chip">PayPal</span><span class="chip">Cash App</span><span class="chip">Gift cards</span></div>
+  <div class="pay">
+    <button class="pay-card cashapp offer-link" type="button" onclick="document.getElementById('cta-hero').click()"><span class="pay-ic"><b>$</b></span><span class="pay-name">Cash App</span><span class="pay-sub">Instant</span></button>
+    <button class="pay-card paypal offer-link" type="button" onclick="document.getElementById('cta-hero').click()"><span class="pay-ic"><b>P</b></span><span class="pay-name">PayPal</span><span class="pay-sub">Instant</span></button>
+    <button class="pay-card applecash offer-link" type="button" onclick="document.getElementById('cta-hero').click()"><span class="pay-ic apple"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg></span><span class="pay-name">Apple Cash</span><span class="pay-sub">To your wallet</span></button>
+  </div>
 
   <button class="cta offer-link" type="button" onclick="document.getElementById('cta-hero').click()">Start Earning</button>
   <div class="micro"><span>Takes 20 seconds</span><span>·</span><span>No credit card</span><span>·</span><span>Instant welcome bonus</span></div>
