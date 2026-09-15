@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Reco Social — Start Earning</title>
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ===== Reset ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ===== Base ===== */
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#020617;color:#fff;min-height:100vh}
+
+/* ===== Custom keyframes ===== */
+@keyframes fadeSlideUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+@keyframes pop{0%{opacity:0;transform:scale(.9)}100%{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+/* ===== Animation utilities ===== */
+.anim-fade-up{opacity:0;animation:fadeSlideUp .5s ease forwards}
+.anim-live-pulse{animation:livePulse 1.8s ease-in-out infinite}
+.anim-fade-in{animation:fadeIn .25s ease forwards}
+.anim-pop{animation:pop .3s cubic-bezier(.34,1.56,.64,1) forwards}
+.anim-float{animation:float 3s ease-in-out infinite}
+
+/* ===== Gradient text ===== */
+.text-gradient-bp{background:linear-gradient(135deg,#3b82f6 0%,#ec4899 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ===== Layout ===== */
+.lp-wrap{position:relative;min-height:100vh;overflow-x:hidden}
+.bg-glow{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 30% 20%,rgba(59,130,246,.15) 0%,transparent 55%),radial-gradient(ellipse at 70% 80%,rgba(236,72,153,.12) 0%,transparent 55%),radial-gradient(ellipse at 50% 50%,rgba(37,99,235,.06) 0%,transparent 80%),#020617}
+.orb-1{position:fixed;left:-10%;top:15%;width:288px;height:288px;border-radius:50%;background:rgba(37,99,235,.1);filter:blur(48px);pointer-events:none;z-index:0;animation:float 3s ease-in-out infinite}
+.orb-2{position:fixed;right:-10%;top:60%;width:320px;height:320px;border-radius:50%;background:rgba(219,39,119,.1);filter:blur(48px);pointer-events:none;z-index:0;animation:float 3s ease-in-out 1.5s infinite}
+.container{position:relative;z-index:10;width:100%;max-width:448px;margin:0 auto;padding:24px 20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+
+/* ===== Brand ===== */
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.brand-logo{width:56px;height:56px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.2);background:linear-gradient(135deg,#3b82f6,#ec4899);box-shadow:0 8px 24px rgba(59,130,246,.3)}
+.brand-logo img{width:100%;height:100%;object-fit:cover}
+.brand-name{font-size:20px;font-weight:800;letter-spacing:-.025em}
+
+/* ===== Live pill ===== */
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(96,165,250,.35);background:rgba(59,130,246,.1);color:#93c5fd;font-size:12px;font-weight:700;letter-spacing:.08em;padding:7px 16px;border-radius:999px;margin-bottom:16px}
+.pill-dot{width:6px;height:6px;border-radius:50%;background:#60a5fa;box-shadow:0 0 8px rgba(96,165,250,.8);animation:livePulse 1.8s ease-in-out infinite}
+
+/* ===== Hero ===== */
+.hero-title{font-size:clamp(24px,6vw,32px);font-weight:800;line-height:1.15;letter-spacing:-.02em;margin-bottom:8px}
+.hero-sub{color:rgba(255,255,255,.55);font-size:14px;line-height:1.5;max-width:340px;margin-bottom:24px}
+.hero-sub .pink{color:#f472b6;font-weight:600}
+
+/* ===== Qualify cards ===== */
+.qualify-list{display:flex;flex-direction:column;gap:12px;width:100%;margin-bottom:20px}
+.qualify-item{position:relative;display:flex;align-items:center;gap:14px;border-radius:16px;padding:16px;text-align:left;overflow:hidden}
+.qualify-item.blue{border:1px solid rgba(30,58,138,.4);background:linear-gradient(180deg,rgba(30,41,59,.8) 0%,rgba(15,23,42,.8) 100%)}
+.qualify-item.pink{border:1px solid rgba(157,23,77,.4);background:linear-gradient(180deg,rgba(30,41,59,.8) 0%,rgba(15,23,42,.8) 100%)}
+.qualify-item.blue::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#60a5fa,#2563eb)}
+.qualify-item.pink::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#f472b6,#db2777)}
+.qualify-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qualify-icon.blue{border:1px solid rgba(96,165,250,.25);background:rgba(59,130,246,.1)}
+.qualify-icon.pink{border:1px solid rgba(244,114,182,.25);background:rgba(236,72,153,.1)}
+.qualify-text{flex:1;min-width:0}
+.qualify-text h2{font-size:16px;font-weight:800;letter-spacing:-.01em;color:#fff;margin-bottom:2px}
+.qualify-text p{font-size:12px;color:rgba(255,255,255,.5);line-height:1.35}
+.qualify-badge{flex-shrink:0;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800;white-space:nowrap}
+.qualify-badge.blue{border:1px solid rgba(96,165,250,.3);background:rgba(59,130,246,.1);color:#93c5fd}
+.qualify-badge.pink{border:1px solid rgba(244,114,182,.3);background:rgba(236,72,153,.1);color:#f9a8d4}
+
+/* ===== CTA button ===== */
+.btn-cta{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:20px 32px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(90deg,#3b82f6,#2563eb,#ec4899);box-shadow:0 0 30px rgba(59,130,246,.4),0 0 60px rgba(236,72,153,.2),0 4px 15px rgba(0,0,0,.3);transition:all .2s ease}
+.btn-cta:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(59,130,246,.5),0 0 80px rgba(236,72,153,.3),0 8px 25px rgba(0,0,0,.4)}
+.btn-cta:active{transform:translateY(1px) scale(.98)}
+.btn-cta span{font-size:16px;font-weight:700;color:#fff;letter-spacing:.05em}
+.reassure{margin-top:14px;font-size:12px;color:rgba(255,255,255,.4);line-height:1.4}
+
+/* ===== How it works ===== */
+.how-card{width:100%;border:1px solid rgba(30,58,138,.4);background:rgba(15,23,42,.6);border-radius:16px;padding:20px;text-align:left;margin-top:28px;backdrop-filter:blur(4px)}
+.how-card h3{text-align:center;font-size:11px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.5);margin-bottom:18px}
+.step{position:relative;display:flex;gap:14px;padding-bottom:18px}
+.step:not(:last-child)::after{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:rgba(30,58,138,.4)}
+.step:last-child{padding-bottom:0}
+.step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#ec4899);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;z-index:1}
+.step h4{font-size:14px;font-weight:700;margin-bottom:3px}
+.step p{font-size:12px;color:rgba(255,255,255,.55);line-height:1.45}
+.step p .blue{color:#60a5fa;font-weight:600}
+.step p .pink{color:#f472b6;font-weight:600}
+
+/* ===== Rewards ===== */
+.section-label{width:100%;text-align:left;font-size:11px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.5);margin-top:24px;margin-bottom:12px}
+.reward{width:100%;border:1px solid rgba(30,58,138,.4);background:rgba(15,23,42,.8);border-radius:16px;padding:16px;margin-bottom:12px;text-align:left;backdrop-filter:blur(4px)}
+.reward-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.reward-tile{width:48px;height:48px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.reward-tile img{width:100%;height:100%;object-fit:cover}
+.reward-info{flex:1;min-width:0}
+.reward-info h4{font-size:15px;font-weight:800}
+.reward-info p{font-size:12px;color:rgba(255,255,255,.5)}
+.reward-prize{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;font-size:15px;font-weight:800}
+.reward-prize .val{background:linear-gradient(135deg,#3b82f6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.reward-prize .unit{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);margin-top:2px}
+.reward-req{display:flex;align-items:center;gap:7px;font-size:11.5px;color:rgba(255,255,255,.5);margin-bottom:12px}
+.reward-btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:13px;font-weight:800;letter-spacing:.03em;cursor:pointer;text-align:center;color:#fff;background:linear-gradient(180deg,#3b82f6,#2563eb);box-shadow:0 0 20px rgba(59,130,246,.35);transition:transform .15s ease,box-shadow .15s ease}
+.reward-btn:active{transform:scale(.98)}
+.reward-btn:hover{box-shadow:0 0 30px rgba(59,130,246,.5)}
+
+/* ===== Feature highlights ===== */
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;margin-top:20px}
+.feature{display:flex;flex-direction:column;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.1);background:rgba(15,23,42,.5);border-radius:12px;padding:12px}
+.feature svg{width:20px;height:20px}
+.feature span{font-size:11px;font-weight:600;color:rgba(255,255,255,.6)}
+
+/* ===== Disclaimer & footer ===== */
+.disclaimer{margin-top:20px;text-align:center;font-size:11.5px;line-height:1.65;color:rgba(255,255,255,.6)}
+.foot{margin-top:20px;padding-top:16px;border-top:1px solid rgba(30,58,138,.3);width:100%;text-align:center;font-size:11px;color:rgba(255,255,255,.3)}
+.foot a{color:rgba(255,255,255,.45);text-decoration:underline}
+
+/* ===== Modal ===== */
+.overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,23,.75);backdrop-filter:blur(4px)}
+.overlay.open{display:flex;animation:fadeIn .25s ease forwards}
+.modal{position:relative;width:100%;max-width:448px;border:1px solid rgba(30,58,138,.5);background:#0f172a;border-radius:24px;padding:28px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:pop .3s cubic-bezier(.34,1.56,.64,1) forwards}
+.modal-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:none;background:#1e293b;color:rgba(255,255,255,.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease}
+.modal-close:hover{background:#334155;color:#fff}
+.modal-icon{width:64px;height:64px;border-radius:18px;border:1px solid rgba(244,114,182,.3);background:rgba(236,72,153,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.modal h3{font-size:20px;font-weight:800;letter-spacing:-.01em;margin-bottom:10px}
+.modal .lead{font-size:14px;color:rgba(255,255,255,.6);line-height:1.5;margin-bottom:20px}
+.modal-note{display:flex;gap:12px;align-items:flex-start;text-align:left;border:1px solid rgba(30,58,138,.4);background:rgba(30,41,59,.6);border-radius:16px;padding:16px;margin-bottom:24px}
+.modal-note .num{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#ec4899);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-note p{font-size:13px;color:rgba(255,255,255,.75);line-height:1.45}
+.modal-note .pink{color:#f472b6;font-weight:700}
+.btn-modal{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:16px;border:none;border-radius:16px;cursor:pointer;background:linear-gradient(90deg,#3b82f6,#2563eb,#ec4899);box-shadow:0 0 30px rgba(59,130,246,.4),0 0 60px rgba(236,72,153,.2);transition:all .2s ease}
+.btn-modal:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(59,130,246,.5),0 0 80px rgba(236,72,153,.3)}
+.btn-modal:active{transform:translateY(1px) scale(.98)}
+.btn-modal span{font-size:16px;font-weight:700;color:#fff;letter-spacing:.05em}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="lp-wrap">
+  <div class="bg-glow"></div>
+  <div class="orb-1"></div>
+  <div class="orb-2"></div>
+
+  <div class="container">
+    <!-- Brand. The comp pointed every image at images/images_(n).jpeg, none of which exist in this
+         repo, so all four would have rendered broken. They use the art already here instead. -->
+    <div class="brand anim-fade-up">
+      <div class="brand-logo"><img src="/images/reco-app-icon.jpg" alt="Reco Social" /></div>
+      <span class="brand-name">Reco<span class="text-gradient-bp">Social</span></span>
+    </div>
+
+    <!-- Live pill -->
+    <div class="pill anim-fade-up" style="animation-delay:.08s">
+      <span class="pill-dot"></span>OFFERS AVAILABLE NOW
+    </div>
+
+    <!-- Hero. Cash-out methods corrected: this offer pays Cash App, PayPal and gift cards — not
+         Zelle, Apple Cash or bank transfer, which the comp listed in three places. -->
+    <h1 class="hero-title anim-fade-up" style="animation-delay:.12s">Get paid for the time you <span class="text-gradient-bp">already spend</span></h1>
+    <p class="hero-sub anim-fade-up" style="animation-delay:.16s">Reco Social pays real money for playing games and completing app tasks. Free to start, cash out to <span class="pink">Cash App, PayPal or a gift card</span>.</p>
+
+    <!-- Qualify list -->
+    <div class="qualify-list anim-fade-up" style="animation-delay:.2s">
+      <div class="qualify-item blue">
+        <div class="qualify-icon blue">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="11" x2="10" y2="11"/><line x1="8" y1="9" x2="8" y2="13"/><line x1="15" y1="11.5" x2="15.01" y2="11.5"/><line x1="18" y1="10" x2="18.01" y2="10"/><path d="M17.32 5H6.68a4.5 4.5 0 0 0-4.5 4.5v3a4.5 4.5 0 0 0 4.5 4.5c1.2 0 1.9-.5 2.7-1.2.6-.5 1.2-.8 2.8-.8s2.2.3 2.8.8c.8.7 1.5 1.2 2.7 1.2a4.5 4.5 0 0 0 4.5-4.5v-3A4.5 4.5 0 0 0 17.32 5z"/></svg>
+        </div>
+        <div class="qualify-text"><h2>Get Paid To Game</h2><p>Play Roblox, Subway Surfers &amp; more</p></div>
+        <div class="qualify-badge blue">Earn $$$</div>
+      </div>
+      <div class="qualify-item pink">
+        <div class="qualify-icon pink">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/><line x1="9" y1="6.5" x2="15" y2="6.5"/><line x1="9" y1="9.5" x2="13" y2="9.5"/></svg>
+        </div>
+        <div class="qualify-text"><h2>Get Paid For Screentime</h2><p>Earn while you scroll, no skills needed</p></div>
+        <div class="qualify-badge pink">Earn $$$</div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button type="button" class="btn-cta anim-fade-up" style="animation-delay:.3s" id="continueBtn">
+      <span>CONTINUE</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+    </button>
+    <p class="reassure anim-fade-up" style="animation-delay:.4s">Free to start &bull; Cash out to Cash App, PayPal or a gift card</p>
+
+    <!-- How it works -->
+    <div class="how-card anim-fade-up" style="animation-delay:.45s">
+      <h3>HOW IT WORKS</h3>
+      <div class="step"><div class="step-num">1</div><div><h4>Activate your Reco Social pass</h4><p>Tap <span class="blue">Continue</span> and add your Reco Social pass — it takes about two minutes and costs nothing.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div><h4>Complete your first offer</h4><p>Finish the starter offer to unlock games like <span class="pink">Block Blast, Subway Surfers</span> and more.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Play and get paid</h4><p>Your balance builds as offers clear. Transfer via <span class="blue">Cash App, PayPal or a gift card</span>.</p></div></div>
+    </div>
+
+    <!-- Rewards -->
+    <div class="section-label anim-fade-up" style="animation-delay:.5s">REWARDS TO UNLOCK</div>
+
+    <div class="reward anim-fade-up" style="animation-delay:.52s">
+      <div class="reward-top">
+        <div class="reward-tile"><img src="/images/clash-royale.png" alt="Clash Royale" /></div>
+        <div class="reward-info"><h4>Clash Royale</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-prize"><span class="val">$28/hr</span><span class="unit">per hour</span></div>
+      </div>
+      <div class="reward-req"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Unlocks after 3 tasks inside Reco Social</div>
+      <button type="button" class="reward-btn offer-link" data-reward>UNLOCK CLASH ROYALE</button>
+    </div>
+
+    <div class="reward anim-fade-up" style="animation-delay:.55s">
+      <div class="reward-top">
+        <div class="reward-tile"><img src="/images/roblox.jpg" alt="Roblox" /></div>
+        <div class="reward-info"><h4>Roblox</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-prize"><span class="val">$35/hr</span><span class="unit">per hour</span></div>
+      </div>
+      <div class="reward-req"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Unlocks after 3 tasks inside Reco Social</div>
+      <button type="button" class="reward-btn offer-link" data-reward>UNLOCK ROBLOX</button>
+    </div>
+
+    <div class="reward anim-fade-up" style="animation-delay:.58s">
+      <div class="reward-top">
+        <div class="reward-tile"><img src="/images/subway-surfers.jpg" alt="Subway Surfers" /></div>
+        <div class="reward-info"><h4>Subway Surfers</h4><p>Play &amp; Earn</p></div>
+        <div class="reward-prize"><span class="val">Varies</span><span class="unit">per offer</span></div>
+      </div>
+      <div class="reward-req"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Unlocks after 3 tasks inside Reco Social</div>
+      <button type="button" class="reward-btn offer-link" data-reward>UNLOCK SUBWAY SURFERS</button>
+    </div>
+
+    <!-- Feature highlights -->
+    <div class="features anim-fade-up" style="animation-delay:.62s">
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v3"/><path d="M19 7H5"/><path d="M5 7v13a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7"/><path d="M9 12h6"/><path d="M9 16h6"/></svg><span>Fast Payouts</span></div>
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg><span>Real Rewards</span></div>
+      <div class="feature"><svg viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5" rx="1"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg><span>Free to Join</span></div>
+    </div>
+
+    <!-- Disclaimer -->
+    <p class="disclaimer anim-fade-up" style="animation-delay:.65s">Earnings depend on which games you play and how much you play. The figures above are an estimate from the rates shown, not a guarantee. Reco Social is not affiliated with any game publisher named on this page. Individual results vary.</p>
+
+    <!-- Footer. The comp had href="#" on both links, which go nowhere. -->
+    <div class="foot anim-fade-up" style="animation-delay:.67s">
+      <a href="/Rewards/terms">Terms</a> &nbsp;&middot;&nbsp; <a href="/Rewards/privacy">Privacy</a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button type="button" class="modal-close" aria-label="Close" id="modalClose">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    <div class="modal-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    </div>
+    <h3>Start Earning Now</h3>
+    <p class="lead">Activate your Reco Social pass and start earning from the apps and games you already use.</p>
+    <div class="modal-note">
+      <div class="num">!</div>
+      <p>Use your <span class="pink">real details</span> when you sign up so your earnings can be paid out.</p>
+    </div>
+    <button type="button" class="btn-modal offer-link" id="goBtn">
+      <span>CONTINUE TO RECO SOCIAL</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* The finished destination for this offer. The comp sent every button to the brand's own site,
+     which carries no tracking value and pays nothing.
+     ⚠️ No trailing empty slot on the base: the builder appends the param itself, and two of them
+     means a first-match reader takes the empty one and the label is lost. */
+  var OFFER_LINK = 'https://montrk3.co.uk/?a=26648&c=56065';
+
+  var q = new URLSearchParams(location.search);
+  if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+  if (!q.get('s1')) {
+    var mc = q.get('mc_attr') || '', f = {};
+    mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+    var d = f.e || f.c; if (d) q.set('s1', d);
+  }
+
+  function offerUrl() {
+    var s1 = q.get('s1') || '';
+    /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. */
+    var url = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* CODE-ONLY v1 — only the extracted code leaves; the rest of the incoming value never reaches
+         the destination. `|| _s1` sends a code-less value out verbatim, because a free-form label is
+         somebody's attribution key and blanking it would pay them nothing. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      /* ⚠️ OUTBOUND PARAM IS `s1`. This destination family reads s1..s5 and silently discards sub1;
+         the other family does the exact reverse. Nothing errors when it is wrong — the link looks
+         healthy and every conversion comes back unattributed. */
+      var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* Drop an unexpanded ad-platform macro rather than logging it as a real click id. */
+      if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+      /* CLICK-STAMP v1 — log the click on our own origin first, then forward unchanged. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
+    return url;
+  }
+
+  function handleClaim() { window.location.href = offerUrl(); }
+
+  /* BEACON v2 */
+  (function () {
+    var BEACON = '/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    function bsend(ev) {
+      try {
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+          event: ev, sid: bq.get('sid') || '',
+          s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+          ttclid: bq.get('ttclid') || '',
+          slice: 'RECOUSA-ANDREW', clone: 'US', path: location.pathname
+        })], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    var fired = false;
+    document.addEventListener('click', function (e) {
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.classList && el.classList.contains('offer-link')) { fired = true; bsend('offer_click'); return; }
+      }
+    }, true);
+  })();
+
+  /* ---- his modal flow, unchanged: Continue opens it, the modal button and every reward button leave ---- */
+  var overlay = document.getElementById('overlay');
+
+  document.getElementById('continueBtn').addEventListener('click', function () {
+    overlay.classList.add('open');
+  });
+
+  document.getElementById('modalClose').addEventListener('click', function () {
+    overlay.classList.remove('open');
+  });
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+
+  document.getElementById('goBtn').addEventListener('click', handleClaim);
+
+  Array.prototype.forEach.call(document.querySelectorAll('.reward-btn[data-reward]'), function (b) {
+    b.addEventListener('click', handleClaim);
+  });
+})();
+</script>
+</body>
+</html>

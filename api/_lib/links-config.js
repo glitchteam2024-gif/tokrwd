@@ -1028,6 +1028,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // RECOUSA-RAVI - his own supplied design on the same offer, reserved to him, 2026-09-11.
   // Flat pair, no clone family. MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'recousa-ravi.html', 'recousa-ravi-pre.html',
+  'recousa-andrew.html', 'recousa-andrew-pre.html',
   // BACKSPINUSA-SAMMY - Sammy Backspin Games page, 2026-09-10. The FIRST lander on that offer
   // (3efcb852-55fb-44e8-8072-ef2c14d0f092), so its base came off offers.destination_url rather
   // than a sibling page: monetisetrk8.co.uk, Monetise/CAKE, outbound s1.

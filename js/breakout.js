@@ -104,6 +104,7 @@
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'recousa-shannon.html', 'recousa-shannon-pre.html',
     'recousa-ravi.html', 'recousa-ravi-pre.html',
+    'recousa-andrew.html', 'recousa-andrew-pre.html',
     // BACKSPINUSA-SAMMY - Sammy Backspin Games page, 2026-09-10. First lander on that offer.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'backspinusa-sammy.html', 'backspinusa-sammy-pre.html',
