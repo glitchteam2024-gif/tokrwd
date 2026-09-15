@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0714">
+<title>Get Paid To Play Games</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0714;--ink:#f5f2ff;--muted:rgba(245,242,255,.62);--line:rgba(255,255,255,.09);--soft:#140e22;--grad:linear-gradient(135deg,#9b57e8 0%,#ef5da8 55%,#f2994a 100%)}
+html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:480px;margin:0 auto;padding:18px 18px 28px;position:relative;z-index:1}
+.glow{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70% 40% at 50% -5%,rgba(155,87,232,.22),transparent 60%),radial-gradient(ellipse 60% 40% at 100% 70%,rgba(239,93,168,.12),transparent 60%)}
+.listing{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.listing img{width:86px;height:86px;border-radius:20px;box-shadow:0 10px 26px rgba(155,87,232,.35);border:1px solid rgba(255,255,255,.12)}
+.listing h1{font-size:24px;font-weight:900;letter-spacing:-.6px;line-height:1.05}
+.listing p{font-size:13px;color:var(--muted);margin-top:3px}
+.get{margin-top:9px;display:inline-flex;align-items:center;gap:8px;padding:9px 22px;border:none;border-radius:999px;background:var(--grad);color:#fff;font-weight:900;font-size:14px;letter-spacing:.4px;cursor:pointer;box-shadow:0 8px 20px rgba(239,93,168,.3)}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:12px 0 18px}
+.meta div{padding:10px 4px;text-align:center}
+.meta b{display:block;font-size:15px;font-weight:900}.meta span{font-size:10.5px;color:var(--muted);letter-spacing:.06em}
+.meta .stars{color:#ffcf5a;letter-spacing:1px;font-size:12px}
+.section{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--muted);margin:18px 0 10px}
+.games{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -18px;padding:0 18px 4px}
+.games::-webkit-scrollbar{display:none}
+.game{flex:0 0 118px;background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:10px;text-align:center}
+.game img{width:56px;height:56px;border-radius:14px;object-fit:cover;display:block;margin:0 auto 8px}
+.game b{display:block;font-size:12.5px}.game span{display:inline-block;margin-top:5px;font-size:11px;font-weight:800;color:#3fe08a;background:rgba(63,224,138,.12);padding:3px 8px;border-radius:99px}
+.step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.step:last-child{border-bottom:none}
+.num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px}
+.step h4{font-size:15px;font-weight:800}.step p{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:9px 13px;border-radius:12px;background:var(--soft);border:1px solid var(--line);font-size:13px;font-weight:700}
+.cta{display:flex;align-items:center;justify-content:center;width:100%;padding:18px;border:none;border-radius:16px;background:var(--grad);color:#fff;font-size:17px;font-weight:900;letter-spacing:.3px;cursor:pointer;box-shadow:0 12px 30px rgba(239,93,168,.28);margin-top:18px}
+.cta:active{transform:scale(.98)}
+.micro{display:flex;justify-content:center;gap:10px;font-size:11.5px;color:var(--muted);margin:10px 0 6px;flex-wrap:wrap}
+.proof{display:flex;align-items:center;gap:8px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--muted);margin-top:14px}
+.proof .flag{font-size:14px}.proof .amt{color:#3fe08a;font-weight:800}
+.stores{display:flex;gap:10px;margin:16px 0}
+.store{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.store small{display:block;font-size:9px;font-weight:600;opacity:.7}
+.disc{font-size:10.5px;line-height:1.5;color:rgba(245,242,255,.4);text-align:center}
+.links{text-align:center;font-size:11px;margin-top:10px}.links a{color:rgba(245,242,255,.5);text-decoration:none;margin:0 6px}
+.hidden{display:none}
+
+/* toast (lifted from recousa-sammy.html so the script's "just earned" card renders) */
+/* ================= CORNER EARNINGS POPUP ================= */
+  .toast-wrap{
+    position:fixed;
+    left:14px;
+    bottom:14px;
+    z-index:60;
+    max-width:250px;
+    pointer-events:none;
+  }
+.toast{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface-2);
+    border:1px solid var(--border-strong);
+    border-radius:14px;
+    padding:10px 12px;
+    box-shadow:0 14px 30px -10px rgba(0,0,0,0.55);
+    opacity:0;
+    transform:translateY(12px);
+    transition:opacity .35s ease, transform .35s ease;
+  }
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.boost{
+    border-color:rgba(242,153,74,0.5);
+    background:linear-gradient(155deg, rgba(242,153,74,0.16), var(--surface-2));
+  }
+.toast-avatar{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11.5px;font-weight:800;color:#fff;
+    background:var(--brand-grad);
+    flex-shrink:0;
+  }
+.toast-body{min-width:0;}
+.toast-name{font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:4px;}
+.toast-flame{font-size:11px;}
+.toast-sub{font-size:10.3px;color:var(--text-muted);margin-top:1px;white-space:nowrap;}
+.toast-amt{font-size:13px;font-weight:800;color:var(--green);margin-top:2px;}
+.toast.boost .toast-amt{color:var(--gold);}
+.toast-wrap{max-width:210px;}
+/* toast vars the lifted rules expect, in this page's palette */
+:root{--surface-2:#1a1330;--border-strong:rgba(255,255,255,.14);--brand-grad:linear-gradient(135deg,#9b57e8,#ef5da8,#f2994a);--text:#f5f2ff;--text-muted:rgba(245,242,255,.62);--green:#3fe08a;--gold:#f2994a}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="wrap">
+  <div class="listing">
+    <img src="/images/reco-app-icon.jpg" alt="">
+    <div>
+      <h1>Reco</h1>
+      <p>Get paid to play games</p>
+      <button class="get" id="cta-hero" type="button">GET</button>
+    </div>
+  </div>
+  <div class="meta">
+    <div><b>4.7</b><span class="stars">★★★★★</span></div>
+    <div><b>2M+</b><span>MEMBERS</span></div>
+    <div><b>200+</b><span>REWARDS</span></div>
+  </div>
+
+  <div class="section">EARN FROM GAMES YOU ALREADY PLAY</div>
+  <div class="games">
+    <div class="game"><img src="/images/roblox.jpg" alt=""><b>Roblox</b><span>Play &amp; earn</span></div>
+    <div class="game"><img src="/images/clash-royale.png" alt=""><b>Clash Royale</b><span>Play &amp; earn</span></div>
+    <div class="game"><img src="/images/subway-surfers.jpg" alt=""><b>Subway Surfers</b><span>Play &amp; earn</span></div>
+    <div class="game"><img src="/images/netflix.png" alt=""><b>Netflix</b><span>Watch &amp; earn</span></div>
+  </div>
+
+  <div class="section">HOW IT WORKS</div>
+  <div class="step"><div class="num">1</div><div><h4>Sign up</h4><p>Takes a few minutes. No credit card required.</p></div></div>
+  <div class="step"><div class="num">2</div><div><h4>Play, tap, earn</h4><p>Test apps, play games, and take surveys to complete deals.</p></div></div>
+  <div class="step"><div class="num">3</div><div><h4>Cash out</h4><p>PayPal, Cash App, or gift cards.</p></div></div>
+
+  <div class="section">CASH OUT TO</div>
+  <div class="chips"><span class="chip">PayPal</span><span class="chip">Cash App</span><span class="chip">Gift cards</span></div>
+
+  <button class="cta offer-link" type="button" onclick="document.getElementById('cta-hero').click()">Start Earning</button>
+  <div class="micro"><span>Takes 20 seconds</span><span>·</span><span>No credit card</span><span>·</span><span>Instant welcome bonus</span></div>
+  <div class="proof ticker"><span class="flag">🇺🇸</span><span id="ticker-text">Carlos T. just earned <span class="amt">$9.80</span> — paid instantly</span></div>
+
+  <div class="stores">
+    <div class="store" id="store-apple"><span></span><span><small>Download on the</small>App Store</span></div>
+    <div class="store" id="store-google"><span>▶</span><span><small>Get it on</small>Google Play</span></div>
+  </div>
+  <p class="disc">Availability, rewards, and eligibility may vary by user, location, and completed activity. Results are not guaranteed and are based on individual participation. Earnings vary by offer. This page is not sponsored or endorsed by Apple Inc. or Google LLC.</p>
+  <div class="links"><a href="/Rewards/privacy">Privacy Policy</a>·<a href="/Rewards/terms">Terms of Service</a></div>
+  <span class="hidden" id="live-count">8,124</span><span class="hidden" id="payout-amount">$71,204.56</span><span class="hidden" id="bonus-count">147</span><span class="hidden" id="bonus-bar-fill"></span>
+</div>
+<script>
+(function(){
+  /* THE RAW DESTINATION LINK for Reco Social — exactly the `<slug>` destination in
+     the shared config (montrk3, a=26648, c=56065). The comp shipped an
+     example-domain placeholder on this line.
+
+     ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
+     keeping both would ship "&s1=&s1=CODE", where the network reads the EMPTY first one. It must
+     also stay an ABSOLUTE https URL: isAllowedGateDestination runs `new URL(raw)`, which throws on
+     a relative path, so a "/c/..." value 404s at our own gate. montrk3.co.uk already matches
+     GATE_DEST_HOST_RE, so nothing needs adding there. */
+  var OFFER_LINK = "https://montrk3.co.uk/?a=26648&c=56065";
+
+  // Carry EVERY incoming param through. His original did window.location.href = URL with no query
+
+  var q = new URLSearchParams(location.search);
+
+
+  if (!q.get("s1") && q.get("campid")) q.set("s1", q.get("campid"));
+
+
+
+  if (!q.get("s1")) {
+    var mc = q.get("mc_attr") || "", f = {};
+    mc.split("..").forEach(function (kv) { var i = kv.indexOf("="); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+    var d = f.e || f.c; if (d) q.set("s1", d);
+  }
+
+  function offerUrl(){
+
+    /* His Swagbucks page carries three more lines here — it builds a `qs` of every param
+       EXCEPT s1/campid/lg and then never reads it. That is the vestige of the pre-2026-08-20
+       contract, where the leftover query rode along to the network; LINK-BUILD v5 replaced
+       it with "one param out, nothing else". Dropped rather than lifted: dead param-forwarding
+       machinery sitting next to the leak-prevention logic is what invites a later edit to
+       "use" it and quietly reopen the leak. `s1` is the only one of the three that was read. */
+    var s1 = q.get("s1") || "";
+    /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. */
+    var url = (function () {
+      var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+      if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+      /* CODE-ONLY v1 — the network receives the CODE, never the whole wire.
+         `|| _s1` keeps a value with NO code in it going out verbatim — a scaler's own free-form label
+         is their attribution key and blanking it would pay them nothing. Case-insensitive: an ad
+         platform that lowercases the URL would otherwise match nothing and ship the entire wire. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+      /* ⚠️ OUTBOUND PARAM IS `s1`, NOT `sub1` — and that is the ONE line that differs from his
+         Swagbucks page, which this wiring is otherwise lifted from verbatim. montrk3.co.uk is
+         this destination family, which reads s1..s5 and silently DISCARDS sub1; pcbdfv7trk.com (another supplier,
+         Swagbucks) is the alternate family and does the exact reverse. Copying the sibling's builder without
+         switching the dialect zeroes attribution with no error: the link looks healthy and every
+         conversion lands unmatched. The dialect follows the DESTINATION. */
+      var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+      var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+      /* Drop an UNEXPANDED TikTok macro rather than logging it. When an ad link ships with the
+         literal __CLICKID__ (or braces from a mis-pasted template), TikTok never substitutes it and
+         the raw token would land in our own gate log as if it were a real click id. It never
+         reaches the network — `t` is a /click param, not a forwarded one — so this is log hygiene,
+         not attribution. Carried over from mgreco.html, the sibling page on this same offer; his
+         Swagbucks page predates the guard. */
+      if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+      /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+      return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+    })();
+    return url;
+  }
+
+  function handleClaim(){
+    window.location.href = offerUrl();
+  }
+  ["cta-hero","store-apple","store-google"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener("click", handleClaim);
+  });
+
+  // ---- rotating live ticker ----
+  var tickerMessages = [
+    { name:"Carlos T.", amt:"$9.80" },
+    { name:"Ashley M.", amt:"$37.00" },
+    { name:"Jake R.", amt:"$75.00" },
+    { name:"Maria S.", amt:"$128.00" }
+  ];
+  var flags = ["🇺🇸","🇬🇧","🇨🇦","🇦🇺"];
+  var tickerEl = document.getElementById("ticker-text");
+  var flagEl = document.querySelector(".ticker .flag");
+  var ti = 0;
+  function rotateTicker(){
+    ti = (ti + 1) % tickerMessages.length;
+    var m = tickerMessages[ti];
+    tickerEl.innerHTML = m.name + ' just earned <span class="amt">' + m.amt + '</span> — paid instantly';
+    flagEl.textContent = flags[ti];
+  }
+  setInterval(rotateTicker, 4200);
+
+  // ---- live earner count drift ----
+  var liveCountEl = document.getElementById("live-count");
+  var liveBase = 8124;
+  setInterval(function(){
+    liveBase += Math.floor(Math.random()*7) - 2;
+    liveCountEl.textContent = liveBase.toLocaleString();
+  }, 3000);
+
+  // ---- payout amount drift (irregular cadence, not a fixed tick) ----
+  var payoutEl = document.getElementById("payout-amount");
+  var payoutBase = 71204.56;
+  function schedulePayoutTick(){
+    var delay = 900 + Math.random()*3600;
+    setTimeout(function(){
+      payoutBase += 2 + Math.random()*34;
+      payoutEl.textContent = "$" + payoutBase.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+      schedulePayoutTick();
+    }, delay);
+  }
+  schedulePayoutTick();
+
+  // ---- bonus spots counter (slow climb toward the cap) ----
+  var bonusCountEl = document.getElementById("bonus-count");
+  var bonusBarEl = document.getElementById("bonus-bar-fill");
+  var bonusCount = 147;
+  function scheduleBonusTick(){
+    var delay = 4000 + Math.random()*6000;
+    setTimeout(function(){
+      if(bonusCount < 480){
+        bonusCount += 1;
+        bonusCountEl.textContent = bonusCount;
+        bonusBarEl.style.width = Math.min(100, (bonusCount/500)*100) + "%";
+      }
+      scheduleBonusTick();
+    }, delay);
+  }
+  scheduleBonusTick();
+
+  // ---- corner earnings popups ----
+  var toastWrap = document.createElement("div");
+  toastWrap.className = "toast-wrap";
+  document.body.appendChild(toastWrap);
+
+  var toastFirstNames = ["Jake","Tyler","Devon","Marcus","Priya","Sofia","Emily","Ashley","Carlos","Jordan","Casey","Amara","Maria","David","Ryan","Olivia","Noah","Liam","Ava","Grace","Ethan","Zoe","Mason","Chloe"];
+  var toastLastInitials = ["T.","R.","K.","S.","P.","M.","W.","B.","D.","J.","C.","G.","H.","L.","N.","F."];
+  var toastCities = ["Denver, CO","Miami, FL","Austin, TX","Seattle, WA","Phoenix, AZ","Chicago, IL","Atlanta, GA","Boston, MA","Portland, OR","Dallas, TX","San Diego, CA","Nashville, TN","Columbus, OH","Charlotte, NC","Tampa, FL","Sacramento, CA"];
+
+  var lastToastKey = "";
+  function randPick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function randRange(min, max){ return min + Math.random()*(max-min); }
+
+  function generateToast(tier){
+    var name, loc, key, attempts = 0;
+    do{
+      name = randPick(toastFirstNames) + " " + randPick(toastLastInitials);
+      loc = randPick(toastCities);
+      key = name + "|" + loc;
+      attempts++;
+    } while(key === lastToastKey && attempts < 8);
+    lastToastKey = key;
+
+    var amt, spent;
+    if(tier === 10){
+      amt = randRange(90, 155);
+      spent = 10;
+    } else if(tier === 5){
+      amt = randRange(45, 74);
+      spent = 5;
+    } else {
+      amt = randRange(12, 42);
+    }
+    return { name:name, loc:loc, amt:amt, spent:spent };
+  }
+
+  var regularStreak = 0;
+  var nextBoostAt = 3 + Math.floor(Math.random()*3); // 3, 4, or 5
+
+  function showToast(){
+    var t;
+    if(regularStreak >= nextBoostAt){
+      t = generateToast(Math.random() < 0.5 ? 5 : 10);
+      regularStreak = 0;
+      nextBoostAt = 3 + Math.floor(Math.random()*3);
+    } else {
+      t = generateToast(null);
+      regularStreak++;
+    }
+
+    var isBoost = !!t.spent;
+    var el = document.createElement("div");
+    el.className = "toast" + (isBoost ? " boost" : "");
+    var initials = t.name.split(" ").map(function(w){ return w[0]; }).join("").slice(0,2);
+    var subText = isBoost ? ("Spent $" + t.spent + " in-app · just now") : (t.loc + " · just now");
+    el.innerHTML =
+      '<div class="toast-avatar">' + initials + '</div>' +
+      '<div class="toast-body">' +
+        '<div class="toast-name">' + t.name + (isBoost ? ' <span class="toast-flame">🔥</span>' : '') + '</div>' +
+        '<div class="toast-sub">' + subText + '</div>' +
+        '<div class="toast-amt">+$' + t.amt.toFixed(2) + '</div>' +
+      '</div>';
+    toastWrap.innerHTML = "";
+    toastWrap.appendChild(el);
+    requestAnimationFrame(function(){ el.classList.add("show"); });
+    setTimeout(function(){ el.classList.remove("show"); }, 4300);
+  }
+  function scheduleToast(){
+    var delay = 5000 + Math.random()*4000;
+    setTimeout(function(){ showToast(); scheduleToast(); }, delay);
+  }
+  scheduleToast();
+
+  // ---- scroll reveal ----
+  var reveal = document.querySelectorAll(".body-section:not(#how), .hero, .payout-card, .stats-row");
+  if("IntersectionObserver" in window){
+    reveal.forEach(function(el){ el.style.opacity = 0; el.style.transform = "translateY(14px)"; el.style.transition = "opacity .5s ease, transform .5s ease"; });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.style.opacity = 1;
+          entry.target.style.transform = "translateY(0)";
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.12 });
+    reveal.forEach(function(el){ io.observe(el); });
+  }
+
+/* BEACON v2 */
+  /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
+     analytics cannot throw on the path to the offer. No UA test here -- /api/funnel-beacon
+     classifies in-app server-side, which keeps this page identical for every visitor. */
+  (function(){
+    var BEACON = '/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    var bseg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+    function bsend(ev, extra){
+      try {
+        var d = { event: ev, sid: bq.get('sid') || '',
+                  s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                  ttclid: bq.get('ttclid') || '',
+                  slice: 'RECOUSA-INSTALL', clone: 'US', path: location.pathname };
+        if (extra) for (var k in extra) d[k] = extra[k];
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify(d)], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    /* Bound to the CTA, not to the URL builder — binding to the exit control is what keeps a
+       'click' meaning the same thing on every lander generation. Fires once. */
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'ctaBtn' || el.id === 'tipGo' || el.id === 'doorClaim' || el.id === 'cta-hero'
+            || (el.classList && (el.classList.contains('offer-link') || el.classList.contains('store-combo')))) {
+          fired = true;
+          bsend('offer_click', { s5: (window.__S5 || '') });
+          return;
+        }
+      }
+    }, true);
+  })();
+})();
+</script>
+</body>
+</html>
