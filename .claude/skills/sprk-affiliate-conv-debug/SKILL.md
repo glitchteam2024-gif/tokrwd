@@ -327,6 +327,115 @@ without comparing against `cake_conversions`.
   every perf/admin surface built on it. Don't compare an affiliate's dashboard day to an admin-board
   day and assume one of them is broken.
 
+### 10. "The clicks number CHANGED when I refreshed" — the tile had two bases and picked by luck
+- **Presents:** an affiliate screenshots the same day twice, minutes apart, with different click
+  counts and no traffic in between. Triggering case 2026-08-23: timothycooper859 (Coop2x4Ever) —
+  15:14 ET showed Itslaurataylor 7 · ITZJENNI 1 (tile 8), 15:15 ET showed 2 · 1 (tile 3).
+- **Root cause:** `setSprkClicks` chose the whole basis on CAKE-LAYER HEALTH. `cake_ok` /
+  `clicks_available` come from `affiliate_earnings`, which runs a LIVE 15-second multi-network CAKE
+  `/Clicks` pull and sets `clicks_available: !!(clkList && clkList.allOk !== false) && isolationComplete`.
+  Any timeout, any one network erroring, or a failed isolation scan flips it — so which of the two
+  numbers an affiliate saw was decided by which HTTP call won that page load. Healthy → CAKE's landed
+  clicks (2); unavailable → our first-party unique count (7). Both were right for their basis.
+- **Fix/status:** SHIPPED to branch `claude/clicks-one-basis` in **SPRKNetworkAds** (commit
+  `4381201c`, off origin/main — merge it). One rule now: **per code, the LARGER of the two feeds**,
+  which is a pure function of the two payloads and cannot move between loads. Not a blend, never a
+  sum, and it does not reinstate the whole-basis-on-door-counts gate rejected in 2026-07 (a per-code
+  max can only ever RAISE a CAKE count). Units are guarded — only the DEDUPED first-party map may be
+  compared; a raw-only payload keeps the old top-up-a-zero rule. Pin:
+  `api/_lib/_clicks-one-basis.test.mjs` (fails on pre-fix code with exactly 3 vs 8).
+- **THE OTHER HALF, and say this to the affiliate: CAKE's clicks report LAGS about an hour.** Watched
+  live on 2026-08-23: SPK-14BC-B744 read 2 at 19:20 UTC and 6 at 19:33 for a burst that ran
+  18:14–18:45, converging on the 7 our own log already had. Nothing is lost — the old dashboard was
+  showing a stale number and labelling it today. On SETTLED days the two feeds agree to the click
+  (8 of the 10 codes with CAKE data on 21–22 Aug matched exactly).
+- **The first-party feed is three feeds** (`api/_lib/door-clicks.js`): the door log before
+  `DOOR_RETIRED_AT` (2026-08-18), the lander beacon (`funnel_events.event='offer_click'`) after it,
+  and since 2026-08-21 the `/click` gate (`clicks.entry='gate'`). Gate and beacon fire on the SAME
+  tap, so the raw count is ~2x — always read `unique_by_spk` / `unique_total`, never `by_spk`.
+  Verified folding correctly: 9 gate + 7 beacon rows → 7 unique.
+- **The beacon alone badly under-reports** (network-wide 9 / 3 / 7 taps on 18–20 Aug against CAKE's
+  44 / 134 / 37). That window is beacon-only, which is exactly why the rule is a MAX and not
+  "first-party wins".
+- **NOTE the shipped page:** `www.sprknetwork.ad/dashboard` is the **Next app** (`web/app/lib/dashboard/`).
+  `dashboard/index.html` is the pre-React Alpine copy and its only route (`/soloaffiliate`) 404s —
+  it still carries the OLD two-basis logic. Fix `web/`, not the HTML.
+
+### 10b. THE REAL ROOT CAUSE of #10's "Today is wrong, custom works": CAKE runs on LONDON time
+- **Presents:** the Today pill under-reports clicks and never shows the last hour of live traffic;
+  a custom range covering the SAME day is right. 2026-08-23 16:52 ET, timothycooper859: custom
+  08/23–08/23 = 29 clicks, Today = 8, same second.
+- **Root cause:** MyMonetise is a UK platform. Its reports both FILTER on and RETURN **Europe/London**
+  wall-clock (BST = UTC+1 Mar–Oct). `formatCakeDate` rendered **UTC** getters. Sending UTC digits to
+  a London clock shifts every window an hour EARLY — it drags in an hour of the previous day and
+  drops the most recent hour of this one. Nothing re-filters the returned rows by time, so the
+  shifted window IS what the affiliate sees. Worst on TODAY, whose end is `now`; a CUSTOM range ends
+  at the next midnight, and that whole-day end has an hour of slack that absorbs the skew — which is
+  the entire "custom works better" effect.
+- **PROOF, two independent ways (don't re-derive this):**
+  (a) 2026-08-23 20:42:35 UTC / 21:42:35 London — CAKE's newest `click_date` was **21:36:47**. A
+      click cannot be 54 minutes in the future.
+  (b) Row by row: SPK-14BC-B744's nine `/click` gate rows appear in CAKE as the SAME NINE — same
+      IPs, same seconds, exactly +1h, including one visitor's triple-tap on both sides.
+  The 2026-07-27 "CAKE is UTC, verified" note was WRONG: it compared the string `04:06:49` against
+  door rows stamped `04:xx`. Two clocks an hour apart print matching digits if you only compare digits.
+- **Fix/status:** SHIPPED to `claude/clicks-one-basis` (SPRKNetworkAds commit `407852a8`, PR #13).
+  ONE shared `formatCakeDate` in `api-src/_lib/cake-date.ts` renders CAKE's own clock via Intl
+  (DST-aware; byte-identical to the old output in GMT). It replaces TWO hand-copied UTC twins —
+  `cake-reports.ts` and `cron/poll-cake.ts` — so `cake_clicks_daily`'s windows were an hour early too.
+  Pin: `api/_lib/_cake-date.test.mjs` (BST, GMT, both DST edges, the hour-24 midnight trap).
+- **STILL OPEN, separate fix + data migration:** the timestamps CAKE RETURNS are London too and
+  callers parse them as UTC. That is the long-known +60 min on `cake_conversions.conversion_at`
+  versus the postback for the same event — it lands on chart BUCKETS and stored row timestamps, not
+  on which rows a window returns.
+- **Note:** the "CAKE lags about an hour" reading taken earlier the same day was NOT lag — it was
+  this. Real CAKE reporting lag is ~6 minutes.
+
+### 10c. The SAME London clock on the way BACK IN — conversion_at, stat_day, chart hours
+- **Presents:** `cake_conversions.conversion_at` runs +60 min against the postback for the same
+  event; a conversion in the first hour of a UTC day is attributed to the WRONG DAY on the
+  affiliate's dashboard; the earnings chart's hour buckets sit an hour late.
+- **Root cause:** CAKE returns `2026-08-23T14:12:40` — a bare wall clock, no zone, on the LONDON
+  clock. `new Date(str)` reads a zone-less ISO string as LOCAL, and Vercel runs TZ=UTC, so it became
+  an instant an hour too late in BST. Same defect as #10b, opposite direction.
+- **Measured 2026-08-23:** exactly +60.0 min on 23 of 23 genuinely-postbacked rows, and **407 of
+  5,983 mirrored conversions (6.8%) on the wrong calendar day**.
+  ⚠️ TRAP that will fool you if you re-measure: 112 July rows read +0.0 skew. They are
+  `match_source='cake-rebuild'` — `conversions` rows BUILT FROM `cake_conversions`, so they inherited
+  the same wrong stamp and agree with it circularly. **Always split the comparison by
+  `match_source`**; only genuine postback rows (null / 'spk' / 'subid_owner') are evidence.
+- **Fix/status:** SHIPPED to `claude/clicks-one-basis` (commit `5a44d73c`, PR #13). One
+  `parseCakeDate` in `api-src/_lib/cake-date.ts` at all three sites: poll-cake `conversion_at`,
+  poll-cake `stat_day`, cake-reports `events[].ts`.
+- **NO DATA MIGRATION — do not write one.** The poller's daily DEEP reconcile re-pulls 400 days of
+  conversions and re-upserts on (cake_affiliate_id, conversion_id); any reconcile re-pulls 30 days of
+  clicks and REPLACES each day's bucket. The mirror rewrites itself from source on deploy — hit
+  `?mode=deep` to do it now. A `- interval '1 hour'` UPDATE is not idempotent, would corrupt correct
+  rows written after the deploy, and hard-codes an offset that is wrong half the year.
+
+### 10d. The two click feeds have PERMANENT holes in OPPOSITE directions
+- **Presents:** "this creative shows 0 clicks but it's definitely running", or a code whose number
+  looks nothing like the network's.
+- **The two holes (verified live, 2026-08-21→23, per code per ET day):**
+  - **CAKE cannot see a non-Monetise code AT ALL.** `SPK-A947-ACBE` (Fluent, Apple Pay): ours 23,
+    CAKE 0. `SPK-F180-73BE` (Fluent): ours 6, CAKE 0.
+  - **We cannot see traffic that never passes our lander.** `SPK-3704-A758` (Monetise, Freecash):
+    ours 0 — **zero gate clicks** — CAKE 5. Self-launched links straight to the network do this.
+  - Where BOTH can see, they agree tightly: `SPK-191D-6D81` 46 vs 46, `SPK-14BC-B744` 42 vs 43.
+- **How to apply:** never "fix" a feed because it disagrees with the other — check the offer's
+  network and the code's gate-click count FIRST. This is why the tile takes the per-code MAX
+  (`api/_lib/clicks-one-basis.js`) instead of preferring either source.
+
+### 11. Gate clicks arriving with NO spark code (open)
+- **Presents:** a chunk of `clicks` rows with `entry='gate'` and `spk_code IS NULL`. 48 on 2026-08-22
+  and 20 on 2026-08-23, nearly all `domain='www.myrewardscorner.com'` with `slug` NULL. CAKE
+  independently reports the same shape (a `cake_clicks_daily` row with `spk_code` NULL, 17 today).
+- **Impact:** they belong to nobody, so they appear on NO affiliate dashboard and in no EPC. They are
+  not lost money on their own, but a conversion behind one of them lands `unmatched`.
+- **Root cause:** not yet diagnosed — the lander is reaching `/click` without an `s1`. Suspect a
+  myrewardscorner entry path that does not forward query params (the same family as issue #7).
+- **Fix/status:** OPEN, flagged 2026-08-23.
+
 ## Closing the loop
 
 - Tell Migi plainly: what the affiliate sees, what admin sees, which known issue explains the gap,
