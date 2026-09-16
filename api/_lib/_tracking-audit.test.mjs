@@ -141,7 +141,7 @@ const OFFER_LINKS_BY_SLICE = {
   '50FCII': { FC: 'c=55504' },
   CR50: { CR: 'c=55412' },
   GP:   { GP: 'c=56278' },
-  GPX:  { GPX: '335X896' },   // twin of GP on the 5-geo offer, matched on the path segment
+  GPX:  { GPX: '324QNSF' },   // twin of GP on the 5-geo offer, matched on the path segment
   PG50: { US: 'c=56213', GB: 'c=56213' },
   PG51: { US: 'c=56213', GB: 'c=56213' },
   PG52: { US: 'c=56213', GB: 'c=56213' },

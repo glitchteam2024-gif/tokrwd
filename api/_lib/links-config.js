@@ -1248,7 +1248,7 @@ export const OFFER_LINKS = [
   {
     slug: 'mgfc-off',
     mode: 'direct',
-    destination: 'https://www.pcbdfv7trk.com/22PLLSZ/335X896/',
+    destination: 'https://www.pcbdfv7trk.com/22PLLSZ/324QNSF/',
     forwardParam: 's1',
     enabled: true,
   },
