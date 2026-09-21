@@ -116,6 +116,9 @@
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'gravypassusa-shannon.html', 'gravypassusa-shannon-pre.html',
     'frcusa-shannon.html', 'frcusa-shannon-pre.html',
+    // Second Freecash design for the same operator, 2026-09-21.
+    // Must stay identical to the list in api/_lib/links-config.js.
+    'frcusa-shannon2.html', 'frcusa-shannon2-pre.html',
     'playfulusa-shannon.html', 'playfulusa-shannon-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.

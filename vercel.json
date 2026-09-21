@@ -556,6 +556,14 @@
       "destination": "/frcusa-shannon-pre.html"
     },
     {
+      "source": "/frcusa-shannon2-pre",
+      "destination": "/frcusa-shannon2-pre.html"
+    },
+    {
+      "source": "/frcusa-shannon2",
+      "destination": "/frcusa-shannon2.html"
+    },
+    {
       "source": "/frcusa-shannon",
       "destination": "/frcusa-shannon.html"
     },

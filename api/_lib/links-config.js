@@ -1045,6 +1045,8 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'gravypassusa-shannon.html', 'gravypassusa-shannon-pre.html',
   'frcusa-shannon.html', 'frcusa-shannon-pre.html',
+  // Second Freecash design for the same operator, 2026-09-21. Her own page above is untouched.
+  'frcusa-shannon2.html', 'frcusa-shannon2-pre.html',
   'playfulusa-shannon.html', 'playfulusa-shannon-pre.html',
   // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
   // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as

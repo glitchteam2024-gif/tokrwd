@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Freecash – Earn Fast</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#050816" />
+  <style>
+    :root {
+      --bg: #050816;
+      --card: #0f172a;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.15);
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --danger: #ef4444;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px 14px 24px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+    .hero {
+      padding: 10px 4px 18px;
+    }
+    .hero-title {
+      font-size: 26px;
+      line-height: 1.15;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .hero-highlight {
+      color: var(--accent);
+    }
+    .hero-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .hero-metrics {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .metric {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0b1220, #020617);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+    .metric-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .metric-value {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .metric-tag {
+      font-size: 10px;
+      color: var(--accent);
+      margin-top: 2px;
+    }
+    .hero-cta-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-primary {
+      flex: 1;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: none;
+      outline: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(34, 197, 94, 0.35);
+      font-family: inherit;
+    }
+    .btn-primary span.icon {
+      font-size: 16px;
+    }
+    .hero-safe {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .hero-safe strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .section {
+      margin-top: 18px;
+      padding: 12px 10px;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .section-tag {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Swipeable earning cards */
+    .earn-track {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 2px 2px;
+      scroll-snap-type: x mandatory;
+    }
+    .earn-card {
+      scroll-snap-align: start;
+      min-width: 180px;
+      padding: 10px;
+      border-radius: 14px;
+      background: #020617;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      position: relative;
+    }
+    .earn-pill {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .earn-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .earn-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .earn-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+    .earn-rate {
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .earn-time {
+      color: var(--muted);
+    }
+
+    /* Payout methods */
+    .payout-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .payout-pill {
+      flex: 1 1 calc(50% - 8px);
+      padding: 8px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .payout-pill span.icon {
+      font-size: 14px;
+    }
+
+    /* Trust + stats */
+    .trust-grid {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .trust-card {
+      flex: 1;
+      padding: 9px;
+      border-radius: 12px;
+      background: #020617;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 11px;
+    }
+    .trust-label {
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .trust-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .trust-stars {
+      color: #facc15;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    /* FAQ */
+    .faq-item {
+      border-radius: 12px;
+      background: #020617;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 9px 9px;
+      margin-top: 6px;
+    }
+    .faq-q {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .faq-a {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      display: none;
+    }
+    .faq-item.open .faq-a {
+      display: block;
+    }
+
+    /* Bottom CTA */
+    .bottom-cta {
+      margin-top: 18px;
+      padding: 12px 10px 16px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top left, var(--accent-soft), #020617 55%);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+    }
+    .bottom-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .bottom-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .bottom-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-outline {
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-outline span.icon {
+      font-size: 14px;
+    }
+
+    /* Legal footer */
+    .legal {
+      margin-top: 16px;
+      text-align: center;
+    }
+    .legal-disc {
+      font-size: 10px;
+      line-height: 1.5;
+      color: rgba(156, 163, 175, 0.75);
+    }
+    .legal-links {
+      font-size: 11px;
+      margin-top: 8px;
+    }
+    .legal-links a {
+      color: var(--muted);
+      text-decoration: none;
+      margin: 0 6px;
+    }
+
+    /* Small animation */
+    .pulse {
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      70% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .pulse { animation: none; }
+    }
+
+    /* Hide scrollbar on mobile */
+    .earn-track::-webkit-scrollbar {
+      display: none;
+    }
+    .earn-track {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Trusted by millions worldwide
+      </div>
+      <h1 class="hero-title">
+        Turn spare minutes into <span class="hero-highlight">real cash</span>.
+      </h1>
+      <p class="hero-sub">
+        Freecash lets you earn money from surveys, offers, and games—then cash out to PayPal, crypto, or gift cards.
+      </p>
+
+      <div class="hero-metrics">
+        <div class="metric">
+          <div class="metric-label">Average cashout</div>
+          <div class="metric-value">$10.57</div>
+          <div class="metric-tag">First 24 hours</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Paid out</div>
+          <div class="metric-value">$30M+</div>
+          <div class="metric-tag">Global users</div>
+        </div>
+      </div>
+
+      <div class="hero-cta-row">
+        <button class="btn-primary pulse offer-link" id="cta-hero" type="button">
+          <span class="icon">⚡</span>
+          Start earning now
+        </button>
+        <div class="hero-safe">
+          <strong>Free to join</strong><br />
+          No credit card required.
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW YOU EARN -->
+    <section class="section" id="ways-to-earn">
+      <div class="section-header">
+        <div class="section-title">Ways to earn</div>
+        <div class="section-tag">Swipe to explore</div>
+      </div>
+      <div class="earn-track">
+        <article class="earn-card">
+          <div class="earn-pill">Surveys</div>
+          <div class="earn-title">Answer quick questions</div>
+          <div class="earn-desc">
+            Share your opinion with top brands and get rewarded in minutes.
+          </div>
+          <div class="earn-footer">
+            <span class="earn-rate">Up to $5 per survey</span>
+            <span class="earn-time">3–10 min</span>
+          </div>
+        </article>
+
+        <article class="earn-card">
+          <div class="earn-pill">Offers</div>
+          <div class="earn-title">Try apps &amp; services</div>
+          <div class="earn-desc">
+            Install apps, sign up for trials, or explore new tools for instant coins.
+          </div>
+          <div class="earn-footer">
+            <span class="earn-rate">High-paying offers</span>
+            <span class="earn-time">Instant or same day</span>
+          </div>
+        </article>
+
+        <article class="earn-card">
+          <div class="earn-pill">Games</div>
+          <div class="earn-title">Play &amp; level up</div>
+          <div class="earn-desc">
+            Complete in-game milestones and turn progress into real-world rewards.
+          </div>
+          <div class="earn-footer">
+            <span class="earn-rate">Bonus multipliers</span>
+            <span class="earn-time">While you play</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- PAYOUT METHODS -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Cash out your way</div>
+        <div class="section-tag">Instant &amp; flexible</div>
+      </div>
+      <div class="payout-row">
+        <div class="payout-pill">
+          <span class="icon">💸</span>
+          PayPal cash
+        </div>
+        <div class="payout-pill">
+          <span class="icon">🪙</span>
+          Crypto (BTC, LTC &amp; more)
+        </div>
+        <div class="payout-pill">
+          <span class="icon">🎮</span>
+          Gaming gift cards
+        </div>
+        <div class="payout-pill">
+          <span class="icon">🛍️</span>
+          Store &amp; brand cards
+        </div>
+      </div>
+    </section>
+
+    <!-- TRUST & STATS -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Why people trust Freecash</div>
+        <div class="section-tag">Real users, real payouts</div>
+      </div>
+      <div class="trust-grid">
+        <div class="trust-card">
+          <div class="trust-label">User rating</div>
+          <div class="trust-value">4.8 / 5</div>
+          <div class="trust-stars">★★★★★ on Trustpilot</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-label">Fastest cashout</div>
+          <div class="trust-value">~ 17 minutes</div>
+          <div class="trust-stars">From signup to first payout</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Quick FAQ</div>
+        <div class="section-tag">Tap to open</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">
+          <span>Is Freecash really free?</span>
+          <span>＋</span>
+        </div>
+        <div class="faq-a">
+          Yes. Creating an account is free, and you earn by completing surveys, offers, and games. You only cash out what you’ve earned.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">
+          <span>How fast can I cash out?</span>
+          <span>＋</span>
+        </div>
+        <div class="faq-a">
+          Many users reach their first payout within the same day. Once you hit the minimum, you can withdraw to PayPal, crypto, or gift cards.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">
+          <span>Which countries are supported?</span>
+          <span>＋</span>
+        </div>
+        <div class="faq-a">
+          Freecash is available in most countries worldwide. Availability of specific surveys and offers can vary by region.
+        </div>
+      </div>
+    </section>
+
+    <!-- BOTTOM CTA -->
+    <section class="bottom-cta">
+      <div class="bottom-title">Ready to turn time into money?</div>
+      <div class="bottom-sub">
+        Create your Freecash account in seconds and start stacking rewards today.
+      </div>
+      <div class="bottom-row">
+        <button class="btn-primary offer-link" id="cta-bottom" type="button">
+          <span class="icon">🚀</span>
+          Join Freecash now
+        </button>
+        <button class="btn-outline" id="see-methods" type="button">
+          <span class="icon">👀</span>
+          View earning methods
+        </button>
+      </div>
+    </section>
+
+    <!-- LEGAL -->
+    <div class="legal">
+      <p class="legal-disc">
+        Availability, rewards, and eligibility may vary by user, location, and completed activity.
+        Results are not guaranteed and are based on individual participation. Earnings vary by offer.
+      </p>
+      <div class="legal-links">
+        <a href="/Rewards/privacy">Privacy Policy</a>·<a href="/Rewards/terms">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    /* THE RAW DESTINATION LINK for Freecash — byte-identical to the base every other Freecash lander
+       in this repo runs (frcusa/frcuk/frccana/frcnl/frcde/frcat/frcjp, FCTT, frcusa-ravi, and this
+       operator's own frcusa-shannon).
+
+       ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
+       keeping both would ship "&s1=&s1=CODE", where the network reads the EMPTY first one. */
+    var OFFER_LINK = 'https://montrk5.co.uk/?a=26648&c=55504';
+
+    var q = new URLSearchParams(location.search);
+    if (!q.get('s1') && q.get('campid')) q.set('s1', q.get('campid'));
+    if (!q.get('s1')) {
+      var mc = q.get('mc_attr') || '', f = {};
+      mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+      var d = f.e || f.c; if (d) q.set('s1', d);
+    }
+
+    function offerUrl(){
+      var s1 = q.get("s1") || "";
+      /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. */
+      var url = (function () {
+        var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+        if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+        /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps
+           a value with NO code in it going out verbatim: a scaler free-form label is their
+           attribution key and blanking it would pay them nothing. */
+        var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+        /* ⚠️ OUTBOUND PARAM IS `s1`. This destination is this destination family, which reads s1..s5 and
+           silently DISCARDS sub1 - the alternate family hosts do the exact reverse, and this operator's
+           own Playful page is on one of them. Copying the wrong sibling zeroes attribution with no
+           error: the link looks healthy and every conversion lands unmatched. */
+        var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+        var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+        /* Drop an UNEXPANDED TikTok macro rather than logging it as a real click id. */
+        if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+        /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The
+           gate's own `s1=` carries the FULL wire either way: that is our log, not the network's
+           param, and the only place the username, AffID and geo survive. */
+        return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+      })();
+      return url;
+    }
+
+    /* Both money CTAs walk the gate. The comp wired them straight to freecash.com, which drops the
+       query — the spark code never leaves and the click never reaches our log. */
+    Array.prototype.forEach.call(document.querySelectorAll('.offer-link'), function (b) {
+      b.addEventListener('click', function(){ window.location.href = offerUrl(); });
+    });
+
+    /* "View earning methods" is on-page navigation, not a money CTA — it scrolls to the section it
+       names. Pointing it at the offer would make the label a lie. */
+    var seeMethods = document.getElementById('see-methods');
+    var ways = document.getElementById('ways-to-earn');
+    if (seeMethods && ways) {
+      seeMethods.addEventListener('click', function () {
+        ways.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    /* BEACON v2 */
+    (function(){
+      var BEACON = '/api/funnel-beacon';
+      var bq = new URLSearchParams(location.search);
+      function bsend(ev){
+        try {
+          navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+            event: ev, sid: bq.get('sid') || '',
+            s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+            ttclid: bq.get('ttclid') || '',
+            slice: 'FRCUSA-SHANNON2', clone: 'US', path: location.pathname
+          })], { type: 'text/plain' }));
+        } catch (e) {}
+      }
+      bsend('lp_view');
+      var fired = false;
+      document.addEventListener('click', function(e){
+        if (fired) return;
+        var el = e.target;
+        for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+          if (el.id === 'cta-hero' || (el.classList && el.classList.contains('offer-link'))) { fired = true; bsend('offer_click'); return; }
+        }
+      }, true);
+    })();
+
+    /* ---- her FAQ toggle, unchanged ---- */
+    Array.prototype.forEach.call(document.querySelectorAll(".faq-item"), function (item) {
+      item.addEventListener("click", function () { item.classList.toggle("open"); });
+    });
+  })();
+  </script>
+</body>
+</html>
