@@ -1210,24 +1210,36 @@
     viewportMeta.content = "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover";
 
     /* ── single smartlink — geo-routing handled server-side ── */
-    var LINK = "https://www.fkn8s74mztrk.com/cmp/7LW1WFX8/3GR1X/";
+    var OFFER_LINK = "https://www.fkn8s74mztrk.com/cmp/7LW1WFX8/3GR1X/";
 
-    /* ── pass through any tracker params from the landing URL ── */
-    function buildLink(baseUrl) {
-      try {
-        var u = new URL(baseUrl);
-        var params = new URLSearchParams(window.location.search);
-        params.forEach(function (v, k) { u.searchParams.set(k, v); });
-        var campid = params.get("campid");
-        if (campid && !params.has("sub1")) {
-          u.searchParams.set("sub1", campid);
-        }
-        return u.toString();
-      } catch (e) { return baseUrl; }
+    /* LINK-BUILD v5 -- one param out: the tracking value, nothing else.
+       This destination reads sub1..sub5 and silently discards anything named s1,
+       so the name follows the destination, not the inbound wire. */
+    function buildOfferUrl() {
+      var _p = new URLSearchParams(location.search);
+      /* Resolved, never fabricated. campid is last because older links for this page
+         carry it instead of s1; with none of the three the CTA is the bare offer link
+         and the visit attributes to nobody rather than to a made-up code. */
+      var _s1 = _p.get("s1") || _p.get("sub1") || _p.get("campid") || "";
+      /* The code identifies the creative and the creative identifies the affiliate, so
+         only the code leaves. A value with no code in it goes out verbatim -- a
+         free-form label IS somebody's attribution key, and blanking it pays them nothing. */
+      var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [""])[0].toUpperCase() || _s1;
+      var _t = _p.get("ttclid") || "";
+      if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = "";
+
+      var _dest = !_send1 ? OFFER_LINK
+                : OFFER_LINK + (OFFER_LINK.indexOf("?") > -1 ? "&" : "?") + "sub1=" + encodeURIComponent(_send1);
+
+      /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 onward unchanged. */
+      return "/click?u=" + encodeURIComponent(_dest)
+           + (_s1 ? "&s1=" + encodeURIComponent(_s1) : "")
+           + "&lp=" + encodeURIComponent(location.pathname)
+           + (_t ? "&t=" + encodeURIComponent(_t) : "");
     }
 
     function applyCTALink() {
-      var finalUrl = buildLink(LINK);
+      var finalUrl = buildOfferUrl();
       var modalCta = document.getElementById("rsl-modal-cta");
       if (modalCta) modalCta.href = finalUrl;
       var legacyCta = document.getElementById("CTA-Button-1");
