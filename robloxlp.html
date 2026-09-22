@@ -1210,7 +1210,7 @@
     viewportMeta.content = "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover";
 
     /* ── single smartlink — geo-routing handled server-side ── */
-    var OFFER_LINK = "https://www.fkn8s74mztrk.com/cmp/7LW1WFX8/3GR1X/";
+    var OFFER_LINK = "https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/";
 
     /* LINK-BUILD v5 -- one param out: the tracking value, nothing else.
        This destination reads sub1..sub5 and silently discards anything named s1,
@@ -1316,7 +1316,10 @@
     if (modalSkip) {
       modalSkip.addEventListener("click", function () {
         closeModal();
-        window.open(buildLink(LINK), "_blank", "noopener");
+        /* Popup-blocked fallback: window.open returns null inside an in-app browser,
+           which would swallow a click we have already paid for. */
+        var _u = buildOfferUrl();
+        if (!window.open(_u, "_blank", "noopener")) location.href = _u;
       });
     }
 
