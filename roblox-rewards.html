@@ -19,7 +19,7 @@
     Modal              [MODAL TAG], [MODAL HEADLINE], [HIGHLIGHT],
                        [MODAL SUBTEXT], [TIER N], [MODAL CTA], [SKIP TEXT], [NOTE]
     Offer link         OFFER_LINK constant near the bottom of the <script>
-    Lookup API         API_URL constant (swap for your own /api endpoint if you like)
+    Lookup API         API_URL constant (already points at our own /api/roblox/user)
   ════════════════════════════════════════════════════════════════════
 -->
 <html lang="en">
@@ -501,9 +501,8 @@ body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
      ════════════════════════════════════════════════════════════════ */
   var OFFER_LINK = "PASTE_OFFER_LINK_HERE";
 
-  /* Roblox username lookup endpoint. Swap for your own /api endpoint if you
-     prefer to run the lookup on your own domain instead of a third party. */
-  var API_URL = "https://roblox-rb-3e96.vercel.app/api/roblox/user";
+  /* Roblox username lookup — served by api/roblox/user.js on this same domain. */
+  var API_URL = "/api/roblox/user";
 
   /* ── build link with tracker params ── */
   function buildLink(baseUrl){
