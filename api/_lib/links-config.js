@@ -1048,6 +1048,11 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // Second Freecash design for the same operator, 2026-09-21. Her own page above is untouched.
   'frcusa-shannon2.html', 'frcusa-shannon2-pre.html',
   'playfulusa-shannon.html', 'playfulusa-shannon-pre.html',
+  // Roblox Back To School, 2026-09-22. Flat pair with no clone family, so the two page NAMES
+  // are the whole registration. /robloxlp-pre.html carries the visitor out of the in-app
+  // webview and names /robloxlp.html in its x-dest meta.
+  // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
+  'robloxlp.html', 'robloxlp-pre.html',
   // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
   // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as
   // /pre?to=/AS52/US<n> and the visitor would cross a prelander twice. Leaving it out makes

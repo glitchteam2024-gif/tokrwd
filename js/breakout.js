@@ -120,6 +120,9 @@
     // Must stay identical to the list in api/_lib/links-config.js.
     'frcusa-shannon2.html', 'frcusa-shannon2-pre.html',
     'playfulusa-shannon.html', 'playfulusa-shannon-pre.html',
+    // Roblox Back To School pair, 2026-09-22. Flat pair, no clone family.
+    // Must stay identical to the list in api/_lib/links-config.js.
+    'robloxlp.html', 'robloxlp-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
