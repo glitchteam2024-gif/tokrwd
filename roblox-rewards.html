@@ -1,4 +1,27 @@
 <!DOCTYPE html>
+<!--
+  ════════════════════════════════════════════════════════════════════
+  FILL-IN-THE-BLANK TEMPLATE. Anything in [SQUARE BRACKETS] is a placeholder
+  meant to be replaced with the client's own copy. Search this file for "["
+  to find every blank. Quick list:
+
+    <title>            [PAGE TITLE]
+    Nav logo           [LOGO_URL]        (swap the data-URI src for a real logo)
+    Nav badge          [BADGE]
+    Hero tag           [EVENT / TAG LABEL]
+    Hero heading       [HEADLINE], [HIGHLIGHT], [HEADLINE LINE 2]
+    Hero subtext       [SUBHEADLINE]
+    Trust row          [STAT 1] [STAT 2] [STAT 3]
+    Profile badge      [REWARD BADGE]
+    Steps heading/tag  [STEPS HEADING], [STEPS TAG]
+    Steps 1-3          [STEP N TITLE], [STEP N TEXT]
+    Main CTA           [CTA BUTTON]
+    Modal              [MODAL TAG], [MODAL HEADLINE], [HIGHLIGHT],
+                       [MODAL SUBTEXT], [TIER N], [MODAL CTA], [SKIP TEXT], [NOTE]
+    Offer link         OFFER_LINK constant near the bottom of the <script>
+    Lookup API         API_URL constant (swap for your own /api endpoint if you like)
+  ════════════════════════════════════════════════════════════════════
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,7 +29,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#08090f">
 <meta name="robots" content="noindex, nofollow">
-<title>Roblox Rewards</title>
+<title>[PAGE TITLE]</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -311,54 +334,55 @@ body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
   <div class="bg-grid"></div>
 </div>
 
-<!-- ── BONUS MODAL ── -->
+<!-- ── OPTIONAL POPUP MODAL (fill or delete) ── -->
 <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
   <div class="modal">
     <div class="modal-pill"></div>
     <div class="modal-eyebrow">
-      <span class="modal-tag">&#9889; Limited Time</span>
+      <span class="modal-tag">[MODAL TAG]</span>
       <span class="modal-timer">
         <span class="timer-dot"></span>
-        <span id="countdown">Offer expires in 14:59</span>
+        <span id="countdown">[TIMER LABEL]</span>
       </span>
     </div>
-    <h2 class="modal-title">One quick step to<br><span>unlock your Robux</span></h2>
-    <p class="modal-sub">Play 3 games from our partners to verify your account and unlock your 10,000 Robux reward &mdash; takes less than 5 minutes.</p>
+    <h2 class="modal-title">[MODAL HEADLINE]<br><span>[HIGHLIGHT]</span></h2>
+    <p class="modal-sub">[MODAL SUBTEXT]</p>
     <div class="bonus-tiers">
       <div class="tier">
         <p class="tier-icon">&#127918;</p>
-        <p class="tier-label">Play Game 1</p>
-        <p class="tier-value">~5 min</p>
+        <p class="tier-label">[TIER 1]</p>
+        <p class="tier-value">[TIER 1 VALUE]</p>
       </div>
       <div class="tier">
         <p class="tier-icon">&#127918;</p>
-        <p class="tier-label">Play Game 2</p>
-        <p class="tier-value">~5 min</p>
+        <p class="tier-label">[TIER 2]</p>
+        <p class="tier-value">[TIER 2 VALUE]</p>
       </div>
       <div class="tier">
         <p class="tier-icon">&#127942;</p>
-        <p class="tier-label">Play Game 3</p>
-        <p class="tier-value green">Unlocked!</p>
+        <p class="tier-label">[TIER 3]</p>
+        <p class="tier-value green">[TIER 3 VALUE]</p>
       </div>
     </div>
     <a id="modal-cta" class="modal-cta" href="#">
       <span class="cta-icon">&#127918;</span>
-      Claim Bonus &amp; Unlock Robux
+      [MODAL CTA]
     </a>
-    <button id="modal-skip" class="modal-skip" type="button">Skip bonus &mdash; just add Playful</button>
+    <button id="modal-skip" class="modal-skip" type="button">[SKIP TEXT]</button>
     <div class="modal-note">
       <span class="modal-note-icon">&#128274;</span>
-      <span>Completing a gaming offer verifies your account and activates your 10,000 Robux. Bonus match applied instantly after third game.</span>
+      <span>[NOTE / DISCLAIMER TEXT]</span>
     </div>
   </div>
 </div>
 
 <div class="app">
   <nav class="nav">
-    <div aria-label="Site logo">
-      <img class="nav-logo" src="https://cdn.shopify.com/s/files/1/0771/4747/2064/files/logo.png?v=1785468452" alt="Site logo">
+    <div aria-label="Logo">
+      <!-- Replace src with the client's logo URL -->
+      <img class="nav-logo" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='160'%20height='36'%3E%3Crect%20width='160'%20height='36'%20rx='8'%20fill='%231c1c28'%20stroke='%233a3a4d'/%3E%3Ctext%20x='80'%20y='23'%20text-anchor='middle'%20font-family='Arial'%20font-size='13'%20font-weight='700'%20fill='%239898a6'%3E%5B%20LOGO%20%5D%3C/text%3E%3C/svg%3E" alt="[LOGO]">
     </div>
-    <span class="event-badge">Fall 2026</span>
+    <span class="event-badge">[BADGE]</span>
   </nav>
 
   <main class="main">
@@ -370,15 +394,15 @@ body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
             <circle cx="8" cy="8" r="3" fill="currentColor"></circle>
             <path d="M8 0v2M8 14v2M0 8h2M14 8h2M2.3 2.3l1.4 1.4M12.3 12.3l1.4 1.4M2.3 13.7l1.4-1.4M12.3 3.7l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
           </svg>
-          Back To School Roblox Event
+          [EVENT / TAG LABEL]
         </div>
 
         <h1 class="title fade-up d2">
-          <span class="title-main">Earn <span class="gradient-text">Free Robux</span></span>
-          <span class="title-sub">This Fall</span>
+          <span class="title-main">[HEADLINE] <span class="gradient-text">[HIGHLIGHT]</span></span>
+          <span class="title-sub">[HEADLINE LINE 2]</span>
         </h1>
 
-        <p class="subtitle fade-up d3">Complete simple steps to earn exclusive Robux for the Back to School Roblox 2026 event. Enter your Roblox username below to get started.</p>
+        <p class="subtitle fade-up d3">[SUBHEADLINE — describe the offer and tell them to enter their Roblox username to get started.]</p>
 
         <form id="lookup-form" class="form fade-up d4" novalidate>
           <div class="input-group">
@@ -387,7 +411,7 @@ body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
               autocomplete="off" autocapitalize="none" spellcheck="false"
               aria-label="Roblox username" required>
             <button id="submit-btn" class="submit-btn" type="submit">
-              <span class="submit-label"><strong>Get Started</strong></span>
+              <span class="submit-label"><strong>[BUTTON]</strong></span>
               <span class="spinner" aria-hidden="true"></span>
             </button>
           </div>
@@ -395,14 +419,14 @@ body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
         </form>
 
         <div class="trust-row fade-up d5">
-          <span>2M+ Rewards Claimed</span>
-          <span>500K+ Users</span>
-          <span>4.8 App Rating</span>
+          <span>[STAT 1]</span>
+          <span>[STAT 2]</span>
+          <span>[STAT 3]</span>
         </div>
       </div>
     </section>
 
-    <!-- ── RESULT SCREEN ── -->
+    <!-- ── RESULT SCREEN (shown after a username is looked up) ── -->
     <section id="result-screen" class="result-screen">
       <div class="dashboard">
         <article class="profile-header">
@@ -419,37 +443,37 @@ body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
           </div>
           <div class="pending-badge">
             <span class="pending-star" aria-hidden="true">&#9733;</span>
-            <span>10k Robux Bonus Pending</span>
+            <span>[REWARD BADGE]</span>
           </div>
         </article>
 
         <article class="steps-card">
           <header class="steps-header">
-            <h3>Earn Your Robux</h3>
-            <span class="found-tag">3 Simple Steps</span>
+            <h3>[STEPS HEADING]</h3>
+            <span class="found-tag">[STEPS TAG]</span>
           </header>
           <div class="step-item">
             <div class="step-num step-1">1</div>
             <div class="step-content">
-              <h4>Add Playful to your phone</h4>
-              <p>iOS &amp; Android &middot; Takes less than 30 seconds.</p>
+              <h4>[STEP 1 TITLE]</h4>
+              <p>[STEP 1 TEXT]</p>
             </div>
           </div>
           <div class="step-item">
             <div class="step-num step-2">2</div>
             <div class="step-content">
-              <h4>Complete 2-3 Offers</h4>
-              <p>Test and play new games &ndash; earn while you game.</p>
+              <h4>[STEP 2 TITLE]</h4>
+              <p>[STEP 2 TEXT]</p>
             </div>
           </div>
           <div class="step-item">
             <div class="step-num step-3">3</div>
             <div class="step-content">
-              <h4>Cash Out Your Rewards</h4>
-              <p>PayPal &middot; CashApp &middot; Venmo &middot; Crypto &middot; Wire Transfer</p>
+              <h4>[STEP 3 TITLE]</h4>
+              <p>[STEP 3 TEXT]</p>
               <button id="cta-btn" class="cta-btn" type="button">
                 <span class="cta-icon">&#127918;</span>
-                Sign Up Now &amp; Claim Robux
+                [CTA BUTTON]
               </button>
             </div>
           </div>
@@ -464,19 +488,21 @@ body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
   </main>
 
   <footer class="footer">
-    Independent public profile lookup. Not affiliated with or endorsed by Roblox Corporation.
+    [FOOTER / LEGAL LINE — e.g. "Independent public profile lookup. Not affiliated with or endorsed by Roblox Corporation."]
   </footer>
 </div>
 
 <script>
 (function(){
   /* ════════════════════════════════════════════════════════════════
-     OFFER LINK — Change this URL to swap offers.
-     All URL params from the landing page (campid, sub1, etc.)
-     are automatically forwarded to this link.
+     OFFER LINK — paste the client's offer/affiliate URL here.
+     Left blank on purpose. All URL params from the landing page
+     (campid, sub1, etc.) are forwarded to whatever you set.
      ════════════════════════════════════════════════════════════════ */
-  var OFFER_LINK = "https://www.fkn8s74mztrk.com/cmp/7LW1WFX8/3GR1X/";
+  var OFFER_LINK = "PASTE_OFFER_LINK_HERE";
 
+  /* Roblox username lookup endpoint. Swap for your own /api endpoint if you
+     prefer to run the lookup on your own domain instead of a third party. */
   var API_URL = "https://roblox-rb-3e96.vercel.app/api/roblox/user";
 
   /* ── build link with tracker params ── */
@@ -519,7 +545,7 @@ body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
   var selectedUser = null;
   var countdownInt = null;
 
-  /* ── countdown timer ── */
+  /* ── countdown timer (optional urgency UI; edit or remove) ── */
   function startCountdown(seconds){
     if(countdownInt) clearInterval(countdownInt);
     var remaining = seconds;
