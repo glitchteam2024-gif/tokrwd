@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#08090f">
+<meta name="robots" content="noindex, nofollow">
+<title>Roblox Rewards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
+:root{
+  --dark:#08090f;
+  --card:rgba(16,16,24,0.92);
+  --card-hover:rgba(28,28,40,0.95);
+  --primary:#f0f0f5;
+  --secondary:#9898a6;
+  --green:#00b06f;
+  --green-glow:rgba(0,176,111,0.26);
+  --gold:#ffc940;
+  --red:#e2231a;
+  --gradient:linear-gradient(135deg,#ff6b35 0%,#f7c948 30%,#00b06f 60%,#00a2ff 100%);
+}
+
+html,body{width:100%;margin:0;padding:0;overflow-x:hidden;background:var(--dark);
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;}
+
+body{font-family:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--primary);line-height:1.4;-webkit-font-smoothing:antialiased;
+  min-height:100vh;min-height:100svh;}
+
+[hidden]{display:none!important;}
+
+/* ── background ── */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background-color:#08090f;}
+.bg::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(5,7,13,.68) 0%,rgba(5,7,13,.76) 48%,rgba(5,7,13,.9) 100%),
+    radial-gradient(ellipse at center,rgba(9,12,22,.18) 0%,rgba(4,5,10,.72) 100%);}
+.bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(5,7,13,.34),transparent 28%,transparent 72%,rgba(5,7,13,.34)),
+    radial-gradient(ellipse at center,transparent 0%,rgba(6,7,12,.32) 58%,rgba(4,5,10,.68) 100%);}
+
+.bg-grid{position:absolute;inset:0;opacity:.08;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:48px 48px;
+  -webkit-mask-image:radial-gradient(circle at center,#000 0%,transparent 78%);
+  mask-image:radial-gradient(circle at center,#000 0%,transparent 78%);}
+
+.orb{position:absolute;border-radius:999px;filter:blur(100px);opacity:.08;}
+.orb-1{width:420px;height:420px;top:-170px;left:-120px;background:#ff6b35;}
+.orb-2{width:460px;height:460px;right:-180px;top:18%;background:#00a2ff;}
+.orb-3{width:380px;height:380px;left:35%;bottom:-260px;background:#00b06f;}
+
+/* ── app shell ── */
+.app{position:relative;z-index:2;width:100%;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;}
+
+/* ── nav ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:10000;height:64px;padding:14px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.06);background:rgba(10,10,15,.96);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
+.nav-logo{display:block;height:34px;width:auto;max-width:min(210px,46vw);object-fit:contain;border-radius:8px;}
+.event-badge{padding:5px 13px;border-radius:999px;background:var(--gradient);color:#050508;
+  font-family:"Fredoka",sans-serif;font-size:11px;font-weight:700;letter-spacing:1.4px;
+  text-transform:uppercase;box-shadow:0 8px 30px rgba(247,201,72,.12);}
+
+/* ── main content ── */
+.main{flex:1;display:grid;padding-top:64px;}
+
+/* ── screens ── */
+.search-screen,.result-screen{position:relative;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:48px 24px;min-height:calc(100svh - 112px);}
+.search-screen{align-items:center;}
+.result-screen{display:none;align-items:center;justify-content:flex-start;padding-top:24px;}
+.result-screen.active{display:flex;}
+
+/* ── hero / search ── */
+.hero{width:100%;max-width:480px;text-align:center;}
+.summer-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+  color:var(--gold);font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  margin-bottom:20px;}
+.summer-tag svg{width:16px;height:16px;color:var(--gold);}
+
+.title{font-family:"Fredoka",sans-serif;font-weight:700;line-height:1.08;letter-spacing:-.02em;
+  margin:0 0 16px;}
+.title-main{display:block;font-size:clamp(36px,8vw,52px);}
+.title-sub{display:block;font-size:clamp(28px,6vw,40px);color:var(--secondary);}
+.gradient-text{background:var(--gradient);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;}
+
+.subtitle{margin:0 0 28px;color:var(--secondary);font-size:15px;line-height:1.6;max-width:420px;margin-left:auto;margin-right:auto;}
+
+/* ── form ── */
+.form{width:100%;max-width:420px;margin:0 auto;}
+.input-group{display:flex;gap:0;border-radius:16px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);background:var(--card);
+  box-shadow:0 8px 32px rgba(0,0,0,.4);}
+.input-group:focus-within{border-color:rgba(0,176,111,.5);
+  box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 0 3px rgba(0,176,111,.15);}
+
+#username{flex:1;height:64px;padding:0 20px;border:0;background:transparent;
+  color:var(--primary);font-size:17px;font-weight:600;outline:none;min-width:0;}
+#username::placeholder{color:var(--secondary);font-weight:400;}
+
+.submit-btn{flex:0 0 auto;height:64px;padding:0 28px;border:0;cursor:pointer;
+  background:linear-gradient(135deg,var(--green) 0%,#00c97c 100%);
+  color:#fff;font-family:"Fredoka",sans-serif;font-size:15px;font-weight:700;
+  letter-spacing:.01em;position:relative;transition:background .18s;}
+.submit-btn:hover{background:linear-gradient(135deg,#00c47c 0%,#00e08a 100%);}
+.submit-btn:active{transform:scale(.97);}
+.submit-btn:disabled{opacity:.7;cursor:not-allowed;}
+
+.submit-label{display:inline;}
+.submit-btn.loading .submit-label{visibility:hidden;}
+.spinner{display:none;width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;
+  position:absolute;top:50%;left:50%;margin:-10px 0 0 -10px;}
+.submit-btn.loading .spinner{display:block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.message{margin-top:10px;font-size:13px;font-weight:700;color:var(--red);
+  min-height:20px;text-align:center;}
+.message.success{color:var(--green);}
+
+.trust-row{display:flex;justify-content:center;gap:20px;margin-top:20px;flex-wrap:wrap;}
+.trust-row span{color:var(--secondary);font-size:12px;font-weight:700;letter-spacing:.3px;}
+
+/* ── result screen ── */
+.dashboard{width:100%;max-width:480px;}
+
+/* profile header */
+.profile-header{display:flex;flex-direction:column;align-items:center;padding:20px;
+  border-radius:20px;background:var(--card);border:1px solid rgba(255,255,255,.06);
+  margin-bottom:16px;}
+.avatar-wrap{position:relative;margin-bottom:14px;}
+.avatar{width:88px;height:88px;border-radius:50%;border:3px solid var(--green);
+  object-fit:cover;display:block;background:#151522;}
+.online-dot{position:absolute;bottom:4px;right:4px;width:14px;height:14px;border-radius:50%;
+  background:var(--green);border:3px solid rgba(16,16,24,.92);}
+
+.profile-info{text-align:center;margin-bottom:14px;}
+.name-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;}
+.name-row h2{font-family:"Fredoka",sans-serif;font-size:22px;font-weight:700;margin:0;}
+.verified-badge{display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;
+  font-size:13px;font-weight:900;}
+.handle{color:var(--secondary);font-size:14px;font-weight:600;margin:0;}
+
+.pending-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;
+  border-radius:999px;background:rgba(255,201,64,.1);border:1px solid rgba(255,201,64,.25);
+  color:var(--gold);font-size:13px;font-weight:800;}
+.pending-star{font-size:16px;}
+
+/* steps card */
+.steps-card{border-radius:20px;background:var(--card);border:1px solid rgba(255,255,255,.06);
+  overflow:hidden;margin-bottom:16px;}
+.steps-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;
+  border-bottom:1px solid rgba(255,255,255,.06);}
+.steps-header h3{font-family:"Fredoka",sans-serif;font-size:18px;font-weight:700;margin:0;}
+.found-tag{padding:4px 12px;border-radius:999px;background:rgba(0,176,111,.12);
+  border:1px solid rgba(0,176,111,.25);color:var(--green);font-size:11px;font-weight:800;
+  letter-spacing:.5px;}
+
+.step-item{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;
+  border-bottom:1px solid rgba(255,255,255,.04);transition:background .18s;}
+.step-item:hover{background:var(--card-hover);}
+.step-item:last-child{border-bottom:0;}
+
+.step-num{flex:0 0 auto;width:36px;height:36px;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;color:#fff;font-family:"Fredoka",sans-serif;
+  font-size:15px;font-weight:700;}
+.step-1{background:linear-gradient(135deg,#ff6b35,#e2231a);}
+.step-2{background:linear-gradient(135deg,#00b06f,#00a2ff);}
+.step-3{background:linear-gradient(135deg,#f7c948,#ff6b35);}
+
+.step-content{min-width:0;flex:1;}
+.step-content h4{margin:0 0 6px;font-size:16px;font-weight:800;}
+.step-content p{margin:0;color:var(--secondary);font-size:14px;line-height:1.55;}
+
+.cta-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  margin-top:12px;padding:17px 24px;border:0;border-radius:15px;cursor:pointer;
+  background:linear-gradient(135deg,#00b06f 0%,#00c97c 100%);color:#fff;
+  font-family:"Fredoka",sans-serif;font-size:17px;font-weight:700;letter-spacing:.01em;
+  box-shadow:0 12px 36px var(--green-glow);text-decoration:none;
+  transition:transform .18s,box-shadow .18s,background .18s;}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(0,176,111,.34);
+  background:linear-gradient(135deg,#00c47c 0%,#00e08a 100%);}
+.cta-btn:active{transform:scale(.977);}
+.cta-icon{font-size:20px;line-height:1;}
+
+.back-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:14px;
+  background:rgba(255,255,255,.03);color:var(--secondary);font-size:14px;font-weight:700;
+  cursor:pointer;transition:background .18s,color .18s;}
+.back-btn:hover{background:rgba(255,255,255,.06);color:var(--primary);}
+
+/* ── modal ── */
+.modal-backdrop{position:fixed;inset:0;z-index:20000;display:flex;align-items:flex-end;
+  justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;
+  transition:opacity .28s ease;}
+.modal-backdrop.open{opacity:1;pointer-events:auto;}
+
+.modal{position:relative;width:100%;max-width:440px;max-height:92vh;overflow-y:auto;
+  padding:22px 20px 28px;border-radius:24px 24px 0 0;
+  background:linear-gradient(180deg,rgba(22,22,34,.98) 0%,rgba(14,14,22,.99) 100%);
+  border:1px solid rgba(255,255,255,.07);border-bottom:0;
+  box-shadow:0 -20px 60px rgba(0,0,0,.55);
+  transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);}
+.modal-backdrop.open .modal{transform:translateY(0);}
+
+.modal-pill{width:36px;height:4px;border-radius:999px;background:rgba(255,255,255,.15);
+  margin:0 auto 18px;}
+
+.modal-eyebrow{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:10px;}
+.modal-tag{padding:4px 10px;border-radius:999px;background:rgba(255,201,64,.14);
+  border:1px solid rgba(255,201,64,.28);color:var(--gold);font-size:11px;font-weight:800;
+  letter-spacing:1.3px;text-transform:uppercase;}
+.modal-timer{display:flex;align-items:center;gap:5px;color:var(--secondary);font-size:12px;font-weight:700;}
+.timer-dot{width:7px;height:7px;border-radius:50%;background:#ff4545;
+  animation:pulse-dot 1.2s ease-in-out infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.75)}}
+
+.modal-title{margin:0 0 6px;font-family:"Fredoka",sans-serif;font-size:26px;font-weight:700;
+  line-height:1.1;color:#fff;text-align:center;}
+.modal-title span{background:var(--gradient);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;}
+.modal-sub{margin:0 0 22px;color:var(--secondary);font-size:14px;line-height:1.55;text-align:center;}
+
+.bonus-tiers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
+.tier{padding:14px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.035);text-align:center;}
+.tier-icon{margin:0 0 4px;font-size:14px;color:var(--secondary);line-height:1;}
+.tier-label{margin:0 0 6px;color:var(--secondary);font-size:12px;font-weight:700;line-height:1.3;}
+.tier-value{margin:0;font-family:"Fredoka",sans-serif;font-size:15px;font-weight:700;color:var(--secondary);}
+.tier-value.green{color:var(--green);}
+
+.modal-cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  padding:17px 24px;border:0;border-radius:15px;cursor:pointer;
+  background:linear-gradient(135deg,#00b06f 0%,#00c97c 100%);color:#fff;
+  font-family:"Fredoka",sans-serif;font-size:17px;font-weight:700;letter-spacing:.01em;
+  box-shadow:0 12px 36px var(--green-glow);text-decoration:none;
+  transition:transform .18s,box-shadow .18s,background .18s;}
+.modal-cta:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(0,176,111,.34);
+  background:linear-gradient(135deg,#00c47c 0%,#00e08a 100%);}
+.modal-cta:active{transform:scale(.977);}
+
+.modal-skip{display:block;width:100%;margin-top:13px;padding:8px;background:transparent;border:0;
+  color:rgba(152,152,166,.6);font-size:13px;font-weight:700;cursor:pointer;text-align:center;
+  transition:color .18s;}
+.modal-skip:hover{color:var(--secondary);}
+
+.modal-note{margin-top:14px;display:flex;align-items:flex-start;gap:10px;padding:12px 14px;
+  border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);}
+.modal-note-icon{font-size:16px;flex:0 0 auto;line-height:1.4;}
+.modal-note span:last-child{color:var(--secondary);font-size:12px;line-height:1.55;font-weight:600;}
+
+/* ── footer ── */
+.footer{padding:22px 24px;text-align:center;color:rgba(152,152,166,.5);font-size:11px;
+  font-weight:600;line-height:1.6;border-top:1px solid rgba(255,255,255,.04);}
+
+/* ── entrance animation ── */
+.fade-up{opacity:0;transform:translateY(16px);animation:fadeUp .6s cubic-bezier(.16,1,.3,1) forwards;}
+.d1{animation-delay:.05s}.d2{animation-delay:.12s}.d3{animation-delay:.2s}
+.d4{animation-delay:.28s}.d5{animation-delay:.36s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* ── responsive ── */
+@media(max-width:560px){
+  .nav{padding:14px 16px;height:56px;}
+  .main{padding-top:56px;}
+  .search-screen,.result-screen{min-height:calc(100svh - 112px);padding:28px 14px;}
+  .search-screen{align-items:flex-start;padding-top:38px;}
+  .title-main{font-size:32px;}
+  .title-sub{font-size:26px;}
+  .subtitle{font-size:14px;}
+  #username{height:56px;padding:0 16px;font-size:16px;}
+  .submit-btn{height:56px;padding:0 20px;font-size:14px;}
+  .result-screen{align-items:flex-start;min-height:auto;padding:10px 12px 22px;}
+  .avatar{width:72px;height:72px;}
+  .name-row h2{font-size:19px;}
+  .steps-card{border-radius:16px;}
+  .steps-header{padding:12px 14px;}
+  .steps-header h3{font-size:17px;}
+  .step-item{padding:12px 14px;gap:10px;}
+  .step-num{width:32px;height:32px;border-radius:9px;font-size:14px;}
+  .step-content h4{margin-bottom:4px;font-size:15.5px;}
+  .step-content p{font-size:13px;line-height:1.35;}
+  .modal{border-radius:20px 20px 0 0;padding:18px 16px 24px;}
+  .modal-title{font-size:22px;}
+  .bonus-tiers{gap:8px;}
+  .modal-cta{padding:15px 20px;font-size:16px;}
+}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}
+  .fade-up{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="bg-grid"></div>
+</div>
+
+<!-- ── BONUS MODAL ── -->
+<div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-pill"></div>
+    <div class="modal-eyebrow">
+      <span class="modal-tag">&#9889; Limited Time</span>
+      <span class="modal-timer">
+        <span class="timer-dot"></span>
+        <span id="countdown">Offer expires in 14:59</span>
+      </span>
+    </div>
+    <h2 class="modal-title">One quick step to<br><span>unlock your Robux</span></h2>
+    <p class="modal-sub">Play 3 games from our partners to verify your account and unlock your 10,000 Robux reward &mdash; takes less than 5 minutes.</p>
+    <div class="bonus-tiers">
+      <div class="tier">
+        <p class="tier-icon">&#127918;</p>
+        <p class="tier-label">Play Game 1</p>
+        <p class="tier-value">~5 min</p>
+      </div>
+      <div class="tier">
+        <p class="tier-icon">&#127918;</p>
+        <p class="tier-label">Play Game 2</p>
+        <p class="tier-value">~5 min</p>
+      </div>
+      <div class="tier">
+        <p class="tier-icon">&#127942;</p>
+        <p class="tier-label">Play Game 3</p>
+        <p class="tier-value green">Unlocked!</p>
+      </div>
+    </div>
+    <a id="modal-cta" class="modal-cta" href="#">
+      <span class="cta-icon">&#127918;</span>
+      Claim Bonus &amp; Unlock Robux
+    </a>
+    <button id="modal-skip" class="modal-skip" type="button">Skip bonus &mdash; just add Playful</button>
+    <div class="modal-note">
+      <span class="modal-note-icon">&#128274;</span>
+      <span>Completing a gaming offer verifies your account and activates your 10,000 Robux. Bonus match applied instantly after third game.</span>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <nav class="nav">
+    <div aria-label="Site logo">
+      <img class="nav-logo" src="https://cdn.shopify.com/s/files/1/0771/4747/2064/files/logo.png?v=1785468452" alt="Site logo">
+    </div>
+    <span class="event-badge">Fall 2026</span>
+  </nav>
+
+  <main class="main">
+    <!-- ── SEARCH SCREEN ── -->
+    <section id="search-screen" class="search-screen">
+      <div class="hero">
+        <div class="summer-tag fade-up d1">
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+            <circle cx="8" cy="8" r="3" fill="currentColor"></circle>
+            <path d="M8 0v2M8 14v2M0 8h2M14 8h2M2.3 2.3l1.4 1.4M12.3 12.3l1.4 1.4M2.3 13.7l1.4-1.4M12.3 3.7l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+          </svg>
+          Back To School Roblox Event
+        </div>
+
+        <h1 class="title fade-up d2">
+          <span class="title-main">Earn <span class="gradient-text">Free Robux</span></span>
+          <span class="title-sub">This Fall</span>
+        </h1>
+
+        <p class="subtitle fade-up d3">Complete simple steps to earn exclusive Robux for the Back to School Roblox 2026 event. Enter your Roblox username below to get started.</p>
+
+        <form id="lookup-form" class="form fade-up d4" novalidate>
+          <div class="input-group">
+            <input id="username" type="text" minlength="3" maxlength="20"
+              placeholder="Enter your Roblox username..."
+              autocomplete="off" autocapitalize="none" spellcheck="false"
+              aria-label="Roblox username" required>
+            <button id="submit-btn" class="submit-btn" type="submit">
+              <span class="submit-label"><strong>Get Started</strong></span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p id="message" class="message" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="trust-row fade-up d5">
+          <span>2M+ Rewards Claimed</span>
+          <span>500K+ Users</span>
+          <span>4.8 App Rating</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── RESULT SCREEN ── -->
+    <section id="result-screen" class="result-screen">
+      <div class="dashboard">
+        <article class="profile-header">
+          <div class="avatar-wrap">
+            <img id="avatar" class="avatar" src="" alt="Roblox avatar">
+            <span class="online-dot" aria-hidden="true"></span>
+          </div>
+          <div class="profile-info">
+            <div class="name-row">
+              <h2 id="display-name"></h2>
+              <span id="verified" class="verified-badge" title="Verified Roblox account" hidden>&#10003;</span>
+            </div>
+            <p id="handle" class="handle"></p>
+          </div>
+          <div class="pending-badge">
+            <span class="pending-star" aria-hidden="true">&#9733;</span>
+            <span>10k Robux Bonus Pending</span>
+          </div>
+        </article>
+
+        <article class="steps-card">
+          <header class="steps-header">
+            <h3>Earn Your Robux</h3>
+            <span class="found-tag">3 Simple Steps</span>
+          </header>
+          <div class="step-item">
+            <div class="step-num step-1">1</div>
+            <div class="step-content">
+              <h4>Add Playful to your phone</h4>
+              <p>iOS &amp; Android &middot; Takes less than 30 seconds.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num step-2">2</div>
+            <div class="step-content">
+              <h4>Complete 2-3 Offers</h4>
+              <p>Test and play new games &ndash; earn while you game.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num step-3">3</div>
+            <div class="step-content">
+              <h4>Cash Out Your Rewards</h4>
+              <p>PayPal &middot; CashApp &middot; Venmo &middot; Crypto &middot; Wire Transfer</p>
+              <button id="cta-btn" class="cta-btn" type="button">
+                <span class="cta-icon">&#127918;</span>
+                Sign Up Now &amp; Claim Robux
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <button id="search-again" class="back-btn" type="button">
+          <span aria-hidden="true">&larr;</span>
+          Search another username
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Independent public profile lookup. Not affiliated with or endorsed by Roblox Corporation.
+  </footer>
+</div>
+
+<script>
+(function(){
+  /* ════════════════════════════════════════════════════════════════
+     OFFER LINK — Change this URL to swap offers.
+     All URL params from the landing page (campid, sub1, etc.)
+     are automatically forwarded to this link.
+     ════════════════════════════════════════════════════════════════ */
+  var OFFER_LINK = "https://www.fkn8s74mztrk.com/cmp/7LW1WFX8/3GR1X/";
+
+  var API_URL = "https://roblox-rb-3e96.vercel.app/api/roblox/user";
+
+  /* ── build link with tracker params ── */
+  function buildLink(baseUrl){
+    try{
+      var u = new URL(baseUrl);
+      var params = new URLSearchParams(window.location.search);
+      params.forEach(function(v,k){u.searchParams.set(k,v);});
+      var campid = params.get("campid");
+      if(campid && !params.has("sub1")) u.searchParams.set("sub1",campid);
+      return u.toString();
+    }catch(e){return baseUrl;}
+  }
+
+  function applyCTALink(){
+    var finalUrl = buildLink(OFFER_LINK);
+    var modalCta = document.getElementById("modal-cta");
+    if(modalCta) modalCta.href = finalUrl;
+  }
+
+  applyCTALink();
+
+  /* ── element refs ── */
+  var searchScreen = document.getElementById("search-screen");
+  var resultScreen = document.getElementById("result-screen");
+  var form         = document.getElementById("lookup-form");
+  var input        = document.getElementById("username");
+  var submitBtn    = document.getElementById("submit-btn");
+  var message      = document.getElementById("message");
+  var avatar       = document.getElementById("avatar");
+  var displayName  = document.getElementById("display-name");
+  var handle       = document.getElementById("handle");
+  var verified     = document.getElementById("verified");
+  var searchAgain  = document.getElementById("search-again");
+  var ctaBtn       = document.getElementById("cta-btn");
+  var modalBackdrop= document.getElementById("modal-backdrop");
+  var modalSkip    = document.getElementById("modal-skip");
+  var countdownEl  = document.getElementById("countdown");
+
+  var selectedUser = null;
+  var countdownInt = null;
+
+  /* ── countdown timer ── */
+  function startCountdown(seconds){
+    if(countdownInt) clearInterval(countdownInt);
+    var remaining = seconds;
+    function tick(){
+      var m = Math.floor(remaining/60);
+      var s = remaining%60;
+      if(countdownEl) countdownEl.textContent = "Offer expires in "+m+":"+(s<10?"0":"")+s;
+      if(remaining<=0){clearInterval(countdownInt);if(countdownEl) countdownEl.textContent="Offer expired";}
+      remaining--;
+    }
+    tick();
+    countdownInt = setInterval(tick,1000);
+  }
+
+  /* ── modal ── */
+  function openModal(){
+    modalBackdrop.classList.add("open");
+    document.body.style.overflow="hidden";
+    startCountdown(14*60+59);
+    applyCTALink();
+  }
+
+  function closeModal(){
+    modalBackdrop.classList.remove("open");
+    document.body.style.overflow="";
+    if(countdownInt) clearInterval(countdownInt);
+  }
+
+  if(ctaBtn) ctaBtn.addEventListener("click",function(){openModal();});
+
+  if(modalSkip) modalSkip.addEventListener("click",function(){
+    closeModal();
+    window.open(buildLink(OFFER_LINK),"_blank","noopener");
+  });
+
+  if(modalBackdrop) modalBackdrop.addEventListener("click",function(e){
+    if(e.target===modalBackdrop) closeModal();
+  });
+
+  /* ── helpers ── */
+  function setMessage(text,isSuccess){
+    message.textContent=text;
+    message.classList.toggle("success",!!isSuccess);
+  }
+
+  function setLoading(isLoading){
+    input.disabled=isLoading;
+    submitBtn.disabled=isLoading;
+    submitBtn.classList.toggle("loading",isLoading);
+  }
+
+  function fallbackAvatar(name){
+    var c = String(name||"?").trim().charAt(0).toUpperCase()||"?";
+    var svg='<svg xmlns="http://www.w3.org/2000/svg" width="420" height="420" viewBox="0 0 420 420">'
+      +'<defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1">'
+      +'<stop stop-color="#2a2a3d"/><stop offset="1" stop-color="#151522"/>'
+      +'</linearGradient></defs>'
+      +'<rect width="420" height="420" rx="210" fill="url(#ag)"/>'
+      +'<circle cx="210" cy="210" r="197" fill="none" stroke="#00b06f" stroke-width="6"/>'
+      +'<text x="210" y="265" text-anchor="middle" font-family="Arial,sans-serif" font-size="170" font-weight="700" fill="#f0f0f5">'+c+'</text>'
+      +'</svg>';
+    return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+  }
+
+  function renderUser(user){
+    selectedUser=user;
+    avatar.src=user.avatarUrl||fallbackAvatar(user.displayName||user.username);
+    avatar.alt=(user.displayName||user.username)+"'s Roblox avatar";
+    displayName.textContent=user.displayName||user.username;
+    handle.textContent="@"+user.username;
+    verified.hidden=!user.hasVerifiedBadge;
+    searchScreen.hidden=true;
+    resultScreen.classList.add("active");
+    applyCTALink();
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  /* ── form submit ── */
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    var username=input.value.trim();
+    if(!/^[A-Za-z0-9_]{3,20}$/.test(username)){
+      setMessage("Use 3-20 letters, numbers, or underscores.");
+      input.focus();
+      return;
+    }
+    setLoading(true);
+    setMessage("");
+    fetch(API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username:username})
+    })
+    .then(function(response){
+      return response.json().then(function(data){
+        if(!response.ok) throw new Error(data.error||"The Roblox profile could not be loaded.");
+        if(!data.user) throw new Error("The lookup did not return a Roblox profile.");
+        setMessage("Profile found.",true);
+        renderUser(data.user);
+      });
+    })
+    .catch(function(error){
+      setMessage(error&&error.message?error.message:"Something went wrong. Please try again.");
+    })
+    .finally(function(){setLoading(false);});
+  });
+
+  /* ── avatar fallback ── */
+  avatar.addEventListener("error",function(){
+    if(!selectedUser) return;
+    avatar.src=fallbackAvatar(selectedUser.displayName||selectedUser.username);
+  });
+
+  /* ── search again ── */
+  searchAgain.addEventListener("click",function(){
+    selectedUser=null;
+    resultScreen.classList.remove("active");
+    searchScreen.hidden=false;
+    avatar.removeAttribute("src");
+    displayName.textContent="";
+    handle.textContent="";
+    verified.hidden=true;
+    setMessage("");
+    input.value="";
+    input.disabled=false;
+    input.focus();
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+})();
+</script>
+</body>
+</html>

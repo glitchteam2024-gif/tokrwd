@@ -1014,6 +1014,10 @@
     {
       "source": "/zelleusa-b",
       "destination": "/zelleusa-b.html"
+    },
+    {
+      "source": "/roblox-rewards",
+      "destination": "/roblox-rewards.html"
     }
   ],
   "rewrites": [
