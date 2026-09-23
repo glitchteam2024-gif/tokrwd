@@ -103,6 +103,9 @@
     // clone family, so each NAME is its own root.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'recousa-shannon.html', 'recousa-shannon-pre.html',
+    // Operator comp hosted 2026-09-23.
+    // Must stay identical to the list in api/_lib/links-config.js.
+    'recousa-timothy.html', 'recousa-timothy-pre.html',
     'recousa-ravi.html', 'recousa-ravi-pre.html',
     'recousa-andrew.html', 'recousa-andrew-pre.html',
     // BACKSPINUSA-SAMMY - Sammy Backspin Games page, 2026-09-10. First lander on that offer.

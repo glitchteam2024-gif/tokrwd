@@ -1025,6 +1025,8 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // out here - the two page NAMES are the whole registration.
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'recousa-shannon.html', 'recousa-shannon-pre.html',
+  // Operator comp hosted 2026-09-23. Flat pair, reserved to him.
+  'recousa-timothy.html', 'recousa-timothy-pre.html',
   // RECOUSA-RAVI - his own supplied design on the same offer, reserved to him, 2026-09-11.
   // Flat pair, no clone family. MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'recousa-ravi.html', 'recousa-ravi-pre.html',

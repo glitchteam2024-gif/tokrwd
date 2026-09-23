@@ -512,6 +512,14 @@
       "destination": "/recousa-shannon-pre.html"
     },
     {
+      "source": "/recousa-timothy-pre",
+      "destination": "/recousa-timothy-pre.html"
+    },
+    {
+      "source": "/recousa-timothy",
+      "destination": "/recousa-timothy.html"
+    },
+    {
       "source": "/recousa-ravi-pre",
       "destination": "/recousa-ravi-pre.html"
     },
