@@ -53,6 +53,28 @@ Live result: `ACSM/US/index.html` + `AS50/US1..US100` + `/sasurl` in tokrwd (all
 
 ---
 
+## ★ THE JOB IS BUILD → PUBLISH → CONNECT → REPORT (Migi, 2026-09-24)
+
+*"a strict set of skills that allows you to build connect and publish LITERALLY IT"* and *"i need to
+be able to see the affiliates links and test it out ... and also explain what offer you connected it
+to"*. The full procedure, with runnable scripts, lives in **SPRKNetworkAds
+`.claude/skills/sprk-lander-submissions/`** (`SKILL.md`, `scripts/verify-page.mjs`,
+`scripts/icon-edge.py`, `scripts/connect.sql`). The five rules that each cost a round trip:
+
+1. **Hosted is not "on".** A page serving 200 here changes nothing an affiliate launches; only an ACTIVE
+   `landing_page_affiliates` row does. Timothy's page was live for a day while his launches sat on the
+   house page `reco-social-us-b`. Connect it (Step 4-5 below, archive-then-claim in ONE transaction),
+   with the `-pre.html` link: an extensionless name ending in the AffID gets its digits swapped by
+   `lpSlotLink` and 404s.
+2. **Build from their SUBMITTED file, whole.** Not from an earlier page of theirs ("leave everything as
+   is there entire like html file").
+3. **Logos fill their section, no white edges.** Measure with `icon-edge.py`; replace framed art with the
+   official full-bleed App Store icon. Never hand-draw a brand mark.
+4. **No empty boxes.** Every asset a supplied page references must exist here before publish; fill a
+   missing video/image slot with the app's official App Store screenshots.
+5. **Report per affiliate**: the offer it is connected to, what it replaced, the link their ads run (with
+   `?s1=SPK-TEST-0000` to test) and whether every page redirected correctly.
+
 ## ⛔ HARD RULE — A LANDING PAGE NEVER NAMES OUR NETWORK OR US
 
 **Owner's instruction, 2026-09-10, after finding it in a lander's view-source:** *"go through ALL
