@@ -66,12 +66,13 @@ to"*. The full procedure, with runnable scripts, lives in **SPRKNetworkAds
    house page `reco-social-us-b`. Connect it (Step 4-5 below, archive-then-claim in ONE transaction),
    with the `-pre.html` link: an extensionless name ending in the AffID gets its digits swapped by
    `lpSlotLink` and 404s.
-2. **Build from their SUBMITTED file, whole.** Not from an earlier page of theirs ("leave everything as
-   is there entire like html file").
-3. **Logos fill their section, no white edges.** Measure with `icon-edge.py`; replace framed art with the
-   official full-bleed App Store icon. Never hand-draw a brand mark.
-4. **No empty boxes.** Every asset a supplied page references must exist here before publish; fill a
-   missing video/image slot with the app's official App Store screenshots.
+2. **Their page stays EXACTLY as they submitted it** ("on each affiliate submission right it stays the
+   same ... the way they submit it"). Build from their submitted file, whole, never an earlier page of
+   theirs. Only the money path and invisible hygiene change (the closed list in the submissions skill).
+3. **Framed logos: measure with `icon-edge.py` and FLAG them.** Replace with the official full-bleed App
+   Store icon only when Migi asks for that page. Never hand-draw a brand mark.
+4. **Missing assets (an empty box): FLAG them first in the report.** Fill with the app's official App
+   Store screenshots only when Migi asks.
 5. **Report per affiliate**: the offer it is connected to, what it replaced, the link their ads run (with
    `?s1=SPK-TEST-0000` to test) and whether every page redirected correctly.
 
