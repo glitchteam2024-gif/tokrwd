@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="color-scheme" content="dark" />
+    <title>Freecash Landing Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#00D4AA',
+                        'primary-dark': '#00B891',
+                        navy: '#0D1B2A',
+                        'navy-light': '#1B2D45',
+                        'navy-lighter': '#243B55',
+                        gold: '#FFD700',
+                    },
+                },
+            },
+        };
+    </script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #00D4AA;
+            --primary-dark: #00B891;
+            --navy: #0D1B2A;
+            --navy-light: #1B2D45;
+            --navy-lighter: #243B55;
+            --gold: #FFD700;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #080f1a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .phone-frame {
+            max-width: 430px;
+            margin: 0 auto;
+            background: var(--navy);
+            min-height: 100vh;
+            position: relative;
+        }
+        @media (max-width: 430px) {
+            .phone-frame { max-width: 100%; }
+            body { background: var(--navy); }
+        }
+
+        /* Payout Tracker */
+        .payout-tracker {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: linear-gradient(135deg, #00D4AA, #00B891);
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 12px;
+            color: #0D1B2A;
+        }
+        @keyframes liveDotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .4; transform: scale(1.5); }
+        }
+        .payout-tracker .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #0D1B2A;
+            animation: liveDotPulse 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #00D4AA, #00B891);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #00D4AA, #00B891);
+            position: relative; overflow: hidden;
+            transition: transform .2s, box-shadow .3s;
+        }
+        .gradient-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 24px rgba(0,212,170,.5);
+        }
+        .gradient-btn::after {
+            content: ''; position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+            transition: left .5s;
+        }
+        .gradient-btn:hover::after { left: 100%; }
+
+        /* Floating coins */
+        @keyframes float1 { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-18px) rotate(8deg)} }
+        @keyframes float2 { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-24px) rotate(-10deg)} }
+        @keyframes float3 { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-14px) rotate(5deg)} }
+        .coin-1 { animation: float1 4s ease-in-out infinite; }
+        .coin-2 { animation: float2 5s ease-in-out infinite .4s; }
+        .coin-3 { animation: float3 3.5s ease-in-out infinite .8s; }
+        .coin-4 { animation: float1 6s ease-in-out infinite 1s; }
+
+        /* Marquee */
+        @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        .marquee-track {
+            display: flex;
+            animation: marquee 20s linear infinite;
+            width: max-content;
+        }
+
+        /* Fade-up */
+        .fade-up {
+            opacity: 0; transform: translateY(20px);
+            transition: opacity .5s ease, transform .5s ease;
+        }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+
+        .activity-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 12px; border-radius: 999px;
+            border: 1px solid rgba(0,212,170,.35);
+            background: transparent;
+            font-size: 12px; font-weight: 600; color: #a7d8cc;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+
+        <!-- 1. STICKY PAYOUT TRACKER -->
+        <div class="payout-tracker">
+            <span class="dot"></span>
+            <span style="font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;">LIVE</span>
+            <span>Total Paid Out:</span>
+            <span id="payout-counter" class="tabular-nums" style="font-size:13px;">$87,000,000</span>
+        </div>
+
+        <main>
+
+            <!-- 2. HERO -->
+            <section class="relative flex flex-col items-center justify-center px-4 pt-10 pb-5 overflow-hidden" style="min-height:300px;">
+                <div class="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
+                    <span class="coin-1 absolute text-2xl opacity-15" style="top:10%;left:6%;">💰</span>
+                    <span class="coin-2 absolute text-xl opacity-10" style="top:18%;right:8%;">💵</span>
+                    <span class="coin-3 absolute text-2xl opacity-10" style="top:60%;left:80%;">🪙</span>
+                    <span class="coin-4 absolute text-xl opacity-15" style="top:55%;left:5%;">💰</span>
+                </div>
+                <div class="relative z-10 text-center w-full">
+                    <h1 class="font-black leading-tight mb-2 text-white" style="font-size:26px;">
+                        Make your everyday<br>more <span class="gradient-text">rewarding.</span>
+                    </h1>
+                    <p class="text-gray-400 mb-3 leading-snug" style="font-size:13px;">
+                        $400M+ in rewards, paid to actual humans.
+                    </p>
+                    <div class="mb-3">
+                        <span id="hero-big-counter" class="gradient-text font-black tabular-nums" style="font-size:32px;">$390,000,000</span>
+                    </div>
+                    <div class="overflow-hidden rounded-lg mb-3" style="height:28px;display:flex;align-items:center;background:rgba(27,45,69,0.4);border:1px solid rgba(0,212,170,0.2);">
+                        <div class="marquee-track">
+                            <span class="whitespace-nowrap font-medium px-3" style="font-size:12px;color:#00D4AA;">🟢 Alex earned $24.50 &nbsp;•&nbsp; 🟢 Maria withdrew $12 to PayPal &nbsp;•&nbsp; 🟢 Jake earned $5.25 playing games &nbsp;•&nbsp; 🟢 Priya got $18 in Bitcoin &nbsp;•&nbsp;</span>
+                            <span class="whitespace-nowrap font-medium px-3" style="font-size:12px;color:#00D4AA;">🟢 Alex earned $24.50 &nbsp;•&nbsp; 🟢 Maria withdrew $12 to PayPal &nbsp;•&nbsp; 🟢 Jake earned $5.25 playing games &nbsp;•&nbsp; 🟢 Priya got $18 in Bitcoin &nbsp;•&nbsp;</span>
+                        </div>
+                    </div>
+                    <a href="#" class="offer-link gradient-btn w-full text-white font-bold px-6 py-3 rounded-xl flex items-center justify-center no-underline mb-2.5"
+                       style="font-size:16px;min-height:48px;color:#0D1B2A;text-decoration:none;">
+                        Start Earning Now
+                    </a>
+                    <div class="flex items-center justify-center gap-1.5 flex-wrap" style="font-size:11px;color:#94a3b8;">
+                        <span style="color:#facc15;">⭐</span><span>4.8/5 Trustpilot</span>
+                        <span style="color:#4b5563;margin:0 2px;">·</span><span>10M+ Members</span>
+                        <span style="color:#4b5563;margin:0 2px;">·</span><span>Free to Join</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. TAGLINE STRIP -->
+            <section class="fade-up px-4 py-5 text-center" style="border-top:1px solid rgba(0,212,170,.1);border-bottom:1px solid rgba(0,212,170,.1);">
+                <h2 class="font-bold text-white leading-snug mb-1" style="font-size:20px;">
+                    Do what you love.<br>We'll <span style="color:#00D4AA;">reward you</span> for it.
+                </h2>
+                <p class="italic mb-3" style="font-size:13px;color:#94a3b8;">
+                    The internet's favorite "too good to be true" app.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-1.5">
+                    <span class="activity-chip">🎮 Games</span>
+                    <span class="activity-chip">📱 Apps</span>
+                    <span class="activity-chip">📋 Surveys</span>
+                    <span class="activity-chip">💰 Cashback</span>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            lucide.createIcons();
+        }
+
+        // HERO BIG COUNTER ($390M → $400M)
+        (function() {
+            var el = document.getElementById('hero-big-counter');
+            var startVal = 390000000, endVal = 400000000, duration = 2000, startTime = null;
+            function fmt(n) { return '$' + Math.floor(n).toLocaleString('en-US'); }
+            el.textContent = fmt(startVal);
+            function step(ts) {
+                if (!startTime) startTime = ts;
+                var p = Math.min((ts - startTime) / duration, 1);
+                var e = 1 - Math.pow(1 - p, 3);
+                el.textContent = fmt(startVal + (endVal - startVal) * e);
+                if (p < 1) requestAnimationFrame(step);
+                else el.textContent = fmt(endVal);
+            }
+            requestAnimationFrame(step);
+        })();
+
+        // PAYOUT TRACKER COUNTER
+        (function() {
+            var val = 87000000;
+            var el = document.getElementById('payout-counter');
+            function fmt(n) { return '$' + n.toLocaleString('en-US'); }
+            el.textContent = fmt(val);
+            setInterval(function() {
+                val += Math.floor(Math.random() * 5) + 1;
+                el.textContent = fmt(val);
+            }, 2000);
+        })();
+
+        // FADE-UP ON SCROLL
+        var fadeEls = document.querySelectorAll('.fade-up');
+        var fadeObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    fadeObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+        fadeEls.forEach(function(el) { fadeObserver.observe(el); });
+
+        /* ---------------------------------------------------------------------------
+           Click tracking. Everything above this comment is the operator's own page,
+           byte-for-byte as supplied. Nothing below it changes a pixel of the design.
+           --------------------------------------------------------------------------- */
+
+        /* THE RAW DESTINATION LINK. Declared WITHOUT the trailing slot the offer row carries:
+           the builder appends the param itself, and keeping both would ship an EMPTY slot ahead
+           of the real one — the network reads the empty first one and every conversion files
+           under N/A. */
+        var OFFER_LINK = 'https://montrk3.co.uk/?a=26648&c=55504';
+
+        /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on
+           purpose: every value comes from location.search, so the shipped builder can be lifted
+           out and executed on its own — which is exactly what the offer-link guard does. */
+        function buildOfferUrl() {
+          var _p = new URLSearchParams(location.search);
+          var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+          /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a
+             value with NO code in it going out verbatim: a free-form label is that operator's
+             attribution key and blanking it would pay them nothing. */
+          var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+          /* OUTBOUND PARAM IS `s1`. This destination family reads s1..s5 and silently DISCARDS
+             sub1; the alternate family hosts do the exact reverse. The wrong one zeroes
+             attribution with no error — the link looks healthy and every conversion lands
+             unmatched. */
+          var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+          var _t = _p.get('ttclid') || '';
+          /* Drop an UNEXPANDED TikTok macro rather than logging it as a real click id. */
+          if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+          /* CLICK-STAMP v1 — log the click at our own /click, then 302 to the offer unchanged.
+             The gate's own `s1=` carries the FULL wire either way: that is our log, not the
+             network's param, and the only place the username, AffID and geo survive. */
+          return '/click?u=' + encodeURIComponent(_dest)
+               + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+               + '&lp=' + encodeURIComponent(location.pathname)
+               + (_t ? '&t=' + encodeURIComponent(_t) : '');
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll('.offer-link'), function (el) {
+          el.addEventListener('click', function (e) {
+            if (e && e.preventDefault) e.preventDefault();
+            window.location.href = buildOfferUrl();
+          });
+        });
+
+        /* BEACON v2 */
+        (function () {
+          var BEACON = '/api/funnel-beacon';
+          var bq = new URLSearchParams(location.search);
+          function bsend(ev) {
+            try {
+              navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+                event: ev, sid: bq.get('sid') || '',
+                s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                ttclid: bq.get('ttclid') || '',
+                slice: 'FREECASH-SHANNONP-37', clone: 'US', path: location.pathname
+              })], { type: 'text/plain' }));
+            } catch (e) {}
+          }
+          bsend('lp_view');
+          var fired = false;
+          document.addEventListener('click', function (e) {
+            if (fired) return;
+            var el = e.target;
+            for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+              if (el.classList && el.classList.contains('offer-link')) { fired = true; bsend('offer_click'); return; }
+            }
+          }, true);
+        })();
+    </script>
+</body>
+</html>

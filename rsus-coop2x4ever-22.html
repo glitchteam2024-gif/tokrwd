@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#080511">
+<title>Reco Social — Get Paid to Play Games</title>
+
+<!-- TikTok Pixel Base Code — the operator's own pixel, kept as supplied. -->
+<script>
+!function(w,d,t){
+w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
+ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"];
+ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};
+for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);
+ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e};
+ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js";
+ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
+var o=d.createElement("script");o.type="text/javascript",o.async=!0,o.src=r+"?sdkid="+e+"&lib="+t;
+var a=d.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+ttq.load('D4LHD2BC77UCJ0N6LHT0');
+ttq.page();
+}(window,document,'ttq');
+</script>
+<!-- End TikTok Pixel Base Code -->
+
+<style>
+    :root {
+      --bg: #080511;
+      --panel: #151023;
+      --line: rgba(190,139,255,.2);
+      --purple: #b278ff;
+      --pink: #ff6fcf;
+      --yellow: #ffd166;
+      --text: #fbf8ff;
+      --muted: #aea3bf;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    a { touch-action: manipulation; cursor: pointer; color: inherit; text-decoration: none; }
+    html { min-width: 320px; background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% -8%, rgba(178,120,255,.2), transparent 24rem),
+        radial-gradient(circle at 108% 34%, rgba(255,111,207,.13), transparent 25rem),
+        linear-gradient(180deg, #090612 0%, #07050e 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .18;
+      background-image: radial-gradient(rgba(255,255,255,.24) .55px, transparent .55px);
+      background-size: 8px 8px;
+      -webkit-mask-image: linear-gradient(to bottom, #000, transparent 70%);
+      mask-image: linear-gradient(to bottom, #000, transparent 70%);
+    }
+    .page { position: relative; width: min(100%, 470px); margin: 0 auto; padding: 14px 12px 168px; }
+    .brand-lockup { display: flex; align-items: center; justify-content: center; gap: 9px; }
+    .brand-logo { width: 40px; height: 40px; border-radius: 13px; object-fit: cover; box-shadow: 0 0 24px rgba(178,120,255,.35); }
+    .brand-name { font-size: 19px; font-weight: 1000; letter-spacing: -.05em; }
+    .brand-name span { color: var(--pink); }
+    .hero { margin-top: 11px; text-align: center; }
+    h1 { margin: 0; font-size: clamp(37px, 11vw, 53px); font-weight: 1000; letter-spacing: -.075em; line-height: .94; }
+    h1 span { display: block; color: var(--purple); text-shadow: 0 0 24px rgba(178,120,255,.18); }
+    .lede { max-width: 365px; margin: 11px auto 0; color: #d2cadc; font-size: 14px; font-weight: 580; letter-spacing: -.025em; line-height: 1.34; }
+    .bonus { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; padding: 7px 12px; border: 1px solid rgba(255,209,102,.44); border-radius: 999px; color: var(--yellow); background: rgba(255,209,102,.07); font-size: 12px; font-weight: 900; }
+    .bonus strong { color: #fff; }
+    .trust { display: flex; justify-content: center; gap: 12px; margin-top: 10px; color: var(--muted); font-size: 9px; font-weight: 800; }
+    .trust span::before { content: '✓'; margin-right: 4px; color: var(--pink); }
+    .reco-spotlight { margin-top: 26px; }
+    .spotlight-label { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 11px; color: var(--pink); font-size: 10px; font-weight: 1000; letter-spacing: .17em; text-transform: uppercase; }
+    .spotlight-label::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 14px rgba(255,111,207,.72); }
+    .reco-video { position: relative; overflow: hidden; aspect-ratio: 16 / 9; border: 1px solid rgba(190,139,255,.3); border-radius: 21px; background: linear-gradient(145deg, #1a0f2f, #0b0714); box-shadow: 0 18px 38px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.05); }
+    .reco-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .video-shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(8,5,17,.72)); pointer-events: none; }
+    .video-badge { position: absolute; right: 10px; bottom: 10px; display: flex; align-items: center; gap: 9px; max-width: calc(100% - 20px); padding: 8px 11px; border: 1px solid rgba(255,111,207,.4); border-radius: 13px; background: rgba(8,5,17,.86); box-shadow: 0 7px 22px rgba(0,0,0,.34); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .video-badge-icon { display: grid; width: 27px; height: 27px; flex: 0 0 27px; place-items: center; border-radius: 9px; color: #fff; background: linear-gradient(135deg, var(--purple), var(--pink)); font-size: 12px; }
+    .video-badge strong { display: block; color: var(--pink); font-size: 10px; font-weight: 1000; letter-spacing: .08em; line-height: 1.25; text-transform: uppercase; }
+    .video-badge span { display: block; margin-top: 2px; color: #cfc5d9; font-size: 10px; font-weight: 650; line-height: 1.25; }
+    .reco-card { margin-top: 12px; padding: 17px 16px 19px; border: 1px solid var(--line); border-radius: 21px; background: linear-gradient(145deg, rgba(178,120,255,.11), rgba(255,255,255,.025)); box-shadow: inset 0 1px 0 rgba(255,255,255,.045), 0 15px 32px rgba(0,0,0,.24); }
+    .reco-app-row { display: flex; align-items: center; gap: 13px; }
+    .reco-app-icon { width: 68px; height: 68px; flex: 0 0 68px; border-radius: 17px; object-fit: cover; box-shadow: 0 9px 22px rgba(0,0,0,.4), 0 0 22px rgba(178,120,255,.2); }
+    .reco-app-info { min-width: 0; }
+    .reco-app-name { color: #fff; font-size: 21px; font-weight: 1000; letter-spacing: -.045em; }
+    .reco-app-meta { margin-top: 4px; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .reco-app-meta .rating { color: var(--yellow); letter-spacing: .05em; }
+    .reco-pill { display: inline-flex; align-items: center; gap: 6px; margin-top: 7px; padding: 6px 9px; border: 1px solid rgba(255,111,207,.32); border-radius: 999px; color: #f6b5df; background: rgba(255,111,207,.07); font-size: 9px; font-weight: 850; line-height: 1.2; }
+    .reco-divider { height: 1px; margin: 17px 0 15px; background: var(--line); }
+    .steps-title { margin-bottom: 12px; color: var(--muted); font-size: 10px; font-weight: 1000; letter-spacing: .17em; text-transform: uppercase; }
+    .reco-step { display: flex; align-items: center; gap: 12px; margin-top: 10px; color: #f7f2fb; font-size: 13px; font-weight: 720; line-height: 1.3; }
+    .reco-step-num { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border: 1px solid rgba(178,120,255,.48); border-radius: 11px; color: #e0c5ff; background: rgba(178,120,255,.09); font-size: 14px; font-weight: 1000; }
+    .offers { margin-top: 29px; text-align: center; }
+    .eyebrow { color: var(--pink); font-size: 10px; font-weight: 1000; letter-spacing: .17em; text-transform: uppercase; }
+    h2 { margin: 6px 0 0; font-size: 24px; font-weight: 1000; letter-spacing: -.055em; }
+    .offer-lede { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 16px; }
+    .game { min-width: 0; padding: 10px 5px 9px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(145deg, rgba(178,120,255,.1), rgba(255,255,255,.025)); box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 9px 22px rgba(0,0,0,.17); cursor: pointer; text-align: center; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
+    .game:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+    .game:active { transform: scale(.98); }
+    @media (hover: hover) { .game:hover { border-color: rgba(237,99,189,.62); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 27px rgba(0,0,0,.24); transform: translateY(-2px); } }
+    .game img { display: block; width: 61px; height: 61px; margin: 0 auto; border-radius: 16px; object-fit: cover; box-shadow: 0 7px 18px rgba(0,0,0,.38); }
+    /* Shown only when the game's art is not on the server yet — see the art note in the script. */
+    .game-tile-fallback { display: grid; width: 61px; height: 61px; margin: 0 auto; place-items: center; border-radius: 16px; background: linear-gradient(140deg, rgba(178,120,255,.42), rgba(255,111,207,.34)); box-shadow: 0 7px 18px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.14); color: #fff; font-size: 23px; font-weight: 1000; letter-spacing: -.04em; }
+    .game-name { min-height: 28px; margin-top: 8px; color: #fff; font-size: 12px; font-weight: 900; letter-spacing: -.035em; line-height: 1.08; }
+    .game-offer { margin-top: 4px; color: var(--muted); font-size: 9px; font-weight: 700; white-space: nowrap; }
+    .game-offer strong { color: var(--pink); font-weight: 950; }
+    .fine-print { margin: 22px 8px 0; color: #655b74; font-size: 8px; line-height: 1.4; text-align: center; }
+    .legal-links { margin-top: 10px; text-align: center; font-size: 9px; }
+    .legal-links a { color: #7b6f8d; text-decoration: none; margin: 0 6px; }
+    .store-footer { position: fixed; right: 0; bottom: 0; left: 0; z-index: 80; padding: 24px 12px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(rgba(8,5,17,0), rgba(8,5,17,.94) 27%, var(--bg) 52%); }
+    .store-footer-inner { width: min(100%, 470px); margin: 0 auto; }
+    .store-hint { display: flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 8px; color: #d9c6ee; font-size: 10px; font-weight: 750; }
+    .store-hint::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 12px rgba(255,111,207,.8); }
+    .store-row { display: flex; gap: 9px; }
+    .store-btn { display: flex; min-width: 0; flex: 1; align-items: center; justify-content: center; gap: 11px; padding: 15px 10px; border: 2px solid #fff; border-radius: 17px; color: #09070d; box-shadow: 0 0 0 4px rgba(255,255,255,.1), 0 0 30px rgba(215,116,255,.56), 0 15px 30px rgba(0,0,0,.38); transition: transform .12s ease, box-shadow .2s ease; }
+    .store-btn:hover { transform: translateY(-1px); box-shadow: 0 0 0 5px rgba(255,255,255,.13), 0 0 38px rgba(234,109,255,.72), 0 17px 34px rgba(0,0,0,.42); }
+    .store-btn:focus-visible { outline: 3px solid var(--pink); outline-offset: 4px; }
+    .store-btn:active { transform: scale(.975); }
+    .store-btn svg { width: 27px; height: 27px; flex: 0 0 27px; }
+    .store-btn .store-copy { display: flex; min-width: 0; flex-direction: column; line-height: 1.05; text-align: left; }
+    .store-btn .small { font-size: 9px; font-weight: 750; letter-spacing: .01em; }
+    .store-btn .big { margin-top: 2px; font-size: 16px; font-weight: 1000; letter-spacing: -.025em; white-space: nowrap; }
+    .store-btn.apple { background: linear-gradient(180deg, #fff 0%, #f1eaf7 100%); }
+    @media (max-width: 680px) {
+      .video-badge { right: 8px; bottom: 8px; }
+    }
+    @media (max-width: 350px) {
+      .page { padding-inline: 9px; }
+      h1 { font-size: 34px; }
+      .grid { gap: 6px; }
+      .game img, .game-tile-fallback { width: 55px; height: 55px; }
+      .game-name { font-size: 11px; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .store-btn.apple { animation: store-pulse 2.2s ease-in-out infinite; }
+      @keyframes store-pulse {
+        0%, 100% { box-shadow: 0 0 0 4px rgba(255,255,255,.1), 0 0 26px rgba(215,116,255,.46), 0 15px 30px rgba(0,0,0,.38); }
+        50% { box-shadow: 0 0 0 6px rgba(255,255,255,.16), 0 0 42px rgba(234,109,255,.8), 0 15px 34px rgba(0,0,0,.42); }
+      }
+      .brand-lockup, h1, .lede, .bonus, .trust { animation: rise .45s ease both; }
+      h1 { animation-delay: .04s; }
+      .lede { animation-delay: .08s; }
+      .bonus { animation-delay: .12s; }
+      .trust { animation-delay: .16s; }
+      .game { animation: rise .45s ease both; }
+      .game:nth-child(2) { animation-delay: .04s; }
+      .game:nth-child(3) { animation-delay: .08s; }
+      .game:nth-child(4) { animation-delay: .12s; }
+      .game:nth-child(5) { animation-delay: .16s; }
+      .game:nth-child(6) { animation-delay: .2s; }
+      @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="page">
+    <div class="brand-lockup">
+      <img class="brand-logo" src="images/reco-app-icon.jpg" alt="Reco Social" width="40" height="40">
+      <div class="brand-name">reco<span>social</span></div>
+    </div>
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Get Paid to <span>Play Games</span></h1>
+      <p class="lede">Pick a game, complete challenges, and turn your play time into real rewards.</p>
+      <div class="bonus"><span aria-hidden="true">✦</span><strong>$10</strong> new-player bonus</div>
+      <div class="trust"><span>Free signup</span><span>Real rewards</span><span>Available on iOS</span></div>
+    </section>
+    <section class="reco-spotlight" aria-labelledby="reco-spotlight-title">
+      <div class="spotlight-label">Featured reward app</div>
+      <div class="reco-video" id="reco-video-wrap">
+        <video autoplay="" muted="" loop="" playsinline="" poster="images/gameplay.jpg" src="images/gameplay.mp4"></video>
+        <div class="video-shade"></div>
+        <div class="video-badge">
+          <div class="video-badge-icon" aria-hidden="true">▶</div>
+          <div><strong>Reco Social — play now</strong><span>Choose a game and complete challenges</span></div>
+        </div>
+      </div>
+      <div class="reco-card">
+        <div class="reco-app-row">
+          <img class="reco-app-icon" src="images/reco-app-icon.jpg" alt="Reco Social" width="68" height="68">
+          <div class="reco-app-info">
+            <div class="reco-app-name" id="reco-spotlight-title">Reco Social</div>
+            <div class="reco-app-meta"><span class="rating">★★★★★</span> &nbsp; Games &amp; rewards</div>
+            <div class="reco-pill">Play games · complete challenges · unlock rewards</div>
+          </div>
+        </div>
+        <div class="reco-divider"></div>
+        <div class="steps-title">How it works</div>
+        <div class="reco-step"><span class="reco-step-num">1</span><span>Download Reco Social</span></div>
+        <div class="reco-step"><span class="reco-step-num">2</span><span>Choose a game and complete its challenges</span></div>
+        <div class="reco-step"><span class="reco-step-num">3</span><span>Unlock and redeem your rewards</span></div>
+      </div>
+    </section>
+    <section class="offers" aria-labelledby="offers-title">
+      <div class="eyebrow">Other featured games</div>
+      <h2 id="offers-title">Choose your first challenge</h2>
+      <p class="offer-lede">Complete milestones to unlock each reward.</p>
+      <div class="grid">
+        <a class="game offer-link" href="#" aria-label="Play Monopoly GO!"><img src="images/monopoly-go.png" alt="Monopoly GO!" width="61" height="61"><div class="game-name">Monopoly GO!</div><div class="game-offer">Earn up to <strong>$250</strong></div></a>
+        <a class="game offer-link" href="#" aria-label="Play Coin Master"><img src="images/coin-master.jpg" alt="Coin Master" width="61" height="61"><div class="game-name">Coin Master</div><div class="game-offer">Earn up to <strong>$180</strong></div></a>
+        <a class="game offer-link" href="#" aria-label="Play Candy Crush"><img src="images/candy-crush.png" alt="Candy Crush" width="61" height="61"><div class="game-name">Candy Crush</div><div class="game-offer">Earn up to <strong>$120</strong></div></a>
+        <a class="game offer-link" href="#" aria-label="Play Pokémon GO"><img src="images/pokemon-go.png" alt="Pokémon GO" width="61" height="61"><div class="game-name">Pokémon GO</div><div class="game-offer">Earn up to <strong>$200</strong></div></a>
+        <a class="game offer-link" href="#" aria-label="Play Royal Match"><img src="images/royal-match.png" alt="Royal Match" width="61" height="61"><div class="game-name">Royal Match</div><div class="game-offer">Earn up to <strong>$150</strong></div></a>
+        <a class="game offer-link" href="#" aria-label="Play Gardenscapes"><img src="images/gardenscapes.png" alt="Gardenscapes" width="61" height="61"><div class="game-name">Gardenscapes</div><div class="game-offer">Earn up to <strong>$100</strong></div></a>
+      </div>
+    </section>
+    <p class="fine-print">Reward amounts vary by game, milestone, eligibility, and completion. “Up to” amounts are not guaranteed. Reco Social is not affiliated with any game named on this page.</p>
+    <div class="legal-links"><a href="/Rewards/privacy">Privacy Policy</a>·<a href="/Rewards/terms">Terms of Service</a></div>
+  </main>
+
+  <div class="store-footer" aria-label="Download Reco Social">
+    <div class="store-footer-inner">
+      <div class="store-hint">Available now on iOS</div>
+      <div class="store-row">
+        <a class="store-btn apple offer-link" id="ios-btn" href="#" aria-label="Download Reco Social on the App Store">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"></path></svg>
+          <span class="store-copy"><span class="small">Download on the</span><span class="big">App Store</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* THE RAW DESTINATION LINK for Reco Social — the same base every hand-built Reco lander in this
+     offer row carries for US. The other hand-built Reco landers in this repo run the sibling
+     host; both resolve, so a mismatch NEVER errors — it just splits reporting.
+
+     ⚠️ The base must NOT carry a trailing "&s1=" — the builder appends the param itself, and
+     keeping both would ship "&s1=&s1=CODE", where the network reads the EMPTY first one. */
+  var OFFER_LINK = 'https://monetisetrk2.co.uk/?a=26648&c=56065';
+
+  /* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+     every value comes from location.search, so the shipped builder can be lifted out and executed
+     on its own — which is exactly what the offer-link guard does to prove this page. */
+  function buildOfferUrl() {
+    var _p = new URLSearchParams(location.search);
+    var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+    /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+       with NO code in it going out verbatim: a free-form label is that operator's attribution key
+       and blanking it would pay them nothing. */
+    var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+    /* ⚠️ OUTBOUND PARAM IS `s1`. This destination family reads s1..s5 and silently DISCARDS sub1;
+       the alternate family hosts do the exact reverse. Copying the wrong sibling zeroes attribution
+       with no error — the link looks healthy and every conversion lands unmatched. */
+    var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+    var _t = _p.get('ttclid') || '';
+    /* Drop an UNEXPANDED TikTok macro rather than logging it as a real click id. */
+    if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+    /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The
+       gate's own `s1=` carries the FULL wire either way: that is our log, not the network's param,
+       and the only place the username, AffID and geo survive. */
+    return '/click?u=' + encodeURIComponent(_dest)
+         + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+         + '&lp=' + encodeURIComponent(location.pathname)
+         + (_t ? '&t=' + encodeURIComponent(_t) : '');
+  }
+
+
+  function makeId(){
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3) | 0x8; return v.toString(16);
+    });
+  }
+
+  /* The operator's own pixel events, fired browser-side exactly as supplied. The comp also POSTed
+     each one to /track-tiktok-event for server-side CAPI; that route does not exist on this host,
+     so every call 404'd — removed rather than left failing silently. */
+  try { ttq.track('ViewContent', { event_id: makeId(), content_type: 'lead', content_id: 'landing-page-view', value: 0.5, currency: 'USD' }); } catch (e) {}
+
+  var activating = false;
+  function handleActivate(e){
+    if (e && e.preventDefault) e.preventDefault();
+    if (activating) return; activating = true;
+    var leadProps = { content_type: 'lead', content_id: 'rewards-lead-form', value: 0.5, currency: 'USD' };
+    try {
+      ttq.track('AddToCart', { event_id: makeId(), content_type: 'lead', content_id: 'rewards-app-100', value: 0.5, currency: 'USD' });
+      ttq.track('CompleteRegistration', Object.assign({ event_id: makeId() }, leadProps));
+      ttq.track('SubmitForm', Object.assign({ event_id: makeId() }, leadProps));
+      ttq.track('ClickButton', Object.assign({ event_id: makeId() }, leadProps));
+    } catch (x) {}
+    /* The comp exited to a third-party click rotator, which skips our gate entirely — clicks and
+       EPC would read zero with nothing alarming — and drops the query, so the code never leaves. */
+    window.location.href = buildOfferUrl();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.offer-link'), function (el) {
+    el.addEventListener('click', handleActivate);
+  });
+
+  /* ART NOT ON THE SERVER YET. The comp references images/gameplay.mp4 + .jpg and six game tiles
+     that do not exist in this repo. Until they are added, the video block hides itself and each
+     tile falls back to a lettered gradient rather than a broken-image icon. Drop the real files
+     into images/ with the names already in the markup and they light up with no code change. */
+  var v = document.querySelector('#reco-video-wrap video');
+  if (v) {
+    var hideVideo = function () { var w = document.getElementById('reco-video-wrap'); if (w) w.style.display = 'none'; };
+    v.addEventListener('error', hideVideo);
+    if (v.querySelector) { /* no <source> children; the src attribute is the only candidate */ }
+    setTimeout(function () { if (v.readyState === 0 && v.networkState === 3) hideVideo(); }, 1200);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.game img'), function (img) {
+    img.addEventListener('error', function () {
+      var d = document.createElement('div');
+      d.className = 'game-tile-fallback';
+      d.setAttribute('aria-hidden', 'true');
+      d.textContent = (img.getAttribute('alt') || '?').trim().charAt(0).toUpperCase();
+      if (img.parentNode) img.parentNode.replaceChild(d, img);
+    });
+  });
+
+  /* BEACON v2 */
+  (function(){
+    var BEACON = '/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    function bsend(ev){
+      try {
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+          event: ev, sid: bq.get('sid') || '',
+          s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+          ttclid: bq.get('ttclid') || '',
+          slice: 'RSUS-COOP2X4EVER-22', clone: 'US', path: location.pathname
+        })], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.classList && el.classList.contains('offer-link')) { fired = true; bsend('offer_click'); return; }
+      }
+    }, true);
+  })();
+})();
+</script>
+
+</body></html>

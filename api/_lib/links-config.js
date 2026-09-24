@@ -1055,6 +1055,15 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // webview and names /robloxlp.html in its x-dest meta.
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'robloxlp.html', 'robloxlp-pre.html',
+  // Three operator comps hosted 2026-09-24, one pair each, reserved to its submitter. Flat pairs
+  // with no clone family, so the two page NAMES are the whole registration each - the family root
+  // is deliberately NOT listed. Each page's outbound dialect follows ITS OWN destination:
+  // freecash-shannonp-37 and rsus-coop2x4ever-22 go to Monetise hosts and send s1;
+  // swagbucksiosus-sxmmybills-12 goes to the Everflow-family host and sends sub1.
+  // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
+  'freecash-shannonp-37.html', 'freecash-shannonp-37-pre.html',
+  'rsus-coop2x4ever-22.html', 'rsus-coop2x4ever-22-pre.html',
+  'swagbucksiosus-sxmmybills-12.html', 'swagbucksiosus-sxmmybills-12-pre.html',
   // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
   // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as
   // /pre?to=/AS52/US<n> and the visitor would cross a prelander twice. Leaving it out makes

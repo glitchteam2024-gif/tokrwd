@@ -126,6 +126,11 @@
     // Roblox Back To School pair, 2026-09-22. Flat pair, no clone family.
     // Must stay identical to the list in api/_lib/links-config.js.
     'robloxlp.html', 'robloxlp-pre.html',
+    // Three operator comps hosted 2026-09-24, one flat pair each, reserved to its submitter.
+    // Must stay identical to the allowlist the shared config declares.
+    'freecash-shannonp-37.html', 'freecash-shannonp-37-pre.html',
+    'rsus-coop2x4ever-22.html', 'rsus-coop2x4ever-22-pre.html',
+    'swagbucksiosus-sxmmybills-12.html', 'swagbucksiosus-sxmmybills-12-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
