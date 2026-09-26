@@ -131,6 +131,8 @@
     'freecash-shannonp-37.html', 'freecash-shannonp-37-pre.html',
     'rsus-coop2x4ever-22.html', 'rsus-coop2x4ever-22-pre.html',
     'swagbucksiosus-sxmmybills-12.html', 'swagbucksiosus-sxmmybills-12-pre.html',
+    // Operator comp hosted 2026-09-25, reserved to its submitter.
+    'gravypass5geos-lilf0xsprk2006-27.html', 'gravypass5geos-lilf0xsprk2006-27-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',

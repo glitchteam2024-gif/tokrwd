@@ -1064,6 +1064,8 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'freecash-shannonp-37.html', 'freecash-shannonp-37-pre.html',
   'rsus-coop2x4ever-22.html', 'rsus-coop2x4ever-22-pre.html',
   'swagbucksiosus-sxmmybills-12.html', 'swagbucksiosus-sxmmybills-12-pre.html',
+  // Operator comp hosted 2026-09-25 (aff27-1), reserved to its submitter. Outbound sub1 (Everflow family).
+  'gravypass5geos-lilf0xsprk2006-27.html', 'gravypass5geos-lilf0xsprk2006-27-pre.html',
   // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
   // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as
   // /pre?to=/AS52/US<n> and the visitor would cross a prelander twice. Leaving it out makes
