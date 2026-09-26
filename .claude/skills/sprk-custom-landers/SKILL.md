@@ -71,8 +71,9 @@ to"*. The full procedure, with runnable scripts, lives in **SPRKNetworkAds
    theirs. Only the money path and invisible hygiene change (the closed list in the submissions skill).
 3. **Framed logos: measure with `icon-edge.py` and FLAG them.** Replace with the official full-bleed App
    Store icon only when Migi asks for that page. Never hand-draw a brand mark.
-4. **Missing assets (an empty box): FLAG them first in the report.** Fill with the app's official App
-   Store screenshots only when Migi asks.
+4. **A picture the page points to that did not come with it: ALWAYS fill it** (Migi 2026-09-26) with the
+   official photo of what it represents: the App Store icon for a square slot, App Store screenshots for a
+   wide one, at least 3x the slot's width, one `src` changed, named in the report. Never leave it broken.
 5. **Report per affiliate**: the offer it is connected to, what it replaced, the link their ads run (with
    `?s1=SPK-TEST-0000` to test) and whether every page redirected correctly.
 
