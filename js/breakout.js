@@ -135,6 +135,8 @@
     'gravypass5geos-lilf0xsprk2006-27.html', 'gravypass5geos-lilf0xsprk2006-27-pre.html',
     // Operator page hosted 2026-09-26 (aff18-1, sent as images of its source), reserved to its submitter.
     'rsus-ashbbby-18.html', 'rsus-ashbbby-18-pre.html',
+    // Requested page hosted 2026-09-28 (Scrambly), reserved to its requester.
+    'scrambly-drewski4k-34.html', 'scrambly-drewski4k-34-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
