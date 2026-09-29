@@ -139,6 +139,8 @@
     'scrambly-drewski4k-34.html', 'scrambly-drewski4k-34-pre.html',
     // Operator page hosted 2026-09-28 (aff75-1), reserved to its submitter.
     'gp-luisa10111-75.html', 'gp-luisa10111-75-pre.html',
+    // Operator page hosted 2026-09-29 (aff75-4), reserved to its submitter.
+    'rs-luisa10111-75.html', 'rs-luisa10111-75-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',

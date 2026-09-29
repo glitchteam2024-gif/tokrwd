@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" data-geo="US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="robots" content="noindex,nofollow">
+<title>Reco Social - Your Screen Time Pays</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<link rel="preconnect" href="https://analytics.tiktok.com" crossorigin>
+<script>
+(function(){
+  var GEOS = ["US"], THIS_GEO = "US";
+  var q = new URLSearchParams(location.search);
+  var want = (q.get('lg') || '').trim().toUpperCase();
+  if (want === 'UK') want = 'GB';
+  if (!want || want === THIS_GEO || GEOS.indexOf(want) === -1) return;
+  var re = new RegExp('(^|/)' + THIS_GEO + '([0-9]*)((?:/go)?(?:/index[.]html|/)?)$');
+  var next = location.pathname.replace(re, function (_m, pre, idx, tail) { return pre + want + idx + (tail || ''); });
+  if (next === location.pathname) return;
+  q.set('lg', want);
+  location.replace(next + '?' + q.toString() + location.hash);
+})();
+</script>
+
+<script id="offer-config">
+/* This page IS one geo — US, rendered in en with its own figures baked into the markup.
+   There is deliberately NO runtime geo detection, no language switcher and no cookie: the geo is
+   decided by WHICH PAGE the ad points at, and the click door routes on landing_pages.geo for that
+   same lander. One fact drives both, so the page cannot promise one country's offer and hand the
+   visitor another's. ||-guarded so a server-side injection still wins if one is ever added. */
+window.__OFFER_LINK__ = window.__OFFER_LINK__ || "https://monetisetrk2.co.uk/?a=26648&c=56065";
+window.__STATS__    = window.__STATS__ || null;
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Inter','Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh}
+a,button{touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:pointer;font-family:inherit}
+.stats[hidden]{display:none}
+.stats{display:flex;gap:.5rem;margin-top:1rem}.stat{flex:1;text-align:center;padding:.7rem .3rem;border-radius:12px}
+.stat-val{font-weight:800;font-size:1rem}.stat-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-top:.15rem}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+body{background:#fff;color:#15101a}
+.wrap{max-width:27rem;margin:0 auto;padding:1.4rem 1.15rem calc(2rem + env(safe-area-inset-bottom))}
+.top{display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:.5rem;font-weight:800;font-size:1.05rem}
+.logo i{width:2rem;height:2rem;border-radius:10px;background:#a21caf;color:#fff;display:grid;place-items:center;font-style:normal;font-weight:900}
+.tag{font-size:.62rem;font-weight:800;letter-spacing:.12em;color:#86198f;background:#fae8ff;padding:.35rem .6rem;border-radius:99px}
+h1{font-size:2.3rem;line-height:1.05;font-weight:800;letter-spacing:-.04em;margin-top:1.5rem}
+h1 span{color:#a21caf;position:relative;white-space:nowrap}
+h1 span::after{content:"";position:absolute;left:0;right:0;bottom:.02em;height:.2em;background:#f5d0fe;z-index:-1;border-radius:4px}
+.sub{color:#5f5767;font-size:.95rem;line-height:1.55;margin-top:.8rem}
+.wallet{margin-top:1.4rem;border-radius:22px;padding:1.2rem;color:#fff;background:linear-gradient(145deg,#2e1065,#86198f 60%,#db2777);box-shadow:0 18px 40px -14px rgba(134,25,143,.55);position:relative;overflow:hidden}
+.wallet::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.08)}
+.w-row{display:flex;justify-content:space-between;font-size:.7rem;letter-spacing:.12em;font-weight:700;opacity:.8}
+.w-bal{font-size:1.6rem;font-weight:800;margin:.7rem 0 .9rem;letter-spacing:-.02em}
+.bar{height:8px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}.bar i{display:block;height:100%;width:8%;background:#fde047;border-radius:99px}
+.w-foot{display:flex;justify-content:space-between;font-size:.74rem;margin-top:.5rem;opacity:.85}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:1.2rem}
+.step{background:#fff;border:1px solid #efe6f2;border-radius:16px;padding:.85rem .7rem}
+.num{width:1.6rem;height:1.6rem;border-radius:50%;background:#a21caf;color:#fff;display:grid;place-items:center;font-weight:800;font-size:.8rem}
+.t{font-weight:750;font-weight:700;font-size:.82rem;line-height:1.25;margin-top:.55rem}
+.d{font-size:.7rem;color:#7a7282;line-height:1.35;margin-top:.3rem}
+.lbl{font-size:.64rem;font-weight:800;letter-spacing:.14em;color:#9a92a2;margin:1.3rem 0 .55rem}
+.pays{display:flex;flex-wrap:wrap;gap:.4rem}
+.pays span{font-size:.78rem;font-weight:700;padding:.45rem .75rem;border-radius:99px;background:#fff;border:1px solid #efe6f2}
+.cta{display:block;width:100%;margin-top:1.4rem;padding:1.15rem;border:0;border-radius:99px;background:#15101a;color:#fff;font-size:1.02rem;font-weight:800;letter-spacing:.02em;box-shadow:0 10px 24px -8px rgba(21,16,26,.5);transition:transform .15s}
+.cta b{color:#f0abfc}
+.cta:active{transform:scale(.98)}
+.trust{text-align:center;color:#7a7282;font-size:.75rem;margin-top:.75rem}.trust strong{color:#15101a}
+.stat{background:#fff;border:1px solid #efe6f2}.stat-val{color:#a21caf}
+.fine{color:#a39bab;font-size:.68rem;line-height:1.6;margin-top:1.6rem;text-align:center}
+@media(max-width:360px){.steps{grid-template-columns:1fr}}
+
+</style>
+<script>
+!/^(file:|http://(localhost|127\.0\.0\.1))/.test(location.origin==='null'?'file:':location.origin)&&function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  ttq.load('D6CF3ABC77U56TVAPJPG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+</head>
+<body>
+<main class="wrap">
+  <div class="top"><div class="logo"><i>R</i>Reco Social</div><span class="tag">SUMMER DROP</span></div>
+  <h1>Your screen time, <span>paying you back.</span></h1>
+  <p class="sub">Try the games and apps Reco Social recommends. Finish 3&ndash;5 quick deals and your reward unlocks.</p>
+  <div class="wallet">
+    <div class="w-row"><span>RECO SOCIAL APP &middot; YOUR REWARDS</span><span>US</span></div>
+    <div class="w-bal">Reward: locked 🔒</div>
+    <div class="bar"><i></i></div>
+    <div class="w-foot"><span>0 of 3&ndash;5 deals</span><span>Cash out when done</span></div>
+  </div>
+  <div class="steps"><div class="step"><div class="num">1</div><div class="t">Get the app</div><div class="d">Free download. Unlocks exclusive offers.</div></div><div class="step"><div class="num">2</div><div class="t">Play &amp; complete</div><div class="d">2&ndash;3 games or tasks.</div></div><div class="step"><div class="num">3</div><div class="t">Cash out</div><div class="d">Pick how you get paid.</div></div></div>
+  <div class="lbl">CASH OUT TO</div>
+  <div class="pays"><span>PayPal</span><span>Cash App</span><span>Apple Pay</span><span>Wise</span><span>Crypto</span></div>
+  <button id="ctaBtn" class="cta">Get the Reco Social app <b>&rarr;</b></button>
+  <div class="trust"><strong>Limited spots remaining.</strong> No credit card needed.</div>
+  <div class="stats" id="statsBar" hidden></div>
+  <p class="fine">Earnings depend on which offers you complete. Rewards are paid by Reco Social, not by this page. Not affiliated with, sponsored or endorsed by TikTok. Individual results vary.</p>
+</main>
+<script>
+(function(){
+'use strict';
+
+/* bfcache bust */
+window.addEventListener('pageshow', function(e){ if (e.persisted) location.reload(); });
+if (window.performance && performance.navigation && performance.navigation.type === 2) location.reload();
+
+var OFFER_LINK       = window.__OFFER_LINK__   || 'https://monetisetrk2.co.uk/?a=26648&c=56065';
+  /* BEACON v2 */
+  /* Funnel beacon. sendBeacon so it can never delay or block the tap, and every call is wrapped so
+     analytics cannot throw on the path to the offer. No UA test here -- /api/funnel-beacon
+     classifies in-app server-side, which keeps this page identical for every visitor. */
+  (function(){
+    var BEACON = '/api/funnel-beacon';
+    var bq = new URLSearchParams(location.search);
+    var bseg = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean);
+    function bsend(ev, extra){
+      try {
+        var d = { event: ev, sid: bq.get('sid') || '',
+                  s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+                  ttclid: bq.get('ttclid') || '',
+                  slice: bseg[0] || '', clone: bseg[1] || '', path: location.pathname };
+        if (extra) for (var k in extra) d[k] = extra[k];
+        navigator.sendBeacon(BEACON, new Blob([JSON.stringify(d)], { type: 'text/plain' }));
+      } catch (e) {}
+    }
+    bsend('lp_view');
+    /* Bound to the CTA, not to the URL builder: on family A the builder runs at page LOAD, so
+       beaconing there would count a click for everyone who merely saw the page. Fires once. */
+    var fired = false;
+    document.addEventListener('click', function(e){
+      if (fired) return;
+      var el = e.target;
+      for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+        if (el.id === 'ctaBtn' || el.id === 'tipGo'
+            || (el.classList && (el.classList.contains('offer-link') || el.classList.contains('store-combo')))) {
+          fired = true;
+          bsend('offer_click', { s5: (window.__S5 || '') });
+          return;
+        }
+      }
+    }, true);
+  })();
+
+/* Amounts are baked into the markup at build time — nothing to substitute at runtime. */
+var GEO_VALUE = 0;
+
+/* optional social proof - only if the middleware supplied real values */
+(function(){
+  var s = window.__STATS__;
+  if (!s || !s.length) return;
+  var bar = document.getElementById('statsBar');
+  bar.innerHTML = s.map(function(x){
+    return '<div class="stat"><div class="stat-val"></div><div class="stat-lbl"></div></div>';
+  }).join('');
+  [].forEach.call(bar.querySelectorAll('.stat'), function(el, i){
+    el.querySelector('.stat-val').textContent = String(s[i].value);
+    el.querySelector('.stat-lbl').textContent = String(s[i].label);
+  });
+  bar.hidden = false;
+})();
+
+
+var q = new URLSearchParams(location.search);
+
+
+
+if (!q.get('s1')) {
+  var mc = q.get('mc_attr') || '', f = {};
+  mc.split('..').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) f[kv.slice(0, i)] = kv.slice(i + 1); });
+  var d = f.e || f.c; if (d) q.set('s1', d);
+}
+
+/* Referrer rescue for a stripped query (in-app browsers drop params on some hops). */
+if (!q.get('s1') && document.referrer) {
+  try {
+    var r = new URLSearchParams(new URL(document.referrer).search);
+    var _r = r.get('s1') || r.get('sub1');
+    if (_r) q.set('s1', _r);
+  } catch(e) {}
+}
+
+
+var s1 = q.get('s1') || '';
+var ttclid = q.get('ttclid') || '';
+
+
+
+
+function buildOfferUrl() {
+  var _s1 = (typeof s1 !== 'undefined' && s1) ? s1 : '';
+  if (!_s1) { try { var _p = new URLSearchParams(location.search); _s1 = _p.get('s1') || _p.get('sub1') || ''; } catch (e) {} }
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire.
+     Only the extracted code leaves; the rest of the incoming value never reaches it.
+     `|| _s1` keeps a code-less value going out verbatim — a scaler's own free-form label IS
+     their attribution key and blanking it would pay them nothing. Case-insensitive, because a
+     lowercasing ad platform would otherwise match nothing and ship the entire wire. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = ''; try { _t = new URLSearchParams(location.search).get('ttclid') || ''; } catch (e) {}
+  /* CLICK-STAMP v1 -- first-party stamp: log the click at our own /click, then 302 to the offer unchanged. */
+  return '/click?u=' + encodeURIComponent(_dest) + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '') + '&lp=' + encodeURIComponent(location.pathname) + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+var target = buildOfferUrl();
+
+if (window.ttq) {
+  try { ttq.track('ViewContent', { content_name: 'Reco Social US Landing', value: GEO_VALUE }); } catch(e) {}
+}
+
+var ctaBtn = document.getElementById('ctaBtn');
+var clicking = false, hasTouched = false;
+
+function handleCta(e) {
+  e.preventDefault();
+  if (clicking) return;
+  clicking = true;
+  ctaBtn.textContent = 'Loading...';
+  if (window.ttq) {
+    try { ttq.track('ClickButton', { content_name: 'Reco Social US CTA', value: GEO_VALUE }); } catch(e) {}
+  }
+  location.replace(target);
+}
+ctaBtn.addEventListener('touchend', function(e){ hasTouched = true; handleCta(e); }, {passive:false});
+ctaBtn.addEventListener('click', function(e){ if (!hasTouched) handleCta(e); });
+
+})();
+</script>
+</body>
+</html>
