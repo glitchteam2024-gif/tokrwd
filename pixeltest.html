@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Hello World</title>
+
+<!-- TikTok Pixel Code Start -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
+var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
+;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+
+
+  ttq.load('DAUOGKRC77UE17RKVTFG');
+  ttq.page();
+}(window, document, 'ttq');
+</script>
+<!-- TikTok Pixel Code End -->
+
+<style>
+  :root {
+    --bg: #0e0d0b;
+    --panel: #171512;
+    --line: #2a2620;
+    --text: #f1ece2;
+    --muted: #9a9181;
+    --gold: #c9a86a;
+    --gold-ink: #1a1508;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px 120px;
+  }
+  main { width: 100%; max-width: 440px; text-align: center; }
+  section[hidden] { display: none; }
+  h1 { font-size: clamp(36px, 9vw, 56px); line-height: 1.05; margin: 0 0 12px; letter-spacing: -0.02em; }
+  h2 { font-size: clamp(26px, 6vw, 34px); line-height: 1.15; margin: 0 0 24px; letter-spacing: -0.01em; }
+  p { color: var(--muted); margin: 0 0 28px; }
+  .row { display: flex; gap: 12px; justify-content: center; }
+  button {
+    font: inherit;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 14px 28px;
+    min-width: 140px;
+    cursor: pointer;
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: var(--gold-ink);
+    transition: transform .08s ease, filter .15s ease;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { transform: scale(.98); }
+  button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+  button.ghost { background: transparent; color: var(--gold); }
+  .link { background: none; border: 0; color: var(--muted); min-width: 0; padding: 8px; font-weight: 500; text-decoration: underline; }
+
+  /* Small on-page log so you can see each pixel event as it fires. */
+  #log {
+    position: fixed; left: 16px; right: 16px; bottom: 16px;
+    max-width: 440px; margin: 0 auto;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted);
+    max-height: 30vh; overflow: auto; text-align: left;
+  }
+  #log b { color: var(--text); font-weight: 600; }
+  #status.ok { color: #8fbf7f; }
+  #status.bad { color: #d98b6f; }
+  #log ol { margin: 6px 0 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<main>
+  <section id="step-hello">
+    <h1>Hello World</h1>
+    <p>Just a quick one.</p>
+    <button type="button" id="btn-continue">Continue</button>
+  </section>
+
+  <section id="step-question" hidden>
+    <h2 tabindex="-1">Are you having a good day?</h2>
+    <div class="row">
+      <button type="button" data-answer="yes">Yes</button>
+      <button type="button" class="ghost" data-answer="no">No</button>
+    </div>
+  </section>
+
+  <section id="step-thanks" hidden>
+    <h2 tabindex="-1" id="thanks-title">Thanks!</h2>
+    <p id="thanks-body">Appreciate you letting us know.</p>
+    <button type="button" class="link" id="btn-restart">Start over</button>
+  </section>
+</main>
+
+<div id="log" aria-live="polite">
+  <div>Pixel: <span id="status">loading…</span></div>
+  <ol id="events"></ol>
+</div>
+
+<script>
+(function () {
+  var statusEl = document.getElementById('status');
+  var eventsEl = document.getElementById('events');
+
+  function logLine(name, detail) {
+    var li = document.createElement('li');
+    var b = document.createElement('b');
+    b.textContent = name;
+    li.appendChild(b);
+    li.appendChild(document.createTextNode(' ' + (detail || '')));
+    eventsEl.appendChild(li);
+    eventsEl.parentNode.scrollTop = eventsEl.parentNode.scrollHeight;
+  }
+
+  // Unique id per event, so these can be de-duplicated against the Events API later.
+  function eventId(name) {
+    return name + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  }
+
+  function track(name, props) {
+    ttq.track(name, props, { event_id: eventId(name) });
+    logLine(name, props.content_name);
+  }
+
+  // ttq.ready fires once events.js has actually loaded. If it never does,
+  // something (usually an ad blocker) is stopping the pixel.
+  var loaded = false;
+  ttq.ready(function () {
+    loaded = true;
+    statusEl.textContent = 'loaded (DAUOGKRC77UE17RKVTFG)';
+    statusEl.className = 'ok';
+  });
+  setTimeout(function () {
+    if (!loaded) {
+      statusEl.textContent = 'not loaded — ad blocker or network is blocking analytics.tiktok.com';
+      statusEl.className = 'bad';
+    }
+  }, 6000);
+
+  logLine('Pageview', '(ttq.page)');
+
+  function show(id) {
+    ['step-hello', 'step-question', 'step-thanks'].forEach(function (s) {
+      document.getElementById(s).hidden = (s !== id);
+    });
+    var heading = document.querySelector('#' + id + ' h2');
+    if (heading) heading.focus();
+  }
+
+  // 1. Landed on the page.
+  track('ViewContent', { content_name: 'Hello World', content_category: 'pixel_test', description: 'Landing page view' });
+
+  // 2. Continue.
+  document.getElementById('btn-continue').addEventListener('click', function () {
+    track('ClickButton', { content_name: 'Continue', content_category: 'pixel_test' });
+    show('step-question');
+  });
+
+  // 3. Yes / No.
+  Array.prototype.forEach.call(document.querySelectorAll('[data-answer]'), function (btn) {
+    btn.addEventListener('click', function () {
+      var answer = btn.getAttribute('data-answer');
+      var label = answer === 'yes' ? 'Yes' : 'No';
+      track('ClickButton', { content_name: 'Good day: ' + label, content_category: 'pixel_test' });
+      track('SubmitForm', { content_name: 'Good day survey', content_category: 'pixel_test', description: answer });
+
+      document.getElementById('thanks-title').textContent = answer === 'yes' ? 'Thanks — glad to hear it!' : 'Thanks — hope it gets better.';
+      show('step-thanks');
+
+      // 4. Reached the thank-you step.
+      track('CompleteRegistration', { content_name: 'Thanks', content_category: 'pixel_test', description: answer });
+    });
+  });
+
+  document.getElementById('btn-restart').addEventListener('click', function () {
+    show('step-hello');
+    document.getElementById('btn-continue').focus();
+  });
+})();
+</script>
+</body>
+</html>
