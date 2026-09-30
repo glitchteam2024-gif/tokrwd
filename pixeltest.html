@@ -19,6 +19,18 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 }(window, document, 'ttq');
 </script>
 <!-- TikTok Pixel Code End -->
+<script>
+  // Watch the pixel script tag the snippet just inserted: 'load' = TikTok's pixel is running,
+  // 'error' = the browser (usually an ad blocker) refused to load it, so nothing reaches TikTok.
+  (function () {
+    window.__pixelState = 'loading';
+    var s = document.querySelector('script[src*="analytics.tiktok.com/i18n/pixel/events.js"]');
+    if (!s) { window.__pixelState = 'missing'; return; }
+    function set(state) { window.__pixelState = state; document.dispatchEvent(new Event('pixelstate')); }
+    s.addEventListener('load', function () { set('loaded'); });
+    s.addEventListener('error', function () { set('blocked'); });
+  })();
+</script>
 
 <style>
   :root {
@@ -61,6 +73,7 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
   }
   button:hover { filter: brightness(1.08); }
   button:active { transform: scale(.98); }
+  h2:focus { outline: none; }
   button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
   button.ghost { background: transparent; color: var(--gold); }
   .link { background: none; border: 0; color: var(--muted); min-width: 0; padding: 8px; font-weight: 500; text-decoration: underline; }
@@ -132,22 +145,17 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     logLine(name, (props.content_name || '') + (props.value != null ? ' ($' + props.value.toFixed(2) + ' ' + props.currency + ')' : ''));
   }
 
-  // ttq.ready fires once events.js has actually loaded. If it never does,
-  // something (usually an ad blocker) is stopping the pixel.
-  var loaded = false;
-  ttq.ready(function () {
-    loaded = true;
-    statusEl.textContent = 'loaded (DAUOGKRC77UE17RKVTFG)';
-    statusEl.className = 'ok';
-  });
-  setTimeout(function () {
-    if (!loaded) {
-      statusEl.textContent = 'not loaded — ad blocker or network is blocking analytics.tiktok.com';
-      statusEl.className = 'bad';
-    }
-  }, 6000);
+  function renderStatus() {
+    var st = window.__pixelState;
+    if (st === 'loaded') { statusEl.textContent = 'loaded — events are going to TikTok (DAUOGKRC77UE17RKVTFG)'; statusEl.className = 'ok'; }
+    else if (st === 'blocked') { statusEl.textContent = 'BLOCKED by this browser (ad blocker / tracking protection) — events are NOT reaching TikTok'; statusEl.className = 'bad'; }
+    else if (st === 'missing') { statusEl.textContent = 'pixel script not found on the page'; statusEl.className = 'bad'; }
+    else { statusEl.textContent = 'loading…'; statusEl.className = ''; }
+  }
+  document.addEventListener('pixelstate', renderStatus);
+  renderStatus();
 
-  logLine('Pageview', '(ttq.page)');
+  logLine('PageView', '(ttq.page)');
 
   function show(id) {
     ['step-hello', 'step-question', 'step-thanks'].forEach(function (s) {
