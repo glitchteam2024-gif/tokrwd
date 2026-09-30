@@ -129,7 +129,7 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 
   function track(name, props) {
     ttq.track(name, props, { event_id: eventId(name) });
-    logLine(name, props.content_name);
+    logLine(name, (props.content_name || '') + (props.value != null ? ' ($' + props.value.toFixed(2) + ' ' + props.currency + ')' : ''));
   }
 
   // ttq.ready fires once events.js has actually loaded. If it never does,
@@ -163,6 +163,7 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
   // 2. Continue.
   document.getElementById('btn-continue').addEventListener('click', function () {
     track('ClickButton', { content_name: 'Continue', content_category: 'pixel_test' });
+    track('Lead', { content_name: 'Continue', content_category: 'pixel_test', description: 'Hello World lead' });
     show('step-question');
   });
 
@@ -173,6 +174,17 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
       var label = answer === 'yes' ? 'Yes' : 'No';
       track('ClickButton', { content_name: 'Good day: ' + label, content_category: 'pixel_test' });
       track('SubmitForm', { content_name: 'Good day survey', content_category: 'pixel_test', description: answer });
+      // Sales conversion. value + currency are what TikTok needs to count revenue.
+      track('Purchase', {
+        content_name: 'Good day survey',
+        content_type: 'product',
+        content_id: 'pixel_test_' + answer,
+        contents: [{ content_id: 'pixel_test_' + answer, content_type: 'product', content_name: 'Pixel test (' + label + ')', quantity: 1, price: 1.00 }],
+        quantity: 1,
+        value: 1.00,
+        currency: 'USD',
+        description: answer
+      });
 
       document.getElementById('thanks-title').textContent = answer === 'yes' ? 'Thanks — glad to hear it!' : 'Thanks — hope it gets better.';
       show('step-thanks');
