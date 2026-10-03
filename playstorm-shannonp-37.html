@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Playstorm</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        background: #ffffff;
+        color: #111;
+    }
+
+    .container {
+        max-width: 480px;
+        margin: auto;
+        padding: 18px;
+    }
+
+    /* PURPLE HEADER BAR */
+    .header {
+        background: linear-gradient(90deg, #6a5cff, #4bb8ff);
+        padding: 14px;
+        text-align: center;
+        border-radius: 0 0 14px 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .header-title {
+        font-size: 30px;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -1px;
+    }
+
+    .header-sub {
+        font-size: 14px;
+        color: #eef;
+        margin-top: 2px;
+    }
+
+    /* PHONE MOCKUP HERO */
+    .phone-hero {
+        width: 100%;
+        max-width: 260px;
+        display: block;
+        margin: 20px auto 10px;
+        border-radius: 22px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    }
+
+    .headline {
+        font-size: 20px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .sub {
+        font-size: 14px;
+        text-align: center;
+        color: #555;
+        margin-bottom: 18px;
+    }
+
+    /* LIGHT COLOR BLOCKS */
+    .stats, .feature, .review {
+        background: #eef3ff;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #dce4ff;
+        font-size: 14px;
+    }
+
+    .stats strong {
+        font-size: 16px;
+        display: block;
+        margin-bottom: 4px;
+        color: #4a54ff;
+    }
+
+    .section-title {
+        font-size: 17px;
+        font-weight: 700;
+        margin: 14px 0 6px;
+        color: #4a54ff;
+    }
+
+    .feature-title {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #333;
+    }
+
+    /* GLOWING BUTTON */
+    .download-btn {
+        background: linear-gradient(90deg, #6a5cff, #4bb8ff);
+        color: #fff;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        display: block;
+        margin: 20px auto;
+        text-align: center;
+        text-decoration: none;
+        width: 85%;
+        box-shadow: 0 0 18px rgba(106,92,255,0.55);
+        transition: 0.2s;
+    }
+
+    .download-btn:active {
+        transform: scale(0.96);
+        box-shadow: 0 0 10px rgba(106,92,255,0.45);
+    }
+
+    .footer {
+        text-align: center;
+        font-size: 11px;
+        color: #777;
+        margin-top: 20px;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- PURPLE HEADER -->
+<div class="header">
+    <div class="header-title">Playstorm</div>
+    <div class="header-sub">Play games. Earn rewards.</div>
+</div>
+
+<div class="container">
+
+    <!-- PHONE MOCKUP -->
+    <img src="/images/playstorm-checkin-827x1792.jpg" class="phone-hero">
+
+    <div class="headline">Earn money, gift cards & more</div>
+    <div class="sub">$1M+ paid out • 200+ games</div>
+
+    <div class="stats">
+        <strong>200+ Games</strong>
+        Earn gems from a huge selection of mobile games.
+    </div>
+
+    <div class="section-title">How It Works</div>
+
+    <div class="feature">
+        <div class="feature-title">Daily Check-In</div>
+        Free gems every day.
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Referral Program</div>
+        Earn bonuses + 15% of friends' earnings.
+    </div>
+
+    <div class="feature">
+        <div class="feature-title">Cash Out</div>
+        PayPal, Venmo, Gift Cards & more.
+    </div>
+
+    <a href="#" class="download-btn">Download Playstorm</a>
+
+    <div class="section-title">Reviews</div>
+
+    <div class="review"><strong>Andrew</strong> Great reward system.</div>
+    <div class="review"><strong>Brett</strong> Fun games, easy rewards.</div>
+    <div class="review"><strong>Becca</strong> Epic app — it pays!</div>
+
+    <div class="footer">
+        Playstorm © Maholla B.V. 2025
+    </div>
+
+</div>
+<script>
+/* THE RAW DESTINATION LINK — the offer row's only link (it has no per-country entries), declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://montrk5.co.uk/?a=26648&c=56816';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* Every button that leaves the page walks the same gate to the same offer link. */
+Array.prototype.forEach.call(document.querySelectorAll('a.download-btn'), function (a) {
+  a.setAttribute('href', buildOfferUrl());
+});
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'PLAYSTORM-SHANNONP-37', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('a.download-btn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+</body>
+</html>
