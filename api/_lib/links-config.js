@@ -1084,6 +1084,18 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'gp-coop2x4ever-22.html', 'gp-coop2x4ever-22-pre.html',
   // Operator page hosted 2026-10-03 (aff37-2), reserved to its submitter.
   'playstorm-shannonp-37.html', 'playstorm-shannonp-37-pre.html',
+  // Operator page hosted 2026-10-05 (aff27-4), reserved to its submitter.
+  'playstorm-lilf0xsprk2006-27.html', 'playstorm-lilf0xsprk2006-27-pre.html',
+  // Operator page hosted 2026-10-05 (aff27-3), reserved to its submitter.
+  'playstorm-lilf0xsprk2006-27-v1.html', 'playstorm-lilf0xsprk2006-27-v1-pre.html',
+  // Operator page hosted 2026-10-05 (aff22-6), reserved to its submitter.
+  'rs-coop2x4ever-22-v3.html', 'rs-coop2x4ever-22-v3-pre.html',
+  // Operator page hosted 2026-10-05 (aff22-5), reserved to its submitter.
+  'gp-coop2x4ever-22-v2.html', 'gp-coop2x4ever-22-v2-pre.html',
+  // Operator page hosted 2026-10-05 (aff77-7), reserved to its submitter.
+  'playstorm-coderguy-77.html', 'playstorm-coderguy-77-pre.html',
+  // Operator page hosted 2026-10-05 (aff77-6), reserved to its submitter.
+  'gp-coderguy-77.html', 'gp-coderguy-77-pre.html',
   // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
   // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as
   // /pre?to=/AS52/US<n> and the visitor would cross a prelander twice. Leaving it out makes
