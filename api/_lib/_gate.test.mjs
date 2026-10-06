@@ -126,9 +126,10 @@ for (const [name, u] of [
 ok('allowlist: every live network family accepted',
    ['https://montrk5.co.uk/?a=1', 'https://monetisetrk2.co.uk/?a=1', 'https://montrk.co.uk/?a=1',
     'https://www.fkn8s74mztrk.com/F2R45HNR/GS3NQC1D/', 'https://giftclick.org/aff_c?offer_id=1',
-    'https://www.phef6trk.com/213T8QJ/32BB7QT/'].every(isAllowedGateDestination));
+    'https://www.phef6trk.com/213T8QJ/32BB7QT/', 'https://jff6fk.com/?a=26648&c=56816'].every(isAllowedGateDestination));
 ok('allowlist: lookalike hosts refused',
    ['https://montrk5.co.uk.evil.com/', 'https://xmontrk5.co.uk/', 'https://fkn8s74mztrk.com.co/',
+    'https://jff6fk.com.evil.com/', 'https://xjff6fk.com/', 'http://jff6fk.com/?a=1',
     'https://montrk99999.co.uk/',   // \\d{0,2} bounds the numeric suffix — absurd numbers refused
     'https://montrk5.co.uk/€']  // non-ASCII would throw at the Location header — refused early
      .every(u => !isAllowedGateDestination(u)));

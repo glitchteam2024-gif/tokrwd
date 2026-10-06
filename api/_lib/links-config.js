@@ -1982,9 +1982,11 @@ export function isSafeDestination(url) {
  * discovering it from a dead campaign.
  *   pcbdfv7trk.com — Prescott (everflow), added 2026-08-24 with Swagbucks iOS, the first
  *   lander on that network. Taken from offers.destination_by_geo, not from the supplied page.
+ *   jff6fk.com — Playstorm's new tracking domain (a=26648 c=56816), added 2026-10-06 from the owner.
+ *   It 302s to the same campaign as montrk5 did, and carries s1 through.
  */
 export const GATE_DEST_HOST_RE =
-  /^(?:www\.)?(?:(?:monetisetrk|montrk)\d{0,2}\.co\.uk|fkn8s74mztrk\.com|phef6trk\.com|pcbdfv7trk\.com|giftclick\.org)$/i;
+  /^(?:www\.)?(?:(?:monetisetrk|montrk)\d{0,2}\.co\.uk|fkn8s74mztrk\.com|phef6trk\.com|pcbdfv7trk\.com|jff6fk\.com|giftclick\.org)$/i;
 
 export function isAllowedGateDestination(url) {
   try {
