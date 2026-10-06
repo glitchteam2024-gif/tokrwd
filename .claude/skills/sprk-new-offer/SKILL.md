@@ -14,6 +14,7 @@ description: >-
   build a pricing engine. The job is leaving `offers.payout_by_geo` and `offers.payout` empty
   (they flatten the price and invert chargebacks) and knowing `offers.sprk_cut_pct` is the
   shipped per-offer cut knob.
+  ⛔ A lander is only ever for the offer's own app (HARD LOCK, sprk-lander-submissions).
   LIVING DOCUMENT: when a session learns something new about offer wiring or offer pricing,
   write it in here so the next session doesn't re-derive it.
 ---
@@ -148,6 +149,12 @@ The INBOUND ad link always carries `?s1=<SPK>`. The door **translates** on the w
    `launchLinkProblem` oracle — no fragments, no embedded `?s1=`, http(s) only; a rejected
    value means the launch falls back rather than shipping a smuggled SubID.
 3. **Landers** (trustonedeal): copy the proven CR50/50TU pattern (`CR50/CR1/index.html`):
+   ⛔ **The copied page is ANOTHER app's page** (CR50 is Copper). Keep its money path only; every visible fact
+   (name, logo, rating, payout lines, game list, store buttons, the `?lg=` geo map) becomes the new offer's
+   own, from its App Store / Google Play listing. Then the HARD LOCK check must pass with `--donor`:
+   `node offer-coherence.mjs --page <new page> --offer "<offer>" --donor CR50/CR1/index.html`
+   (sprk-lander-submissions; from tokrwd fetch it from SPRKNetworkAds main first). The Copper house page
+   itself still carries Freecash's "(50K+ reviews)" and "10 games paying over thousands!" — copied that way.
    - Inline offer-wiring script points at the DOOR (`sprktrax.org/api/link/<slug>`) and carries
      EVERY incoming query param through (esp. `?s1=<SPK>`); the real network URL never appears
      in lander markup.

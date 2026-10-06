@@ -12,8 +12,9 @@ description: >-
   single-tenant lock, the per-affiliate `status='hidden'` row, the whole picker / auto-assign /
   slot-rotation machinery it plugs into, and — honestly — what does and does not exist today for
   CUSTOM DOMAINS (`lp_domains`).
-  LIVING DOCUMENT: when a new affiliate gets a bespoke page, or the picker/assignment machinery
-  changes, write it in here so the next session doesn't re-derive it.
+  ⛔ HARD RULE: the page must be for the offer's own app — a file for another app is never hosted,
+  connected or rebranded. LIVING DOCUMENT: when a new affiliate gets a bespoke page, or the
+  picker/assignment machinery changes, write it in here so the next session doesn't re-derive it.
 ---
 
 # An affiliate's OWN landing page — host it, wire it, lock it to them
@@ -61,6 +62,8 @@ to"*. The full procedure, with runnable scripts, lives in **SPRKNetworkAds
 `.claude/skills/sprk-lander-submissions/`** (`SKILL.md`, `scripts/verify-page.mjs`,
 `scripts/icon-edge.py`, `scripts/connect.sql`). The five rules that each cost a round trip:
 
+0. ⛔ **The page is for the offer's own app** — check it before anything (HARD RULE below); a submission
+   for another app is skipped and reported, never rebranded.
 1. **Hosted is not "on".** A page serving 200 here changes nothing an affiliate launches; only an ACTIVE
    `landing_page_affiliates` row does. Timothy's page was live for a day while his launches sat on the
    house page `reco-social-us-b`. Connect it (Step 4-5 below, archive-then-claim in ONE transaction),
@@ -123,9 +126,42 @@ builder by matching the literal comment before it, and asserts every swept page 
 marker. Renaming a marker means updating that parser in the SAME commit, or thousands of pages
 drop out of the guard that proves their money path works — silently, with the suite still green.
 
+## ⛔ HARD RULE — THE PAGE IS FOR THE OFFER'S OWN APP
+
+**Migi, 2026-10-06:** *"if they are different apps then there offer then dont do it, you must always make
+sure the landing page is coherent and consistent with the offer"*.
+
+- A page goes in front of an affiliate's ads (built, published as theirs, connected, marked built) ONLY if
+  everything a visitor sees is about the app the OFFER installs: its name, its logo, its copy, its rating,
+  its payout rails, its store buttons — and its button reaches that offer's own destination.
+- **An affiliate submission for a different app than the offer it was filed under is NOT built.** Not
+  "money path only", and **never rebranded** to fit (that rewrites their page and is still a design for
+  another product). Skip it, and report: label, the offer it was filed under, the app it really is.
+  Caught 2026-10-02..05: aff22-3 (Gravy Pass page filed under Playstorm), aff77-1 (Gravy Pass under
+  Playful Rewards - CPI), aff77-2 (Playstorm under Playful Rewards - CPI).
+- A page we build from one of OUR designs (a request, a new offer) may reuse the layout, but must carry only
+  the target offer's own facts from its official store listing (`playstorm-june-57` = the Scrambly layout,
+  every visible fact Playstorm's).
+- **The check (run it before building, and on the built page):**
+  `git -C ~/Documents/GitHub/SPRKNetworkAds fetch -q origin main && git -C ~/Documents/GitHub/SPRKNetworkAds show origin/main:.claude/skills/sprk-lander-submissions/scripts/offer-coherence.mjs > "$TMPDIR/offer-coherence.mjs" && node "$TMPDIR/offer-coherence.mjs" --page <file|url> --offer "<offers.name>"`
+  (run from SPRKNetworkAds main, so the local checkout's branch does not matter). Exit 0 = COHERENT;
+  1 = MISMATCH, stop; 2 = CANNOT TELL, judge by eye; 3 or a missing/crashing checker = NOT a pass, stop
+  and say so. `--brand` is refused on an offer whose app is known. A page built from one of OUR designs
+  for another app also takes `--donor <the page you copied>` (it catches figures carried over).
+  Screenshot submissions: name the app in EVERY screenshot yourself; one of another app = skip.
+  A pass is necessary, not sufficient: look at the page. The full rule lives in SPRKNetworkAds'
+  `sprk-lander-submissions` skill (⛔ HARD LOCK, top).
+- Since 2026-10-06 the admin **Mark built** button connects the page to the affiliate's ads by itself, so
+  this check is the last lock before their traffic lands on it.
+
 ## 1. GIVE AN AFFILIATE THEIR OWN LANDING PAGE — THE WHOLE CHECKLIST
 
 Every step is load-bearing. Do them in this order.
+
+### Step 0 — ⛔ the page is for this offer's app
+
+Run `offer-coherence.mjs` on THEIR file against the offer it is filed under (the HARD RULE section above
+has the command). MISMATCH = stop for that page: not hosted, not connected, not rebranded; report it.
 
 ### Step 1 — save their file BYTE-FOR-BYTE, patch it with a generator
 

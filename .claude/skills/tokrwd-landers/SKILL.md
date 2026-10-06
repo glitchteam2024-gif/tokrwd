@@ -7,8 +7,9 @@ description: >-
   doing X", "point the ad at Y" — or names a lander folder (50FC, 50FCII, 50TU, CR50, RS50, FC, TU,
   CB, GP, TSUP, RS). Covers the ad→lander→door→offer funnel, the canonical-file + N-copies layout
   and the propagate loop, the NO-CLOAKING rule (why TikTok blocks flagged landers), the s1–s5 wire
-  scheme, Path A vs Path B offers, deploy exclusions, and the browser verification recipe. LIVING
-  DOCUMENT: when the lander architecture changes, update this file so the next session isn't guessing.
+  scheme, Path A vs Path B offers, deploy exclusions, and the browser verification recipe. ⛔ HARD RULE:
+  a page is only for its offer's own app — never repoint or rebrand across apps (offer-coherence.mjs).
+  LIVING DOCUMENT: when the lander architecture changes, update this file so the next session isn't guessing.
 ---
 
 # tokrwd landers — architecture, rules, and how to change them
@@ -64,6 +65,39 @@ page — not to widen the allowlist.
 builder by matching the literal comment before it, and asserts every swept page carries a gate
 marker. Renaming a marker means updating that parser in the SAME commit, or thousands of pages
 drop out of the guard that proves their money path works — silently, with the suite still green.
+
+## ⛔ HARD RULE — THE PAGE IS FOR THE OFFER'S OWN APP
+
+**Migi, 2026-10-06:** *"if they are different apps then there offer then dont do it, you must always make
+sure the landing page is coherent and consistent with the offer"*.
+
+- A page goes in front of an affiliate's ads (built, published as theirs, connected, marked built) ONLY if
+  everything a visitor sees is about the app the OFFER installs: its name, its logo, its copy, its rating,
+  its payout rails, its store buttons — and its button reaches that offer's own destination.
+- **An affiliate submission for a different app than the offer it was filed under is NOT built.** Not
+  "money path only", and **never rebranded** to fit (that rewrites their page and is still a design for
+  another product). Skip it, and report: label, the offer it was filed under, the app it really is.
+  Caught 2026-10-02..05: aff22-3 (Gravy Pass page filed under Playstorm), aff77-1 (Gravy Pass under
+  Playful Rewards - CPI), aff77-2 (Playstorm under Playful Rewards - CPI).
+- A page we build from one of OUR designs (a request, a new offer) may reuse the layout, but must carry only
+  the target offer's own facts from its official store listing (`playstorm-june-57` = the Scrambly layout,
+  every visible fact Playstorm's).
+- **The check (run it before building, and on the built page):**
+  `git -C ~/Documents/GitHub/SPRKNetworkAds fetch -q origin main && git -C ~/Documents/GitHub/SPRKNetworkAds show origin/main:.claude/skills/sprk-lander-submissions/scripts/offer-coherence.mjs > "$TMPDIR/offer-coherence.mjs" && node "$TMPDIR/offer-coherence.mjs" --page <file|url> --offer "<offers.name>"`
+  (run from SPRKNetworkAds main, so the local checkout's branch does not matter). Exit 0 = COHERENT;
+  1 = MISMATCH, stop; 2 = CANNOT TELL, judge by eye; 3 or a missing/crashing checker = NOT a pass, stop
+  and say so. `--brand` is refused on an offer whose app is known. A page built from one of OUR designs
+  for another app also takes `--donor <the page you copied>` (it catches figures carried over).
+  Screenshot submissions: name the app in EVERY screenshot yourself; one of another app = skip.
+  A pass is necessary, not sufficient: look at the page. The full rule lives in SPRKNetworkAds'
+  `sprk-lander-submissions` skill (⛔ HARD LOCK, top).
+- **Repointing is building.** Changing a page's OFFER_LINK ("change the offer link", a cap ran out, a dead
+  offer) to an offer for a DIFFERENT app is forbidden unless the whole page becomes that app's page in the
+  same commit — never the link alone. Same app, another geo or campaign, is fine (Playstorm moving from
+  `montrk5.co.uk` to `jff6fk.com`, 2026-10-06). The partner portal's offer field is not app-checked: tell
+  Migi if a partner points a page at another app.
+- Since 2026-10-06 the admin **Mark built** button connects the page to the affiliate's ads by itself, so
+  this check is the last lock before their traffic lands on it.
 
 ## The funnel (current, since 2026-08-21)
 

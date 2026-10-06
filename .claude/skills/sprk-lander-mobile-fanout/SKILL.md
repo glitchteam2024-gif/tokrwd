@@ -14,7 +14,8 @@ description: >-
   live end-to-end verification ladder. For hosting/wiring/locking a supplied page in the first
   place — generator pattern, `landing_pages` + `landing_page_affiliates`, `self_serve` +
   `capacity=1`, the picker — see the sibling skill `sprk-custom-landers`; this one does NOT restate
-  it. LIVING DOCUMENT: when a lander is mobile-fitted or fanned out, write what was learned here.
+  it. Fan-out is same-app only (⛔ HARD RULE: the page is for the offer's own app). LIVING DOCUMENT:
+  when a lander is mobile-fitted or fanned out, write what was learned here.
 ---
 
 # Mobile-fitting a supplied lander, and running one design across many offers
@@ -270,6 +271,13 @@ re-running stays deterministic. Same reasoning as Ashlyn's `display:none!importa
 ---
 
 ## 2. ONE DESIGN, N OFFERS — THE FAN-OUT
+
+⛔ **HARD RULE (Migi, 2026-10-06) — fan out ONLY across offers for the SAME app** (every Shein offer is one
+app; Gravypass - USA ONLY and Gravypass - 5 GEO's are one app). An offer for a different app gets no copy of
+this page, not even with the name swapped: that is a rebrand, and the page would be for the wrong product.
+Before adding a VARIANTS row, run the check against that offer and add the row only on COHERENT:
+`git -C ~/Documents/GitHub/SPRKNetworkAds fetch -q origin main && git -C ~/Documents/GitHub/SPRKNetworkAds show origin/main:.claude/skills/sprk-lander-submissions/scripts/offer-coherence.mjs > "$TMPDIR/offer-coherence.mjs" && node "$TMPDIR/offer-coherence.mjs" --page <source page> --offer "<that offer>"`.
+The full rule is in `sprk-custom-landers` (⛔ HARD RULE — THE PAGE IS FOR THE OFFER'S OWN APP).
 
 Replace the single `CANON_DIR / FAMILY / GEO / DOOR_SLUG` constants with a table, and loop.
 
