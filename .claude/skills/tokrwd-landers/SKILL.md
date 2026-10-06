@@ -84,9 +84,9 @@ sure the landing page is coherent and consistent with the offer"*.
   every visible fact Playstorm's).
 - **The check (run it before building, and on the built page):**
   `git -C ~/Documents/GitHub/SPRKNetworkAds fetch -q origin main && git -C ~/Documents/GitHub/SPRKNetworkAds show origin/main:.claude/skills/sprk-lander-submissions/scripts/offer-coherence.mjs > "$TMPDIR/offer-coherence.mjs" && node "$TMPDIR/offer-coherence.mjs" --page <file|url> --offer "<offers.name>"`
-  (run from SPRKNetworkAds main, so the local checkout's branch does not matter). Exit 0 = COHERENT;
-  1 = MISMATCH, stop; 2 = CANNOT TELL, judge by eye; 3 or a missing/crashing checker = NOT a pass, stop
-  and say so. `--brand` is refused on an offer whose app is known. A page built from one of OUR designs
+  (run from SPRKNetworkAds main, so the local checkout's branch does not matter). The ONLY pass is a
+  printed `COHERENT …` line (exit 0); 1 = MISMATCH, stop; 2 = CANNOT TELL, judge by eye; 3, no output, or
+  a missing/crashing checker = NOT a pass, stop and say so. `--brand` is refused on an offer whose app is known. A page built from one of OUR designs
   for another app also takes `--donor <the page you copied>` (it catches figures carried over).
   Screenshot submissions: name the app in EVERY screenshot yourself; one of another app = skip.
   A pass is necessary, not sufficient: look at the page. The full rule lives in SPRKNetworkAds'

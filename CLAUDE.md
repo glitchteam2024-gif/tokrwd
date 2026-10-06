@@ -10,7 +10,7 @@ Read first, every session. The details live in `.claude/skills/` (tokrwd-landers
    A submission for a different app is skipped and reported — never built, connected, marked built, or
    rebranded to fit. Never repoint a page at another app's offer link. Check before building:
    `git -C ~/Documents/GitHub/SPRKNetworkAds fetch -q origin main && git -C ~/Documents/GitHub/SPRKNetworkAds show origin/main:.claude/skills/sprk-lander-submissions/scripts/offer-coherence.mjs > "$TMPDIR/offer-coherence.mjs" && node "$TMPDIR/offer-coherence.mjs" --page <file|url> --offer "<offers.name>"`
-   — exit 0 is the only pass; a missing or crashing checker is NOT a pass.
+   — the only pass is its printed `COHERENT …` line; no output, or a missing or crashing checker, is NOT a pass.
 2. **A landing page never names our network or us**, comments included (`_lander-leak.test.mjs`).
 
 ## Working rules
