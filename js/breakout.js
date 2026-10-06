@@ -173,6 +173,8 @@
     'scrambly-june-57.html', 'scrambly-june-57-pre.html',
     // Page hosted 2026-10-06 (built for a request), reserved to one affiliate.
     'scrambly-lilf0xsprk2006-27.html', 'scrambly-lilf0xsprk2006-27-pre.html',
+    // Page hosted 2026-10-06 (built for a request), reserved to one affiliate.
+    'playstorm-june-57.html', 'playstorm-june-57-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
