@@ -163,6 +163,16 @@
     'playstorm-coderguy-77.html', 'playstorm-coderguy-77-pre.html',
     // Operator page hosted 2026-10-05 (aff77-6), reserved to its submitter.
     'gp-coderguy-77.html', 'gp-coderguy-77-pre.html',
+    // Page hosted 2026-10-06 (submission aff77-4), reserved to one affiliate.
+    'playfulrewardscpi-coderguy-77.html', 'playfulrewardscpi-coderguy-77-pre.html',
+    // Page hosted 2026-10-06 (built for a request), reserved to one affiliate.
+    'playfulrewardscpi-june-57.html', 'playfulrewardscpi-june-57-pre.html',
+    // Page hosted 2026-10-06 (built for a request), reserved to one affiliate.
+    'playfulrewardscpi-drewski4k-34.html', 'playfulrewardscpi-drewski4k-34-pre.html',
+    // Page hosted 2026-10-06 (built for a request), reserved to one affiliate.
+    'scrambly-june-57.html', 'scrambly-june-57-pre.html',
+    // Page hosted 2026-10-06 (built for a request), reserved to one affiliate.
+    'scrambly-lilf0xsprk2006-27.html', 'scrambly-lilf0xsprk2006-27-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
