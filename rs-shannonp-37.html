@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Reco Social</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        base: '#f3f4f6',
+                        card: '#ffffff',
+                        accent: '#6172c0',
+                        accentLight: '#f0f1f8',
+                        accentDark: '#4a5a9e',
+                        textPrimary: '#1a1a2e',
+                        textSecondary: '#6b7280',
+                        textMuted: '#9ca3af',
+                        border: '#e5e7eb',
+                        outerBg: '#e8eaf2',
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: #e8eaf2;
+            font-family: 'Inter', sans-serif;
+            color: #1a1a2e;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .phone-wrapper {
+            max-width: 430px;
+            margin: 0 auto;
+            background: #f3f4f6;
+            position: relative;
+            min-height: 100vh;
+            padding-bottom: 24px;
+        }
+
+        @media (max-width: 767px) {
+            body { background: #f3f4f6; }
+        }
+
+        /* Sticky nav */
+        .sticky-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            height: 56px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sticky-nav-inner {
+            max-width: 430px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        /* Buttons */
+        .btn-accent {
+            background: #6172c0;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-accent:hover, .btn-accent:active {
+            transform: scale(0.97);
+        }
+
+        /* Feature cards */
+        .feature-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(97,114,192,0.10);
+            transition: box-shadow 0.2s ease;
+        }
+        .feature-card:hover {
+            box-shadow: 0 6px 24px rgba(97,114,192,0.15);
+        }
+
+        /* Icon circle */
+        .icon-circle {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: 50%;
+            background: #f0f1f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        /* Feature list */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .feature-list li {
+            position: relative;
+            padding-left: 16px;
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.8;
+        }
+        .feature-list li::before {
+            content: '•';
+            color: #6172c0;
+            position: absolute;
+            left: 0;
+            font-weight: 700;
+        }
+
+        /* Animations */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-anim {
+            opacity: 0;
+            animation: fadeSlideUp 0.6s ease forwards;
+        }
+        .hero-delay-1 { animation-delay: 0.1s; }
+        .hero-delay-2 { animation-delay: 0.2s; }
+        .hero-delay-3 { animation-delay: 0.3s; }
+        .hero-delay-4 { animation-delay: 0.4s; }
+
+        .reveal-card {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body data-id="0">
+    <app-icon data-id="1" hidden data-icon="message-circle" data-palette="Blue"></app-icon>
+
+    <!-- STICKY NAV -->
+    <nav data-id="2" class="sticky-nav" id="sticky-nav-k3m7">
+        <div data-id="3" class="sticky-nav-inner">
+            <span data-id="4" class="font-inter font-extrabold text-accent" style="font-size: 20px; letter-spacing: 0.15em;">RECO</span>
+            <a data-id="5" id="nav-cta-btn-p2q8" href="#" class="btn-accent font-inter font-semibold" style="font-size: 13px; padding: 8px 18px; border-radius: 999px; text-decoration: none;">
+                Start Here →
+            </a>
+        </div>
+    </nav>
+
+    <!-- PHONE WRAPPER -->
+    <div data-id="6" class="phone-wrapper" id="phone-wrapper-x4y9">
+
+        <!-- HERO SECTION -->
+        <section data-id="7" id="hero-section-a1b2" class="bg-white text-center" style="padding: 104px 24px 40px;">
+            <img src="/images/reco-logo-440.jpg" alt="Reco Social" width="64" height="64" style="display:block;width:64px;height:64px;border-radius:16px;margin:0 auto 14px;box-shadow:0 8px 22px rgba(0,0,0,.18)">
+            <p data-id="8" class="hero-anim hero-delay-1 font-inter text-accent" style="font-size: 28px; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 8px;">
+                Reco Social
+            </p>
+            <h1 data-id="9" id="hero-headline-c3d4" class="hero-anim hero-delay-2 font-inter font-extrabold text-textPrimary" style="font-size: 40px; line-height: 1.15; margin-bottom: 16px;">
+                Let's get real.
+            </h1>
+            <p data-id="10" class="hero-anim hero-delay-3 font-inter text-textSecondary mx-auto" style="font-size: 15px; line-height: 1.7; max-width: 320px; margin-bottom: 32px;">
+                Reco is content that gives back. Most platforms are built for scrolling. Reco is built for finding what's worth your time — and actually engaging with it.
+            </p>
+            <div data-id="11" class="hero-anim hero-delay-4 flex justify-center">
+                <a data-id="12" id="hero-cta-btn-e5f6" href="#" class="btn-accent font-inter font-bold flex items-center justify-center" style="width: 100%; max-width: 300px; height: 52px; font-size: 16px; border-radius: 14px; box-shadow: 0 4px 20px rgba(97,114,192,0.35); text-decoration: none;">
+                    Start Here →
+                </a>
+            </div>
+        </section>
+
+        <!-- FEATURE CARDS -->
+
+        <!-- Section 1: RealTalk -->
+        <div data-id="13" class="feature-card reveal-card" id="realtalk-card-g7h8" style="margin: 0 16px 16px; padding: 28px 24px;">
+            <div data-id="14" class="flex items-start gap-4 mb-4">
+                <div data-id="15" class="icon-circle">💬</div>
+                <div data-id="16">
+                    <h2 data-id="17" class="font-inter font-bold text-textPrimary" style="font-size: 20px;">RealTalk</h2>
+                    <p data-id="18" class="font-inter font-medium text-accent" style="font-size: 13px;">Ask anyone. Get the real answer.</p>
+                </div>
+            </div>
+            <ul data-id="19" class="feature-list">
+                <li data-id="20">Real questions from real people</li>
+                <li data-id="21">No algorithm filters or corporate spin</li>
+                <li data-id="22">Community answers you can actually trust</li>
+                <li data-id="23">Ask anything, discover everything</li>
+            </ul>
+        </div>
+
+        <!-- Section 2: Recommendations -->
+        <div data-id="24" class="feature-card reveal-card" id="reco-card-i9j0" style="margin: 0 16px 16px; padding: 28px 24px;">
+            <div data-id="25" class="flex items-start gap-4 mb-4">
+                <div data-id="26" class="icon-circle">⚡</div>
+                <div data-id="27">
+                    <h2 data-id="28" class="font-inter font-bold text-textPrimary" style="font-size: 20px;">Recommendations</h2>
+                    <p data-id="29" class="font-inter font-medium text-accent" style="font-size: 13px;">Everything worth knowing. Found for you.</p>
+                </div>
+            </div>
+            <ul data-id="30" class="feature-list">
+                <li data-id="31">Curated by people who genuinely care</li>
+                <li data-id="32">Books, shows, places, tools, and ideas</li>
+                <li data-id="33">Not engagement-bait — actually worth your time</li>
+                <li data-id="34">Discover what others swear by</li>
+            </ul>
+        </div>
+
+        <!-- Section 3: Creator Rewards -->
+        <div data-id="35" class="feature-card reveal-card" id="rewards-card-k1l2" style="margin: 0 16px 16px; padding: 28px 24px;">
+            <div data-id="36" class="flex items-start gap-4 mb-4">
+                <div data-id="37" class="icon-circle">🏆</div>
+                <div data-id="38">
+                    <h2 data-id="39" class="font-inter font-bold text-textPrimary" style="font-size: 20px;">Creator Rewards</h2>
+                    <p data-id="40" class="font-inter font-medium text-accent" style="font-size: 13px;">Real rewards for every creator.</p>
+                </div>
+            </div>
+            <ul data-id="41" class="feature-list">
+                <li data-id="42">Earn every time your reco helps someone</li>
+                <li data-id="43">No follower count required to start</li>
+                <li data-id="44">No brand deals or sponsorships needed</li>
+                <li data-id="45">Just great taste — and you get paid for it</li>
+            </ul>
+        </div>
+
+        <!-- Section 4: Go Deeper -->
+        <div data-id="46" class="feature-card reveal-card" id="deeper-card-m3n4" style="margin: 0 16px 16px; padding: 28px 24px;">
+            <div data-id="47" class="flex items-start gap-4 mb-4">
+                <div data-id="48" class="icon-circle">🗂️</div>
+                <div data-id="49">
+                    <h2 data-id="50" class="font-inter font-bold text-textPrimary" style="font-size: 20px;">Go Deeper</h2>
+                    <p data-id="51" class="font-inter font-medium text-accent" style="font-size: 13px;">Save it. Organize it. Come back to it.</p>
+                </div>
+            </div>
+            <ul data-id="52" class="feature-list">
+                <li data-id="53">Save anything worth returning to</li>
+                <li data-id="54">Organize into personal collections</li>
+                <li data-id="55">Set reminders to revisit your saves</li>
+                <li data-id="56">Share curated lists with friends</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        // Guard Lucide icons
+        if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+            lucide.createIcons();
+        }
+
+        // Scroll-triggered reveal for feature cards
+        const revealCards = document.querySelectorAll('.reveal-card');
+        const revealObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealCards.forEach(function(card) {
+            revealObserver.observe(card);
+        });
+
+        // Fix nav positioning on desktop to match phone wrapper width
+        function positionNav() {
+            var wrapper = document.getElementById('phone-wrapper-x4y9');
+            var nav = document.getElementById('sticky-nav-k3m7');
+            if (window.innerWidth >= 768) {
+                var rect = wrapper.getBoundingClientRect();
+                nav.style.left = rect.left + 'px';
+                nav.style.right = 'auto';
+                nav.style.width = rect.width + 'px';
+            } else {
+                nav.style.left = '0';
+                nav.style.right = '0';
+                nav.style.width = '100%';
+            }
+        }
+
+        positionNav();
+        window.addEventListener('resize', positionNav);
+        window.addEventListener('scroll', positionNav);
+    </script>
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://monetisetrk2.co.uk/?a=26648&c=56065';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* Every button that leaves the page walks the same gate to the same offer link. */
+Array.prototype.forEach.call(document.querySelectorAll('#nav-cta-btn-p2q8, #hero-cta-btn-e5f6'), function (a) {
+  a.setAttribute('href', buildOfferUrl());
+});
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'RS-SHANNONP-37', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('#nav-cta-btn-p2q8, #hero-cta-btn-e5f6') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+</body>
+</html>

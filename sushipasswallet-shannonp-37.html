@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Sushi Pass</title>
+
+<style>
+  :root {
+    --bg: #F7EEDB;
+    --card: #FFFFFF;
+    --text: #2A2A2A;
+    --muted: #6F6F6F;
+    --accent: #E85C4A;
+    --radius: 18px;
+  }
+
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .page {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--card);
+    padding: 28px 22px;
+    border-radius: var(--radius);
+    border: 1px solid rgba(0,0,0,0.08);
+    text-align: center;
+  }
+
+  .header-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: var(--accent);
+  }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .header-desc {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.45;
+    margin-bottom: 22px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    border-radius: 999px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* LIST SECTION */
+  .section {
+    background: var(--card);
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid rgba(0,0,0,0.08);
+    margin-top: 22px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: var(--accent);
+    text-align: center;
+  }
+
+  .list-item {
+    background: #FAF4E6;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 14px;
+  }
+
+  .list-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .list-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+</style>
+</head>
+
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="/images/sushipass-logo.svg" alt="Sushi Pass" width="64" height="64" style="display:block;width:64px;height:64px;border-radius:16px;margin:0 auto 14px;box-shadow:none">
+    <div class="header-title">Sushi Pass</div>
+    <div class="header-sub">A pass in your Apple Wallet that pays you.</div>
+
+    <div class="header-desc">
+      No app to install.<br>
+      Play games.<br>
+      Get paid.<br>
+      Start with $1.00 instantly.
+    </div>
+
+    <button class="btn-primary" id="addWalletBtn">
+      Add Sushi Pass to Wallet
+    </button>
+  </div>
+
+  <!-- SIMPLE LIST -->
+  <div class="section">
+    <div class="section-title">Why Sushi Pass</div>
+
+    <div class="list-item">
+      <div class="list-title">No app to install</div>
+      <div class="list-desc">
+        It lives in Apple Wallet next to your cards. Nothing to download, nothing filling up your phone.
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-title">Your balance is on the pass</div>
+      <div class="list-desc">
+        The front of the pass shows what you have earned, and it updates automatically.
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-title">Cash out from $8</div>
+      <div class="list-desc">
+        Redeem straight from the back of the pass with a low minimum.
+      </div>
+    </div>
+
+    <div class="list-item">
+      <div class="list-title">Your money stays yours</div>
+      <div class="list-desc">
+        Delete the pass, change phones — Face ID brings it back with every cent. No login, no lockout.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://montrk.co.uk/?a=26648&c=57015';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'SUSHIPASSWALLET-SHANNONP-37', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('#addWalletBtn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+<script>
+  document.getElementById("addWalletBtn").onclick = () => {
+    window.location.href = buildOfferUrl();
+  };
+</script>
+
+</body>
+</html>
+
+

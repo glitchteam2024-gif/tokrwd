@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Playstorm</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        background: #ffffff;
+        color: #222;
+        overflow-x: hidden;
+    }
+
+    .container {
+        max-width: 480px;
+        margin: auto;
+        padding: 26px;
+        text-align: center;
+    }
+
+    .logo {
+        width: 160px;
+        margin: 25px auto 10px;
+        display: block;
+    }
+
+    .headline {
+        font-size: 42px;
+        font-weight: 800;
+        margin-top: 10px;
+        color: #000;
+    }
+
+    .sub {
+        font-size: 20px;
+        margin: 6px 0 25px;
+        color: #6C47FF;
+        font-weight: 600;
+    }
+
+    /* Snip Section */
+    .snip {
+        background: #f5f2ff;
+        border: 2px solid #e4dbff;
+        padding: 22px;
+        border-radius: 16px;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .snip-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #6C47FF;
+        margin-bottom: 10px;
+    }
+
+    .snip-text {
+        font-size: 16px;
+        color: #444;
+        margin-bottom: 20px;
+    }
+
+    .snip-btn {
+        background: #6C47FF;
+        color: #fff;
+        padding: 14px 20px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: 0.2s;
+    }
+
+    .snip-btn:active {
+        transform: scale(0.96);
+    }
+
+    /* Pretty List */
+    .list {
+        background: #ffffff;
+        padding: 22px;
+        border-radius: 18px;
+        margin-top: 30px;
+        border: 1px solid #ececec;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        text-align: left;
+    }
+
+    .list-item {
+        font-size: 18px;
+        font-weight: 500;
+        padding: 14px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .list-item:last-child {
+        border-bottom: none;
+    }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+        background: #6C47FF;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .download-btn {
+        background: #6C47FF;
+        color: #fff;
+        padding: 16px 20px;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        display: block;
+        margin: 32px auto;
+        text-decoration: none;
+        width: 80%;
+        transition: 0.2s;
+    }
+
+    .download-btn:active {
+        transform: scale(0.96);
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+    <img src="/images/playstorm-logo.jpg" class="logo" alt="Playstorm">
+
+    <div class="headline">Playstorm</div>
+    <div class="sub">Earn rewards while you play.</div>
+
+    <!-- Snip Insert -->
+    <div class="snip">
+        <div class="snip-title">200+ Games</div>
+        <div class="snip-text">Rack up thousands of gems from our large selection of games!</div>
+        <a href="#" class="snip-btn">Get Started</a>
+    </div>
+
+    <!-- Pretty List -->
+    <div class="list">
+        <div class="list-item"><span class="dot"></span>Download the app</div>
+        <div class="list-item"><span class="dot"></span>Play games</div>
+        <div class="list-item"><span class="dot"></span>Complete tasks</div>
+        <div class="list-item"><span class="dot"></span>Earn rewards</div>
+        <div class="list-item"><span class="dot"></span>Cash out anytime</div>
+    </div>
+
+    <a href="#" class="download-btn">Download Now</a>
+
+</div>
+<script>
+/* THE RAW DESTINATION LINK — the owner's Playstorm link (jff6fk, 2026-10-06), declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://jff6fk.com/?a=26648&c=56816';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* Every button that leaves the page walks the same gate to the same offer link. */
+Array.prototype.forEach.call(document.querySelectorAll('a.snip-btn, a.download-btn'), function (a) {
+  a.setAttribute('href', buildOfferUrl());
+});
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'PLAYSTORM-SHANNONP-37-V2', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('a.snip-btn, a.download-btn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+</body>
+</html>
+
+
+
