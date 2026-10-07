@@ -183,6 +183,10 @@
     'sushipasswallet-shannonp-37.html', 'sushipasswallet-shannonp-37-pre.html',
     // Page hosted 2026-10-06 (submitted), reserved to one affiliate.
     'playstorm-sxmmybills-12.html', 'playstorm-sxmmybills-12-pre.html',
+    // Page hosted 2026-10-06 (submitted), reserved to one affiliate.
+    'playstormus-coop2x4ever-22.html', 'playstormus-coop2x4ever-22-pre.html',
+    // Page hosted 2026-10-06 (submitted), reserved to one affiliate.
+    'gp-drewski4k-34.html', 'gp-drewski4k-34-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
