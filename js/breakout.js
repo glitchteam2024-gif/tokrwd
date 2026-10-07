@@ -189,6 +189,8 @@
     'gp-drewski4k-34.html', 'gp-drewski4k-34-pre.html',
     // Page hosted 2026-10-07 (submitted), reserved to one affiliate.
     'sushipasswallet-sxmmybills-12.html', 'sushipasswallet-sxmmybills-12-pre.html',
+    // Page hosted 2026-10-07 (submitted), reserved to one affiliate.
+    'sushipasswallet-drewski4k-34.html', 'sushipasswallet-drewski4k-34-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
