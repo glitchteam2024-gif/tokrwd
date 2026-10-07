@@ -16,6 +16,9 @@ Read first, every session. The details live in `.claude/skills/` (tokrwd-landers
 ## Working rules
 
 - Every push to `main` deploys. Run the guards in `api/_lib/*.test.mjs` against a pristine checkout first.
+- Every finished page: take a phone-size photo (`page-photo.mjs`, SPRKNetworkAds `sprk-lander-submissions`)
+  and LOOK at every image. Every game tile, brand mark and product shot is the real art of what it names;
+  a missing, broken or stand-in one is replaced with the official icon/photo, as a file in `images/`.
 - A new network tracking domain needs its exact host in `GATE_DEST_HOST_RE` (`api/_lib/links-config.js`)
   in the SAME push as the pages, or every click 404s at our own `/click` gate.
 - This file is excluded from deploys by `.vercelignore` — keep it that way.

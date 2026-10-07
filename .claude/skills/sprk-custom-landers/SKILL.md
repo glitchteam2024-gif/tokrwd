@@ -77,6 +77,12 @@ to"*. The full procedure, with runnable scripts, lives in **SPRKNetworkAds
 4. **A picture the page points to that did not come with it: ALWAYS fill it** (Migi 2026-09-26) with the
    official photo of what it represents: the App Store icon for a square slot, App Store screenshots for a
    wide one, at least 3x the slot's width, one `src` changed, named in the report. Never leave it broken.
+   ★ **The same for a STAND-IN** (Migi 2026-10-07: *"always take a photo of the landing page make sure all the
+   images are there added so it doesnt look off"*): a game tile, brand mark or product slot showing a generic
+   glyph, a letter box, an emoji or a blank square gets the real art of what it names (sxmmybills's Candy
+   Crush tile was a flat candy glyph; the real King icon is `/images/game-game.png`). **Photograph every
+   finished page and LOOK at every image**: SPRKNetworkAds `sprk-lander-submissions/scripts/page-photo.mjs
+   --page <url>` (run it from SPRKNetworkAds main the same way as offer-coherence.mjs).
 5. **Report per affiliate**: the offer it is connected to, what it replaced, the link their ads run (with
    `?s1=SPK-TEST-0000` to test) and whether every page redirected correctly.
 
