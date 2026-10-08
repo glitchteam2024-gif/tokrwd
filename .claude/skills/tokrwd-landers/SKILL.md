@@ -524,6 +524,64 @@ it and the lander silently loses its prelander (fail-open: the click still lands
 - **Forced browser escape is its own TikTok policy question**, separate from cloaking. Migi's call,
   made 2026-07-27; `PRELANDER_ENABLED` is the lever if it needs reversing.
 
+## The page switch — `/api/hop` (2026-10-07, branch `claude/landing-page-switch`)
+
+Migi: affiliates can switch a RUNNING ad to another landing page they hold — same offer (another
+design) or another offer the admin allowed — **switching only the landing page, never the
+prelander**, so the TikTok ad keeps its URL and its momentum. SPRK owns the rules, approvals and
+money checks; this repo only stores and serves a table and trusts nothing but shapes.
+
+    api/_lib/hop-store.js     the KV doc 'tokrwd:hop:v1' + the ONE validator (path, row, envelope)
+    api/hop.js                GET ?c=<code> -> 200 {} | {t} | {t, y}. NEVER 5xx. Same-origin.
+    api/switch-publish.js     POST, x-switch-key = LANDING_SWITCH_KEY (no fallback, no Origin)
+    every x-pre prelander     the shared script asks /api/hop at load; landerUrl() uses the answer
+
+- **Doc:** `{v:1, gen, exp, rows:{"SPK-XXXX-XXXX":{t, y?}}}`. SPRK republishes the WHOLE table
+  after every approve/end and every minute; `gen` + compare-and-swap means an older table can never
+  land on a newer one (409 `stale_gen`); `exp` (gen + 6 h) is checked at LOOKUP, so a publisher
+  that stops leaves no switch running past it. Bad rows go to `rejected[]`; a bad envelope is a 422.
+- **Store ladder** = partner-store's: 30 s per-lambda cache, 250 ms KV read, 10 s back-off, last
+  good copy. Edge: `Vercel-CDN-Cache-Control: s-maxage=15` only for answers read from a table.
+- **`t`** is the LANDER path exactly as the prelander would build it — `/gravypassusa2.html` or
+  `/GP/GP22/go/` (trailing slash). Refused: `//`, `..`, **any segment starting with `.`**, reserved
+  roots (api click c r u pre admin portal js images postback **go**), anything not ending `.html` /
+  `/go/`, any `-pre.html` page. The page also refuses a `t` naming ITSELF under any spelling
+  (`/X/Y/`, `/X/Y`, `/X/Y/index.html`, case-folded).
+- ⚠️ **Why `.` segments (review, 2026-10-07):** `/./c/evil.html` passed every raw-string check,
+  was stored, and the page navigated to it — then the BROWSER folded it to `/c/evil.html`, the click
+  door. Same for `/./u/`, `/./pre/`, `/./admin/`. Normalisation happens after validation, so the
+  validator must refuse what normalisation would change. The root `/go/` is the orphaned redirector
+  (`go/index.html` → `/api/redirect`), never a lander; a clone's own `/<folder>/go/` is unaffected.
+- **KV budget:** the database is SHARED with the partner store and `/u/` pages on a capped plan.
+  `/api/switch-publish` does not rewrite an identical table (sha recomputed from the stored rows)
+  while the stored copy has ≥ 5 h to live — one write an hour instead of sixty. Accepted cost: a
+  skipped publish leaves the stored gen where it was, so an overlapping OLDER publish with a
+  DIFFERENT table can land for about a minute until the next one replaces it.
+- **`y`** (offer kind only) is the sibling code that belongs to the other offer. The page swaps
+  ONLY that token inside `s1`/`sub1` (compound wires keep their parts) and refuses the whole answer
+  unless the lander will read exactly `y` — the other offer's page never goes out with the old code
+  and `y` never goes out without that page (the postback prices by the CODE's offer).
+- **Rows are keyed by the exact canonical code.** A `-N` relaunch child is looked up as itself,
+  never matches, and the page ignores any answer for one.
+- **The hold.** iOS honours the browser hand-off only synchronously inside the tap, so the answer
+  must be in memory before the tap. While the hop is pending (max 800 ms from load) a tap is
+  IGNORED — not disabled, no visual change — so a fast walker and a slow human land in the same
+  place (no timing-based destination). Late answers are dropped. No code in the URL = no request,
+  no hold.
+- **Fail-open is today's behaviour:** no fetch, a throw, a 500, junk, a bad path, a timeout —
+  Continue goes to the page's own `x-dest` / `go/` with the original code. The whole block is in
+  try/catch because the click handler is attached at the END of the same function.
+- **Tests:** `_prelander-switch.test.mjs` executes the shipped script from a flat AND a clone page
+  in a fake DOM with a fake fetch/clock; `_hop.test.mjs` walks the store ladder with a stubbed
+  clock; `_switch-publish.test.mjs` covers auth, the envelope, stale gens and mid-publish races.
+- ⚠️ **Never spell the x-pre meta TAG in a scanned `.js`/`.mjs` file**, comments included.
+  `_tracking-audit` treats ANY scanned file containing it as a prelander and hashes it into the
+  one-script set — a test file that quoted it made the set "903 files, 2 hashes". Describe it in
+  words instead.
+- **Rolling the script out:** derive the new script from ONE canonical page, assert every marked
+  file's `<script>` equals the old canonical byte-for-byte, replace, then re-hash the set (must be
+  size 1). 902 pages on 2026-10-07: 72 flat (`<meta name="x-dest">`) + 830 clone folders.
+
 ## GENERATED landers: ONE PAGE PER GEO, one language per geo (2026-07-26)
 
 `SHEIN SEPH CASH APAY750 APAY1K UBER FCASH` and their `SH50 SP50 CS50 AP50 AK50 UE50 50FC`
@@ -1167,6 +1225,14 @@ HEAD:main` from a worktree branch avoids a checkout. `.vercelignore` keeps `just
 off the live domain (note: `justincase/` is also untracked, so it wouldn't deploy regardless).
 
 ## Changelog
+
+- **2026-10-07 (review fixes)** — `t` refuses `.` segments and the root `/go/` (server AND page;
+  script re-rolled to all 902 pages, still one hash); the page compares "this page" normalised;
+  `/api/switch-publish` skips identical writes while the stored table has ≥ 5 h to live.
+- **2026-10-07** — **The page switch (built on `claude/landing-page-switch`, not shipped).** New
+  `api/hop.js`, `api/switch-publish.js`, `api/_lib/hop-store.js`; the one prelander script (902
+  x-pre pages, still one hash) asks `/api/hop` at load and holds taps ≤800 ms. Needs
+  `LANDING_SWITCH_KEY` set in BOTH Vercel projects and a redeploy. See "The page switch" above.
 
 - **2026-08-21** — **The /click gate: every CTA stamps through our own first-party click URL.**
   Migi asked for the old cloaker's `/click` pattern back ("so we can make sure we never miss a

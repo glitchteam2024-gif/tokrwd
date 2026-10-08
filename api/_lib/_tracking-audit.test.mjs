@@ -309,6 +309,20 @@ report('no third-party tracking script on a deployed page', thirdPartyTrackers);
 // a second destination — breaks the set and fails the build. Reviewing one file still reviews all
 // 1,410 of them, which is the property the original two-file list was really protecting.
 //
+// THE ONE SANCTIONED SECOND DESTINATION: the page switch (2026-10-07). The shared script may ask
+// the same-origin /api/hop, keyed by the code in s1/sub1 and nothing else, for a different lander
+// path (`t`) and, for a move to another offer, the sibling code to carry (`y`). It is sanctioned
+// because it is the SAME reviewed behaviour on every page — it lives inside the one hashed script,
+// so this check still pins it, and a page that grew its own variant would still break the set —
+// and because it cannot become cloaking: the answer depends on the code alone (no user agent, IP,
+// geo or timing branch; taps are held until the answer is in or 800 ms pass, so a fast walker and
+// a slow human land in the same place), every `t` is re-validated in the page as a same-origin
+// lander path (no //, no .., no reserved root, no prelander), and any failure falls back to the
+// page's own x-dest / go/. The table is written only through api/switch-publish.js and validated
+// on every read by api/_lib/hop-store.js. _prelander-switch.test.mjs executes the shipped script
+// to prove all of that. Anything ELSE that makes a prelander's destination vary is still the
+// "second destination" this paragraph forbids.
+//
 // The non-escapable patterns below (blank-page gates, document.write) still apply to these files
 // exactly as they do to every other. The escape is sanctioned; cloaking is not.
 const PRELANDER_MARK = /<meta\s+name=["']x-pre["']/i;

@@ -263,6 +263,116 @@
         }
         beacon('pre_view');
 
+        /* ── THE PAGE SWITCH ──────────────────────────────────────────────────────────────────
+           The lander this page opens can be set per code. At load, when the query carries a code,
+           the page asks the same-origin /api/hop, once. The answer is { t }, the lander path to
+           open, and optionally { y }, the code to carry instead; only that one token is swapped and
+           the rest of the query rides along untouched, exactly as below.
+
+           · No code: no request, no wait. The page is exactly what it was.
+           · The answer depends on the code alone. Nothing here reads the user agent, the address or
+             the country, and nothing changes what this page renders.
+           · The jump must happen synchronously inside the tap (see go()), so the answer has to be in
+             memory BEFORE the tap. Until it arrives, for at most HOP_WAIT ms from load, a tap is
+             ignored (not disabled: nothing on screen changes), so where Continue goes cannot depend
+             on how quickly someone taps. An answer later than HOP_WAIT is dropped.
+           · Any failure (no fetch, a throw, an error status, a slow or malformed answer, a path that
+             is not a plain lander on this origin) leaves `hop` null, and landerUrl() does exactly
+             what it always did.
+
+           ⚠️ THE WHOLE BLOCK IS INSIDE try/catch. The Continue handler is attached at the very end of
+           this function, so a throw here would leave the button dead on every page that runs this
+           script, switched or not. Helpers are function declarations at this level, never inside a
+           block: a block-level function declaration is a syntax error in an older strict-mode engine,
+           and a syntax error is a dead page. */
+        var HOP_WAIT = 800;
+        var HOP_RESERVED = ['api', 'click', 'c', 'r', 'u', 'pre', 'admin', 'portal', 'js', 'images', 'postback', 'go'];
+        var hop = null, hopWait = false, hopTimer = 0;
+
+        /* Two paths name the same page: '/X/Y/', '/X/Y' and '/X/Y/index.html' are one page. */
+        function samePage(a, b) {
+            function norm(p) { return String(p).replace(/\/index\.html$/i, '/').replace(/\/+$/, '').toLowerCase(); }
+            return norm(a) === norm(b);
+        }
+
+        /* The code inside a query value, matched the way the lander matches it, uppercased. */
+        function codeIn(v) {
+            return (String(v).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase();
+        }
+
+        /* An answer is used only when every part of it is exactly what it may be: a lander path on
+           this origin (never a reserved route, never a prelander, never this page), and a `y` only
+           together with that path. A code with a numeric suffix is looked up as itself and is never
+           switched, so an answer for one is not used either. */
+        function hopAnswer(a, code) {
+            try {
+                if (!a || typeof a !== 'object') return null;
+                var t = a.t, y = a.y;
+                if (typeof t !== 'string' || t.length > 200 || !/^\/[A-Za-z0-9._\/-]+$/.test(t)) return null;
+                /* No segment may start with '.': a browser folds such a segment away AFTER these checks. */
+                if (t.indexOf('//') !== -1 || t.indexOf('..') !== -1 || t.indexOf('/.') !== -1) return null;
+                if (!/(?:\.html|\/go\/)$/.test(t) || /-pre\d*\.html$/i.test(t)) return null;
+                if (HOP_RESERVED.indexOf(t.split('/')[1].replace(/\.html$/i, '').toLowerCase()) !== -1) return null;
+                if (samePage(t, location.pathname)) return null;
+                if (!/^SPK-[0-9A-F]{4}-[0-9A-F]{4}$/.test(code)) return null;
+                if (y === undefined || y === null || y === '') return { t: t, y: '', c: code };
+                if (typeof y !== 'string' || !/^SPK-[0-9A-F]{4}-[0-9A-F]{4}$/.test(y) || y === code) return null;
+                return { t: t, y: y, c: code };
+            } catch (e) { return null; }
+        }
+
+        /* Swap one exact code for another inside a query value. Matched with the same pattern the
+           lander uses, so a token with a numeric suffix is a different token and stays as it is. */
+        function swapCode(v, from, to) {
+            return String(v).replace(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/gi, function (m) {
+                return m.toUpperCase() === from ? to : m;
+            });
+        }
+
+        /* The switched lander URL, or '' for the built-in one. '' too unless the lander will read
+           exactly the code the answer expects (`y` when there is one): a switched path never goes
+           out with the wrong code, and `y` never goes out without its path. */
+        function switchedUrl() {
+            try {
+                if (!hop) return '';
+                var out = new URLSearchParams();
+                q.forEach(function (v, k) {
+                    out.append(k, hop.y && (k === 's1' || k === 'sub1') ? swapCode(v, hop.c, hop.y) : v);
+                });
+                if (codeIn(out.get('s1') || out.get('sub1') || '') !== (hop.y || hop.c)) return '';
+                var qs = out.toString();
+                return location.origin + hop.t + (qs ? '?' + qs : '');
+            } catch (e) { return ''; }
+        }
+
+        try {
+            var hopCode = codeIn(q.get('s1') || q.get('sub1') || '');
+            if (hopCode && typeof fetch === 'function') {
+                var hopCtl = typeof AbortController === 'function' ? new AbortController() : null;
+                var hopSettle = function (ans) {
+                    if (!hopWait) return;
+                    hopWait = false;
+                    clearTimeout(hopTimer);
+                    hop = ans;
+                };
+                hopWait = true;
+                hopTimer = setTimeout(function () {
+                    hopSettle(null);
+                    if (hopCtl) { try { hopCtl.abort(); } catch (e) { /* already settled */ } }
+                }, HOP_WAIT);
+                var hopInit = { credentials: 'omit' };
+                if (hopCtl) hopInit.signal = hopCtl.signal;
+                fetch('/api/hop?c=' + encodeURIComponent(hopCode), hopInit)
+                    .then(function (r) { return r && r.ok ? r.json() : null; })
+                    .then(function (a) { hopSettle(hopAnswer(a, hopCode)); })
+                    .then(null, function () { hopSettle(null); });
+            }
+        } catch (e) {
+            hopWait = false;
+            hop = null;
+            try { clearTimeout(hopTimer); } catch (e2) { /* nothing to undo */ }
+        }
+
         /* The lander. TWO page shapes, ONE code path — which is the whole point.
 
            · Clone directories (50FC/FC7/, AC54/US1/, …): no meta tag, so it resolves against THIS
@@ -281,7 +391,12 @@
            It is still not a ?to= param: the value is written into the file at generation time and
            cannot be set by a visitor, so there is no allowlist and nothing to keep in sync. */
         /* `q`, not location.search, so the sid minted above rides to the lander. */
+        /* The one exception to data-in-the-markup is THE PAGE SWITCH above: a path from the
+           same-origin hop, used only after hopAnswer() has checked it, and only for the code it was
+           asked about. Without a usable answer this is the original logic, unchanged. */
         function landerUrl() {
+            var sw = switchedUrl();
+            if (sw) return sw;
             var m = document.querySelector('meta[name="x-dest"]');
             var flat = m && m.getAttribute('content');
             var qs = q.toString();
@@ -411,6 +526,9 @@
 
         btn.addEventListener('click', function (e) {
             e.preventDefault();
+            /* Held while the switch answer is on its way (at most HOP_WAIT ms from load): no
+               beacon, no visual change, the button stays live, and the next tap goes through. */
+            if (hopWait) return;
             btn.disabled = true;
             beacon('pre_tap');   /* fired BEFORE go(), so it is sent even if the app switch is instant */
             go();
