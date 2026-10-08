@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow" />
+<title>Sushi Pass – Play. Complete. Earn Rewards.</title>
+<style>
+:root{--bg:#0a0a0b;--card:#17171a;--org:#ff7a1a;--red:#d7193a;--txt:#fff;--mut:#a8a8b3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;overflow-x:hidden}
+section{padding:56px 20px;max-width:1000px;margin:auto}
+h1{font-size:clamp(2.4rem,9vw,4.4rem);line-height:1.02;font-weight:900;letter-spacing:-.02em}
+h2{font-size:clamp(1.6rem,6vw,2.4rem);font-weight:800;text-align:center;margin-bottom:28px}
+.grad{background:linear-gradient(90deg,var(--org),var(--red));-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{display:inline-block;background:var(--org);color:#111;font-weight:800;font-size:1.15rem;padding:18px 40px;border-radius:999px;text-decoration:none;box-shadow:0 0 30px rgba(255,122,26,.55),0 8px 24px rgba(0,0,0,.5);transition:transform .15s}
+.btn:active{transform:scale(.97)}
+.hero{text-align:center;background:radial-gradient(ellipse at 50% 0,rgba(215,25,58,.35),transparent 60%);padding-top:40px}
+.brand-logo{display:block;width:64px;height:64px;margin:0 auto 12px}
+.brand{font-weight:800;letter-spacing:.12em;font-size:.85rem;color:var(--org);margin-bottom:20px}
+.sub{color:var(--mut);font-size:1.1rem;margin:16px auto 28px;max-width:480px}
+.micro{color:var(--mut);font-size:.8rem;margin-top:16px}
+.wallet{position:relative;margin:44px auto 0;max-width:420px;height:300px}
+.w{position:absolute;inset:60px 20px 20px;background:linear-gradient(145deg,#26262b,#121214);border:1px solid rgba(255,122,26,.5);border-radius:24px;box-shadow:0 0 50px rgba(215,25,58,.4);padding:22px;text-align:left}
+.w small{color:var(--mut);font-size:.75rem;letter-spacing:.1em}
+.bar{height:10px;background:#2a2a30;border-radius:9px;margin:14px 0;overflow:hidden}
+.bar i{display:block;height:100%;width:68%;background:linear-gradient(90deg,var(--red),var(--org));border-radius:9px}
+.chip{position:absolute;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:8px 14px;font-size:.8rem;font-weight:600;animation:fl 4s ease-in-out infinite}
+.c1{top:6px;left:0}.c2{top:40px;right:0;animation-delay:1s}.c3{bottom:0;left:6px;animation-delay:2s}.c4{bottom:24px;right:0;animation-delay:.5s}
+.coin{position:absolute;width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffc27a,var(--org));box-shadow:0 0 18px rgba(255,122,26,.7);top:-6px;left:48%;animation:fl 3s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(-10px)}}
+@media(prefers-reduced-motion:reduce){.chip,.coin{animation:none}}
+.flow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:36px;font-size:.75rem;font-weight:700;letter-spacing:.06em;color:var(--mut)}
+.flow b{color:var(--org)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid #2b2b31;border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 40px rgba(215,25,58,.08);transition:border-color .2s}
+.card:hover{border-color:var(--org)}
+.card .ic{font-size:2rem;margin-bottom:10px}
+.card h3{font-size:1.15rem;margin-bottom:6px}
+.card p{color:var(--mut);font-size:.95rem}
+.steps{display:grid;gap:0;max-width:520px;margin:auto}
+.step{display:flex;gap:18px;position:relative;padding-bottom:30px}
+.step:not(:last-child)::before{content:"";position:absolute;left:25px;top:52px;bottom:2px;width:2px;background:linear-gradient(var(--org),var(--red))}
+.num{flex:none;width:52px;height:52px;border-radius:50%;background:var(--card);border:2px solid var(--org);display:grid;place-items:center;font-weight:900;color:var(--org);box-shadow:0 0 16px rgba(255,122,26,.4)}
+.step h3{margin-top:2px}.step p{color:var(--mut)}
+.fin{text-align:center;background:linear-gradient(180deg,var(--bg),#5a0a1c);max-width:none;padding:72px 20px 80px}
+.fin p{color:#ddd;margin:0 auto 28px;max-width:460px}
+footer{text-align:center;color:var(--mut);font-size:.72rem;padding:20px;background:#5a0a1c}
+
+.btn{min-height:56px;text-align:center}
+.sticky{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(10,10,11,.95) 40%);z-index:9;display:none;transform:translateY(120%);transition:transform .25s}
+.sticky.on{transform:none}
+.sticky .btn{display:block;padding:16px}
+@media(max-width:600px){
+ section{padding:44px 18px}
+ .hero .btn,.fin .btn{display:block;width:100%}
+ .wallet{height:270px;max-width:340px}
+ .chip{font-size:.7rem;padding:6px 10px}
+ .w{inset:56px 14px 16px;padding:18px}
+ .flow{font-size:.68rem}
+ .sticky{display:block}
+ footer{padding-bottom:90px}
+}
+</style>
+</head>
+<body>
+<section class="hero">
+  <img class="brand-logo" src="/images/sushipass-logo.svg" alt="Sushi Pass" width="64" height="64">
+  <div class="brand">SUSHI PASS</div>
+  <h1>Play. Complete.<br><span class="grad">Earn Rewards.</span></h1>
+  <p class="sub">Complete games and offers, earn rewards, and add them to your wallet.</p>
+  <a class="btn" href="#">Start Earning</a>
+  <p class="micro">Free to join • Play games • Complete offers • Earn rewards</p>
+  <div class="wallet" aria-hidden="true">
+    <div class="coin"></div>
+    <div class="chip c1">🎮 Game</div><div class="chip c2">✅ Offer completed</div>
+    <div class="chip c3">🎁 Bonus unlocked</div><div class="chip c4">🔔 Reward earned</div>
+    <div class="w"><small>YOUR WALLET</small><div style="font-size:1.5rem;font-weight:800;margin-top:6px">Rewards</div><div class="bar"><i></i></div><small>PROGRESS TO NEXT REWARD</small></div>
+  </div>
+  <div class="flow"><span>GAME</span><b>→</b><span>OFFER COMPLETED</span><b>→</b><span>REWARD EARNED</span><b>→</b><span>WALLET</span></div>
+</section>
+
+<section>
+  <h2>Turn Your Free Time Into <span class="grad">Rewards</span></h2>
+  <div class="grid">
+    <div class="card"><div class="ic">🎮</div><h3>Play Games</h3><p>Complete eligible games and activities.</p></div>
+    <div class="card"><div class="ic">🎯</div><h3>Complete Offers</h3><p>Explore available offers and complete the requirements.</p></div>
+    <div class="card"><div class="ic">💰</div><h3>Earn Rewards</h3><p>Receive rewards when eligible activities are completed.</p></div>
+    <div class="card"><div class="ic">👛</div><h3>Add to Your Wallet</h3><p>Keep your earned rewards organized in your digital wallet.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>How It Works</h2>
+  <div class="steps">
+    <div class="step"><div class="num">01</div><div><h3>Choose an Offer</h3><p>Browse available games and promotional offers.</p></div></div>
+    <div class="step"><div class="num">02</div><div><h3>Complete It</h3><p>Follow the requirements and complete the selected activity.</p></div></div>
+    <div class="step"><div class="num">03</div><div><h3>Earn Your Reward</h3><p>Receive the applicable reward and add it to your wallet.</p></div></div>
+  </div>
+</section>
+
+<section class="fin">
+  <h2>Ready to Start Earning?</h2>
+  <p>Explore available games and offers and start working toward your next reward.</p>
+  <a class="btn" href="#">Get Started</a>
+</section>
+<div class="sticky" id="st"><a class="btn" href="#">Start Earning</a></div>
+<footer>Rewards depend on eligible offers and completion of their requirements. Availability varies.</footer>
+<script>
+(function(){var st=document.getElementById('st'),h=document.querySelector('.hero .btn');
+if(!st||!h||!('IntersectionObserver' in window)){if(st)st.classList.add('on');return}
+new IntersectionObserver(function(e){st.classList.toggle('on',!e[0].isIntersecting)}).observe(h)})();
+</script>
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://montrk.co.uk/?a=26648&c=57015';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'SUSHIPASSWALLET-ASHBBBY-18', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('a.btn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+<script>
+  Array.prototype.forEach.call(document.querySelectorAll('a.btn'), function (el) {
+    el.addEventListener('click', function (e) {
+      if (e && e.preventDefault) e.preventDefault();
+      window.location.href = buildOfferUrl();
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reco Social – Get Connected</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    :root {
+      --black: #000;
+      --white: #fff;
+      --gray: #f5f5f5;
+      --accent1: #7A3FFF; /* Reco purple */
+      --accent2: #FF3F8E; /* Reco pink */
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--black);
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 18px;
+      color: var(--white);
+    }
+
+    .app { width: 100%; max-width: 480px; }
+
+    /* Main gradient container */
+    .shell {
+      background: linear-gradient(180deg, var(--accent1), var(--accent2));
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.45);
+    }
+
+    /* HERO SECTION */
+    .brand-icon { display: block; width: 64px; height: 64px; border-radius: 15px; margin-bottom: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
+
+    .hero-title {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--gray);
+      margin-bottom: 24px;
+      line-height: 1.45;
+    }
+
+    /* CREATOR BOX WITH EXACT RECO GRADIENT */
+    .creator-box {
+      background: linear-gradient(180deg, #7A3FFF, #FF3F8E);
+      padding: 20px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 32px rgba(0,0,0,0.45);
+      color: #000;
+    }
+
+    .creator-header {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .creator-intro {
+      font-size: 15px;
+      margin-bottom: 22px;
+      line-height: 1.55;
+    }
+
+    /* BULLET POINTS */
+    .creator-list {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .creator-item {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .creator-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .creator-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .creator-text {
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    /* CTA BUTTON */
+    .cta-btn {
+      width: 100%;
+      background: var(--white);
+      color: var(--accent1);
+      border: none;
+      padding: 15px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.1s ease-out;
+      margin-top: 10px;
+    }
+
+    .cta-btn:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="shell">
+
+      <!-- HERO -->
+      <img class="brand-icon" src="/images/reco-app-icon.jpg" alt="Reco" width="64" height="64" />
+      <div class="hero-title">Real talk. Real recs.</div>
+      <div class="hero-sub">
+        Discover what people actually love — and share your own recommendations with friends.
+      </div>
+
+      <!-- CREATOR BOX WITH EXACT RECO GRADIENT -->
+      <div class="creator-box">
+
+        <div class="creator-header">On Reco, everyone is a creator.</div>
+
+        <div class="creator-intro">
+          If you know a great restaurant, a trail worth riding, a film nobody's seen — you're already one. 
+          Share it, and earn from every view, save, and click. No brand deals, no minimum following required.
+        </div>
+
+        <ul class="creator-list">
+
+          <li class="creator-item">
+            <div class="creator-icon">🔗</div>
+            <div>
+              <div class="creator-title">Auto‑linking</div>
+              <div class="creator-text">
+                Reco finds every product, place, film, and game in your posts automatically.
+              </div>
+            </div>
+          </li>
+
+          <li class="creator-item">
+            <div class="creator-icon">📈</div>
+            <div>
+              <div class="creator-title">Earn from engagement</div>
+              <div class="creator-text">
+                Views, saves, and clicks all count — not just purchases.
+              </div>
+            </div>
+          </li>
+
+          <li class="creator-item">
+            <div class="creator-icon">⚡</div>
+            <div>
+              <div class="creator-title">Start earning immediately</div>
+              <div class="creator-text">
+                No follower minimums, no account requirements — just create and earn.
+              </div>
+            </div>
+          </li>
+
+        </ul>
+      </div>
+
+      <!-- CTA BUTTON -->
+      <button class="cta-btn" onclick="window.location.href = buildOfferUrl()">
+        Get Connected
+      </button>
+
+    </div>
+  </div>
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://www.phef6trk.com/cmp/K9Q118/294WGG/';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `sub1`: this destination family reads sub1..sub5 and silently discards s1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'RECOSOCIALUSA-SHANNONP-37', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('.cta-btn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+</body>
+</html>
+
+
+
+

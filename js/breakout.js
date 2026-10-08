@@ -193,6 +193,18 @@
     'sushipasswallet-drewski4k-34.html', 'sushipasswallet-drewski4k-34-pre.html',
     // Page hosted 2026-10-07 (submitted), reserved to one affiliate.
     'gp-sxmmybills-12.html', 'gp-sxmmybills-12-pre.html',
+    // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
+    'recosocialusa-shannonp-37.html', 'recosocialusa-shannonp-37-pre.html',
+    // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
+    'testerupuscauk-shannonp-37.html', 'testerupuscauk-shannonp-37-pre.html',
+    // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
+    'testerupexclusiveusuk-shannonp-37.html', 'testerupexclusiveusuk-shannonp-37-pre.html',
+    // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
+    'testerupuscauk-drewski4k-34.html', 'testerupuscauk-drewski4k-34-pre.html',
+    // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
+    'testerupexclusiveusuk-drewski4k-34.html', 'testerupexclusiveusuk-drewski4k-34-pre.html',
+    // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
+    'sushipasswallet-ashbbby-18.html', 'sushipasswallet-ashbbby-18-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',

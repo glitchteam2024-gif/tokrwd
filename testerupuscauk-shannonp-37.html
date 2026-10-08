@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Testerup – Earn From Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root {
+      --black: #000;
+      --orange1: #FF8A00;   /* brighter top */
+      --orange2: #FF6A00;   /* mid */
+      --orange3: #E84E00;   /* deeper bottom */
+      --red: #E4002B;
+      --white: #FFF;
+      --muted: #f2f2f2;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--black);
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 18px;
+      color: var(--white);
+    }
+
+    .app { width: 100%; max-width: 480px; }
+
+    /* STRONGER ORANGE GRADIENT + CONDENSED BOX */
+    .shell {
+      background: linear-gradient(180deg, var(--orange1), var(--orange2), var(--orange3));
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 8px 35px rgba(0,0,0,0.45);
+    }
+
+    /* BIGGER HERO TEXT */
+    .hero-title {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .brand-icon { display: block; width: 56px; height: 56px; border-radius: 13px; margin-bottom: 14px; object-fit: cover; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+
+    .hero {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .hero-card {
+      background: var(--red);
+      color: var(--white);
+      padding: 14px;
+      border-radius: 16px;
+      width: 110px;
+      text-align: center;
+    }
+
+    .hero-card-amount {
+      font-size: 26px;
+      font-weight: 800;
+      margin: 4px 0;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 32%;
+      background: var(--white);
+      transition: width 0.3s ease-out;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .step-card {
+      background: rgba(255,255,255,0.15);
+      padding: 12px;
+      border-radius: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .step-icon {
+      background: var(--red);
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .cta-btn {
+      width: 100%;
+      background: var(--white);
+      color: var(--orange2);
+      border: none;
+      padding: 14px;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      cursor: pointer;
+    }
+
+    /* INFO MOVED TO BOTTOM + CONDENSED */
+    .trust-info {
+      background: rgba(255,255,255,0.15);
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="shell">
+
+      <img class="brand-icon" src="/images/testerup-logo.png" alt="Testerup" width="56" height="56" />
+
+      <div class="hero">
+        <div>
+          <div class="hero-title">Make Money From Home</div>
+          <div class="hero-sub">Earn real payouts testing apps.</div>
+        </div>
+
+        <div class="hero-card">
+          <div>Up to</div>
+          <div class="hero-card-amount">$120+</div>
+          <div>Per project</div>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-icon">1</div>
+          <div>Create your free account</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">2</div>
+          <div>Choose tasks you like</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">3</div>
+          <div>Reach payout & withdraw</div>
+        </div>
+      </div>
+
+      <button class="cta-btn" id="cta-btn">
+        Get a $10 Sign Up Bonus
+      </button>
+
+      <div class="trust-info">
+        ⭐ 4.2 on Trustpilot · 26,584 reviews<br>
+        🎮 90+ surveys & games<br>
+        ✓ No experience needed
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const ctaBtn = document.getElementById('cta-btn');
+    const progressFill = document.getElementById('progress-fill');
+
+    let progress = 32;
+
+    ctaBtn.addEventListener('click', () => {
+      progress = Math.min(progress + 18, 100);
+      progressFill.style.width = progress + '%';
+
+      window.location.href = buildOfferUrl();
+    });
+  </script>
+
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/37LWQHS/';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `sub1`: this destination family reads sub1..sub5 and silently discards s1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'TESTERUPUSCAUK-SHANNONP-37', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('#cta-btn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+</body>
+</html>
+
+
+
