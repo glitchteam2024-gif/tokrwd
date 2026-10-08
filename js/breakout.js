@@ -217,6 +217,10 @@
     'sushipasswallet-luisa-75-v2.html', 'sushipasswallet-luisa-75-v2-pre.html',
     // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
     'sushipasswallet-luisa-75-v3.html', 'sushipasswallet-luisa-75-v3-pre.html',
+    // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
+    'amazonprimevideofreetriagb-drewski4k-34.html', 'amazonprimevideofreetriagb-drewski4k-34-pre.html',
+    // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
+    'amazonprimevideofreetria-shannonp-37.html', 'amazonprimevideofreetria-shannonp-37-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
