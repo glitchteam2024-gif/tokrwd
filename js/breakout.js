@@ -223,6 +223,8 @@
     'amazonprimevideofreetria-shannonp-37.html', 'amazonprimevideofreetria-shannonp-37-pre.html',
     // Page hosted 2026-10-08 (submitted), reserved to one affiliate.
     'playstorm-ashbbby-18.html', 'playstorm-ashbbby-18-pre.html',
+    'rs-luisa-75.html', 'rs-luisa-75-pre.html',
+    'amazonprimevideofreetria-shannonp-37-v2.html', 'amazonprimevideofreetria-shannonp-37-v2-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
