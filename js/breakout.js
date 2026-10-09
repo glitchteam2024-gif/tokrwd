@@ -226,6 +226,7 @@
     'rs-luisa-75.html', 'rs-luisa-75-pre.html',
     'amazonprimevideofreetria-shannonp-37-v2.html', 'amazonprimevideofreetria-shannonp-37-v2-pre.html',
     'testerup-us-pres-spar-tenx2.html', 'testerup-us-pres-spar-tenx2-pre.html',
+    'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
