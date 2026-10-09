@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Playstorm – Play. Complete. Earn Rewards.</title>
+<style>
+:root{--bg:#4a22b8;--bg2:#2c1170;--card:rgba(255,255,255,.12);--yel:#ffcc2e;--org:#ff8a1f;--txt:#fff;--mut:#d6c9ff;box-sizing:border-box}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:linear-gradient(180deg,#6a3de8 0,var(--bg) 35%,var(--bg2) 100%);background-attachment:fixed;color:var(--txt);font-family:"Trebuchet MS",Inter,system-ui,-apple-system,sans-serif;line-height:1.5;overflow-x:hidden;padding-top:env(safe-area-inset-top,0px)}
+section{padding:52px 20px;max-width:1000px;margin:auto}
+h1{font-size:clamp(2.3rem,9vw,4.2rem);line-height:1.04;font-weight:900;letter-spacing:-.01em}
+h2{font-size:clamp(1.6rem,6vw,2.4rem);font-weight:900;text-align:center;margin-bottom:28px}
+.hl{background:linear-gradient(90deg,var(--yel),var(--org));-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{display:inline-block;background:linear-gradient(180deg,#ffd84d,var(--org));color:#2c1170;font-weight:900;font-size:1.15rem;min-height:56px;padding:16px 42px;border-radius:999px;text-decoration:none;text-align:center;box-shadow:0 6px 0 #c4600a,0 0 32px rgba(255,204,46,.5);transition:transform .12s,box-shadow .12s}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #c4600a,0 0 20px rgba(255,204,46,.4)}
+.hero{text-align:center;padding-top:36px}
+.logo{display:inline-flex;align-items:center;gap:10px;font-weight:900;font-size:1.6rem;letter-spacing:.02em;text-shadow:0 3px 0 rgba(44,17,112,.7);margin-bottom:22px}
+.logo .p{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#ffe066,var(--org));color:#4a22b8;display:grid;place-items:center;font-size:1.7rem;box-shadow:0 3px 0 #c4600a;transform:rotate(-6deg);text-shadow:none}
+.sub{color:var(--mut);font-size:1.1rem;margin:16px auto 28px;max-width:480px}
+.micro{color:var(--mut);font-size:.8rem;margin-top:16px}
+.stage{position:relative;margin:40px auto 0;max-width:380px;height:320px}
+.phone{position:absolute;left:50%;top:6px;width:170px;height:290px;margin-left:-85px;background:#1b0b4d;border:4px solid #fff;border-radius:28px;box-shadow:0 20px 50px rgba(20,5,70,.6);padding:18px 12px;text-align:left;z-index:2}
+.phone small{color:var(--mut);font-size:.62rem;letter-spacing:.1em}
+.phone .amt{font-weight:900;font-size:1.05rem;margin:2px 0 10px}
+.bar{height:10px;background:rgba(255,255,255,.18);border-radius:9px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;width:66%;background:linear-gradient(90deg,var(--yel),var(--org))}
+.arena{position:relative;height:140px;border-radius:14px;background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.18),rgba(255,255,255,.06));overflow:hidden;touch-action:manipulation}
+.tgt{position:absolute;width:44px;height:44px;border:0;border-radius:50%;cursor:pointer;font-size:1.2rem;background:radial-gradient(circle at 30% 30%,#fff3a8,var(--yel) 50%,var(--org));box-shadow:0 0 18px rgba(255,204,46,.8);transition:left .25s,top .25s;-webkit-tap-highlight-color:transparent}
+.tgt:active{transform:scale(.85)}
+.win{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(27,11,77,.92);text-align:center;font-weight:900;font-size:.95rem;padding:8px}
+.win.on{display:flex}
+.win button{border:0;border-radius:99px;padding:8px 16px;font-weight:900;color:#2c1170;background:linear-gradient(180deg,#ffd84d,var(--org));cursor:pointer;font-size:.8rem}
+.cnt{display:flex;justify-content:space-between;margin-top:8px;color:var(--mut);font-size:.65rem}
+.chip{position:absolute;background:#fff;color:#2c1170;border-radius:14px;padding:8px 12px;font-size:.78rem;font-weight:800;box-shadow:0 8px 20px rgba(20,5,70,.4);animation:fl 4s ease-in-out infinite}
+.c1{top:6px;left:0;transform:rotate(-5deg)}.c2{top:60px;right:0;animation-delay:1s}.c3{bottom:30px;left:0;animation-delay:2s}.c4{bottom:0;right:10px;animation-delay:.6s;transform:rotate(4deg)}
+.coin{position:absolute;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff3a8,var(--yel) 50%,var(--org));box-shadow:0 0 18px rgba(255,204,46,.8);animation:fl 3s ease-in-out infinite}
+.k1{top:0;left:60%}.k2{bottom:60px;right:30%;width:26px;height:26px;animation-delay:1s}
+@keyframes fl{50%{transform:translateY(-10px)}}
+@media(prefers-reduced-motion:reduce){.chip,.coin{animation:none}}
+.flow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:34px;font-size:.72rem;font-weight:800;letter-spacing:.06em;color:var(--mut)}
+.flow b{color:var(--yel)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.card{background:var(--card);border:2px solid rgba(255,255,255,.2);border-radius:22px;padding:24px;box-shadow:0 10px 30px rgba(20,5,70,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.card .ic{font-size:2rem;margin-bottom:8px}
+.card h3{font-size:1.15rem;margin-bottom:6px}
+.card p{color:var(--mut);font-size:.95rem}
+.steps{max-width:520px;margin:auto}
+.step{display:flex;gap:18px;position:relative;padding-bottom:30px}
+.step:not(:last-child)::before{content:"";position:absolute;left:25px;top:54px;bottom:2px;width:3px;border-radius:3px;background:linear-gradient(var(--yel),var(--org))}
+.num{flex:none;width:52px;height:52px;border-radius:50%;background:linear-gradient(145deg,#ffe066,var(--org));color:#2c1170;display:grid;place-items:center;font-weight:900;box-shadow:0 3px 0 #c4600a}
+.step h3{margin-top:2px}.step p{color:var(--mut)}
+.fin{text-align:center;padding:64px 20px 80px}
+.fin p{color:var(--mut);margin:0 auto 28px;max-width:460px}
+footer{text-align:center;color:var(--mut);font-size:.72rem;padding:20px 20px 28px}
+.sticky{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(44,17,112,.95) 40%);z-index:9;display:none;transform:translateY(120%);transition:transform .25s}
+.sticky.on{transform:none}
+.sticky .btn{display:block;padding:14px}
+@media(max-width:600px){
+ section{padding:42px 18px}
+ .hero .btn,.fin .btn{display:block;width:100%}
+ .stage{max-width:320px;height:270px}
+ .chip{font-size:.68rem;padding:6px 9px}
+ .flow{font-size:.66rem}
+ .sticky{display:block}
+ footer{padding-bottom:90px}
+}
+
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-size:16px}
+h1{font-size:clamp(2rem,10.5vw,4.2rem);overflow-wrap:break-word}
+.micro{font-size:.88rem}
+.card p,.step p{font-size:1rem}
+footer{font-size:.8rem}
+.phone small{font-size:.7rem}
+.cnt{font-size:.74rem}
+.win button{min-height:40px;padding:8px 18px;font-size:.9rem}
+@media(max-width:600px){
+ .sub{font-size:1.05rem}
+ h2{font-size:clamp(1.5rem,7vw,2rem)}
+ .logo{font-size:1.4rem}
+ .stage{max-width:340px;height:350px;margin-top:32px}
+ .phone{top:38px;width:180px;height:276px;margin-left:-90px}
+ .arena{height:130px}
+ .chip{font-size:.78rem;padding:7px 11px}
+ .c1{top:0;left:0}.c2{top:0;right:0}.c3{bottom:0;left:0}.c4{bottom:0;right:0}
+ .coin.k1{top:20px;left:78%}.coin.k2{bottom:40px;right:10%}
+ .flow{font-size:.74rem;gap:6px}
+ .btn{font-size:1.1rem}
+ .num{width:48px;height:48px}.step:not(:last-child)::before{left:23px;top:50px}
+ .sticky .btn{font-size:1.05rem}
+}
+@media(max-width:340px){.chip{font-size:.72rem;padding:6px 8px}.stage{max-width:300px}.phone{width:164px;margin-left:-82px}}
+
+.cash{text-align:center;padding-top:24px;padding-bottom:24px}
+.cash h2{margin-bottom:12px}
+.cash p{color:var(--mut);font-size:1.05rem;max-width:380px;margin:0 auto 20px}
+.pills{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.pill{background:var(--card);border:2px solid rgba(255,255,255,.22);border-radius:999px;padding:12px 18px;font-weight:800;font-size:1rem;min-height:48px;display:inline-flex;align-items:center;gap:8px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+@media(max-width:600px){.pill{padding:11px 16px}}
+
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px) 0 0/100% 38px,linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px) 0 0/38px 100%}
+section,footer{position:relative;z-index:1}
+h1{transform:rotate(-1.5deg)}
+.hero .hl{display:inline-block;transform:skew(-6deg)}
+@keyframes pulse{50%{box-shadow:0 6px 0 #c4600a,0 0 52px rgba(255,204,46,.9)}}
+.hero .btn,.fin .btn{animation:pulse 2s ease-in-out infinite}
+.strip{position:relative;z-index:1;overflow:hidden;white-space:nowrap;background:#ffcc2e;color:#2c1170;font-weight:900;letter-spacing:.14em;font-size:.85rem;padding:10px 0;transform:rotate(-1.2deg);margin:8px -10px;box-shadow:0 6px 20px rgba(20,5,70,.4)}
+.strip span{display:inline-block;padding-left:100%;animation:mq 18s linear infinite}
+@keyframes mq{to{transform:translateX(-100%)}}
+.grid .card{position:relative;padding-top:34px;transition:transform .15s}
+.grid .card:active{transform:scale(.98) rotate(-.5deg)}
+.grid .card::before{position:absolute;top:10px;left:16px;font-size:.7rem;font-weight:900;letter-spacing:.14em;color:var(--yel)}
+.grid .card:nth-child(1)::before{content:"QUEST 01"}.grid .card:nth-child(2)::before{content:"QUEST 02"}
+.grid .card:nth-child(3)::before{content:"QUEST 03"}.grid .card:nth-child(4)::before{content:"QUEST 04"}
+@media(prefers-reduced-motion:reduce){.hero .btn,.fin .btn,.strip span{animation:none}.strip span{padding-left:0}}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="logo"><img class="p" src="/images/playstorm-logo.jpg" alt="Playstorm" width="46" height="46" style="object-fit:cover;padding:0">PLAYSTORM</div>
+  <h1>Play. Complete.<br><span class="hl">Earn Rewards.</span></h1>
+  <p class="sub">Complete games and offers, earn rewards, and add them to your wallet.</p>
+  <a class="btn" href="#">Start Earning</a>
+  <p class="micro">Free to join • Play games • Complete offers • Earn rewards</p>
+  <div class="stage">
+    <div class="coin k1"></div><div class="coin k2"></div>
+    <div aria-hidden="true" class="chip c1">🎮 Game</div><div aria-hidden="true" class="chip c2">✅ Offer completed</div>
+    <div aria-hidden="true" class="chip c3">🎁 Bonus unlocked</div><div aria-hidden="true" class="chip c4">🔔 Reward earned</div>
+    <div class="phone"><small>GAME PREVIEW</small><div class="amt">Tap the coins!</div><div class="bar"><i id="pb" style="width:0"></i></div>
+      <div class="arena" id="ar"><button class="tgt" id="tg" aria-label="Tap the coin">⭐</button>
+        <div class="win" id="wn"><div>🎉 Reward earned!<br><span style="font-weight:600;font-size:.7rem;color:var(--mut)">Demo preview only</span></div><button id="pa">Play again</button></div></div>
+      <div class="cnt"><span id="sc">0 / 5</span><span>Demo only</span></div></div>
+  </div>
+  <div class="flow"><span>GAME</span><b>→</b><span>OFFER COMPLETED</span><b>→</b><span>REWARD EARNED</span><b>→</b><span>WALLET</span></div>
+</section>
+
+<div class="strip" aria-hidden="true"><span>PLAY ★ COMPLETE ★ EARN ★ CASH OUT ★ PLAY ★ COMPLETE ★ EARN ★ CASH OUT ★ PLAY ★ COMPLETE ★ EARN ★ CASH OUT</span></div>
+
+<section class="cash">
+  <h2>Play games. <span class="hl">Earn real money.</span></h2>
+  <p>Get paid for playing mobile games. Cash out anytime:</p>
+  <div class="pills">
+    <span class="pill">💙 PayPal</span><span class="pill">🎁 Gift cards</span>
+  </div>
+</section>
+
+<section>
+  <h2>Turn Your Free Time Into <span class="hl">Rewards</span></h2>
+  <div class="grid">
+    <div class="card"><div class="ic">🎮</div><h3>Play Games</h3><p>Complete eligible games and activities.</p></div>
+    <div class="card"><div class="ic">🎯</div><h3>Complete Offers</h3><p>Explore available offers and complete the requirements.</p></div>
+    <div class="card"><div class="ic">💰</div><h3>Earn Rewards</h3><p>Receive rewards when eligible activities are completed.</p></div>
+    <div class="card"><div class="ic">👛</div><h3>Add to Your Wallet</h3><p>Keep your earned rewards organized in your digital wallet.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>How It Works</h2>
+  <div class="steps">
+    <div class="step"><div class="num">01</div><div><h3>Choose an Offer</h3><p>Browse available games and promotional offers.</p></div></div>
+    <div class="step"><div class="num">02</div><div><h3>Complete It</h3><p>Follow the requirements and complete the selected activity.</p></div></div>
+    <div class="step"><div class="num">03</div><div><h3>Earn Your Reward</h3><p>Receive the applicable reward and add it to your wallet.</p></div></div>
+  </div>
+</section>
+
+<section class="fin">
+  <h2>Ready to Start Earning?</h2>
+  <p>Explore available games and offers and start working toward your next reward.</p>
+  <a class="btn" href="#">Get Started</a>
+</section>
+
+<div class="sticky" id="st"><a class="btn" href="#">Start Earning</a></div>
+<footer>Rewards depend on eligible offers and completion of their requirements. Availability varies.</footer>
+<script>
+(function(){var st=document.getElementById('st'),h=document.querySelector('.hero .btn');
+if(!st||!h||!('IntersectionObserver' in window)){if(st)st.classList.add('on');return}
+new IntersectionObserver(function(e){st.classList.toggle('on',!e[0].isIntersecting)}).observe(h)})();
+</script>
+<script>
+(function(){var ar=document.getElementById('ar'),tg=document.getElementById('tg'),pb=document.getElementById('pb'),sc=document.getElementById('sc'),wn=document.getElementById('wn'),n=0,T;
+function mv(){var w=ar.clientWidth-44,h=ar.clientHeight-44;tg.style.left=Math.random()*w+'px';tg.style.top=Math.random()*h+'px'}
+function tick(){clearInterval(T);T=setInterval(mv,1400)}
+tg.addEventListener('click',function(){n++;pb.style.width=n*20+'%';sc.textContent=n+' / 5';if(n>=5){clearInterval(T);tg.style.display='none';wn.classList.add('on')}else{mv();tick()}});
+document.getElementById('pa').addEventListener('click',function(){n=0;pb.style.width='0';sc.textContent='0 / 5';wn.classList.remove('on');tg.style.display='';mv();tick()});
+mv();tick()})();
+</script>
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://jff6fk.com/?a=26648&c=56816';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'PLAYSTORM-ASHBBBY-18', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('a.btn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+<script>
+  Array.prototype.forEach.call(document.querySelectorAll('a.btn'), function (el) {
+    el.addEventListener('click', function (e) {
+      if (e && e.preventDefault) e.preventDefault();
+      window.location.href = buildOfferUrl();
+    });
+  });
+</script>
+</body>
+</html>
