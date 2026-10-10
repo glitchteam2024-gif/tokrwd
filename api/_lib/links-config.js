@@ -1161,6 +1161,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'testerup-us-pres-spar-tenx2.html', 'testerup-us-pres-spar-tenx2-pre.html',
   'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
   'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
+  'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',
   // The FAMILY root (as52) is deliberately NOT registered, unlike as50/gpr/gps. /AS52/US<n>
   // serves the PRE-lander, so a landing_pages row holding that URL would have /r wrap it as
   // /pre?to=/AS52/US<n> and the visitor would cross a prelander twice. Leaving it out makes
