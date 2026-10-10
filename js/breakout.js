@@ -229,6 +229,7 @@
     'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
     'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
     'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',
+    'testerupusukcpr-sxmmybills-12-v2.html', 'testerupusukcpr-sxmmybills-12-v2-pre.html',
     'shrtl', 'sr50',
     // STT/US — a second Shein $750 US design, override-only via lp=stt.
     'stt', 'tsup',
