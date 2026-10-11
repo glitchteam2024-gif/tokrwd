@@ -1000,6 +1000,10 @@ export const PRELANDER_ALLOWED_ROOTS = [
   // runnable at once. Ad link: myrewardscorner.com/mgfc-pre2?s1=<subid>.
   // MUST stay in sync with ALLOWED_ROOTS in js/breakout.js.
   'mgfc2.html', 'mgfc-pre2.html',
+  // MGFC3 — the same single-tenant pair, Gravy Pass on Monetise (a=26648 c=56278), restored
+  // 2026-10-11 from the 2026-09-09 Gravy version of mgfc (mgfc itself now runs Reco).
+  // Ad link: myrewardscorner.com/mgfc-pre3?s1=<subid>. MUST stay in sync with js/breakout.js.
+  'mgfc3.html', 'mgfc-pre3.html',
   // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
   // Prelander /gravypassusa-pre.html forwards to /gravypassusa.html via its x-dest meta.
   // Added to BOTH lists in this commit; a lander missing here silently loses its prelander hop.

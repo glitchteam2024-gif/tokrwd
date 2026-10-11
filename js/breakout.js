@@ -83,6 +83,7 @@
     // MGFC2 - the same single-tenant pair on PLAYFUL REWARDS (Fluent), 2026-09-04.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'mgfc2.html', 'mgfc-pre2.html',
+    'mgfc3.html', 'mgfc-pre3.html',
     // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',

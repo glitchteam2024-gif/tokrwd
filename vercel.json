@@ -1056,6 +1056,14 @@
       "destination": "/mgfc2.html"
     },
     {
+      "source": "/mgfc-pre3",
+      "destination": "/mgfc-pre3.html"
+    },
+    {
+      "source": "/mgfc3",
+      "destination": "/mgfc3.html"
+    },
+    {
       "source": "/PR50/:c(AU\\d+)/go",
       "destination": "/playfulau.html"
     },

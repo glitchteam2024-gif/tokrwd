@@ -141,9 +141,11 @@ const BANNED = ['s2', 's3', 's4', 's5', 'sub2', 'sub3', 'sub4', 'sub5', 'ttclid'
  *   to n8n for matching and dedup. Both are gated on a real ttclid in the page. Valid only while
  *   mgfc.html points at a CAKE endpoint that echoes the keys back (restored 2026-09-11 with the
  *   move to the Reco campaign on Monetise); delete it with the page if it moves to Everflow again.
+ *   mgfc3.html — the same spec on the same pair's Gravy Pass copy (Monetise c=56278, 2026-10-11).
  */
 const ROUNDTRIP_EXTRAS = {
   'mgfc.html': { s2: TTCLID, s3: /^c-\d+-[a-z0-9]+$/ },
+  'mgfc3.html': { s2: TTCLID, s3: /^c-\d+-[a-z0-9]+$/ },
 };
 
 const bad = { threw: [], notGate: [], gateExtra: [], gateWire: [], gatePath: [], gateT: [],
