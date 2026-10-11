@@ -84,6 +84,7 @@
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'mgfc2.html', 'mgfc-pre2.html',
     'mgfc3.html', 'mgfc-pre3.html',
+    'mgfc4.html', 'mgfc-pre4.html',
     // GRAVYPASSUSA — the house Gravy Pass lander in the rewards-to-unlock design, for affiliates.
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'gravypassusa.html', 'gravypassusa-pre.html', 'gpr',
