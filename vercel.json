@@ -988,6 +988,14 @@
       "destination": "/testerup-us-pres-spar-tenx2.html"
     },
     {
+      "source": "/testerup-us-pres-spar-tenx3-pre",
+      "destination": "/testerup-us-pres-spar-tenx3-pre.html"
+    },
+    {
+      "source": "/testerup-us-pres-spar-tenx3",
+      "destination": "/testerup-us-pres-spar-tenx3.html"
+    },
+    {
       "source": "/rs-nnoorulhudaa786-74-pre",
       "destination": "/rs-nnoorulhudaa786-74-pre.html"
     },
