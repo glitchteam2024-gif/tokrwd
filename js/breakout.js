@@ -230,6 +230,7 @@
     'testerup-us-pres-spar-tenx2.html', 'testerup-us-pres-spar-tenx2-pre.html',
     'testerup-us-pres-spar-tenx3.html', 'testerup-us-pres-spar-tenx3-pre.html',
     'sushipasswalletusa-sxmmybills-12.html', 'sushipasswalletusa-sxmmybills-12-pre.html',
+    'gpus-alexsalesrepca-78.html', 'gpus-alexsalesrepca-78-pre.html',
     'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
     'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
     'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',
