@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0008">
+<title>Sushi Pass – Play. Complete. Earn Rewards.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:hidden;-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:#0a0008;color:#fff;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;line-height:1.5}
+
+:root{
+  --bg:#0a0008;
+  --bg2:#110010;
+  --card:rgba(255,255,255,.04);
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,100,30,.25);
+  --orange:#ff6b1a;
+  --orange2:#ff4500;
+  --orange3:#ffab6e;
+  --gold:#ffd700;
+  --red:#e63946;
+  --grad:linear-gradient(135deg,#ff6b1a 0%,#e63946 50%,#ff6b1a 100%);
+  --grad2:linear-gradient(90deg,#ff6b1a,#e63946,#ff9a3c,#e63946,#ff6b1a);
+  --text-mut:rgba(255,255,255,.55);
+  --text-mut2:rgba(255,255,255,.35);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{box-shadow:0 0 40px rgba(255,107,26,.3)}50%{box-shadow:0 0 80px rgba(255,107,26,.6),0 0 120px rgba(230,57,70,.3)}}
+@keyframes sweep{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.96)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes countUp{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes barFill{from{width:0}to{width:var(--w)}}
+@keyframes orbit{0%{transform:rotate(0deg) translateX(60px) rotate(0deg)}100%{transform:rotate(360deg) translateX(60px) rotate(-360deg)}}
+@keyframes slideLeft{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes rise{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ── NOISE OVERLAY ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");opacity:.4;pointer-events:none;z-index:0}
+
+/* ── BG FX ── */
+.bgfx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bgfx::before{content:'';position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(255,107,26,.18) 0%,transparent 65%)}
+.bgfx::after{content:'';position:absolute;bottom:-10%;right:-10%;width:600px;height:600px;background:radial-gradient(ellipse,rgba(230,57,70,.12) 0%,transparent 65%)}
+.bgfx2{position:fixed;inset:0;pointer-events:none;z-index:0}
+.bgfx2::before{content:'';position:absolute;top:40%;left:-5%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(255,107,26,.07) 0%,transparent 70%)}
+
+/* ── TICKER ── */
+.ticker-wrap{overflow:hidden;background:linear-gradient(90deg,rgba(255,107,26,.15),rgba(230,57,70,.15));border-bottom:1px solid var(--border2);padding:10px 0;position:relative;z-index:10}
+.ticker{display:flex;width:max-content;animation:ticker 22s linear infinite}
+.ticker-item{display:flex;align-items:center;gap:8px;padding:0 36px;font-size:12px;font-weight:700;color:rgba(255,255,255,.75);letter-spacing:.06em;white-space:nowrap}
+.ticker-item .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);flex-shrink:0;animation:blink 1.8s ease-in-out infinite}
+
+/* ── NAV ── */
+nav{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:18px 20px;max-width:480px;margin:0 auto}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo img{width:36px;height:36px;object-fit:contain;border-radius:10px}
+.nav-brand{font-size:15px;font-weight:900;letter-spacing:-.02em;background:var(--grad2);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sweep 4s ease infinite}
+.nav-pill{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);background:rgba(255,107,26,.12);border:1px solid rgba(255,107,26,.3);border-radius:999px;padding:5px 12px}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;text-align:center;padding:20px 20px 0}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(255,107,26,.1);border:1px solid rgba(255,107,26,.3);border-radius:999px;padding:6px 14px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--orange3);margin-bottom:22px;animation:fadeUp .5s ease both}
+.hero-eyebrow .live-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);animation:blink 1.2s ease-in-out infinite}
+.hero h1{font-size:46px;font-weight:900;line-height:1.0;letter-spacing:-2px;margin-bottom:16px;animation:fadeUp .5s .06s ease both}
+.hero h1 .white{color:#fff}
+.hero h1 .flame{display:block;background:var(--grad2);background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sweep 3s ease infinite}
+.hero-sub{font-size:15px;color:var(--text-mut);line-height:1.6;max-width:340px;margin:0 auto 28px;animation:fadeUp .5s .1s ease both}
+.hero-img-wrap{position:relative;display:inline-block;margin:0 auto 32px;animation:float 4s ease-in-out infinite,fadeUp .6s .12s ease both}
+.hero-img-wrap img{width:260px;max-width:85vw;border-radius:20px;display:block;filter:drop-shadow(0 0 40px rgba(255,107,26,.5))}
+.hero-img-wrap::after{content:'';position:absolute;inset:-3px;border-radius:23px;background:var(--grad);z-index:-1;filter:blur(12px);opacity:.5}
+
+/* ── LIVE STATS ── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:440px;margin:0 auto 28px;padding:0 20px;animation:fadeUp .5s .16s ease both}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,107,26,.06),transparent);pointer-events:none}
+.stat-val{font-size:22px;font-weight:900;letter-spacing:-.04em;background:var(--grad2);background-size:200% 200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sweep 4s ease infinite}
+.stat-lbl{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-mut2);margin-top:2px}
+
+/* ── TRUST STRIP ── */
+.trust{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 16px;max-width:440px;margin:0 auto 36px;padding:0 20px;animation:fadeUp .5s .18s ease both}
+.trust-item{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text-mut)}
+.trust-item svg{width:13px;height:13px;color:var(--orange);flex-shrink:0}
+
+/* ── SECTION ── */
+.section{position:relative;z-index:1;padding:0 20px;max-width:480px;margin:0 auto}
+.sec-label{text-align:center;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--text-mut2);margin-bottom:14px}
+.sec-title{text-align:center;font-size:28px;font-weight:900;line-height:1.1;letter-spacing:-.04em;margin-bottom:6px}
+.sec-title .hl{background:var(--grad2);background-size:200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sweep 4s ease infinite}
+.sec-sub{text-align:center;font-size:13px;color:var(--text-mut);margin-bottom:24px;line-height:1.55}
+
+/* ── DIVIDER ── */
+.div{height:1px;background:linear-gradient(90deg,transparent,rgba(255,107,26,.25),transparent);margin:40px 0}
+
+/* ── FEATURE CARDS ── */
+.feats{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.feat{display:flex;align-items:center;gap:14px;padding:16px;border-radius:16px;border:1px solid var(--border);background:var(--card);position:relative;overflow:hidden}
+.feat::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,107,26,.06),transparent 60%);pointer-events:none}
+.feat-ic{width:48px;height:48px;flex:0 0 48px;border-radius:13px;background:linear-gradient(135deg,rgba(255,107,26,.2),rgba(230,57,70,.15));border:1px solid rgba(255,107,26,.25);display:flex;align-items:center;justify-content:center;font-size:22px}
+.feat-tx h4{font-size:15px;font-weight:800;margin-bottom:3px}
+.feat-tx p{font-size:12px;color:var(--text-mut);line-height:1.4}
+.feat-badge{margin-left:auto;flex-shrink:0;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:var(--grad);background-size:200%;animation:sweep 4s ease infinite;border-radius:999px;padding:5px 10px;color:#fff}
+
+/* ── WALLET CARD ── */
+.wallet-section{padding:0 20px;max-width:480px;margin:0 auto}
+.wallet-card{background:linear-gradient(145deg,#1a0018,#0f000d);border:1px solid rgba(255,107,26,.2);border-radius:22px;padding:20px;position:relative;overflow:hidden}
+.wallet-card::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(ellipse,rgba(255,107,26,.12),transparent 65%);pointer-events:none}
+.wallet-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.wallet-label{font-size:9px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--text-mut2)}
+.wallet-badge{font-size:10px;font-weight:800;color:var(--orange);background:rgba(255,107,26,.12);border:1px solid rgba(255,107,26,.25);border-radius:999px;padding:4px 10px;letter-spacing:.04em}
+.wallet-amount{font-size:42px;font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:4px;background:var(--grad2);background-size:200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sweep 3.5s ease infinite}
+.wallet-sub{font-size:12px;color:var(--text-mut);margin-bottom:18px}
+.wallet-bar-wrap{margin-bottom:6px}
+.wallet-bar-label{display:flex;justify-content:space-between;font-size:10px;font-weight:700;color:var(--text-mut2);margin-bottom:6px;letter-spacing:.04em}
+.wallet-bar{height:8px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+.wallet-bar-fill{height:100%;border-radius:999px;background:var(--grad);background-size:200%;animation:sweep 3s ease infinite,barFill 1.5s 0.5s ease both;--w:68%;width:var(--w)}
+.wallet-activities{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.wallet-act{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.wallet-act-ic{font-size:16px}
+.wallet-act-tx{flex:1;font-size:12px;font-weight:700}
+.wallet-act-val{font-size:12px;font-weight:900;color:var(--orange3)}
+
+/* ── HOW IT WORKS ── */
+.steps{display:flex;flex-direction:column;gap:0;position:relative}
+.steps::before{content:'';position:absolute;left:22px;top:32px;bottom:32px;width:2px;background:linear-gradient(180deg,var(--orange) 0%,var(--red) 50%,transparent 100%);border-radius:2px}
+.step{display:flex;gap:14px;align-items:flex-start;padding:16px 0}
+.step-num{width:46px;height:46px;flex:0 0 46px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--red));display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;position:relative;z-index:1;box-shadow:0 0 20px rgba(255,107,26,.4)}
+.step-body h4{font-size:15px;font-weight:800;margin-bottom:4px}
+.step-body p{font-size:12px;color:var(--text-mut);line-height:1.5}
+.step-tag{display:inline-block;margin-top:6px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);background:rgba(255,107,26,.1);border:1px solid rgba(255,107,26,.2);border-radius:999px;padding:3px 9px}
+
+/* ── REWARD TIERS ── */
+.tiers{display:flex;flex-direction:column;gap:10px}
+.tier{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;border:1px solid var(--border);background:var(--card);position:relative;overflow:hidden}
+.tier.featured{border-color:rgba(255,107,26,.4);background:linear-gradient(135deg,rgba(255,107,26,.08),rgba(230,57,70,.05))}
+.tier.featured::before{content:'POPULAR';position:absolute;top:10px;right:12px;font-size:8px;font-weight:900;letter-spacing:.12em;color:var(--orange);background:rgba(255,107,26,.12);border:1px solid rgba(255,107,26,.25);border-radius:999px;padding:2px 8px}
+.tier-ic{font-size:26px;width:46px;text-align:center}
+.tier-info{flex:1}
+.tier-name{font-size:14px;font-weight:800;margin-bottom:2px}
+.tier-desc{font-size:11px;color:var(--text-mut);line-height:1.4}
+.tier-val{text-align:right;flex-shrink:0}
+.tier-val b{display:block;font-size:18px;font-weight:900;color:var(--orange3);letter-spacing:-.02em}
+.tier-val span{font-size:9px;font-weight:700;color:var(--text-mut2);text-transform:uppercase;letter-spacing:.06em}
+
+/* ── GAMES STRIP ── */
+.games-wrap{overflow:hidden;position:relative;margin:0 -20px}
+.games-track{display:flex;gap:12px;animation:slideLeft 20s linear infinite;width:max-content;padding:4px 0}
+.game-chip{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+.game-chip-ic{font-size:18px}.game-chip-ic img{display:block;width:22px;height:22px;border-radius:6px;object-fit:cover}
+.game-chip-tx{font-size:12px;font-weight:700}
+.game-chip-earn{font-size:10px;font-weight:800;color:var(--orange3)}
+
+/* ── RECENT PAYOUTS ── */
+.payouts{display:flex;flex-direction:column;gap:8px}
+.payout{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:13px;background:var(--card);border:1px solid var(--border);animation:rise .4s ease both}
+.payout-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(255,107,26,.25),rgba(230,57,70,.2));border:1px solid rgba(255,107,26,.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0}
+.payout-info{flex:1}
+.payout-name{font-size:13px;font-weight:800}
+.payout-method{font-size:11px;color:var(--text-mut)}
+.payout-amt{font-size:15px;font-weight:900;color:var(--orange3)}
+.payout-time{font-size:10px;color:var(--text-mut2);text-align:right}
+
+/* ── FAQ ── */
+.faqs{display:flex;flex-direction:column;gap:8px}
+.faq{padding:14px 16px;border-radius:14px;background:var(--card);border:1px solid var(--border)}
+.faq-q{font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.faq-q::before{content:'Q';font-size:10px;font-weight:900;color:var(--orange);background:rgba(255,107,26,.15);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.faq-a{font-size:12px;color:var(--text-mut);line-height:1.55;padding-left:28px}
+
+/* ── SOCIAL PROOF ── */
+.reviews{display:flex;flex-direction:column;gap:10px}
+.review{padding:16px;border-radius:15px;background:var(--card);border:1px solid var(--border);position:relative}
+.review::before{content:'\201C';position:absolute;top:8px;right:14px;font-size:40px;color:rgba(255,107,26,.15);line-height:1;font-family:Georgia,serif}
+.review-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.review-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,rgba(255,107,26,.2),rgba(230,57,70,.15));border:1px solid rgba(255,107,26,.25);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.review-name{font-size:13px;font-weight:800}
+.review-badge{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--orange);background:rgba(255,107,26,.12);border:1px solid rgba(255,107,26,.25);border-radius:999px;padding:2px 8px;margin-left:auto}
+.review-stars{color:#fbbf24;font-size:11px;letter-spacing:1px;margin-bottom:6px}
+.review-txt{font-size:12px;color:rgba(255,255,255,.75);line-height:1.55}
+
+/* ── BIG CTA ── */
+.big-cta{padding:0 20px;max-width:480px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
+.big-cta .cta-btn{max-width:340px}
+.big-cta-card{background:linear-gradient(145deg,#1a0018,#0f000d);border:1px solid rgba(255,107,26,.3);border-radius:22px;padding:28px 20px;text-align:center;position:relative;overflow:hidden;animation:glow 3s ease-in-out infinite}
+.big-cta-card::before{content:'';position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(ellipse,rgba(255,107,26,.18),transparent 65%);pointer-events:none}
+.big-cta-card h3{font-size:26px;font-weight:900;letter-spacing:-.04em;line-height:1.15;margin-bottom:8px}
+.big-cta-card p{font-size:13px;color:var(--text-mut);margin-bottom:22px;line-height:1.55}
+.cta-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;padding:16px 24px;border-radius:14px;background:var(--grad2);background-size:300% 300%;animation:sweep 3s ease infinite;color:#fff;font-family:'Inter',sans-serif;font-size:16px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;border:none;cursor:pointer;box-shadow:0 0 30px rgba(255,107,26,.4);transition:transform .15s ease}
+.cta-btn:active{transform:scale(.98)}
+.cta-note{font-size:11px;color:var(--text-mut2);margin-top:12px}
+
+/* ── FOOTER ── */
+footer{padding:28px 20px calc(28px + env(safe-area-inset-bottom));text-align:center;font-size:11px;color:var(--text-mut2);line-height:1.7;max-width:480px;margin:0 auto}
+footer a{color:var(--text-mut);text-decoration:none}
+
+/* ── STICKY CTA ── */
+.sticky-cta{position:fixed;bottom:0;left:0;right:0;z-index:50;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,rgba(10,0,8,.98) 70%,transparent);transform:translateY(110%);transition:transform .36s cubic-bezier(.16,1,.3,1);pointer-events:none}
+.sticky-cta.on{transform:translateY(0);pointer-events:auto}
+.sticky-cta .cta-btn{max-width:440px;margin:0 auto;display:flex}
+
+/* ── UTILS ── */
+.mb16{margin-bottom:16px}
+.mb24{margin-bottom:24px}
+.mb32{margin-bottom:32px}
+.mb40{margin-bottom:40px}
+.mt12{margin-top:12px}
+
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div class="bgfx"></div>
+<div class="bgfx2"></div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item"><span class="dot"></span>Jake M. just earned $47 playing games</span>
+    <span class="ticker-item"><span class="dot"></span>Sarah K. cashed out $210 to PayPal</span>
+    <span class="ticker-item"><span class="dot"></span>Marcus R. unlocked Pro Tier</span>
+    <span class="ticker-item"><span class="dot"></span>Emily T. earned $83 this week</span>
+    <span class="ticker-item"><span class="dot"></span>Ryan C. completed 12 offers</span>
+    <span class="ticker-item"><span class="dot"></span>Ava L. just cashed out $130</span>
+    <span class="ticker-item"><span class="dot"></span>Noah B. earned $55 today</span>
+    <span class="ticker-item"><span class="dot"></span>Mia S. unlocked bonus rewards</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item"><span class="dot"></span>Jake M. just earned $47 playing games</span>
+    <span class="ticker-item"><span class="dot"></span>Sarah K. cashed out $210 to PayPal</span>
+    <span class="ticker-item"><span class="dot"></span>Marcus R. unlocked Pro Tier</span>
+    <span class="ticker-item"><span class="dot"></span>Emily T. earned $83 this week</span>
+    <span class="ticker-item"><span class="dot"></span>Ryan C. completed 12 offers</span>
+    <span class="ticker-item"><span class="dot"></span>Ava L. just cashed out $130</span>
+    <span class="ticker-item"><span class="dot"></span>Noah B. earned $55 today</span>
+    <span class="ticker-item"><span class="dot"></span>Mia S. unlocked bonus rewards</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <img src="/images/sushipass-logo.svg" alt="Sushi Pass">
+    <span class="nav-brand">SUSHI PASS</span>
+  </div>
+  <span class="nav-pill">🔥 Live Now</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="live-dot"></span>
+    <span>4,271 people earning right now</span>
+  </div>
+  <h1>
+    <span class="white">Play. Complete.</span>
+    <span class="flame">Earn Rewards.</span>
+  </h1>
+  <p class="hero-sub">Play games, complete quick offers, and stack real rewards directly into your wallet — starting today.</p>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val">$2.1M+</div>
+    <div class="stat-lbl">Paid out</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">4.8★</div>
+    <div class="stat-lbl">Avg rating</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">120K+</div>
+    <div class="stat-lbl">Members</div>
+  </div>
+</div>
+
+<!-- TRUST STRIP -->
+<div class="trust">
+  <span class="trust-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    Free to join
+  </span>
+  <span class="trust-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    Secure wallet
+  </span>
+  <span class="trust-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    Instant cashout
+  </span>
+  <span class="trust-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    USA only
+  </span>
+</div>
+
+<div class="div"></div>
+
+<!-- WALLET CARD -->
+<section class="wallet-section mb40">
+  <p class="sec-label" style="text-align:center;margin-bottom:14px">Your Live Wallet</p>
+  <div class="wallet-card">
+    <div class="wallet-top">
+      <span class="wallet-label">Your Wallet</span>
+      <span class="wallet-badge">🟢 Active</span>
+    </div>
+    <div class="wallet-amount">$147.50</div>
+    <div class="wallet-sub">Pending rewards ready to claim</div>
+    <div class="wallet-bar-wrap">
+      <div class="wallet-bar-label">
+        <span>Progress to next bonus</span>
+        <span style="color:var(--orange3)">$147 / $200</span>
+      </div>
+      <div class="wallet-bar"><div class="wallet-bar-fill"></div></div>
+    </div>
+    <div class="wallet-activities">
+      <div class="wallet-act"><span class="wallet-act-ic">🎮</span><span class="wallet-act-tx">Roblox — Level 10 reached</span><span class="wallet-act-val">+$22.00</span></div>
+      <div class="wallet-act"><span class="wallet-act-ic">✅</span><span class="wallet-act-tx">Offer completed: App install</span><span class="wallet-act-val">+$8.50</span></div>
+      <div class="wallet-act"><span class="wallet-act-ic">🎁</span><span class="wallet-act-tx">Daily bonus unlocked</span><span class="wallet-act-val">+$5.00</span></div>
+      <div class="wallet-act"><span class="wallet-act-ic">⚡</span><span class="wallet-act-tx">Tier boost applied (×1.5)</span><span class="wallet-act-val">+$12.00</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- GAMES STRIP -->
+<section class="section mb8">
+  <p class="sec-label mb24">Games you can earn from</p>
+</section>
+<div class="section mb40" style="padding:0">
+  <div class="games-wrap">
+    <div class="games-track">
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/roblox.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Roblox</div><div class="game-chip-earn">Up to $16/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/clash-royale.png" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Clash Royale</div><div class="game-chip-earn">Up to $14/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/subway-surfers.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Subway Surfers</div><div class="game-chip-earn">Up to $17/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/game-game.png" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Candy Crush</div><div class="game-chip-earn">Up to $12/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/brawl-stars-icon.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Brawl Stars</div><div class="game-chip-earn">Up to $15/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/8-ball-pool-icon.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">8 Ball Pool</div><div class="game-chip-earn">Up to $11/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/angry-birds-icon.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Angry Birds</div><div class="game-chip-earn">Up to $10/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/hay-day-icon.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Hay Day</div><div class="game-chip-earn">Up to $13/hr</div></div></div>
+      <!-- duplicate -->
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/roblox.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Roblox</div><div class="game-chip-earn">Up to $16/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/clash-royale.png" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Clash Royale</div><div class="game-chip-earn">Up to $14/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/subway-surfers.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Subway Surfers</div><div class="game-chip-earn">Up to $17/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/game-game.png" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Candy Crush</div><div class="game-chip-earn">Up to $12/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/brawl-stars-icon.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Brawl Stars</div><div class="game-chip-earn">Up to $15/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/8-ball-pool-icon.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">8 Ball Pool</div><div class="game-chip-earn">Up to $11/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/angry-birds-icon.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Angry Birds</div><div class="game-chip-earn">Up to $10/hr</div></div></div>
+      <div class="game-chip"><span class="game-chip-ic"><img src="/images/hay-day-icon.jpg" alt="" width="22" height="22"></span><div><div class="game-chip-tx">Hay Day</div><div class="game-chip-earn">Up to $13/hr</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- HOW IT WORKS -->
+<section class="section mb40">
+  <p class="sec-label">Simple process</p>
+  <h2 class="sec-title mb24">How it <span class="hl">works</span></h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>Create Your Free Account</h4>
+        <p>Sign up in under 60 seconds — no credit card, no fees. Just your email and you're in.</p>
+        <span class="step-tag">Free forever</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>Choose Games & Offers</h4>
+        <p>Browse a curated feed of available games and offers. Pick what interests you most.</p>
+        <span class="step-tag">50+ options</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>Play & Complete</h4>
+        <p>Hit the milestones — reach a level, install an app, or finish a task to trigger your reward.</p>
+        <span class="step-tag">Auto-tracked</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>Claim to Your Wallet</h4>
+        <p>Rewards appear in your Sushi Pass wallet instantly. Cash out anytime from $8.</p>
+        <span class="step-tag">Same day</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<!-- BIG CTA -->
+<div class="big-cta mb40" id="bigCta">
+  <div class="big-cta-card" style="width:100%">
+    <h3>Ready to Start<br><span style="background:var(--grad2);background-size:200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:sweep 3s ease infinite">Earning?</span></h3>
+    <p>Join 120,000+ members already earning rewards from their daily screen time. Free to start — no strings attached.</p>
+    <button class="cta-btn" type="button">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+      Claim My Spot — It's Free
+    </button>
+    <p class="cta-note">Free to join · No credit card · USA only · Results vary</p>
+  </div>
+</div>
+
+<div style="text-align:center;padding:0 20px 32px;max-width:480px;margin:0 auto">
+  <img src="/images/sushipass-logo.svg" alt="Sushi Pass" style="width:280px;max-width:85vw;border-radius:20px;filter:drop-shadow(0 0 30px rgba(255,107,26,.4));animation:float 4s ease-in-out infinite">
+</div>
+
+<footer>
+  <img src="/images/sushipass-logo.svg" alt="Sushi Pass" style="width:36px;height:36px;object-fit:contain;border-radius:10px;margin-bottom:10px;opacity:.6">
+  <div style="margin-bottom:8px;font-weight:700;color:rgba(255,255,255,.4)">SUSHI PASS</div>
+  Rewards depend on eligible offers and completion of their requirements.<br>
+  Availability varies. Results are not guaranteed and vary by user activity.<br>
+  <span style="color:rgba(255,255,255,.2)">© 2026 Sushi Pass. All rights reserved.</span>
+</footer>
+
+<!-- STICKY CTA -->
+<div class="sticky-cta" id="stickyCta">
+  <button class="cta-btn" type="button">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+    Claim My Spot — Free
+  </button>
+</div>
+
+<script>
+(function(){
+  var sticky = document.getElementById('stickyCta');
+  var bigCta = document.getElementById('bigCta');
+  var ticking = false;
+  function update(){
+    ticking = false;
+    if(!bigCta) return;
+    var r = bigCta.getBoundingClientRect();
+    if(r.top < window.innerHeight){ sticky.classList.add('on'); } else { sticky.classList.remove('on'); }
+  }
+  window.addEventListener('scroll', function(){ if(!ticking){ ticking=true; requestAnimationFrame(update); }}, {passive:true});
+  update();
+
+  // Animate stat numbers
+  function animateNum(el, target, prefix, suffix, duration){
+    var start = 0, step = Math.ceil(target/60), cur = 0;
+    var timer = setInterval(function(){
+      cur = Math.min(cur + step, target);
+      el.textContent = prefix + cur.toLocaleString() + suffix;
+      if(cur >= target) clearInterval(timer);
+    }, duration/60);
+  }
+
+  // Live counter fluctuation
+  var liveEl = document.querySelector('.hero-eyebrow span:last-child');
+  var liveCount = 4271;
+  setInterval(function(){
+    liveCount += Math.random() > 0.5 ? Math.floor(Math.random()*3)+1 : -(Math.floor(Math.random()*2));
+    if(liveCount < 4000) liveCount = 4000;
+    if(liveEl) liveEl.textContent = liveCount.toLocaleString() + ' people earning right now';
+  }, 3500);
+})();
+</script>
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/383DP59/';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `sub1`: this destination family reads sub1..sub5 and silently discards s1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'SUSHIPASSWALLETUSA-ALEXSALESREPCA-78', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('.cta-btn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+<script>
+  Array.prototype.forEach.call(document.querySelectorAll('.cta-btn'), function (el) {
+    el.addEventListener('click', function (e) {
+      if (e && e.preventDefault) e.preventDefault();
+      window.location.href = buildOfferUrl();
+    });
+  });
+</script>
+</body>
+</html>

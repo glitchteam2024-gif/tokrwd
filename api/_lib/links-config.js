@@ -1175,6 +1175,8 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'rs-sprkozz-6.html', 'rs-sprkozz-6-pre.html',
   'sushipasswallet-edisprk1.html', 'sushipasswallet-edisprk1-pre.html',
   'rs-edisprk1.html', 'rs-edisprk1-pre.html',
+  'scrambly-sxmmybills-12.html', 'scrambly-sxmmybills-12-pre.html',
+  'sushipasswalletusa-alexsalesrepca-78.html', 'sushipasswalletusa-alexsalesrepca-78-pre.html',
   'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
   'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
   'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',
