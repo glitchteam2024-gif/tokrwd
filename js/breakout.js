@@ -264,6 +264,8 @@
     'ilovesamplescpa-shannonp-37.html', 'ilovesamplescpa-shannonp-37-pre.html',
     'dominosgiftcardcpaus-shannonp-37.html', 'dominosgiftcardcpaus-shannonp-37-pre.html',
     'groceryassistancecplus-shannonp-37.html', 'groceryassistancecplus-shannonp-37-pre.html',
+    'swagbucksios-shannonp-37.html', 'swagbucksios-shannonp-37-pre.html',
+    'playfulrewardscpi-shannonp-37.html', 'playfulrewardscpi-shannonp-37-pre.html',
     'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
     'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
     'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',

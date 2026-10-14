@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Playful Rewards Mobile Landing Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              bg: '#0A0A0A',
+              card: '#141414',
+              surface: '#1A1A1A',
+              purple: {
+                primary: '#8B5CF6',
+                dark: '#6D28D9',
+                light: '#A78BFA',
+                deep: '#6B21A8',
+                glow: '#A855F7',
+              },
+              orange: '#F97316',
+              gold: '#FFD700',
+              txt: {
+                primary: '#FFFFFF',
+                secondary: '#9CA3AF',
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #0A0A0A;
+        --card: #141414;
+        --surface: #1A1A1A;
+        --purple: #8B5CF6;
+        --purple-dark: #6D28D9;
+        --purple-light: #A78BFA;
+        --purple-deep: #6B21A8;
+        --purple-glow: #A855F7;
+        --orange: #F97316;
+        --gold: #FFD700;
+        --text-primary: #FFFFFF;
+        --text-secondary: #9CA3AF;
+        --border-purple: rgba(139, 92, 246, 0.2);
+        --gradient-purple: linear-gradient(135deg, #6B21A8 0%, #8B5CF6 50%, #A855F7 100%);
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); overflow-x: hidden; }
+
+      .gradient-text {
+        background: var(--gradient-purple);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .gradient-bg {
+        background: var(--gradient-purple);
+      }
+
+      /* Floating coin particles */
+      .coin-particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        opacity: 0;
+        animation: floatUp linear infinite;
+      }
+      @keyframes floatUp {
+        0% { opacity: 0; transform: translateY(0) scale(0.5); }
+        15% { opacity: 0.8; }
+        85% { opacity: 0.3; }
+        100% { opacity: 0; transform: translateY(-420px) scale(0.2); }
+      }
+
+      /* Radial glow pulse */
+      .hero-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -60%);
+        width: 600px;
+        height: 400px;
+        background: radial-gradient(ellipse, rgba(107,33,168,0.35) 0%, rgba(139,92,246,0.1) 40%, transparent 70%);
+        animation: glowPulse 4s ease-in-out infinite alternate;
+        pointer-events: none;
+      }
+      @keyframes glowPulse {
+        0% { opacity: 0.6; transform: translate(-50%, -60%) scale(0.95); }
+        100% { opacity: 1; transform: translate(-50%, -60%) scale(1.05); }
+      }
+
+      /* Phone mockup shimmer */
+      .shimmer {
+        position: relative;
+        overflow: hidden;
+      }
+      .shimmer::after {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        animation: shimmerSlide 2.5s ease-in-out infinite;
+      }
+      @keyframes shimmerSlide {
+        0% { left: -100%; }
+        100% { left: 200%; }
+      }
+
+      /* Scroll-triggered animations */
+      .reveal {
+        opacity: 0;
+        transform: translateY(32px);
+        transition: opacity 0.7s cubic-bezier(.22,1,.36,1), transform 0.7s cubic-bezier(.22,1,.36,1);
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .reveal-delay-1 { transition-delay: 150ms; }
+      .reveal-delay-2 { transition-delay: 300ms; }
+
+      /* Card hover */
+      .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
+      }
+
+      /* FAQ accordion */
+      .faq-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(.22,1,.36,1), padding 0.3s ease;
+      }
+      .faq-content.open {
+        max-height: 300px;
+      }
+
+      /* Sticky header transition */
+      .header-scrolled {
+        border-bottom: 1px solid rgba(139, 92, 246, 0.3) !important;
+      }
+
+      /* Mobile nav overlay */
+      .mobile-nav-overlay {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .mobile-nav-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      /* Pill swipe */
+      .pills-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .pills-scroll::-webkit-scrollbar { display: none; }
+
+      /* Connecting line for steps */
+      .step-connector {
+        position: absolute;
+        top: 28px;
+        left: calc(33.33% + 14px);
+        width: calc(33.33% - 28px);
+        border-top: 2px dashed rgba(139,92,246,0.3);
+      }
+      .step-connector-2 {
+        left: calc(66.66% + 14px);
+      }
+
+      /* Counter animation */
+      .counter-value {
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* Testimonial dots */
+      .dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: rgba(139,92,246,0.3);
+        transition: background 0.3s ease, transform 0.3s ease;
+        cursor: pointer;
+      }
+      .dot.active {
+        background: var(--purple);
+        transform: scale(1.3);
+      }
+
+      /* Store button styling */
+      .store-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 22px;
+        border-radius: 12px;
+        background: var(--surface);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        font-family: 'Inter', sans-serif;
+      }
+      .store-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(139,92,246,0.25);
+      }
+      .store-btn-cta {
+        background: rgba(10,10,10,0.8);
+        border: 1px solid rgba(255,255,255,0.15);
+      }
+
+      /* Mesh glow */
+      .mesh-glow {
+        background: var(--bg);
+        position: relative;
+      }
+      .mesh-glow::before {
+        content: '';
+        position: absolute;
+        top: 20%; right: -10%;
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
+        pointer-events: none;
+      }
+
+      /* Testimonial carousel */
+      .carousel-track {
+        display: flex;
+        transition: transform 0.5s cubic-bezier(.22,1,.36,1);
+        touch-action: pan-y;
+      }
+    </style>
+  </head>
+  <body data-id="0" class="bg-bg">
+    <app-icon data-id="1" hidden data-icon="gamepad-2" data-palette="Dark"></app-icon>
+
+    <!-- ===== STICKY HEADER ===== -->
+    <header data-id="2" id="main-header-h7kx" class="fixed top-0 left-0 right-0 z-50 border-b border-transparent" style="background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);">
+      <div data-id="3" class="max-w-[1100px] mx-auto flex items-center justify-between px-4 md:px-6 h-16">
+        <a data-id="4" href="#" class="flex items-center gap-1 text-xl" style="font-weight:800;">
+          <img src="/images/playful-rewards-logo.png" alt="Playful Rewards" width="28" height="28" style="width:28px;height:28px;border-radius:7px;display:block;margin-right:4px;" />
+          <span data-id="6" class="text-white">Playful</span><span data-id="7" style="color:#8B5CF6;">Rewards</span>
+        </a>
+        <nav data-id="8" class="hidden md:flex items-center gap-6 text-sm text-txt-secondary">
+          <a data-id="9" href="#overview-s2qw" class="hover:text-white transition-colors">Overview</a>
+          <a data-id="10" href="#howitworks-k9rn" class="hover:text-white transition-colors">How It Works</a>
+          <a data-id="11" href="#faq-m3tv" class="hover:text-white transition-colors">FAQs</a>
+          <a data-id="12" href="https://www.playfulrewards.com/" target="_blank" rel="noopener noreferrer" class="ml-2 px-5 py-2 rounded-full text-white text-sm font-semibold" style="background:linear-gradient(135deg,#6D28D9,#8B5CF6);">Download Now</a>
+        </nav>
+        <button data-id="13" id="hamburger-btn-q4zp" class="md:hidden p-2 text-white" aria-label="Open menu">
+          <i data-id="14" data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Nav Overlay -->
+    <div data-id="15" id="mobile-nav-v8mx" class="mobile-nav-overlay fixed inset-0 z-[60] flex flex-col" style="background:rgba(10,10,10,0.98);">
+      <div data-id="16" class="flex items-center justify-between px-4 h-16">
+        <span data-id="17" class="flex items-center gap-1 text-xl" style="font-weight:800;">
+          <img src="/images/playful-rewards-logo.png" alt="Playful Rewards" width="28" height="28" style="width:28px;height:28px;border-radius:7px;display:block;margin-right:4px;" />
+          <span data-id="19" class="text-white">Playful</span><span data-id="20" style="color:#8B5CF6;">Rewards</span>
+        </span>
+        <button data-id="21" id="close-nav-btn-l2rw" class="p-2 text-white" aria-label="Close menu">
+          <i data-id="22" data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+      <nav data-id="23" class="flex flex-col items-center justify-center flex-1 gap-8 text-2xl font-semibold">
+        <a data-id="24" href="#overview-s2qw" class="nav-link-close text-white hover:text-purple-light transition-colors">Overview</a>
+        <a data-id="25" href="#howitworks-k9rn" class="nav-link-close text-white hover:text-purple-light transition-colors">How It Works</a>
+        <a data-id="26" href="#faq-m3tv" class="nav-link-close text-white hover:text-purple-light transition-colors">FAQs</a>
+        <a data-id="27" href="https://www.playfulrewards.com/" target="_blank" rel="noopener noreferrer" class="px-8 py-3 rounded-full text-white text-lg font-semibold" style="background:linear-gradient(135deg,#6D28D9,#8B5CF6);">Download Now</a>
+      </nav>
+    </div>
+
+    <main data-id="28">
+      <!-- ===== HERO ===== -->
+      <section data-id="29" id="hero-p3qf" class="relative min-h-screen flex items-center justify-center pt-16 pb-16 px-4 overflow-hidden" style="background:#0A0A0A;">
+        <div data-id="30" class="hero-glow"></div>
+
+        <!-- Floating coin particles -->
+        <div data-id="31" id="coin-particles-j8nt" class="absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+
+        <div data-id="32" class="relative z-10 max-w-[1100px] mx-auto w-full flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          <!-- Left: Text -->
+          <div data-id="33" class="flex-1 text-center lg:text-left">
+            <h1 data-id="34" id="hero-heading-r6vc" class="text-4xl sm:text-5xl md:text-[56px] leading-tight font-black mb-5 gradient-text" style="line-height:1.1;">
+              Playful Rewards
+            </h1>
+            <p data-id="35" id="hero-subheading-t3dw" class="text-lg md:text-xl text-white font-semibold mb-3">Where Your Opinions Power Your Earnings!</p>
+            <p data-id="36" id="hero-body-h2qe" class="text-txt-secondary text-base md:text-lg mb-8 max-w-xl mx-auto lg:mx-0">Embark on a journey where your love for gaming and your valuable insights come together to reward you.</p>
+
+            <!-- Store Buttons -->
+            <div data-id="37" class="flex flex-col sm:flex-row items-center gap-3 mb-8 justify-center lg:justify-start">
+              <a data-id="38" href="https://apps.apple.com/us/app/playful-rewards-earn-rewards/id1631584032" target="_blank" rel="noopener noreferrer" class="store-btn">
+                <svg data-id="39" viewBox="0 0 24 24" width="24" height="24" fill="white"><path data-id="40" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                <div data-id="41" class="text-left">
+                  <div data-id="42" class="text-[10px] text-txt-secondary leading-none">Download on the</div>
+                  <div data-id="43" class="text-base font-semibold leading-tight">App Store</div>
+                </div>
+              </a>
+              <a data-id="44" href="https://play.google.com/store/apps/details?id=com.theoremreach.wizardbucks&hl=en_US" target="_blank" rel="noopener noreferrer" class="store-btn">
+                <svg data-id="45" viewBox="0 0 24 24" width="24" height="24"><path data-id="46" fill="#4285F4" d="M3.61 1.81L13.43 12 3.61 22.19c-.36-.44-.61-1-.61-1.65V3.46c0-.65.25-1.21.61-1.65z"/><path data-id="47" fill="#34A853" d="M16.89 15.4L5.03 22.06 13.43 12l3.46 3.4z"/><path data-id="48" fill="#FBBC05" d="M20.16 10.81c.5.45.84 1 .84 1.19 0 .19-.34.74-.84 1.19l-3.27 1.81L13.43 12l3.46-3.4 3.27 2.21z"/><path data-id="49" fill="#EA4335" d="M5.03 1.94L16.89 8.6 13.43 12 3.61 1.81c.3-.37.73-.69 1.42-.69 0 0 0 .82 0 .82z"/></svg>
+                <div data-id="50" class="text-left">
+                  <div data-id="51" class="text-[10px] text-txt-secondary leading-none">Get it on</div>
+                  <div data-id="52" class="text-base font-semibold leading-tight">Google Play</div>
+                </div>
+              </a>
+            </div>
+
+            <!-- Trust Badges -->
+            <div data-id="53" class="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm text-txt-secondary">
+              <span data-id="54" class="flex items-center gap-1.5">🎮 <span data-id="55">Free to Play</span></span>
+              <span data-id="56" class="text-purple-primary/30">·</span>
+              <span data-id="57" class="flex items-center gap-1.5">💰 <span data-id="58">Cash Out at $1.00</span></span>
+              <span data-id="59" class="text-purple-primary/30">·</span>
+              <span data-id="60" class="flex items-center gap-1.5">⭐ <span data-id="61">Real Gift Cards</span></span>
+            </div>
+          </div>
+
+          <!-- Right: Phone Mockup -->
+          <div data-id="62" class="flex-shrink-0 flex items-center justify-center">
+            <div data-id="63" id="phone-mockup-w5jd" class="relative" style="width:260px; height:520px;">
+              <!-- Phone frame -->
+              <div data-id="64" class="absolute inset-0 rounded-[40px] border-2 border-white/10" style="background:#111;">
+                <!-- Notch -->
+                <div data-id="65" class="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-5 rounded-full bg-black border border-white/5"></div>
+                <!-- Screen content -->
+                <div data-id="66" class="absolute top-12 left-4 right-4 bottom-8 rounded-2xl flex flex-col items-center justify-center p-5" style="background:linear-gradient(180deg,rgba(107,33,168,0.15),rgba(139,92,246,0.05));">
+                  <div data-id="67" class="text-3xl mb-3">🎮</div>
+                  <p data-id="68" class="text-white text-sm font-bold text-center mb-1">Let's start earning!</p>
+                  <p data-id="69" class="text-txt-secondary text-xs mb-4">Next Payout $1.00</p>
+                  <!-- Progress bar -->
+                  <div data-id="70" class="w-full h-3 rounded-full mb-2 shimmer" style="background:rgba(255,255,255,0.08);">
+                    <div data-id="71" class="h-full rounded-full" style="width:46%; background:linear-gradient(90deg,#6D28D9,#8B5CF6,#F97316);"></div>
+                  </div>
+                  <!-- Coin count -->
+                  <div data-id="72" class="flex items-center gap-2 mt-2">
+                    <div data-id="73" class="w-5 h-5 rounded-full flex items-center justify-center text-[10px]" style="background:linear-gradient(135deg,#FFD700,#F97316);">⬤</div>
+                    <span data-id="74" class="text-white text-sm font-bold">4,600</span>
+                    <span data-id="75" class="text-txt-secondary text-xs">/ 10,000</span>
+                  </div>
+                  <!-- Reward icons -->
+                  <div data-id="76" class="flex items-center gap-3 mt-6">
+                    <div data-id="77" class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.2);">💵</div>
+                    <div data-id="78" class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.2);">🎁</div>
+                    <div data-id="79" class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.2);">💳</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Glow behind phone -->
+              <div data-id="80" class="absolute -inset-8 rounded-full pointer-events-none" style="background:radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%); z-index:-1;"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== OVERVIEW ===== -->
+      <section data-id="81" id="overview-s2qw" class="py-20 md:py-28 px-4" style="background:#141414;">
+        <div data-id="82" class="max-w-[1100px] mx-auto">
+          <div data-id="83" class="text-center mb-14 reveal">
+            <p data-id="84" class="text-purple-primary text-xs font-bold tracking-[0.2em] uppercase mb-3">Overview</p>
+            <h2 data-id="85" id="overview-heading-d9rk" class="text-3xl md:text-4xl font-black text-white mb-4">The playful way to earn.</h2>
+            <p data-id="86" class="text-txt-secondary text-base md:text-lg max-w-2xl mx-auto">Every game you play and every opinion you share is a step towards earning cash and gift cards.</p>
+          </div>
+
+          <div data-id="87" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Card 1: Play -->
+            <div data-id="88" class="reveal rounded-2xl card-hover p-6 md:p-8" style="background:#1A1A1A; border-top:3px solid transparent; border-image:linear-gradient(135deg,#6B21A8,#8B5CF6,#A855F7) 1;">
+              <div data-id="89" class="text-4xl mb-4">🎮</div>
+              <h3 data-id="90" class="text-xl font-bold text-white mb-2">Play</h3>
+              <p data-id="91" class="text-purple-primary text-sm font-semibold mb-2">Engage in Games You Love</p>
+              <p data-id="92" class="text-txt-secondary text-sm leading-relaxed">Dive into an ever-expanding universe of games tailored to your tastes. Whether you're a strategist, puzzle solver, or action enthusiast — your next epic gaming quest is just a tap away!</p>
+            </div>
+            <!-- Card 2: Share -->
+            <div data-id="93" class="reveal reveal-delay-1 rounded-2xl card-hover p-6 md:p-8" style="background:#1A1A1A; border-top:3px solid transparent; border-image:linear-gradient(135deg,#6B21A8,#8B5CF6,#A855F7) 1;">
+              <div data-id="94" class="text-4xl mb-4">💬</div>
+              <h3 data-id="95" class="text-xl font-bold text-white mb-2">Share</h3>
+              <p data-id="96" class="text-purple-primary text-sm font-semibold mb-2">Share Your Insights</p>
+              <p data-id="97" class="text-txt-secondary text-sm leading-relaxed">Your gaming experience is valuable. Post-game, take a moment to share your thoughts through our concise 3-question surveys. Your feedback shapes the future of gaming.</p>
+            </div>
+            <!-- Card 3: Earn -->
+            <div data-id="98" class="reveal reveal-delay-2 rounded-2xl card-hover p-6 md:p-8" style="background:#1A1A1A; border-top:3px solid transparent; border-image:linear-gradient(135deg,#6B21A8,#8B5CF6,#A855F7) 1;">
+              <div data-id="99" class="text-4xl mb-4">🏆</div>
+              <h3 data-id="100" class="text-xl font-bold text-white mb-2">Earn</h3>
+              <p data-id="101" class="text-purple-primary text-sm font-semibold mb-2">Earn Rewards That Matter</p>
+              <p data-id="102" class="text-txt-secondary text-sm leading-relaxed">Accumulate coins for every survey you complete and redeem them for cash or gift cards. The more you participate, the bigger the rewards!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== HOW IT WORKS ===== -->
+      <section data-id="103" id="howitworks-k9rn" class="mesh-glow py-20 md:py-28 px-4 relative" style="background:#0A0A0A;">
+        <div data-id="104" class="max-w-[1100px] mx-auto relative">
+          <div data-id="105" class="text-center mb-14 reveal">
+            <p data-id="106" class="text-purple-primary text-xs font-bold tracking-[0.2em] uppercase mb-3">How It Works</p>
+            <h2 data-id="107" id="hiw-heading-x4bt" class="text-3xl md:text-4xl font-black text-white mb-4">Three steps to earning.</h2>
+          </div>
+
+          <div data-id="108" class="relative grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Connecting lines (desktop only) -->
+            <div data-id="109" class="hidden md:block step-connector" aria-hidden="true"></div>
+            <div data-id="110" class="hidden md:block step-connector step-connector-2" aria-hidden="true"></div>
+
+            <!-- Step 1 -->
+            <div data-id="111" class="reveal flex flex-col items-center text-center">
+              <div data-id="112" class="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-black mb-5" style="background:linear-gradient(135deg,#6B21A8,#8B5CF6);">1</div>
+              <div data-id="113" class="text-3xl mb-3">📲</div>
+              <h3 data-id="114" class="text-lg font-bold text-white mb-2">Download the App</h3>
+              <p data-id="115" class="text-txt-secondary text-sm leading-relaxed max-w-xs">Get Playful Rewards free from the App Store or Google Play. No cost, no catch — just download and start.</p>
+            </div>
+            <!-- Step 2 -->
+            <div data-id="116" class="reveal reveal-delay-1 flex flex-col items-center text-center">
+              <div data-id="117" class="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-black mb-5" style="background:linear-gradient(135deg,#6B21A8,#8B5CF6);">2</div>
+              <div data-id="118" class="text-3xl mb-3">🎯</div>
+              <h3 data-id="119" class="text-lg font-bold text-white mb-2">Play & Survey</h3>
+              <p data-id="120" class="text-txt-secondary text-sm leading-relaxed max-w-xs">Play free games from the App Store and answer 3 simple survey questions after each session. Your opinions help improve the gaming experience.</p>
+            </div>
+            <!-- Step 3 -->
+            <div data-id="121" class="reveal reveal-delay-2 flex flex-col items-center text-center">
+              <div data-id="122" class="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-black mb-5" style="background:linear-gradient(135deg,#6B21A8,#8B5CF6);">3</div>
+              <div data-id="123" class="text-3xl mb-3">💸</div>
+              <h3 data-id="124" class="text-lg font-bold text-white mb-2">Cash Out</h3>
+              <p data-id="125" class="text-txt-secondary text-sm leading-relaxed max-w-xs">Accumulate coins and redeem them for real cash or gift cards. Cash out as soon as you've earned $1.00 — no waiting weeks!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== REWARDS ===== -->
+      <section data-id="126" id="rewards-f7ne" class="py-20 md:py-28 px-4" style="background:#141414;">
+        <div data-id="127" class="max-w-[1100px] mx-auto">
+          <div data-id="128" class="text-center mb-10 reveal">
+            <p data-id="129" class="text-purple-primary text-xs font-bold tracking-[0.2em] uppercase mb-3">Rewards</p>
+            <h2 data-id="130" id="rewards-heading-m2ck" class="text-3xl md:text-4xl font-black text-white mb-4">Earn real cash & gift cards.</h2>
+            <p data-id="131" class="text-txt-secondary text-base md:text-lg max-w-2xl mx-auto">It won't take weeks to earn your rewards. You can easily earn enough in a single day to win a gift card.</p>
+          </div>
+
+          <!-- Key stat -->
+          <div data-id="132" class="reveal text-center mb-12">
+            <div data-id="133" class="inline-block rounded-2xl px-8 py-6" style="background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.15);">
+              <p data-id="134" class="text-5xl md:text-6xl font-black gradient-text mb-2">$1.00</p>
+              <p data-id="135" class="text-txt-secondary text-sm">Minimum cash out — earn your first reward fast.</p>
+            </div>
+          </div>
+
+          <!-- Reward cards -->
+          <div data-id="136" class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-10 reveal">
+            <div data-id="137" class="rounded-2xl p-5 md:p-6 card-hover text-center" style="background:#1A1A1A;">
+              <div data-id="138" class="text-4xl mb-3">💵</div>
+              <h3 data-id="139" class="text-white font-bold mb-1">Cash</h3>
+              <p data-id="140" class="text-txt-secondary text-xs leading-relaxed">Withdraw real money directly to your account</p>
+            </div>
+            <div data-id="141" class="rounded-2xl p-5 md:p-6 card-hover text-center" style="background:#1A1A1A;">
+              <div data-id="142" class="text-4xl mb-3">🎁</div>
+              <h3 data-id="143" class="text-white font-bold mb-1">Gift Cards</h3>
+              <p data-id="144" class="text-txt-secondary text-xs leading-relaxed">Redeem for popular gift card brands</p>
+            </div>
+            <div data-id="145" class="col-span-2 md:col-span-1 rounded-2xl p-5 md:p-6 card-hover text-center" style="background:#1A1A1A;">
+              <div data-id="146" class="text-4xl mb-3">💳</div>
+              <h3 data-id="147" class="text-white font-bold mb-1">Visa</h3>
+              <p data-id="148" class="text-txt-secondary text-xs leading-relaxed">Universal Visa gift cards accepted everywhere</p>
+            </div>
+          </div>
+
+          <!-- Category pills -->
+          <div data-id="149" class="reveal pills-scroll flex items-center gap-3 pb-2">
+            <span data-id="150" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium text-white" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);">🎮 Games</span>
+            <span data-id="151" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium text-white" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);">📋 Surveys</span>
+            <span data-id="152" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium text-white" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);">🧩 Puzzles</span>
+            <span data-id="153" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium text-white" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);">⚔️ Strategy</span>
+            <span data-id="154" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium text-white" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);">🏃 Action</span>
+            <span data-id="155" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium text-white" style="background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3);">🌀 Casual</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== STATS ===== -->
+      <section data-id="156" id="stats-y6jp" class="py-20 md:py-24 px-4" style="background:linear-gradient(135deg,#0F0A1E,#1A0A2E);">
+        <div data-id="157" class="max-w-[1100px] mx-auto">
+          <div data-id="158" class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+            <div data-id="159" class="reveal">
+              <p data-id="160" class="text-4xl md:text-5xl font-black gradient-text counter-value" data-target="$1.00" data-type="dollar">$0</p>
+              <p data-id="161" class="text-txt-secondary text-sm mt-2">Minimum Cash Out</p>
+            </div>
+            <div data-id="162" class="reveal reveal-delay-1">
+              <p data-id="163" class="text-4xl md:text-5xl font-black gradient-text counter-value" data-target="3" data-type="number">0</p>
+              <p data-id="164" class="text-txt-secondary text-sm mt-2">Survey Questions Only</p>
+            </div>
+            <div data-id="165" class="reveal reveal-delay-1">
+              <p data-id="166" class="text-4xl md:text-5xl font-black gradient-text counter-value" data-target="100" data-type="percent">0%</p>
+              <p data-id="167" class="text-txt-secondary text-sm mt-2">Free to Play</p>
+            </div>
+            <div data-id="168" class="reveal reveal-delay-2">
+              <p data-id="169" class="text-4xl md:text-5xl font-black gradient-text counter-value" data-target="1 Day" data-type="day">1 Day</p>
+              <p data-id="170" class="text-txt-secondary text-sm mt-2">Earn Your First Reward</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== TESTIMONIALS ===== -->
+      <section data-id="171" id="testimonials-b4gp" class="py-20 md:py-28 px-4" style="background:#0A0A0A;">
+        <div data-id="172" class="max-w-[1100px] mx-auto">
+          <div data-id="173" class="text-center mb-12 reveal">
+            <h2 data-id="174" id="testimonials-heading-q8we" class="text-3xl md:text-4xl font-black text-white mb-4">Players love it.</h2>
+          </div>
+
+          <div data-id="175" class="reveal relative overflow-hidden max-w-2xl mx-auto">
+            <div data-id="176" id="carousel-track-d3sm" class="carousel-track">
+              <!-- Testimonial 1 -->
+              <div data-id="177" class="w-full flex-shrink-0 px-3">
+                <div data-id="178" class="rounded-2xl p-6 md:p-8" style="background:#141414; border-top:3px solid #8B5CF6;">
+                  <div data-id="179" class="text-gold text-lg mb-3">⭐⭐⭐⭐⭐</div>
+                  <p data-id="180" class="text-white text-base leading-relaxed mb-5">"Cashed out my first $5 in just two days of casual gaming. Super easy!"</p>
+                  <p data-id="181" class="text-txt-secondary text-sm font-semibold">Ashley M. <span data-id="182" class="font-normal text-txt-secondary/60">· Tennessee</span></p>
+                </div>
+              </div>
+              <!-- Testimonial 2 -->
+              <div data-id="183" class="w-full flex-shrink-0 px-3">
+                <div data-id="184" class="rounded-2xl p-6 md:p-8" style="background:#141414; border-top:3px solid #8B5CF6;">
+                  <div data-id="185" class="text-gold text-lg mb-3">⭐⭐⭐⭐⭐</div>
+                  <p data-id="186" class="text-white text-base leading-relaxed mb-5">"I play games anyway — might as well get paid for it. Playful Rewards is genius."</p>
+                  <p data-id="187" class="text-txt-secondary text-sm font-semibold">Marcus J. <span data-id="188" class="font-normal text-txt-secondary/60">· Georgia</span></p>
+                </div>
+              </div>
+              <!-- Testimonial 3 -->
+              <div data-id="189" class="w-full flex-shrink-0 px-3">
+                <div data-id="190" class="rounded-2xl p-6 md:p-8" style="background:#141414; border-top:3px solid #8B5CF6;">
+                  <div data-id="191" class="text-gold text-lg mb-3">⭐⭐⭐⭐⭐</div>
+                  <p data-id="192" class="text-white text-base leading-relaxed mb-5">"The surveys are literally only 3 questions. Takes 30 seconds and I earn coins every time."</p>
+                  <p data-id="193" class="text-txt-secondary text-sm font-semibold">Brittany K. <span data-id="194" class="font-normal text-txt-secondary/60">· Ohio</span></p>
+                </div>
+              </div>
+              <!-- Testimonial 4 -->
+              <div data-id="195" class="w-full flex-shrink-0 px-3">
+                <div data-id="196" class="rounded-2xl p-6 md:p-8" style="background:#141414; border-top:3px solid #8B5CF6;">
+                  <div data-id="197" class="text-gold text-lg mb-3">⭐⭐⭐⭐⭐</div>
+                  <p data-id="198" class="text-white text-base leading-relaxed mb-5">"Got a $25 Amazon gift card my first week. This app is legit."</p>
+                  <p data-id="199" class="text-txt-secondary text-sm font-semibold">Devon R. <span data-id="200" class="font-normal text-txt-secondary/60">· Texas</span></p>
+                </div>
+              </div>
+              <!-- Testimonial 5 -->
+              <div data-id="201" class="w-full flex-shrink-0 px-3">
+                <div data-id="202" class="rounded-2xl p-6 md:p-8" style="background:#141414; border-top:3px solid #8B5CF6;">
+                  <div data-id="203" class="text-gold text-lg mb-3">⭐⭐⭐⭐⭐</div>
+                  <p data-id="204" class="text-white text-base leading-relaxed mb-5">"Best rewards app I've tried. Fast payouts, fun games, no nonsense."</p>
+                  <p data-id="205" class="text-txt-secondary text-sm font-semibold">Jade T. <span data-id="206" class="font-normal text-txt-secondary/60">· California</span></p>
+                </div>
+              </div>
+            </div>
+            <!-- Dot indicators -->
+            <div data-id="207" id="carousel-dots-e7qy" class="flex items-center justify-center gap-3 mt-6">
+              <button data-id="208" class="dot active" data-slide="0" aria-label="Slide 1"></button>
+              <button data-id="209" class="dot" data-slide="1" aria-label="Slide 2"></button>
+              <button data-id="210" class="dot" data-slide="2" aria-label="Slide 3"></button>
+              <button data-id="211" class="dot" data-slide="3" aria-label="Slide 4"></button>
+              <button data-id="212" class="dot" data-slide="4" aria-label="Slide 5"></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== FAQ ===== -->
+      <section data-id="213" id="faq-m3tv" class="py-20 md:py-28 px-4" style="background:#141414;">
+        <div data-id="214" class="max-w-[700px] mx-auto">
+          <div data-id="215" class="text-center mb-12 reveal">
+            <h2 data-id="216" id="faq-heading-p9az" class="text-3xl md:text-4xl font-black text-white mb-4">Frequent Questions</h2>
+          </div>
+
+          <div data-id="217" class="space-y-3 reveal" id="faq-container-w5rl">
+            <!-- FAQ 1 -->
+            <div data-id="218" class="rounded-xl overflow-hidden" style="background:#1A1A1A;">
+              <button data-id="219" class="faq-toggle w-full flex items-center justify-between p-5 text-left text-white font-semibold text-base">
+                <span data-id="220">How does it work?</span>
+                <i data-id="221" data-lucide="plus" class="w-5 h-5 text-purple-primary flex-shrink-0 faq-icon transition-transform"></i>
+              </button>
+              <div data-id="222" class="faq-content px-5">
+                <p data-id="223" class="text-txt-secondary text-sm leading-relaxed pb-5">Playful Rewards gives you coins for the time dedicated to playing games and taking surveys. The games featured within Playful Rewards are accessible at no cost through the App Store.</p>
+              </div>
+            </div>
+            <!-- FAQ 2 -->
+            <div data-id="224" class="rounded-xl overflow-hidden" style="background:#1A1A1A;">
+              <button data-id="225" class="faq-toggle w-full flex items-center justify-between p-5 text-left text-white font-semibold text-base">
+                <span data-id="226">How long are the surveys?</span>
+                <i data-id="227" data-lucide="plus" class="w-5 h-5 text-purple-primary flex-shrink-0 faq-icon transition-transform"></i>
+              </button>
+              <div data-id="228" class="faq-content px-5">
+                <p data-id="229" class="text-txt-secondary text-sm leading-relaxed pb-5">The surveys are only three simple questions and the feedback helps improve the experience of the game.</p>
+              </div>
+            </div>
+            <!-- FAQ 3 -->
+            <div data-id="230" class="rounded-xl overflow-hidden" style="background:#1A1A1A;">
+              <button data-id="231" class="faq-toggle w-full flex items-center justify-between p-5 text-left text-white font-semibold text-base">
+                <span data-id="232">How long will it take to earn a reward?</span>
+                <i data-id="233" data-lucide="plus" class="w-5 h-5 text-purple-primary flex-shrink-0 faq-icon transition-transform"></i>
+              </button>
+              <div data-id="234" class="faq-content px-5">
+                <p data-id="235" class="text-txt-secondary text-sm leading-relaxed pb-5">It won't take you weeks to earn your rewards, and you can cash out once you've earned as little as $1.00. You can easily earn enough rewards in a single day to win a gift card.</p>
+              </div>
+            </div>
+            <!-- FAQ 4 -->
+            <div data-id="236" class="rounded-xl overflow-hidden" style="background:#1A1A1A;">
+              <button data-id="237" class="faq-toggle w-full flex items-center justify-between p-5 text-left text-white font-semibold text-base">
+                <span data-id="238">Is Playful Rewards free?</span>
+                <i data-id="239" data-lucide="plus" class="w-5 h-5 text-purple-primary flex-shrink-0 faq-icon transition-transform"></i>
+              </button>
+              <div data-id="240" class="faq-content px-5">
+                <p data-id="241" class="text-txt-secondary text-sm leading-relaxed pb-5">Yes! Playful Rewards is completely free to download and use. All games within the app are accessible at no cost through the App Store.</p>
+              </div>
+            </div>
+            <!-- FAQ 5 -->
+            <div data-id="242" class="rounded-xl overflow-hidden" style="background:#1A1A1A;">
+              <button data-id="243" class="faq-toggle w-full flex items-center justify-between p-5 text-left text-white font-semibold text-base">
+                <span data-id="244">Where can I download it?</span>
+                <i data-id="245" data-lucide="plus" class="w-5 h-5 text-purple-primary flex-shrink-0 faq-icon transition-transform"></i>
+              </button>
+              <div data-id="246" class="faq-content px-5">
+                <p data-id="247" class="text-txt-secondary text-sm leading-relaxed pb-5">Playful Rewards is available on both iOS (App Store) and Android (Google Play). Search 'Playful Rewards' or use the download buttons on this page.</p>
+              </div>
+            </div>
+            <!-- FAQ 6 -->
+            <div data-id="248" class="rounded-xl overflow-hidden" style="background:#1A1A1A;">
+              <button data-id="249" class="faq-toggle w-full flex items-center justify-between p-5 text-left text-white font-semibold text-base">
+                <span data-id="250">What can I redeem my coins for?</span>
+                <i data-id="251" data-lucide="plus" class="w-5 h-5 text-purple-primary flex-shrink-0 faq-icon transition-transform"></i>
+              </button>
+              <div data-id="252" class="faq-content px-5">
+                <p data-id="253" class="text-txt-secondary text-sm leading-relaxed pb-5">You can redeem your accumulated coins for real cash or gift cards. Cash out as soon as you've reached $1.00 — no waiting required!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== FINAL CTA ===== -->
+      <section data-id="254" id="cta-final-h3vn" class="py-20 md:py-28 px-4" style="background:linear-gradient(135deg,#6B21A8,#8B5CF6,#A855F7);">
+        <div data-id="255" class="max-w-[700px] mx-auto text-center reveal">
+          <h2 data-id="256" id="cta-heading-z2pw" class="text-3xl md:text-4xl font-black text-white mb-4">Ready to Start Earning?</h2>
+          <p data-id="257" class="text-white/80 text-base md:text-lg mb-8 max-w-lg mx-auto">Download Playful Rewards free and start earning cash and gift cards today.</p>
+
+          <div data-id="258" class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+            <a data-id="259" href="https://apps.apple.com/us/app/playful-rewards-earn-rewards/id1631584032" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-cta">
+              <svg data-id="260" viewBox="0 0 24 24" width="22" height="22" fill="white"><path data-id="261" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              <div data-id="262" class="text-left">
+                <div data-id="263" class="text-[10px] text-white/60 leading-none">Download on the</div>
+                <div data-id="264" class="text-base font-semibold leading-tight text-white">App Store</div>
+              </div>
+            </a>
+            <a data-id="265" href="https://play.google.com/store/apps/details?id=com.theoremreach.wizardbucks&hl=en_US" target="_blank" rel="noopener noreferrer" class="store-btn store-btn-cta">
+              <svg data-id="266" viewBox="0 0 24 24" width="22" height="22"><path data-id="267" fill="#4285F4" d="M3.61 1.81L13.43 12 3.61 22.19c-.36-.44-.61-1-.61-1.65V3.46c0-.65.25-1.21.61-1.65z"/><path data-id="268" fill="#34A853" d="M16.89 15.4L5.03 22.06 13.43 12l3.46 3.4z"/><path data-id="269" fill="#FBBC05" d="M20.16 10.81c.5.45.84 1 .84 1.19 0 .19-.34.74-.84 1.19l-3.27 1.81L13.43 12l3.46-3.4 3.27 2.21z"/><path data-id="270" fill="#EA4335" d="M5.03 1.94L16.89 8.6 13.43 12 3.61 1.81c.3-.37.73-.69 1.42-.69 0 0 0 .82 0 .82z"/></svg>
+              <div data-id="271" class="text-left">
+                <div data-id="272" class="text-[10px] text-white/60 leading-none">Get it on</div>
+                <div data-id="273" class="text-base font-semibold leading-tight text-white">Google Play</div>
+              </div>
+            </a>
+          </div>
+          <p data-id="274" class="text-white/50 text-xs">Free to download. Available on iOS & Android.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer data-id="275" id="footer-n8ql" class="py-12 md:py-16 px-4" style="background:#0A0A0A; border-top:1px solid rgba(139,92,246,0.1);">
+      <div data-id="276" class="max-w-[1100px] mx-auto">
+        <div data-id="277" class="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 mb-10">
+          <!-- Brand -->
+          <div data-id="278" class="md:col-span-1">
+            <div data-id="279" class="flex items-center gap-1 text-xl mb-3" style="font-weight:800;">
+              <img src="/images/playful-rewards-logo.png" alt="Playful Rewards" width="28" height="28" style="width:28px;height:28px;border-radius:7px;display:block;margin-right:4px;" />
+              <span data-id="281" class="text-white">Playful</span><span data-id="282" style="color:#8B5CF6;">Rewards</span>
+            </div>
+            <p data-id="283" class="text-txt-secondary text-sm">Where your opinions power your earnings.</p>
+          </div>
+          <!-- App links -->
+          <div data-id="284">
+            <h4 data-id="285" class="text-white font-bold text-sm mb-4">App</h4>
+            <ul data-id="286" class="space-y-2.5">
+              <li data-id="287"><a data-id="288" href="#overview-s2qw" class="text-txt-secondary text-sm hover:text-white transition-colors">Overview</a></li>
+              <li data-id="289"><a data-id="290" href="#howitworks-k9rn" class="text-txt-secondary text-sm hover:text-white transition-colors">How It Works</a></li>
+              <li data-id="291"><a data-id="292" href="https://www.playfulrewards.com/" target="_blank" rel="noopener noreferrer" class="text-txt-secondary text-sm hover:text-white transition-colors">Download</a></li>
+            </ul>
+          </div>
+          <!-- Support links -->
+          <div data-id="293">
+            <h4 data-id="294" class="text-white font-bold text-sm mb-4">Support</h4>
+            <ul data-id="295" class="space-y-2.5">
+              <li data-id="296"><a data-id="297" href="#faq-m3tv" class="text-txt-secondary text-sm hover:text-white transition-colors">FAQs</a></li>
+              <li data-id="298"><a data-id="299" href="https://www.playfulrewards.com/" target="_blank" rel="noopener noreferrer" class="text-txt-secondary text-sm hover:text-white transition-colors">Terms of Use</a></li>
+              <li data-id="300"><a data-id="301" href="https://www.playfulrewards.com/" target="_blank" rel="noopener noreferrer" class="text-txt-secondary text-sm hover:text-white transition-colors">Privacy Policy</a></li>
+              <li data-id="302"><a data-id="303" href="https://www.playfulrewards.com/" target="_blank" rel="noopener noreferrer" class="text-txt-secondary text-sm hover:text-white transition-colors">Biometric Data Policy</a></li>
+            </ul>
+          </div>
+          <!-- Website -->
+          <div data-id="304">
+            <h4 data-id="305" class="text-white font-bold text-sm mb-4">Website</h4>
+            <a data-id="306" href="https://www.playfulrewards.com/" target="_blank" rel="noopener noreferrer" class="text-purple-primary text-sm hover:text-purple-light transition-colors">playfulrewards.com</a>
+          </div>
+        </div>
+
+        <div data-id="307" class="border-t pt-6 flex flex-col md:flex-row items-center justify-between gap-3" style="border-color:rgba(139,92,246,0.1);">
+          <p data-id="308" class="text-txt-secondary text-xs">© 2025 Playful Rewards, LLC. All Rights Reserved.</p>
+          <p data-id="309" class="text-txt-secondary/50 text-xs">Made by Copilot</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // === Lucide Icons ===
+      if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+        lucide.createIcons();
+      }
+
+      // === Floating Coin Particles ===
+      (function() {
+        const container = document.getElementById('coin-particles-j8nt');
+        if (!container) return;
+        const colors = ['#FFD700', '#F97316', '#FFC107', '#FFB300', '#FFA000'];
+        for (let i = 0; i < 18; i++) {
+          const coin = document.createElement('div');
+          coin.className = 'coin-particle';
+          coin.style.left = Math.random() * 100 + '%';
+          coin.style.bottom = '-10px';
+          coin.style.background = colors[Math.floor(Math.random() * colors.length)];
+          coin.style.animationDuration = (4 + Math.random() * 6) + 's';
+          coin.style.animationDelay = (Math.random() * 8) + 's';
+          coin.style.width = (4 + Math.random() * 6) + 'px';
+          coin.style.height = coin.style.width;
+          container.appendChild(coin);
+        }
+      })();
+
+      // === Sticky Header Border on Scroll ===
+      (function() {
+        const header = document.getElementById('main-header-h7kx');
+        if (!header) return;
+        window.addEventListener('scroll', function() {
+          if (window.scrollY > 20) {
+            header.classList.add('header-scrolled');
+          } else {
+            header.classList.remove('header-scrolled');
+          }
+        }, { passive: true });
+      })();
+
+      // === Mobile Navigation ===
+      (function() {
+        const hamburger = document.getElementById('hamburger-btn-q4zp');
+        const closeBtn = document.getElementById('close-nav-btn-l2rw');
+        const mobileNav = document.getElementById('mobile-nav-v8mx');
+        if (!hamburger || !closeBtn || !mobileNav) return;
+
+        hamburger.addEventListener('click', function() {
+          mobileNav.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        });
+        closeBtn.addEventListener('click', function() {
+          mobileNav.classList.remove('open');
+          document.body.style.overflow = '';
+        });
+        document.querySelectorAll('.nav-link-close').forEach(function(link) {
+          link.addEventListener('click', function() {
+            mobileNav.classList.remove('open');
+            document.body.style.overflow = '';
+          });
+        });
+      })();
+
+      // === Scroll Reveal Animations ===
+      (function() {
+        const reveals = document.querySelectorAll('.reveal');
+        if (!reveals.length) return;
+        const observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        reveals.forEach(function(el) { observer.observe(el); });
+      })();
+
+      // === Animated Counters ===
+      (function() {
+        const counters = document.querySelectorAll('.counter-value');
+        if (!counters.length) return;
+        let animated = false;
+        const observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting && !animated) {
+              animated = true;
+              counters.forEach(function(counter) {
+                const type = counter.dataset.type;
+                if (type === 'day') return; // Static text
+                const target = type === 'dollar' ? 1 : (type === 'percent' ? 100 : parseInt(counter.dataset.target));
+                let current = 0;
+                const step = target / 40;
+                const interval = setInterval(function() {
+                  current += step;
+                  if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                  }
+                  if (type === 'dollar') {
+                    counter.textContent = '$' + current.toFixed(2);
+                  } else if (type === 'percent') {
+                    counter.textContent = Math.round(current) + '%';
+                  } else {
+                    counter.textContent = Math.round(current);
+                  }
+                }, 40);
+              });
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.3 });
+        if (counters[0]) observer.observe(counters[0].closest('section') || counters[0]);
+      })();
+
+      // === Testimonial Carousel ===
+      (function() {
+        const track = document.getElementById('carousel-track-d3sm');
+        const dotsContainer = document.getElementById('carousel-dots-e7qy');
+        if (!track || !dotsContainer) return;
+
+        const slides = track.children;
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+        let autoInterval;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function goToSlide(index) {
+          if (index < 0) index = totalSlides - 1;
+          if (index >= totalSlides) index = 0;
+          currentSlide = index;
+          track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
+          dotsContainer.querySelectorAll('.dot').forEach(function(d, i) {
+            d.classList.toggle('active', i === currentSlide);
+          });
+        }
+
+        // Dot click
+        dotsContainer.querySelectorAll('.dot').forEach(function(dot) {
+          dot.addEventListener('click', function() {
+            goToSlide(parseInt(dot.dataset.slide));
+            resetAutoAdvance();
+          });
+        });
+
+        // Touch swipe
+        track.addEventListener('touchstart', function(e) {
+          touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        track.addEventListener('touchend', function(e) {
+          touchEndX = e.changedTouches[0].screenX;
+          const diff = touchStartX - touchEndX;
+          if (Math.abs(diff) > 50) {
+            if (diff > 0) goToSlide(currentSlide + 1);
+            else goToSlide(currentSlide - 1);
+            resetAutoAdvance();
+          }
+        }, { passive: true });
+
+        // Auto advance
+        function startAutoAdvance() {
+          autoInterval = setInterval(function() {
+            goToSlide(currentSlide + 1);
+          }, 4000);
+        }
+        function resetAutoAdvance() {
+          clearInterval(autoInterval);
+          startAutoAdvance();
+        }
+        startAutoAdvance();
+      })();
+
+      // === FAQ Accordion ===
+      (function() {
+        const container = document.getElementById('faq-container-w5rl');
+        if (!container) return;
+        const toggles = container.querySelectorAll('.faq-toggle');
+        toggles.forEach(function(toggle) {
+          toggle.addEventListener('click', function() {
+            const content = toggle.nextElementSibling;
+            const icon = toggle.querySelector('.faq-icon');
+            const isOpen = content.classList.contains('open');
+
+            // Close all
+            container.querySelectorAll('.faq-content').forEach(function(c) {
+              c.classList.remove('open');
+            });
+            container.querySelectorAll('.faq-icon').forEach(function(ic) {
+              ic.style.transform = 'rotate(0deg)';
+              if (ic.dataset) ic.setAttribute('data-lucide', 'plus');
+            });
+
+            // Toggle current
+            if (!isOpen) {
+              content.classList.add('open');
+              icon.style.transform = 'rotate(45deg)';
+            }
+
+            // Re-render icons
+            if (typeof lucide !== "undefined" && typeof lucide.createIcons === "function") {
+              lucide.createIcons();
+            }
+          });
+        });
+      })();
+    </script>
+      <script>
+/* THE RAW DESTINATION LINK — the offer row's US link (its default is the GB campaign), declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://www.fkn8s74mztrk.com/F2R45HNR/GQSNBMDQ/';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `sub1`: this destination family reads sub1..sub5 and silently discards s1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* Every Download / App Store / Google Play button, and the footer link to the app's site, walks the same gate to the same offer link, in this tab. */
+Array.prototype.forEach.call(document.querySelectorAll('a.store-btn, a[data-id="12"], a[data-id="27"], a[data-id="292"], a[data-id="306"]'), function (a) {
+  a.setAttribute('href', buildOfferUrl());
+  a.removeAttribute('target');
+});
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'PLAYFULREWARDSCPI-SHANNONP-37', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('a.store-btn, a[data-id="12"], a[data-id="27"], a[data-id="292"], a[data-id="306"]') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+    </script>
+</body>
+</html>
