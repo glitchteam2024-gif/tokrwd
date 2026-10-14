@@ -255,6 +255,7 @@
     'testerupusukcpr-coderguy-77-v2.html', 'testerupusukcpr-coderguy-77-v2-pre.html',
     'testerupexclusiveusuk-coderguy-77-v2.html', 'testerupexclusiveusuk-coderguy-77-v2-pre.html',
     'playfulrewardscpi-coderguy-77-v2.html', 'playfulrewardscpi-coderguy-77-v2-pre.html',
+    'sushipasswallet-edisprk1-v2.html', 'sushipasswallet-edisprk1-v2-pre.html',
     'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
     'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
     'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',
