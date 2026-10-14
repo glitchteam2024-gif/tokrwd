@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Scrambly – Earn Rewards</title>
+
+<style>
+    :root {
+        --black: #000000;
+        --navy: #0A0F14;
+        --white: #FFFFFF;
+        --gray: #C7C7C7;
+        --neon: #00E5FF;   /* Scrambly cyan */
+        --orange: #FF8A00; /* Scrambly accent orange */
+    }
+
+    body {
+        margin: 0;
+        background: var(--black);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--white);
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .app {
+        width: 100%;
+        max-width: 480px;
+    }
+
+    .card {
+        background: var(--navy);
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 0 25px rgba(0,229,255,0.18);
+    }
+
+    /* NEW HEADER FROM YOUR SNIP */
+    .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--neon);
+        line-height: 1.3;
+    }
+
+    .header-sub {
+        font-size: 15px;
+        color: var(--gray);
+        margin-bottom: 24px;
+        line-height: 1.45;
+    }
+
+    /* SIMPLE LIST FROM FIRST SNIP */
+    .list {
+        margin-top: 10px;
+    }
+
+    .list-item {
+        background: #0D0D0D;
+        padding: 16px;
+        border-radius: 14px;
+        margin-bottom: 14px;
+        box-shadow: inset 0 0 12px rgba(255,255,255,0.05);
+    }
+
+    .list-title {
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--orange);
+        margin-bottom: 6px;
+    }
+
+    .list-desc {
+        font-size: 14px;
+        color: var(--gray);
+        line-height: 1.45;
+    }
+
+    .cta-btn {
+        width: 100%;
+        background: var(--orange);
+        color: var(--black);
+        padding: 16px;
+        border-radius: 999px;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+        margin-top: 28px;
+        cursor: pointer;
+        transition: transform 0.1s ease-out, box-shadow 0.2s;
+        box-shadow: 0 0 18px rgba(255,138,0,0.4);
+    }
+
+    .cta-btn:active {
+        transform: scale(0.97);
+        box-shadow: 0 0 10px rgba(255,138,0,0.25);
+    }
+
+    .offer-logo { display: block; width: 64px; height: 64px; border-radius: 16px; object-fit: cover; margin: 0 0 14px; }
+</style>
+</head>
+
+<body>
+<div class="app">
+    <div class="card">
+
+        <!-- UPDATED HEADER -->
+        <img class="offer-logo" src="/images/scrambly-icon-512.png" alt="Scrambly" width="64" height="64">
+        <div class="header-title">
+            Play Games. Try Apps. Earn Rewards.
+        </div>
+
+        <div class="header-sub">
+            Ready to explore mobile games & apps for instant gift card rewards?
+        </div>
+
+        <!-- SIMPLE LIST -->
+        <div class="list">
+
+            <div class="list-item">
+                <div class="list-title">Sign up</div>
+                <div class="list-desc">Create your FREE Scrambly account in minutes.</div>
+            </div>
+
+            <div class="list-item">
+                <div class="list-title">Choose offers</div>
+                <div class="list-desc">Explore tasks that pay you for testing mobile games or completing simple actions.</div>
+            </div>
+
+            <div class="list-item">
+                <div class="list-title">Complete tasks</div>
+                <div class="list-desc">Finish tasks and watch your rewards balance grow.</div>
+            </div>
+
+            <div class="list-item">
+                <div class="list-title">Cash out</div>
+                <div class="list-desc">Redeem your earnings through Scrambly’s payout options.</div>
+            </div>
+
+        </div>
+
+        <!-- UPDATED CTA BUTTON -->
+        <div class="cta-btn" onclick="window.location.href = buildOfferUrl()">
+            Get Started
+        </div>
+
+    </div>
+</div>
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://montrk2.co.uk/?a=26648&c=56532';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'SCRAMBLY-SHANNONP-37', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('.cta-btn') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+</body>
+</html>

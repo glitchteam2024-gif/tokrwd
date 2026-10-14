@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Grocery Help & Benefits</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0A1A3A;
+        color: #FFFFFF;
+    }
+
+    .header {
+        text-align: center;
+        padding: 26px 20px;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .subheader {
+        text-align: center;
+        font-size: 16px;
+        color: #4DB8FF;
+        margin-top: -8px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .cta-button {
+        width: 100%;
+        background: #4DB8FF;
+        color: #0A1A3A;
+        padding: 16px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 17px;
+        font-weight: bold;
+        margin-top: 20px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .cta-button:active {
+        transform: scale(0.97);
+        background: #B7E6FF;
+    }
+
+    .section {
+        background: #FFFFFF;
+        color: #0A1A3A;
+        padding: 16px;
+        border-radius: 10px;
+        margin-top: 18px;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .section h3 {
+        margin-top: 0;
+        font-size: 17px;
+    }
+
+    .footer {
+        text-align: center;
+        padding: 18px;
+        font-size: 12px;
+        color: #B7E6FF;
+    }
+
+    .offer-logo { display: block; width: 64px; height: 64px; border-radius: 16px; object-fit: cover; margin: 0 auto 12px; }
+</style>
+</head>
+
+<body>
+
+<div class="header"><img class="offer-logo" src="/images/grocery-assistance-logo.jpg" alt="Grocery assistance" width="64" height="64">Get Groceries Help & Benefits</div>
+<div class="subheader">Save More & Access Free Guides</div>
+
+<div class="container">
+
+    <div class="cta-button" onclick="window.location.href = buildOfferUrl()">
+        Get access to the Guide
+    </div>
+
+    <div class="section">
+        <h3>About Us</h3>
+        <p>
+            Learning how to do things online can be overwhelming.  
+            You might not know where to look or where to start — that’s where we come in.
+        </p>
+    </div>
+
+    <div class="section">
+        <h3>Our Guide Is Free</h3>
+        <p>
+            You won’t pay anything for the information or guides we provide.  
+            Our site is free because you’re entitled to helpful money‑saving resources.
+        </p>
+        <p>
+            We’re supported through ads and affiliate marketing.  
+            Some users allow us to share limited info with marketing partners  
+            so they can receive offers related to their interests.
+        </p>
+    </div>
+
+</div>
+
+<div class="footer">© 2026 Grocery Assistance Guides</div>
+
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://montrk5.co.uk/?a=26648&c=56556';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'GROCERYASSISTANCECPLUS-SHANNONP-37', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('.cta-button') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+</body>
+</html>
