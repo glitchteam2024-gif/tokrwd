@@ -1185,6 +1185,8 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'sushipasswallet-coop2x4ever-22-v2.html', 'sushipasswallet-coop2x4ever-22-v2-pre.html',
   'recosocialrevshare-coderguy-77.html', 'recosocialrevshare-coderguy-77-pre.html',
   'testerupexclusiveusuk-coderguy-77.html', 'testerupexclusiveusuk-coderguy-77-pre.html',
+  'recosocialrevshare-coderguy-77-v2.html', 'recosocialrevshare-coderguy-77-v2-pre.html',
+  'gp-coderguy-77-v2.html', 'gp-coderguy-77-v2-pre.html',
   'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
   'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
   'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',
