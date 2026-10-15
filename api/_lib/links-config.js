@@ -1210,6 +1210,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'dominosgiftcardcpaus-alexsalesrepca-78.html', 'dominosgiftcardcpaus-alexsalesrepca-78-pre.html',
   'testerupusukca-alexsalesrepca-78.html', 'testerupusukca-alexsalesrepca-78-pre.html',
   'swagbucksios-sxmmybills-12-v2.html', 'swagbucksios-sxmmybills-12-v2-pre.html',
+  'dominosgiftcardcpaus-ashbbby-18.html', 'dominosgiftcardcpaus-ashbbby-18-pre.html',
   'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
   'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
   'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',

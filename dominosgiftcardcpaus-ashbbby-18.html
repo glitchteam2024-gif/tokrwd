@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>PrizeSlice – A Quick, Easy Survey With Rewards</title>
+<meta name="description" content="Answer a few easy questions and get your reward in return, plus chances at more along the way. No purchase necessary. See official rules for eligibility.">
+<meta property="og:title" content="Easy Survey. Yummy Rewards.">
+<meta property="og:description" content="Answer a few easy questions and get a yummy reward in return.">
+<meta name="theme-color" content="#0A0A0C">
+<style>
+:root{--bg:#0A0A0C;--card:#141418;--elev:#1D1D24;--tx:#F8F6F4;--mut:#A29FA8;--red:#E31837;--blue:#0B5FFF;--cobalt:#0047AB;--ok:#30E887;--bd:#2A2A33;--grad:linear-gradient(110deg,var(--red),#B3122B 45%,var(--cobalt));
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 Inter,Geist,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:92px;overflow-x:hidden;overflow-wrap:break-word;
+background-image:radial-gradient(600px 300px at 90% -5%,rgba(227,24,55,.25),transparent),radial-gradient(500px 300px at -10% 20%,rgba(0,71,171,.3),transparent)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px}
+h1,h2,h3{margin:0;line-height:1.08;letter-spacing:-.02em}
+h1{font-size:clamp(28px,8vw,56px);font-weight:900}
+h2{font-size:clamp(21px,5.6vw,34px);font-weight:800}
+h3{font-size:16px;font-weight:700}
+p{margin:0}.mut{color:var(--mut)}
+.hl{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;background-image:linear-gradient(110deg,#FF3B57,#4C8DFF)}
+section{padding:20px 0}
+.logo{display:flex;align-items:center;justify-content:center;gap:10px;padding:18px 0 6px;font-weight:900;font-size:18px;letter-spacing:-.01em}
+.mark{width:34px;height:34px;border-radius:8px;background:#fff;position:relative;overflow:hidden;transform:rotate(45deg) scale(.8)}
+.mark::before,.mark::after{content:"";position:absolute;top:0;bottom:0;width:50%}
+.mark::before{left:0;background:var(--red)}.mark::after{right:0;background:var(--cobalt)}
+.mark i{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;background:#fff;border-radius:50%;z-index:2;box-shadow:0 -9px #fff,0 9px #fff}
+.hero{text-align:center;padding-top:14px}
+.hero p.sub{max-width:520px;margin:12px auto 0;color:var(--mut);font-size:15px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+.pill{padding:7px 13px;border:1px solid var(--bd);background:var(--card);border-radius:999px;font-size:13px;font-weight:600}
+.pill b{color:var(--ok)}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 24px;border:0;border-radius:999px;background:var(--grad);color:#fff;font:800 16px inherit;font-family:inherit;text-decoration:none;cursor:pointer;box-shadow:0 8px 28px rgba(227,24,55,.35);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(11,95,255,.4)}
+.btn:focus-visible,.seg button:focus-visible,.opt:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #7FA8FF;outline-offset:2px}
+.btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:18px}
+.hero .btn{margin-top:22px;width:100%;max-width:380px}
+/* showcase */
+.show{padding:0;overflow:hidden;position:relative;border-color:#3a2a33}
+.show .top{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--elev);font-size:13px;font-weight:700}
+.tag{padding:4px 10px;border-radius:999px;background:rgba(227,24,55,.15);color:#FF6B80;font-size:12px}
+.show .body{padding:20px}
+.prog{height:10px;border-radius:99px;background:#26262e;overflow:hidden;margin:12px 0 18px}
+.prog span{display:block;height:100%;width:33%;background:var(--grad);border-radius:99px;transition:width .4s}
+.q{font-size:20px;font-weight:800;margin-bottom:14px;line-height:1.2}
+.opts{display:grid;gap:10px}
+.opt{width:100%;text-align:left;min-height:52px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--bd);background:var(--elev);color:var(--tx);font:600 16px inherit;font-family:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--blue)}
+.opt[aria-pressed=true]{border-color:var(--red);background:rgba(227,24,55,.12)}
+.nav{display:flex;gap:10px;margin-top:16px}
+.nav .btn{flex:1;min-height:50px;font-size:16px}
+.ghost{background:var(--elev);box-shadow:none;border:1px solid var(--bd)}
+form label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+input[type=email],input[type=text]{width:100%;min-height:50px;padding:0 14px;border-radius:14px;border:1.5px solid var(--bd);background:var(--elev);color:var(--tx);font:16px inherit;font-family:inherit}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--mut);margin-top:14px}
+.chk input{margin-top:3px;width:18px;height:18px;accent-color:var(--red)}
+.msg{font-size:14px;margin-top:10px;min-height:20px}
+.err{color:#FF6B80}.good{color:var(--ok)}
+.done{text-align:center;padding:10px 0}
+.done .ck{width:64px;height:64px;border-radius:50%;background:rgba(48,232,135,.15);color:var(--ok);display:grid;place-items:center;font-size:32px;margin:0 auto 12px}
+/* seg */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);padding:5px;border-radius:999px;margin:16px 0}
+.seg button{min-height:46px;border:0;border-radius:999px;background:transparent;color:var(--mut);font:700 15px inherit;font-family:inherit;cursor:pointer;transition:background .2s,color .2s}
+.seg button[aria-selected=true]{background:var(--grad);color:#fff}
+.panel{animation:in .3s}
+.panel ul{margin:10px 0 0;padding-left:20px;color:var(--mut)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* value */
+.value{text-align:center;background:linear-gradient(160deg,#2a0a12,#0a1630);border-color:#3a2a44;padding:26px 18px}
+.value .big{font-size:clamp(26px,8vw,52px);font-weight:900;line-height:1;margin:8px 0 12px}
+.grid{display:grid;gap:12px;margin-top:16px}
+.feat{display:flex;gap:14px;align-items:flex-start}
+.ico{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:var(--elev);border:1px solid var(--bd)}
+.badge{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:rgba(48,232,135,.12);color:var(--ok)}
+.steps{display:grid;gap:18px;margin-top:6px}
+.step{display:flex;gap:14px}
+.num{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:900}
+.step:nth-child(1) .num{background:var(--red)}.step:nth-child(2) .num{background:#7a2f8f}.step:nth-child(3) .num{background:var(--cobalt)}
+.trust{display:grid;gap:10px;font-size:14px;color:var(--mut)}
+.trust div{display:flex;gap:10px}.trust b{color:var(--ok)}
+details{border-top:1px solid var(--bd);padding:12px 0}
+summary{cursor:pointer;font-weight:700}
+details p{margin-top:8px;color:var(--mut);font-size:14px}
+.final{text-align:center}
+.final .btn{width:100%;max-width:380px;margin-top:16px}
+footer{padding:20px 0 10px;font-size:12px;color:var(--mut);text-align:center}
+footer a{color:#9DBDFF}
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(10,10,12,.92);backdrop-filter:blur(10px);border-top:1px solid var(--bd);transition:transform .25s}
+.sticky.hide{transform:translateY(110%)}
+.sticky .btn{width:100%;max-width:560px;display:flex;margin:0 auto}
+@media(min-width:700px){.hero p.sub{font-size:17px}.btn{min-height:56px;font-size:17px}.grid.c3{grid-template-columns:repeat(3,1fr)}.wrap{padding:0 28px}section{padding:36px 0}}
+@media(min-width:960px){
+.hero{padding-top:30px}.hero p.sub{font-size:19px}
+body{padding-bottom:0}.sticky{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media(prefers-reduced-motion:no-preference){.float{animation:fl 5s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-6px)}}}
+</style>
+</head>
+<body id="top">
+<main class="wrap">
+ <div class="logo"><img src="/images/dominos-logo.jpg" alt="Domino's" width="34" height="34" style="width:34px;height:34px;border-radius:8px;display:block"><span>Prize<span style="color:#FF3B57">Slice</span></span></div>
+
+ <section class="hero">
+  <h1>Easy questions. <span class="hl">Yummy rewards.</span></h1>
+  <p class="sub">Answer the survey questions and get your rewards in return, with chances to pick up more along the way.</p>
+  <div class="pills"><span class="pill"><b>✓</b> Free to enter</span><span class="pill"><b>✓</b> Rewards along the way</span><span class="pill"><b>✓</b> Mobile friendly</span></div>
+  <a class="btn" href="#top" data-cta="hero">Let's Get Started</a>
+ </section>
+
+
+ <section>
+  <div class="card value">
+   <span class="tag">Why take part</span>
+   <div class="big"><span class="hl">Simple as that.</span><br>Enjoy your reward.</div>
+   <p class="mut">Just share your thoughts, one easy question at a time. Your reward is waiting at the end, and you might find a few extras along the way.</p>
+  </div>
+ </section>
+
+ <section aria-labelledby="h-how">
+  <div class="card">
+   <h2 id="h-how">How it works</h2>
+   <div class="steps" style="margin-top:18px">
+    <div class="step"><div class="num">1</div><div><h3>Say hello</h3><p class="mut">Tap to answer the first question.</p></div></div>
+    <div class="step"><div class="num">2</div><div><h3>Enjoy the ride</h3><p class="mut">Keep going. Extra reward chances may pop up along the way.</p></div></div>
+    <div class="step"><div class="num">3</div><div><h3>Pick up your reward</h3><p class="mut">Finish the last question and your reward is waiting.</p></div></div>
+   </div>
+  </div>
+ </section>
+
+ <section aria-labelledby="h-faq">
+  <div class="card">
+   <h2 id="h-faq" style="margin-bottom:8px">Good to know</h2>
+   <div class="trust" style="margin-bottom:12px"><div><b>✓</b>No purchase or payment is required to enter.</div><div><b>✓</b>Rewards and offers shown along the way are subject to the Official Rules.</div><div><b>✓</b>Void where prohibited. Eligibility limits apply.</div></div>
+   <details><summary>Do I need to buy anything?</summary><p>No. A purchase will not improve your chances of winning.</p></details>
+   <details><summary>Who can enter?</summary><p>Eligible residents as defined in the official rules, generally adults 18 or older.</p></details>
+   <details><summary>What do I get for finishing?</summary><p>Once you've been through the questions, a reward is waiting at the end. Other chances may pop up along the way. See the Official Rules for details.</p></details>
+  </div>
+ </section>
+
+ <section class="final">
+  <h2>Ready to <span class="hl">give it a try?</span></h2>
+  <p class="mut" style="margin-top:8px">It's easy, and your reward is waiting at the end.</p>
+  <a class="btn" href="#top" data-cta="final">Let's Get Started</a>
+ </section>
+
+ <footer>
+  <p><a href="#rules" data-modal>Official Rules</a> · <a href="#privacy" data-modal>Privacy Policy</a> · <a href="#rules" data-modal>Terms</a></p>
+  <p style="margin-top:8px">NO PURCHASE NECESSARY. A purchase will not increase your chances of winning. Void where prohibited. This page is not affiliated with, sponsored by, or endorsed by any third-party brand.</p>
+ </footer>
+</main>
+
+<div class="sticky" id="sticky"><a class="btn" href="#top" data-cta="sticky">Let's Get Started</a></div>
+
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://montrk.co.uk/?a=26648&c=47858';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'DOMINOSGIFTCARDCPAUS-ASHBBBY-18', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('[data-cta]') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+<script>
+(function(){
+function track(n,d){try{(window.dataLayer=window.dataLayer||[]).push(Object.assign({event:n},d||{}))}catch(e){}}
+var CTA_URL=buildOfferUrl(); // set your conversion destination here
+// CTA tracking + sticky hide when survey visible
+document.querySelectorAll('[data-cta]').forEach(function(a){a.href=CTA_URL;a.addEventListener('click',function(){track('cta_click',{location:a.dataset.cta})})});
+// legal modal (inline dialog)
+var legal={rules:['Official Rules','Open to eligible residents 18+. No purchase necessary; a purchase will not increase your chances. Winners are randomly selected from eligible entries. Odds depend on the number of eligible entries. Alternate method of entry: mail a hand-printed entry as described by the sponsor. Void where prohibited. The sponsor must insert the full legal rules, prize details, dates and sponsor address before launch.'],privacy:['Privacy Policy','We collect your name, email and survey answers only to process your entry, contact winners and improve our surveys. We do not sell your information. Contact the sponsor to request access or deletion.']};
+var dlg=document.createElement('dialog');dlg.style.cssText='max-width:480px;width:calc(100% - 36px);background:#141418;color:#F8F6F4;border:1px solid #2A2A33;border-radius:20px;padding:22px';
+dlg.innerHTML='<h3 id="dt"></h3><p id="dp" class="mut" style="margin:10px 0 16px;font-size:14px"></p><button class="btn" style="min-height:48px;width:100%">Close</button>';
+document.body.appendChild(dlg);dlg.querySelector('button').onclick=function(){dlg.close()};
+function bindModal(root){root.querySelectorAll('[data-modal]').forEach(function(a){a.onclick=function(e){e.preventDefault();var k=a.getAttribute('href').slice(1);dlg.querySelector('#dt').textContent=legal[k][0];dlg.querySelector('#dp').textContent=legal[k][1];dlg.showModal()}})}
+bindModal(document);
+})();
+</script>
+</body>
+</html>
