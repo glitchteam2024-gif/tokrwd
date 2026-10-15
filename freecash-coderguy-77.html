@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Freecash – How it works</title>
+<!--
+  CONFIG (in the script below)
+  GO_PATH    : path on YOUR domain that issues a server-side 302 to your tracker. Tracker URL must NOT end in ?sub1= / ?s1=.
+  CID_OUT    : param name /go expects for the click ID.
+  BEACON_URL : optional own click-log endpoint ("" = off).
+  BREAKOUT   : true = TikTok/IG/FB webview visitors see "Begin Below" first.
+-->
+<style>
+  :root{--bg:#12131f;--card:#1c1e2e;--line:#2c2f45;--green:#0fd47a;--green-d:#0aa862;--yellow:#ffd51a;
+    --text:#fff;--muted:#a3a7c2;--warn:#f5c443}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text)}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.45}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:480px;margin:0 auto;padding:20px 16px 120px}
+  [hidden]{display:none!important}
+
+  #breakout{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px 16px}
+  #breakout h1{font-size:30px;margin-bottom:28px}
+  #breakout .btn{max-width:360px}
+  #bo-help{margin-top:22px;color:var(--muted);font-size:15px;max-width:320px}
+  #bo-help b{color:#fff}
+
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+  .logo{width:40px;height:40px;border-radius:11px;background:var(--green);display:grid;place-items:center;font-weight:800;color:#06301b;font-size:20px}
+  .brand span{font-weight:700;font-size:17px}
+  h1.hero{font-size:30px;line-height:1.15;letter-spacing:-.01em;margin-bottom:12px}
+  .hero-sub{color:var(--muted);font-size:16px;margin-bottom:22px}
+
+  .btn{display:block;width:100%;text-align:center;font-weight:700;font-size:18px;padding:17px 20px;border-radius:14px;
+    background:var(--green);color:#04210f;border:0;cursor:pointer;box-shadow:0 5px 0 var(--green-d);-webkit-tap-highlight-color:transparent}
+  .btn:active{transform:translateY(2px);box-shadow:0 3px 0 var(--green-d)}
+  .btn[disabled]{opacity:.55}
+
+  h2{font-size:21px;margin:38px 0 6px}
+  .h2-sub{color:var(--muted);font-size:15px;margin-bottom:18px}
+
+  .step{display:block;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+  .step-head{display:flex;gap:12px;align-items:flex-start}
+  .num{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:var(--green);color:#04210f;display:grid;place-items:center;font-weight:800;font-size:15px}
+  .step-title{font-weight:700;font-size:17px;margin-bottom:3px}
+  .step-body{color:var(--muted);font-size:15px}
+  .q{color:#fff;font-weight:600}
+
+  .mock{margin-top:14px;background:#151726;border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14px}
+  .m-title{text-align:center;font-weight:700;margin-bottom:2px}
+  .m-sub{text-align:center;color:var(--muted);font-size:12px;margin-bottom:8px}
+  .m-bar{height:5px;border-radius:3px;background:#3a3d57;margin-bottom:10px}
+  .m-bar i{display:block;height:100%;width:25%;border-radius:3px;background:#8e92b8}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .opt{border:1px solid var(--line);border-radius:10px;padding:9px 10px;display:flex;justify-content:space-between;align-items:center;color:#cfd2e6}
+  .opt::after{content:"";width:13px;height:13px;border-radius:50%;border:2px solid #9a9db8;flex:0 0 auto}
+  .opt.sel{border-color:var(--green)}
+  .opt.sel::after{border-color:var(--green);background:radial-gradient(circle,#fff 30%,var(--green) 35%)}
+  .yn{display:flex;gap:8px;margin-top:8px}
+  .yn div{flex:1;text-align:center;padding:9px;border-radius:999px;border:1px solid var(--line);font-weight:700}
+  .warn{margin-top:10px;text-align:center;color:var(--muted);font-size:12px}
+  .warn b{color:var(--warn)}
+  .verify{text-align:center}
+  .verify .v-h{font-weight:700;margin-bottom:4px}
+  .spin{display:inline-block;width:12px;height:12px;border:2px solid var(--green);border-right-color:transparent;border-radius:50%;margin-right:6px;vertical-align:-1px}
+  .verify p{color:#cfd2e6;font-size:13px}
+  .verify p b{color:#fff}
+  .track{margin-top:10px}
+  .track .lbl{text-align:center;margin-bottom:8px}
+  .track .bar{height:10px;border-radius:5px;background:#0b5c37;overflow:hidden}
+  .track .bar i{display:block;height:100%;width:80%;background:linear-gradient(90deg,#7ff0b8,var(--green))}
+  .tabs{display:flex;justify-content:space-around;margin-top:10px;border:1px solid var(--line);border-radius:999px;padding:7px;font-size:12px;color:var(--muted)}
+  .tabs .on{color:var(--green);font-weight:700}
+
+  .box{margin-top:20px;border-radius:16px;padding:15px 16px;font-size:15px}
+  .box p+p{margin-top:9px}
+  .rules{background:rgba(15,212,122,.07);border:1px solid rgba(15,212,122,.45)}
+  .rules b{color:#fff}
+  .rules .h{color:var(--green);font-weight:800;font-size:16px}
+  .tip{background:rgba(245,196,67,.07);border:1px solid rgba(245,196,67,.35)}
+  .tip b{color:var(--warn)}
+
+  .final{margin-top:34px}
+  .foot{margin-top:26px;color:#7d81a0;font-size:12px;text-align:center}
+  .sticky{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(18,19,31,0),rgba(18,19,31,.96) 35%);z-index:10;pointer-events:none}
+  .sticky .btn{max-width:448px;margin:0 auto;pointer-events:auto}
+</style>
+</head>
+<body>
+
+<section id="breakout" hidden>
+  <h1 data-i18n="bo_h">Begin Below</h1>
+  <button class="btn" id="bo-btn" type="button" data-i18n="bo_btn">Continue</button>
+  <p id="bo-help" hidden data-i18n-html="bo_help">Tap <b>•••</b> at the top, then <b>Open in browser</b>.</p>
+</section>
+
+<main id="lander" class="wrap">
+  <div class="brand"><div class="logo"><img src="/images/freecash-logo-512.jpg" alt="Freecash" width="40" height="40" style="width:40px;height:40px;border-radius:11px;display:block"></div><span>Freecash</span></div>
+
+  <h1 class="hero" data-i18n="h1">Get paid to try new games</h1>
+  <p class="hero-sub" data-i18n="sub">Up to $20 sign up bonus. Here's exactly what happens after you install, including the one step most people miss. Works on iPhone, Android and in your browser.</p>
+  <a class="btn exit" href="#" data-exit="hero" data-i18n="cta">Get Freecash</a>
+
+  <h2 data-i18n="how_h">After you install</h2>
+  <p class="h2-sub" data-i18n="how_sub">About a minute of setup. Then start your first game straight away, that's where you begin earning.</p>
+
+  <!-- 1 -->
+  <a class="step exit" href="#" data-exit="step1">
+    <div class="step-head"><div class="num">1</div><div>
+      <div class="step-title" data-i18n="s1_t">Answer 8 quick questions</div>
+      <div class="step-body" data-i18n="s1_b">Gender, age, how you'd like to cash out, how often you play and spend in games, and a goal for today. Then tap Finish.</div>
+    </div></div>
+    <div class="mock" aria-hidden="true">
+      <div class="m-title">Let's personalize your offers</div>
+      <div class="m-sub">Question 5 of 8</div>
+      <div class="m-bar"><i style="width:62%"></i></div>
+      <div class="m-sub" style="color:#fff;font-size:13px">On average, how much do you spend on in-app purchases per month?</div>
+      <div class="grid"><div class="opt">$1 - $10</div><div class="opt sel">$11 - $100</div><div class="opt">$101 - $300</div><div class="opt">More than $300</div></div>
+    </div>
+  </a>
+
+  <!-- 2 -->
+  <a class="step exit" href="#" data-exit="step2">
+    <div class="step-head"><div class="num">2</div><div>
+      <div class="step-title" data-i18n="s2_t">Collect your Sign up Bonus, up to $20</div>
+      <div class="step-body" data-i18n-html="s2_b">A <span class="q">Sign up Bonus!</span> screen adds up to $20 to your balance before your first game. Tap the green button to claim it.</div>
+    </div></div>
+  </a>
+
+  <!-- 3 -->
+  <a class="step exit" href="#" data-exit="step3">
+    <div class="step-head"><div class="num">3</div><div>
+      <div class="step-title" data-i18n="s3_t">Start your first game right away</div>
+      <div class="step-body" data-i18n-html="s3_b">Don't stop after the bonus. Tap <span class="q">Play &amp; Earn</span> on a game in the Rewards tab. It asks if you've installed it before: pick one that's new to you, because only new games pay.</div>
+    </div></div>
+    <div class="mock" aria-hidden="true">
+      <div class="m-title">Have you installed this game before?</div>
+      <div class="yn"><div>Yes</div><div>No</div></div>
+      <div class="warn"><b>⚠</b> You cannot earn if you have installed it before</div>
+    </div>
+  </a>
+
+  <!-- 4 -->
+  <a class="step exit" href="#" data-exit="step4">
+    <div class="step-head"><div class="num">4</div><div>
+      <div class="step-title" data-i18n="s4_t">Install it and open it</div>
+      <div class="step-body" data-i18n-html="s4_b">Your app store opens. Install, then <span class="q">open the game</span>. Ad tracking needs to be on, on iPhone and Android: on iPhone, tap <span class="q">Allow</span> when the game asks. That's how your install gets verified.</div>
+    </div></div>
+    <div class="mock verify" aria-hidden="true">
+      <div class="v-h"><span class="spin"></span>Verifying installation</div>
+      <p>Please open the game and allow tracking.<br><b>You can't earn without install verification.</b></p>
+    </div>
+  </a>
+
+  <!-- 5 -->
+  <a class="step exit" href="#" data-exit="step5">
+    <div class="step-head"><div class="num">5</div><div>
+      <div class="step-title" data-i18n="s5_t">Play and watch In Progress</div>
+      <div class="step-body" data-i18n-html="s5_b">Each game has its own tasks, like <span class="q">“Install &amp; play for 2 minutes”</span>. Check the <span class="q">In Progress</span> tab to see what's next and what it pays.</div>
+    </div></div>
+    <div class="mock" aria-hidden="true">
+      <div class="track"><div class="lbl">Install &amp; play for 2 minutes…</div><div class="bar"><i></i></div></div>
+      <div class="tabs"><span>Rewards</span><span class="on">In Progress</span><span>Cashout</span><span>Quests</span></div>
+    </div>
+  </a>
+
+  <div class="box rules">
+    <p class="h" data-i18n="r_h">4 rules so your games count</p>
+    <p data-i18n-html="r1">1. Start every game <b>from inside Freecash</b>, not straight from the app store.</p>
+    <p data-i18n-html="r2">2. Only pick games <b>you've never installed</b>.</p>
+    <p data-i18n-html="r3">3. Keep <b>ad tracking on</b> (iPhone or Android) and open the game after it installs. If the install can't be verified, it won't pay.</p>
+    <p data-i18n-html="r4">4. <b>Turn off any VPN or ad blocker</b> before you install.</p>
+  </div>
+
+  <div class="box tip">
+    <p data-i18n-html="t1"><b>Stuck on “Verifying installation”?</b> Tap Troubleshoot on that screen. It checks the install is new, ad tracking is on and no VPN or ad blocker is running. Tracking can be slow, so give it up to 2 days before contacting support.</p>
+    <p data-i18n-html="t2"><b>When can I cash out?</b> The “Your first Cashout” bar on the Rewards tab shows how close you are to the minimum.</p>
+    <p data-i18n="t3">Some games stay locked until you've started others, and your list may be different from anyone else's.</p>
+  </div>
+
+  <div class="final"><a class="btn exit" href="#" data-exit="final" data-i18n="cta2">Install & start my first game</a></div>
+  <p class="foot" data-i18n="foot">Independent promotion. Games, tasks, rewards and cash-out options are set by the app and vary by country. Some games are rated 18+.</p>
+</main>
+
+<div class="sticky" id="sticky"><a class="btn exit" href="#" data-exit="sticky" data-i18n="cta">Get Freecash</a></div>
+
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://montrk3.co.uk/?a=26648&c=55504';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `s1`: this destination family reads s1..s5 and silently discards sub1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 's1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'FREECASH-CODERGUY-77', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('.exit') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+  var GO_PATH="/go", CID_OUT="cid", BEACON_URL="", BREAKOUT=true;
+
+  var T={en:{},
+    fr:{bo_h:"Commencez ici",bo_btn:"Continuer",bo_help:"Touchez <b>•••</b> en haut, puis <b>Ouvrir dans le navigateur</b>.",
+      h1:"Soyez payé pour tester des jeux",sub:"Voici exactement ce qui se passe après l'installation, y compris l'étape que presque tout le monde rate. Sur iPhone, Android et navigateur.",
+      cta:"Obtenir Freecash",cta2:"Installer et lancer mon premier jeu",how_h:"Après l'installation",how_sub:"Environ une minute de configuration. Lancez ensuite votre premier jeu tout de suite : c'est là que vous commencez à gagner.",
+      s1_t:"Répondez à 8 questions rapides",s1_b:"Genre, âge, mode de retrait préféré, fréquence de jeu et dépenses en jeu, et un objectif du jour. Puis touchez Finish.",
+      s2_t:"Récupérez votre Sign up Bonus",s2_b:"Un écran <span class=\"q\">Sign up Bonus!</span> ajoute un solde de départ avant votre premier jeu. Touchez le bouton vert pour l'obtenir.",
+      s3_t:"Lancez votre premier jeu tout de suite",s3_b:"Ne vous arrêtez pas après le bonus. Touchez <span class=\"q\">Play &amp; Earn</span> sur un jeu de l'onglet Rewards. L'app demande si vous l'avez déjà installé : choisissez-en un nouveau, seuls les nouveaux jeux rapportent.",
+      s4_t:"Installez-le et ouvrez-le",s4_b:"Votre store s'ouvre. Installez, puis <span class=\"q\">ouvrez le jeu</span>. Le suivi publicitaire doit être activé, sur iPhone comme sur Android : sur iPhone, touchez <span class=\"q\">Autoriser</span> quand le jeu le demande. C'est ce qui valide votre installation.",
+      s5_t:"Jouez et suivez In Progress",s5_b:"Chaque jeu a ses propres tâches, par ex. <span class=\"q\">« Install &amp; play for 2 minutes »</span>. L'onglet <span class=\"q\">In Progress</span> montre la suite et ce qu'elle rapporte.",
+      r_h:"4 règles pour que vos jeux comptent",r1:"1. Lancez chaque jeu <b>depuis Freecash</b>, pas directement depuis le store.",r2:"2. Choisissez uniquement des jeux <b>jamais installés</b>.",
+      r3:"3. Gardez <b>le suivi publicitaire activé</b> (iPhone ou Android) et ouvrez le jeu après l'installation. Une installation non vérifiée ne rapporte rien.",r4:"4. <b>Désactivez tout VPN ou bloqueur de pub</b> avant d'installer.",
+      t1:"<b>Bloqué sur « Verifying installation » ?</b> Touchez Troubleshoot sur cet écran. Il vérifie que l'installation est nouvelle, que le suivi publicitaire est activé et qu'aucun VPN ou bloqueur de pub ne tourne. Le suivi peut être lent : attendez jusqu'à 2 jours avant de contacter le support.",
+      t2:"<b>Quand puis-je retirer ?</b> La barre « Your first Cashout » de l'onglet Rewards montre où vous en êtes par rapport au minimum.",
+      t3:"Certains jeux restent verrouillés tant que vous n'en avez pas commencé d'autres, et votre liste peut différer de celle des autres.",
+      foot:"Promotion indépendante. Jeux, tâches, récompenses et modes de retrait sont fixés par l'app et varient selon le pays. Certains jeux sont réservés aux 18 ans et plus."},
+    de:{bo_h:"Hier starten",bo_btn:"Weiter",bo_help:"Tippe oben auf <b>•••</b> und dann auf <b>Im Browser öffnen</b>.",
+      h1:"Neue Spiele testen und bezahlt werden",sub:"So läuft es nach der Installation ab – inklusive des Schritts, den fast alle verpassen. Auf iPhone, Android und im Browser.",
+      cta:"Freecash holen",cta2:"Installieren & erstes Spiel starten",how_h:"Nach der Installation",how_sub:"Etwa eine Minute Einrichtung. Starte danach sofort dein erstes Spiel – dort fängst du an zu verdienen.",
+      s1_t:"8 kurze Fragen beantworten",s1_b:"Geschlecht, Alter, wie du auszahlen willst, wie oft du spielst und in Spielen ausgibst, und ein Ziel für heute. Dann auf Finish tippen.",
+      s2_t:"Sign up Bonus abholen",s2_b:"Ein <span class=\"q\">Sign up Bonus!</span>-Bildschirm gibt dir ein Startguthaben vor dem ersten Spiel. Tippe auf den grünen Button.",
+      s3_t:"Starte sofort dein erstes Spiel",s3_b:"Hör nicht nach dem Bonus auf. Tippe im Rewards-Tab bei einem Spiel auf <span class=\"q\">Play &amp; Earn</span>. Die App fragt, ob du es schon mal installiert hattest: Nimm ein neues, nur neue Spiele zahlen.",
+      s4_t:"Installieren und öffnen",s4_b:"Dein App-Store öffnet sich. Installieren, dann <span class=\"q\">öffne das Spiel</span>. Werbe-Tracking muss an sein, auf iPhone und Android: Auf dem iPhone tippst du auf <span class=\"q\">Erlauben</span>, wenn das Spiel fragt. So wird deine Installation bestätigt.",
+      s5_t:"Spielen und In Progress im Blick behalten",s5_b:"Jedes Spiel hat eigene Aufgaben, z. B. <span class=\"q\">„Install &amp; play for 2 minutes“</span>. Im Tab <span class=\"q\">In Progress</span> siehst du, was als Nächstes kommt und was es bringt.",
+      r_h:"4 Regeln, damit deine Spiele zählen",r1:"1. Starte jedes Spiel <b>aus Freecash heraus</b>, nicht direkt im App-Store.",r2:"2. Nimm nur Spiele, <b>die du noch nie installiert hattest</b>.",
+      r3:"3. Lass <b>Werbe-Tracking an</b> (iPhone oder Android) und öffne das Spiel nach der Installation. Ohne bestätigte Installation gibt es nichts.",r4:"4. <b>Schalte VPN und Werbeblocker aus</b>, bevor du installierst.",
+      t1:"<b>Hängt bei „Verifying installation“?</b> Tippe dort auf Troubleshoot. Es prüft, ob die Installation neu ist, Werbe-Tracking an ist und kein VPN oder Werbeblocker läuft. Tracking kann dauern – warte bis zu 2 Tage, bevor du den Support kontaktierst.",
+      t2:"<b>Wann kann ich auszahlen?</b> Die Leiste „Your first Cashout“ im Rewards-Tab zeigt, wie nah du am Mindestbetrag bist.",
+      t3:"Manche Spiele bleiben gesperrt, bis du andere gestartet hast, und deine Liste kann anders aussehen als bei anderen.",
+      foot:"Unabhängige Werbung. Spiele, Aufgaben, Belohnungen und Auszahlungsoptionen legt die App fest; sie variieren je nach Land. Manche Spiele sind ab 18."}
+  };
+  var qs=new URLSearchParams(location.search);
+  var lang=(qs.get("lang")||navigator.language||"en").slice(0,2).toLowerCase(); if(!T[lang]) lang="en";
+  document.documentElement.lang=lang;
+  if(lang!=="en"){var d=T[lang];
+    document.querySelectorAll("[data-i18n]").forEach(function(el){var k=el.getAttribute("data-i18n"); if(d[k]) el.textContent=d[k];});
+    document.querySelectorAll("[data-i18n-html]").forEach(function(el){var k=el.getAttribute("data-i18n-html"); if(d[k]) el.innerHTML=d[k];});}
+
+  /* click ID: read every name; never fabricate */
+  var CID_IN=["ttclid","fbclid","clickid","click_id","cid","sub1","s1","subid","sub_id","aff_sub","gclid"], cid="";
+  for(var i=0;i<CID_IN.length;i++){var v=qs.get(CID_IN[i]); if(v){cid=v;break;}}
+  var out=new URLSearchParams(); out.set(CID_OUT,cid);
+  ["utm_source","utm_campaign","utm_content","utm_medium","lang"].forEach(function(k){if(qs.get(k)) out.set(k,qs.get(k));});
+  var ua=navigator.userAgent||"";
+  out.set("os",/android/i.test(ua)?"android":(/iphone|ipad|ipod/i.test(ua)?"ios":"other"));
+  var EXIT_URL=buildOfferUrl();
+
+  /* real hrefs, native navigation, no timer */
+  document.querySelectorAll(".exit").forEach(function(a){
+    a.href=EXIT_URL;
+    a.addEventListener("click",function(){ if(BEACON_URL&&navigator.sendBeacon){try{navigator.sendBeacon(BEACON_URL,JSON.stringify({ev:"exit",where:a.getAttribute("data-exit"),cid:cid}));}catch(e){}} });
+  });
+
+})();
+</script>
+</body>
+</html>

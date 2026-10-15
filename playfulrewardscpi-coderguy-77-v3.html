@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer-when-downgrade">
+<title>PlayfulRewards – How it works</title>
+<!--
+  CONFIG — edit before launch
+  GO_PATH      : a path on YOUR domain that issues a server-side 302 to your tracker/offer link.
+                 Do NOT point this straight at a third-party tracker (see framework §1).
+                 Paste the tracker URL into your server WITHOUT a trailing ?sub1= / ?s1=.
+  CID_OUT      : the param name your /go endpoint expects for the click ID.
+  BEACON_URL   : optional, your own click-logging endpoint (sendBeacon). Leave "" to disable.
+  BREAKOUT     : true = TikTok/IG/FB webview visitors see the "Begin Below" page first.
+-->
+<style>
+  :root{
+    --bg1:#2a1170; --bg2:#12063a; --card:#1a0b45; --card-b:#3a2380;
+    --pink:#e43fc0; --violet:#8f3bdc; --gold:#f5c443; --text:#fff; --muted:#b9acd9;
+    --cta-grad:linear-gradient(90deg,#e43fc0 0%,#9a35dc 50%,#e43fc0 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg2);color:var(--text)}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:linear-gradient(170deg,var(--bg1) 0%,var(--bg2) 55%) fixed;
+    min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.45;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:480px;margin:0 auto;padding:20px 16px 120px}
+
+  /* breakout */
+  #breakout{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;padding:24px 16px}
+  #breakout h1{font-size:30px;margin-bottom:28px}
+  #breakout .btn{max-width:360px}
+  #bo-help{margin-top:22px;color:var(--muted);font-size:15px;max-width:320px}
+  #bo-help b{color:#fff}
+
+  /* header */
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+  .icon{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#f05ac9,#c02fb0);
+    display:grid;place-items:center;flex:0 0 auto}
+  .icon svg{width:22px;height:22px}
+  .brand span{font-weight:700;font-size:17px}
+  h1.hero{font-size:30px;line-height:1.15;letter-spacing:-.01em;margin-bottom:12px}
+  .hero-sub{color:var(--muted);font-size:16px;margin-bottom:22px}
+
+  .btn{display:block;width:100%;text-align:center;font-weight:700;font-size:18px;padding:17px 20px;
+    border-radius:999px;background:var(--cta-grad);color:#fff;border:0;cursor:pointer;
+    box-shadow:0 8px 28px rgba(228,63,192,.35);-webkit-tap-highlight-color:transparent}
+  .btn:active{transform:scale(.98)}
+  .btn[disabled]{opacity:.55}
+
+  h2{font-size:21px;margin:38px 0 6px}
+  .h2-sub{color:var(--muted);font-size:15px;margin-bottom:18px}
+
+  /* steps */
+  .step{display:block;background:rgba(255,255,255,.03);border:1px solid var(--card-b);border-radius:18px;
+    padding:16px;margin-bottom:14px}
+  .step-head{display:flex;gap:12px;align-items:flex-start}
+  .num{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:var(--pink);display:grid;
+    place-items:center;font-weight:700;font-size:15px}
+  .step-title{font-weight:700;font-size:17px;margin-bottom:3px}
+  .step-body{color:var(--muted);font-size:15px}
+  .q{color:#fff;font-weight:600;white-space:nowrap}
+
+  /* mini mocks of the real in-app screens */
+  .mock{margin-top:14px;background:linear-gradient(170deg,#2a1170,#14073d);border-radius:14px;padding:14px;
+    border:1px solid #2e1a6b;font-size:14px}
+  .mock-cap{color:var(--muted);text-align:center;font-size:12px;margin-bottom:8px}
+  .dots{display:flex;gap:5px;justify-content:center;margin-bottom:10px}
+  .dots i{width:7px;height:7px;border-radius:4px;background:#5a4a8f}
+  .dots i:first-child{width:24px;background:var(--pink)}
+  .picker{text-align:center;color:#6f63a0}
+  .picker div{padding:3px}
+  .picker .sel{color:#fff;border:1px solid var(--violet);border-radius:9px;background:#2b1660;margin:2px 0}
+  .mini-btn{margin-top:10px;text-align:center;font-weight:700;padding:9px;border-radius:999px;background:var(--cta-grad)}
+  .row{display:flex;gap:10px;align-items:center;padding:10px;border-radius:11px;border:1px solid #33206e;margin-top:8px;background:#0f0631}
+  .row.best{border-color:#c9a23b}
+  .thumb{width:36px;height:36px;border-radius:9px;flex:0 0 auto;background:linear-gradient(135deg,#7bd3ff,#f7a1d8)}
+  .thumb.t2{background:linear-gradient(135deg,#ffcf6b,#ff7aa8)}
+  .badge{display:inline-block;font-size:11px;color:var(--gold);background:#3a2a10;border-radius:999px;padding:2px 8px;margin-bottom:3px}
+  .row-t{font-weight:600;color:#fff}
+  .row-s{color:var(--pink);font-size:13px}
+  .chev{margin-left:auto;color:#8c80b8}
+  .path{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:relative}
+  .path::before{content:"";position:absolute;left:8%;right:8%;top:14px;height:2px;background:#3b2a74;z-index:0}
+  .pt{position:relative;z-index:1;text-align:center;font-size:11px;color:var(--muted);width:25%}
+  .pt b{display:grid;place-items:center;width:28px;height:28px;margin:0 auto 3px;border-radius:50%;background:#2b1d5c;color:#cfc6ee;font-size:13px}
+  .pt.on b{background:var(--pink);color:#fff}
+  .pt.on{color:var(--pink)}
+  .bar{display:flex;align-items:center;gap:10px;background:#1c0a48;border:1px solid #4a2a8a;border-radius:13px;padding:10px 12px}
+  .bar .tro{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#f05ac9,#f59a4a);flex:0 0 auto;display:grid;place-items:center}
+  .bar .tro svg{width:17px;height:17px}
+  .bar-t{font-weight:700}
+  .bar-s{color:var(--muted);font-size:12px}
+  .open{margin-left:auto;color:var(--pink);font-size:12px;font-weight:700;text-align:center;line-height:1.1}
+
+  .tip{margin-top:20px;border-radius:16px;padding:15px 16px;background:rgba(245,196,67,.08);border:1px solid rgba(245,196,67,.35);font-size:15px}
+  .tip b{color:var(--gold)}
+  .tip p+p{margin-top:8px}
+
+  .coins{display:flex;justify-content:center;align-items:center;gap:6px;margin:0 auto 8px;width:max-content;background:#0f0631;border-radius:999px;padding:4px 12px;font-weight:700}
+  .coins b{color:var(--gold)}
+  .prog{height:5px;border-radius:3px;background:#3b2a74;margin:0 15% 12px}
+  .prog i{display:block;height:100%;width:60%;border-radius:3px;background:linear-gradient(90deg,#5b1ff0,#b42ff0)}
+  .opt{text-align:center;padding:9px;border-radius:10px;border:1px solid #3a2380;background:#22104f;margin-top:7px;color:#fff}
+  .opt.sel{background:linear-gradient(180deg,#5b12e6,#7a12d6)}
+  .rules{background:rgba(228,63,192,.08);border-color:rgba(228,63,192,.45)}
+  .rules b{color:#fff}
+  .final{margin-top:34px}
+  .foot{margin-top:26px;color:#8a7fb0;font-size:12px;text-align:center}
+
+  /* sticky CTA — body has padding-bottom so nothing sits under it */
+  .sticky{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(18,6,58,0),rgba(18,6,58,.96) 35%);z-index:10;pointer-events:none}
+  .sticky .btn{max-width:448px;margin:0 auto;pointer-events:auto}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ===== In-app breakout (TikTok / Instagram / Facebook webviews only) ===== -->
+<section id="breakout" hidden>
+  <h1 data-i18n="bo_h">Begin Below</h1>
+  <button class="btn" id="bo-btn" type="button" data-i18n="bo_btn">Continue</button>
+  <p id="bo-help" hidden data-i18n-html="bo_help">Tap <b>•••</b> at the top, then <b>Open in browser</b>.</p>
+</section>
+
+<!-- ===== Lander ===== -->
+<main id="lander" class="wrap">
+  <div class="brand">
+    <div class="icon"><img src="/images/playful-rewards-logo.png" alt="PlayfulRewards" width="40" height="40" style="width:40px;height:40px;border-radius:11px;display:block"></div>
+    <span>PlayfulRewards</span>
+  </div>
+
+  <h1 class="hero" data-i18n="h1">Earn rewards by testing games</h1>
+  <p class="hero-sub" data-i18n="sub">Here's exactly what you'll see after you install, so you know what to tap. iPhone only.</p>
+  <a class="btn exit" href="#" data-exit="hero" data-i18n="cta">Get PlayfulRewards</a>
+
+  <h2 data-i18n="how_h">After you install</h2>
+  <p class="h2-sub" data-i18n="how_sub">Takes about a minute to get to your first offer.</p>
+
+  <!-- Step 1 -->
+  <a class="step exit" href="#" data-exit="step1">
+    <div class="step-head"><div class="num">✎</div><div>
+      <div class="step-title" data-i18n="s1_t">Answer a few quick questions</div>
+      <div class="step-body" data-i18n="s1_b">Open the app. It asks things like your name, age or how you shop online. Coins add up as you answer, then tap Continue on the “Final step!” screen.</div>
+    </div></div>
+    <div class="mock" aria-hidden="true">
+      <div class="coins"><span>4800</span><b>★</b></div>
+      <div class="prog"><i></i></div>
+      <div class="mock-cap">When did you last make an online purchase?</div>
+      <div class="opt sel">Today</div><div class="opt">Past 2 weeks</div>
+    </div>
+  </a>
+
+  <!-- Step 2 -->
+  <a class="step exit" href="#" data-exit="step2">
+    <div class="step-head"><div class="num">☝</div><div>
+      <div class="step-title" data-i18n-html="s2_t">Tap <span class="q">“Pick an offer”</span></div>
+      <div class="step-body" data-i18n="s2_b">A “How It Works” screen shows your reward amount in your currency. Tap the button at the bottom.</div>
+    </div></div>
+  </a>
+
+  <!-- Step 3 -->
+  <a class="step exit" href="#" data-exit="step3">
+    <div class="step-head"><div class="num">▶</div><div>
+      <div class="step-title" data-i18n="s3_t">Step 1: complete 1 offer</div>
+      <div class="step-body" data-i18n="s3_b">You get a short list of games. Each one shows its target, like “Complete Level 5”. Pick one and reach that target.</div>
+    </div></div>
+    <div class="mock" aria-hidden="true">
+      <div class="path">
+        <div class="pt on"><b>1</b>Step 1</div><div class="pt"><b>2</b>Step 2</div><div class="pt"><b>3</b>Step 3</div><div class="pt"><b>🎁</b>Claim</div>
+      </div>
+      <div class="row best"><div class="thumb"></div><div><span class="badge">★ Best match for you</span><div class="row-t">Game</div><div class="row-s">Complete Level 5</div></div><span class="chev">›</span></div>
+      <div class="row"><div class="thumb t2"></div><div><div class="row-t">Game</div><div class="row-s">Reach Level 10</div></div><span class="chev">›</span></div>
+    </div>
+  </a>
+
+  <!-- Step 4 -->
+  <a class="step exit" href="#" data-exit="step4">
+    <div class="step-head"><div class="num">★</div><div>
+      <div class="step-title" data-i18n="s4_t">Steps 2 and 3 unlock next, then Claim</div>
+      <div class="step-body" data-i18n-html="s4_b">Steps 2 and 3 stay locked until you finish Step 1. Your progress lives in the <span class="q">“Keep it going!”</span> bar at the bottom of Home. Tap <span class="q">OPEN</span> to see your next step.</div>
+    </div></div>
+    <div class="mock" aria-hidden="true">
+      <div class="bar"><div class="tro"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 6h3a3 3 0 0 1-3 4M7 6H4a3 3 0 0 0 3 4"/></svg></div>
+        <div><div class="bar-t">Keep it going!</div><div class="bar-s">Step 1 of 3</div></div>
+        <div class="open">︿<br>OPEN</div></div>
+    </div>
+  </a>
+
+  <div class="tip rules">
+    <p data-i18n-html="r_h"><b>Two rules so your games count</b></p>
+    <p data-i18n-html="r1">1. Install each game <b>from the link inside PlayfulRewards</b>. Downloading it straight from the App Store won't count.</p>
+    <p data-i18n-html="r2">2. Pick a game you <b>don't already have</b>. Games already on your phone usually don't qualify.</p>
+  </div>
+
+  <div class="tip">
+    <p data-i18n-html="tip1"><b>Lost your place?</b> Go to Home and tap <b>OPEN</b> on the “Keep it going!” bar. That's your path to the reward.</p>
+    <p data-i18n="tip2">The games in your list may be different from anyone else's.</p>
+  </div>
+
+  <div class="final"><a class="btn exit" href="#" data-exit="final" data-i18n="cta2">Install & start Step 1</a></div>
+
+  <p class="foot" data-i18n="foot">Independent promotion. Offers, targets and reward amounts are set by the app and can vary by country.</p>
+</main>
+
+<div class="sticky" id="sticky"><a class="btn exit" href="#" data-exit="sticky" data-i18n="cta">Get PlayfulRewards</a></div>
+
+<script>
+/* THE RAW DESTINATION LINK — the offer row's US link (its default is the GB campaign), declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://www.fkn8s74mztrk.com/F2R45HNR/GQSNBMDQ/';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `sub1`: this destination family reads sub1..sub5 and silently discards s1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'PLAYFULREWARDSCPI-CODERGUY-77-V3', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('.exit') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+<script>
+(function(){
+  "use strict";
+  /* ---------- CONFIG ---------- */
+  var GO_PATH    = "/go";      // your own domain, server-side 302
+  var CID_OUT    = "cid";
+  var BEACON_URL = "";         // e.g. "/t/click"  (optional)
+  var BREAKOUT   = true;
+
+  /* ---------- copy (EN / FR / DE). App labels stay in English: that's what the app shows. ---------- */
+  var T = {
+    en:{},
+    fr:{
+      bo_h:"Commencez ici", bo_btn:"Continuer",
+      bo_help:"Touchez <b>•••</b> en haut, puis <b>Ouvrir dans le navigateur</b>.",
+      h1:"Gagnez des récompenses en testant des jeux",
+      sub:"Voici exactement ce que vous verrez après l'installation, pour savoir où appuyer. iPhone uniquement.",
+      cta:"Obtenir PlayfulRewards", cta2:"Installer et commencer l'étape 1",
+      how_h:"Après l'installation", how_sub:"Environ une minute pour arriver à votre première offre.",
+      s1_t:"Répondez à quelques questions rapides", s1_b:"Ouvrez l'app. Elle demande par ex. votre prénom, votre âge ou vos habitudes d'achat en ligne. Les pièces s'ajoutent au fil des réponses, puis touchez Continue sur l'écran « Final step! ».",
+      r_h:"<b>Deux règles pour que vos jeux comptent</b>", r1:"1. Installez chaque jeu <b>via le lien dans PlayfulRewards</b>. Le télécharger directement sur l'App Store ne compte pas.", r2:"2. Choisissez un jeu que vous <b>n'avez pas déjà</b>. Les jeux déjà installés ne comptent généralement pas.",
+      s2_t:"Touchez <span class=\"q\">« Pick an offer »</span>",
+      s2_b:"Un écran « How It Works » affiche le montant de votre récompense dans votre devise. Touchez le bouton en bas.",
+      s3_t:"Step 1 : terminez 1 offre",
+      s3_b:"Une courte liste de jeux s'affiche. Chacun indique son objectif, par ex. « Complete Level 5 ». Choisissez-en un et atteignez l'objectif.",
+      s4_t:"Les Steps 2 et 3 se débloquent ensuite, puis Claim",
+      s4_b:"Les Steps 2 et 3 restent verrouillés tant que le Step 1 n'est pas terminé. Votre progression se trouve dans la barre <span class=\"q\">« Keep it going! »</span> en bas de l'accueil. Touchez <span class=\"q\">OPEN</span> pour voir l'étape suivante.",
+      tip1:"<b>Perdu ?</b> Allez sur l'accueil et touchez <b>OPEN</b> sur la barre « Keep it going! ». C'est votre parcours vers la récompense.",
+      tip2:"Votre liste de jeux peut être différente de celle des autres.",
+      foot:"Promotion indépendante. Les offres, objectifs et montants sont fixés par l'app et peuvent varier selon le pays."
+    },
+    de:{
+      bo_h:"Hier starten", bo_btn:"Weiter",
+      bo_help:"Tippe oben auf <b>•••</b> und dann auf <b>Im Browser öffnen</b>.",
+      h1:"Belohnungen fürs Testen von Spielen",
+      sub:"So sieht es nach der Installation aus – damit du weißt, wo du tippen musst. Nur für iPhone.",
+      cta:"PlayfulRewards holen", cta2:"Installieren & Step 1 starten",
+      how_h:"Nach der Installation", how_sub:"Etwa eine Minute bis zu deinem ersten Angebot.",
+      s1_t:"Ein paar kurze Fragen beantworten", s1_b:"Öffne die App. Sie fragt z. B. nach Name, Alter oder wie du online einkaufst. Beim Antworten sammelst du Coins, dann tippst du auf dem „Final step!“-Bildschirm auf Continue.",
+      r_h:"<b>Zwei Regeln, damit deine Spiele zählen</b>", r1:"1. Installiere jedes Spiel <b>über den Link in PlayfulRewards</b>. Direkt aus dem App Store geladen zählt es nicht.", r2:"2. Nimm ein Spiel, das du <b>noch nicht hast</b>. Bereits installierte Spiele zählen meist nicht.",
+      s2_t:"Tippe auf <span class=\"q\">„Pick an offer“</span>",
+      s2_b:"Ein „How It Works“-Bildschirm zeigt deine Belohnung in deiner Währung. Tippe unten auf den Button.",
+      s3_t:"Step 1: 1 Angebot abschließen",
+      s3_b:"Du bekommst eine kurze Liste mit Spielen. Jedes zeigt sein Ziel, z. B. „Complete Level 5“. Such dir eins aus und erreiche das Ziel.",
+      s4_t:"Danach werden Steps 2 und 3 freigeschaltet, dann Claim",
+      s4_b:"Steps 2 und 3 bleiben gesperrt, bis Step 1 erledigt ist. Deinen Fortschritt findest du in der <span class=\"q\">„Keep it going!“</span>-Leiste unten auf Home. Tippe auf <span class=\"q\">OPEN</span> für deinen nächsten Schritt.",
+      tip1:"<b>Den Faden verloren?</b> Geh auf Home und tippe in der „Keep it going!“-Leiste auf <b>OPEN</b>. Das ist dein Weg zur Belohnung.",
+      tip2:"Deine Spieleliste kann anders aussehen als bei anderen.",
+      foot:"Unabhängige Werbung. Angebote, Ziele und Beträge legt die App fest; sie können je nach Land variieren."
+    }
+  };
+  var qs = new URLSearchParams(location.search);
+  var lang = (qs.get("lang") || navigator.language || "en").slice(0,2).toLowerCase();
+  if (!T[lang]) lang = "en";
+  document.documentElement.lang = lang;
+  if (lang !== "en") {
+    var d = T[lang];
+    document.querySelectorAll("[data-i18n]").forEach(function(el){ var k=el.getAttribute("data-i18n"); if(d[k]) el.textContent=d[k]; });
+    document.querySelectorAll("[data-i18n-html]").forEach(function(el){ var k=el.getAttribute("data-i18n-html"); if(d[k]) el.innerHTML=d[k]; });
+  }
+
+  /* ---------- click ID: read every name traffic may arrive under; never fabricate ---------- */
+  var CID_IN = ["ttclid","fbclid","clickid","click_id","cid","sub1","s1","subid","sub_id","aff_sub","gclid"];
+  var cid = "";
+  for (var i=0;i<CID_IN.length;i++){ var v=qs.get(CID_IN[i]); if(v){ cid=v; break; } }
+
+  var out = new URLSearchParams();
+  out.set(CID_OUT, cid);                        // empty when absent — on purpose
+  ["utm_source","utm_campaign","utm_content","utm_medium","lang"].forEach(function(k){ if(qs.get(k)) out.set(k, qs.get(k)); });
+  out.set("os", /android/i.test(navigator.userAgent) ? "android" : (/iphone|ipad|ipod/i.test(navigator.userAgent) ? "ios" : "other"));
+  var EXIT_URL = buildOfferUrl();
+
+  /* Real hrefs: the browser navigates natively on tap. No preventDefault, no timer. */
+  document.querySelectorAll(".exit").forEach(function(a){
+    a.href = EXIT_URL;
+    a.addEventListener("click", function(){
+      if (BEACON_URL && navigator.sendBeacon) {
+        try { navigator.sendBeacon(BEACON_URL, JSON.stringify({ev:"exit", where:a.getAttribute("data-exit"), cid:cid})); } catch(e){}
+      }
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
