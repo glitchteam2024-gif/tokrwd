@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gravypass — earn rewards for your everyday time.">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Gravypass — Earn rewards every day</title>
+  <style>
+    :root { --ink:#08283d; --red:#0ea5d9; --coral:#79e5ff; --cream:#f7fcff; --blush:#e9f8ff; --muted:rgba(8,40,61,.6); --line:rgba(8,40,61,.1); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; min-width:320px; background:var(--cream); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    button { border:0; color:inherit; cursor:pointer; font:inherit; }
+    .container { width:min(1180px,calc(100% - 40px)); margin:auto; }
+    .header { position:fixed; inset:0 0 auto; z-index:10; background:rgba(8,40,61,.92); border-bottom:1px solid rgba(255,255,255,.1); color:#fff; backdrop-filter:blur(18px); }
+    .nav { height:80px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:12px; background:transparent; font-weight:900; font-size:21px; }
+    .brand-mark { display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:var(--red); box-shadow:0 10px 26px rgba(0,0,0,.24); font-size:24px; }
+    .desktop-nav { display:flex; align-items:center; gap:30px; }
+    .desktop-nav button, .mobile-nav button { background:transparent; color:rgba(255,255,255,.72); font-size:14px; font-weight:700; }
+    .desktop-nav button:hover, .mobile-nav button:hover { color:#fff; }
+    .button { display:inline-block; padding:15px 26px; border-radius:999px; background:var(--red); color:#fff !important; font-weight:800 !important; box-shadow:0 14px 28px rgba(93,8,12,.3); transition:transform .25s,background .25s; }
+    .button:hover { transform:translateY(-3px); background:#ff363d !important; }
+    .menu-toggle { display:none; background:transparent; color:#fff; font-size:26px; }
+    .mobile-nav { display:none; padding:14px 20px 20px; border-top:1px solid rgba(255,255,255,.1); background:var(--ink); }
+    .mobile-nav button { display:block; width:100%; padding:13px 0; text-align:left; }
+    .mobile-nav .button { text-align:center; color:#fff; }
+    .hero { position:relative; overflow:hidden; padding:176px 0 112px; background:var(--ink); color:#fff; }
+    .hero:before,.hero:after { content:""; position:absolute; border-radius:50%; filter:blur(55px); pointer-events:none; }
+    .hero:before { width:330px; height:330px; top:80px; left:-130px; background:rgba(14,165,217,.23); }
+    .hero:after { width:390px; height:390px; right:-110px; bottom:-130px; background:rgba(249,200,74,.11); }
+    .hero-grid { position:relative; display:grid; grid-template-columns:1.05fr .95fr; align-items:center; gap:75px; }
+    .eyebrow { margin:0 0 16px; color:var(--red); font-size:12px; font-weight:900; letter-spacing:.22em; text-transform:uppercase; }
+    .eyebrow.light { color:#8eeaff; }
+    .pill { display:inline-flex; align-items:center; gap:8px; margin-bottom:27px; padding:9px 15px; border:1px solid rgba(255,255,255,.16); border-radius:99px; background:rgba(255,255,255,.1); color:rgba(255,255,255,.92); font-size:14px; font-weight:700; }
+    .pill b { color:#f9c84a; font-size:18px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { max-width:620px; margin-bottom:26px; font-size:clamp(48px,7vw,82px); line-height:1.01; letter-spacing:-.055em; }
+    h1 span,h2 span { color:var(--coral); }
+    .hero-copy { max-width:530px; color:rgba(255,255,255,.65); font-size:20px; line-height:1.6; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:34px; }
+    .outline { display:inline-block; padding:14px 25px; border:1px solid rgba(255,255,255,.23); border-radius:999px; background:transparent; color:#fff; font-weight:800; transition:background .25s,border .25s; }
+    .outline:hover { border-color:rgba(255,255,255,.55); background:rgba(255,255,255,.07); }
+    .stats { display:flex; flex-wrap:wrap; gap:28px; margin-top:45px; padding-top:25px; border-top:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.62); font-size:14px; }
+    .stats strong { margin-right:4px; color:#fff; font-size:26px; }
+    .visual { position:relative; }
+    .visual:before { content:""; position:absolute; inset:-17px; border-radius:33px; background:rgba(14,165,217,.22); filter:blur(25px); }
+    .visual-card { position:relative; overflow:hidden; transform:rotate(1deg); border:1px solid rgba(255,255,255,.16); border-radius:24px; background:var(--red); box-shadow:0 25px 60px rgba(0,0,0,.4); transition:transform .45s; }
+    .visual-card:hover { transform:rotate(0); }
+    .visual-card img { display:block; width:100%; aspect-ratio:1.72; object-fit:cover; }
+    .live { position:absolute; right:16px; bottom:16px; left:16px; display:flex; align-items:center; justify-content:space-between; padding:12px 15px; border-radius:12px; background:rgba(0,0,0,.4); font-size:13px; font-weight:800; backdrop-filter:blur(12px); }
+    .live-dot { display:inline-block; width:8px; height:8px; margin-right:7px; border-radius:50%; background:#71e28b; }
+    .floating { position:absolute; bottom:-27px; left:-30px; display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:16px; background:#fff; color:var(--ink); box-shadow:0 15px 35px rgba(0,0,0,.25); font-size:14px; font-weight:800; }
+    .floating-icon { display:grid; place-items:center; width:37px; height:37px; border-radius:12px; background:var(--blush); color:var(--red); font-size:20px; }
+    .floating small { color:rgba(8,40,61,.5); font-weight:500; }
+    section { padding:125px 0; }
+    .center-heading { max-width:650px; margin:0 auto; text-align:center; }
+    h2 { margin-bottom:0; font-size:clamp(40px,5vw,60px); line-height:1.04; letter-spacing:-.05em; }
+    .section-copy { max-width:610px; margin:20px auto 0; color:var(--muted); font-size:18px; line-height:1.65; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:64px; }
+    .card { padding:28px; border:1px solid var(--line); border-radius:25px; background:#fff; box-shadow:0 15px 50px rgba(66,31,24,.06); transition:transform .3s,box-shadow .3s; }
+    .card:hover { transform:translateY(-8px); box-shadow:0 22px 60px rgba(66,31,24,.12); }
+    .card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:30px; }
+    .card-icon { display:grid; place-items:center; width:56px; height:56px; border-radius:16px; background:var(--blush); color:var(--red); font-size:25px; }
+    .number { color:#d9f3fb; font-size:52px; font-weight:900; }
+    .card h3 { margin-bottom:10px; font-size:20px; }
+    .card p { margin-bottom:0; color:var(--muted); font-size:14px; line-height:1.7; }
+    .rewards { background:var(--blush); }
+    .reward-grid { display:grid; grid-template-columns:.85fr 1.15fr; align-items:center; gap:75px; }
+    .left-copy .section-copy { margin-left:0; }
+    .checks { display:grid; gap:15px; margin-top:30px; font-size:15px; }
+    .check { display:flex; gap:12px; align-items:flex-start; }
+    .check i { color:var(--red); font-style:normal; font-weight:900; font-size:20px; }
+    .offers { display:grid; gap:16px; }
+    .offer { display:flex; align-items:center; gap:16px; padding:16px; border:1px solid var(--line); border-radius:17px; background:#fff; box-shadow:0 10px 35px rgba(66,31,24,.06); transition:transform .3s; }
+    .offer:hover { transform:translateX(6px); }
+    .offer-icon { display:grid; place-items:center; flex:none; width:56px; height:56px; border-radius:14px; color:#fff; font-size:24px; }
+    .offer:nth-child(1) .offer-icon { background:linear-gradient(135deg,#38bdf8,#0369a1); }
+    .offer:nth-child(2) .offer-icon { background:linear-gradient(135deg,#64748b,#0f172a); }
+    .offer:nth-child(3) .offer-icon { background:linear-gradient(135deg,#fcd34d,#ea580c); }
+    .offer-content { flex:1; min-width:0; }
+    .offer h3 { margin-bottom:3px; font-size:16px; }
+    .offer p { overflow:hidden; margin:0; color:var(--muted); font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+    .offer-amount { text-align:right; color:var(--red); font-size:20px; font-weight:900; }
+    .offer-amount small { display:block; color:var(--muted); font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+    .stories-head { display:flex; align-items:end; justify-content:space-between; gap:25px; }
+    .rating { font-weight:800; }
+    .stars { color:var(--red); letter-spacing:2px; }
+    .reviews { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:55px; }
+    .review { padding:25px; border:1px solid var(--line); border-radius:25px; background:#fff; box-shadow:0 10px 35px rgba(66,31,24,.05); }
+    .review-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .person { display:flex; align-items:center; gap:12px; }
+    .avatar { display:grid; place-items:center; width:44px; height:44px; border-radius:50%; background:var(--ink); color:#fff; font-size:12px; font-weight:900; }
+    .person strong,.person small { display:block; }
+    .person small { margin-top:3px; color:var(--muted); font-size:12px; }
+    .quote { margin:28px 0 0; color:rgba(8,40,61,.68); font-size:16px; line-height:1.75; }
+    .trust { margin:45px 0 0; color:var(--muted); text-align:center; font-size:14px; font-weight:700; }
+    .trust b { color:var(--red); }
+    .cta { background:var(--ink); color:#fff; }
+    .cta-grid { display:grid; grid-template-columns:1fr .9fr; align-items:center; gap:75px; }
+    .cta h2 { max-width:600px; }
+    .cta-copy { max-width:500px; margin-top:22px; color:rgba(255,255,255,.6); font-size:18px; line-height:1.65; }
+    .activation { padding:28px; border:1px solid rgba(255,255,255,.12); border-radius:25px; background:rgba(255,255,255,.06); }
+    .activation-top { display:flex; align-items:center; justify-content:space-between; gap:15px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,.12); font-weight:800; }
+    .badge { padding:6px 10px; border-radius:999px; background:rgba(121,229,255,.15); color:#f9c84a; font-size:11px; }
+    .activation h3 { margin:25px 0 10px; font-size:24px; }
+    .activation p { color:rgba(255,255,255,.55); font-size:14px; line-height:1.7; }
+    .progress { display:grid; gap:15px; margin-top:24px; font-size:14px; }
+    .progress div { display:flex; align-items:center; gap:12px; }
+    .step { display:grid; place-items:center; width:28px; height:28px; border:1px solid rgba(255,255,255,.2); border-radius:50%; color:rgba(255,255,255,.5); font-size:12px; font-weight:800; }
+    .step.active { border-color:var(--red); background:var(--red); color:#fff; }
+    .faq-strip { padding:38px 0; border-bottom:1px solid var(--line); }
+    .faq-row { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .faq-row p { margin:0; }
+    .faq-row p + p { margin-top:5px; color:var(--muted); font-size:13px; }
+    .faq-button { background:transparent; color:var(--red); font-weight:800; }
+    .faq-answer { display:none; margin-top:24px; padding:22px; border-radius:15px; background:#fff; font-size:14px; line-height:1.7; }
+    .faq-answer.open { display:block; }
+    footer { padding:30px 0; background:var(--ink); color:rgba(255,255,255,.45); font-size:13px; }
+    .footer-row { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    footer strong { color:#fff; font-size:16px; }
+    footer a { margin-left:18px; color:inherit; text-decoration:none; }
+    @media (max-width:850px) {
+      .desktop-nav { display:none; }
+      .menu-toggle { display:block; }
+      .mobile-nav.open { display:block; }
+      .hero-grid,.reward-grid,.cta-grid { grid-template-columns:1fr; gap:55px; }
+      .hero { padding-top:145px; }
+      .hero-copy { font-size:18px; }
+      .visual { max-width:620px; }
+      .cards,.reviews { grid-template-columns:1fr; }
+      .cards { gap:16px; }
+      .stories-head { align-items:flex-start; flex-direction:column; }
+    }
+    @media (max-width:560px) {
+      .container { width:min(100% - 30px,1180px); }
+      section { padding:86px 0; }
+      .hero { padding-bottom:90px; }
+      h1 { font-size:52px; }
+      .hero-actions { flex-direction:column; align-items:stretch; }
+      .hero-actions .button,.hero-actions .outline { text-align:center; }
+      .stats { gap:16px; }
+      .stats strong { font-size:22px; }
+      .floating { left:-8px; font-size:12px; }
+      .offer p { max-width:125px; }
+      .offer-amount { font-size:17px; }
+      .faq-row,.footer-row { align-items:flex-start; flex-direction:column; }
+      footer a:first-child { margin-left:0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <button class="brand" onclick="go('top')" aria-label="Back to top"><span class="brand-mark"><img src="/images/gravypass-mark-hi.png" alt="" width="40" height="40" style="width:40px;height:40px;border-radius:12px;display:block"></span>Gravypass</button>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <button onclick="go('how-it-works')">How it works</button>
+        <button onclick="go('rewards')">Rewards</button>
+        <button onclick="go('stories')">Player stories</button>
+        <button class="button" onclick="go('start')">Get started →</button>
+      </nav>
+      <button class="menu-toggle" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+    </div>
+    <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile navigation">
+      <button onclick="go('how-it-works')">How it works</button>
+      <button onclick="go('rewards')">Rewards</button>
+      <button onclick="go('stories')">Player stories</button>
+      <button class="button" onclick="go('start')">Get started</button>
+      <button class="button" onclick="downloadPage()">Download full page</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="pill"><b>✦</b> A brighter way to earn more</div>
+          <h1>Get rewarded for your <span>everyday time.</span></h1>
+          <p class="hero-copy">Join Gravypass, complete quick tasks, and earn rewards you can use in real life.</p>
+          <div class="hero-actions"><button class="button" onclick="go('start')">Start earning free →</button><button class="outline" onclick="go('how-it-works')">See how it works</button></div>
+          <div class="stats"><span><strong>$5</strong> welcome bonus</span><span><strong>$10</strong> minimum cashout</span><span><strong>4.5</strong> <span style="color:#f9c84a">★</span> rated</span></div>
+        </div>
+        <div class="visual">
+          <div class="visual-card"><img src="/images/gravypass-usa-tile.webp" alt="Gravypass logo with a gold coin purse"><div class="live"><span><i class="live-dot"></i>Live rewards</span><span style="color:rgba(255,255,255,.72)">Rewards ready to claim</span></div></div>
+          <div class="floating"><span class="floating-icon">◆</span><span>Earn while you explore<br><small>Simple tasks, real rewards</small></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works">
+      <div class="container">
+        <div class="center-heading"><p class="eyebrow">How it works</p><h2>Simple steps. <span>Real rewards.</span></h2><p class="section-copy">Turn the time you already spend on your phone into something that pays you back.</p></div>
+        <div class="cards">
+          <article class="card"><div class="card-top"><span class="card-icon">▣</span><span class="number">01</span></div><h3>Join Gravypass</h3><p>Available on iPhone and Android. Install in seconds and open your dashboard.</p></article>
+          <article class="card"><div class="card-top"><span class="card-icon">◈</span><span class="number">02</span></div><h3>Play games &amp; finish tasks</h3><p>Pick an offer, hit the milestones, and watch your real credit add up.</p></article>
+          <article class="card"><div class="card-top"><span class="card-icon">$</span><span class="number">03</span></div><h3>Cash out your rewards</h3><p>Withdraw your earnings through PayPal, gift cards, or crypto.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="rewards" class="rewards"><div class="container reward-grid"><div class="left-copy"><p class="eyebrow">Your reward plan</p><h2>Explore more.<br><span>Earn more.</span></h2><p class="section-copy">Choose from thousands of games and offers. New ways to earn are added every day, so there is always something new to try.</p><div class="checks"><div class="check"><i>✓</i><span>Instant tracking for every milestone</span></div><div class="check"><i>✓</i><span>Rewards from brands you already know</span></div><div class="check"><i>✓</i><span>Fast, flexible cashout options</span></div></div></div><div class="offers"><article class="offer"><span class="offer-icon"><img src="/images/clash-royale.png" alt="Clash Royale" width="56" height="56" style="width:56px;height:56px;border-radius:14px;display:block;object-fit:cover"></span><div class="offer-content"><h3>Clash Royale</h3><p>Play &amp; earn · Unlocks after 3 tasks inside Gravypass</p></div><div class="offer-amount">$14/hr<small>per hour</small></div><span>→</span></article><article class="offer"><span class="offer-icon"><img src="/images/roblox.jpg" alt="Roblox" width="56" height="56" style="width:56px;height:56px;border-radius:14px;display:block;object-fit:cover"></span><div class="offer-content"><h3>Roblox</h3><p>Play &amp; earn · Unlocks after 3 tasks inside Gravypass</p></div><div class="offer-amount">$16/hr<small>per hour</small></div><span>→</span></article><article class="offer"><span class="offer-icon"><img src="/images/subway-surfers.jpg" alt="Subway Surfers" width="56" height="56" style="width:56px;height:56px;border-radius:14px;display:block;object-fit:cover"></span><div class="offer-content"><h3>Subway Surfers</h3><p>Play &amp; earn · Unlocks after 3 tasks inside Gravypass</p></div><div class="offer-amount">$17/hr<small>per hour</small></div><span>→</span></article></div></div></section>
+
+    <section id="stories"><div class="container"><div class="stories-head"><div><p class="eyebrow">Real players</p><h2>Chosen by people<br><span>who love to earn.</span></h2></div><div class="rating"><span style="font-size:24px">4.5</span> <span class="stars">★★★★★</span> <span style="color:var(--muted);font-weight:500">from 12k+ players</span></div></div><div class="reviews"><article class="review"><div class="review-top"><div class="person"><span class="avatar">MR</span><span><strong>Maya R.</strong><small>Plus tier</small></span></div><span class="stars">★★★★★</span></div><p class="quote">“Cashed out $180 in my first week just playing games. Took 5 minutes to get set up.”</p></article><article class="review"><div class="review-top"><div class="person"><span class="avatar">JT</span><span><strong>Jordan T.</strong><small>Pro tier</small></span></div><span class="stars">★★★★★</span></div><p class="quote">“The money hits my PayPal account the same day, and I get better games with higher rewards too.”</p></article><article class="review"><div class="review-top"><div class="person"><span class="avatar">SL</span><span><strong>Sophia L.</strong><small>Plus tier</small></span></div><span class="stars">★★★★★</span></div><p class="quote">“Way more legit than the other game apps I tried. They paid me out directly without the hassle.”</p></article></div><p class="trust"><b>◆</b> Trusted by players cashing out rewards every day.</p></div></section>
+
+    <section id="start" class="cta"><div class="container cta-grid"><div><p class="eyebrow light">Ready when you are</p><h2>Your next reward is just a <span>tap away.</span></h2><p class="cta-copy">Join people around the world turning spare moments into rewards with Gravypass.</p><button class="button" style="margin-top:14px">Join Gravypass →</button></div><div class="activation"><div class="activation-top"><span>◆ Quick activation</span><span class="badge">STEP 1 OF 3</span></div><h3>Complete your first tasks to unlock your full rewards.</h3><p>Choose your first offer, complete a task, and start building your rewards balance.</p><div class="progress"><div><span class="step active">1</span>Join Gravypass</div><div><span class="step">2</span>Complete qualifying tasks</div><div><span class="step">3</span>Unlock your welcome bonus</div></div></div></div></section>
+
+    <section class="faq-strip"><div class="container"><div class="faq-row"><div><p><strong>Questions before you start?</strong></p><p>Gravypass is free to join, and you can stop anytime.</p></div><button class="faq-button" onclick="toggleFaq()">Frequently asked questions <span id="faq-arrow">⌄</span></button></div><div id="faq-answer" class="faq-answer"><strong>How do I get rewarded?</strong><br>Choose your preferred reward method once you reach the minimum cashout. Rewards and availability vary by activity.</div></div></section>
+  </main>
+
+  <footer><div class="container footer-row"><strong>Gravypass</strong><span>© 2026 Gravypass. Results vary by activity.</span><span><a href="/Rewards/privacy">Privacy</a><a href="/Rewards/terms">Terms</a></span></div></footer>
+  <script>
+    function go(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); document.getElementById('mobile-nav').classList.remove('open'); }
+    function toggleMenu() { document.getElementById('mobile-nav').classList.toggle('open'); }
+    function toggleFaq() { const answer = document.getElementById('faq-answer'); answer.classList.toggle('open'); document.getElementById('faq-arrow').textContent = answer.classList.contains('open') ? '⌃' : '⌄'; }
+    async function downloadPage() {
+      const image = document.querySelector('.visual-card img');
+      const response = await fetch(image.src);
+      const imageBlob = await response.blob();
+      const imageData = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(imageBlob);
+      });
+      const page = document.documentElement.outerHTML.replace(image.getAttribute('src'), imageData);
+      const file = new Blob(['<!doctype html>\\n' + page], { type: 'text/html' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(file);
+      link.download = 'gravypass-landing-page.html';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+  </script>
+<script>
+/* THE RAW DESTINATION LINK — the offer row's default link, declared WITHOUT a trailing empty slot:
+   the builder appends the param itself, and keeping both would put an EMPTY slot ahead of the
+   real one, which the network reads first. */
+var OFFER_LINK = 'https://www.pcbdfv7trk.com/22PLLSZ/324QNSF/';
+
+/* LINK-BUILD v5 — one param out: the affiliate code, nothing else. Self-contained on purpose:
+   every value comes from location.search, so the shipped builder can be lifted out and executed
+   on its own — which is exactly what the link guard does to prove this page. */
+function buildOfferUrl() {
+  var _p = new URLSearchParams(location.search);
+  var _s1 = _p.get('s1') || _p.get('sub1') || _p.get('campid') || '';
+  /* CODE-ONLY v1 — the network receives the CODE, never the whole wire. `|| _s1` keeps a value
+     with NO code in it going out verbatim. */
+  var _send1 = (String(_s1).match(/SPK-[0-9A-F]{4}-[0-9A-F]{4}(?:-\d+)?/i) || [''])[0].toUpperCase() || _s1;
+  /* OUTBOUND PARAM IS `sub1`: this destination family reads sub1..sub5 and silently discards s1. */
+  var _dest = !_send1 ? OFFER_LINK : OFFER_LINK + (OFFER_LINK.indexOf('?') > -1 ? '&' : '?') + 'sub1=' + encodeURIComponent(_send1);
+  var _t = _p.get('ttclid') || '';
+  if (/CLICK_ID|__CLICKID__|[{}\[\]#%]/i.test(_t)) _t = '';
+  /* CLICK-STAMP v1 -- log the click at our own /click, then 302 to the offer unchanged. The gate's
+     own `s1=` carries the FULL wire: that is our log, not the network's param. */
+  return '/click?u=' + encodeURIComponent(_dest)
+       + (_s1 ? '&s1=' + encodeURIComponent(_s1) : '')
+       + '&lp=' + encodeURIComponent(location.pathname)
+       + (_t ? '&t=' + encodeURIComponent(_t) : '');
+}
+
+/* The Join button walks the gate to the offer link. */
+Array.prototype.forEach.call(document.querySelectorAll('#start button.button'), function (b) {
+  b.addEventListener('click', function () { window.location.href = buildOfferUrl(); });
+});
+
+/* BEACON v2 */
+(function(){
+  var BEACON = '/api/funnel-beacon';
+  var bq = new URLSearchParams(location.search);
+  function bsend(ev){
+    try {
+      navigator.sendBeacon(BEACON, new Blob([JSON.stringify({
+        event: ev, sid: bq.get('sid') || '',
+        s1: bq.get('s1') || '', s2: bq.get('s2') || '', s3: bq.get('s3') || '',
+        ttclid: bq.get('ttclid') || '',
+        slice: 'GRAVYPASS5GEOS-PAPIRAVI-25', clone: 'US', path: location.pathname
+      })], { type: 'text/plain' }));
+    } catch (e) {}
+  }
+  bsend('lp_view');
+  var fired = false;
+  document.addEventListener('click', function(e){
+    if (fired) return;
+    var el = e.target && e.target.closest ? e.target.closest('#start button.button') : null;
+    if (el) { fired = true; bsend('offer_click'); }
+  }, true);
+})();
+</script>
+</body>
+</html>
