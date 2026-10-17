@@ -52,7 +52,7 @@ import { kvEnabled, kvGetRaw } from './kv.js';
  */
 export const SLUG_RE = /^[abcdefghjkmnpqrstuvwxyz23456789]{10}$/;
 
-/** Namespace matches partner-access.js:22 / partner-store.js:29 — `tokrwd:<thing>:v<n>`. */
+/** Namespace matches partner-store.js:29 — `tokrwd:<thing>:v<n>`. */
 export const LANDER_KEY_PREFIX = 'tokrwd:lander:v1:';
 
 /**

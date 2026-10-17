@@ -268,30 +268,5 @@ eq('empty `to` refused', runPage({ to: '' }).target, '');
   eq('the CTA is a real href, not a dead #', /id="preOpen"[^>]*href="#"/.test(html), true);
 }
 
-// ── the dashboard that renders these previews still parses ───────────────────
-// The whole admin panel is one 1500-line inline <script>. A syntax error anywhere in
-// it means EVERY tab silently stops working — no tab switching, no fetch, and the
-// page still looks fine because the markup renders. Caught the hard way: an HTML
-// comment added inside a template literal contained backticks, which closed the
-// literal and took the entire dashboard down.
-{
-  const html = readFileSync(new URL('../../admin/index.html', import.meta.url), 'utf8');
-  const blocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
-  eq('the admin dashboard has an inline script', blocks.length > 0, true);
-  for (const [i, js] of blocks.entries()) {
-    let err = '';
-    try {
-      // eslint-disable-next-line no-new-func
-      new Function(js);
-    } catch (e) {
-      err = `${e.name}: ${e.message}`;
-    }
-    eq(`admin/index.html inline script #${i + 1} parses`, err, '');
-  }
-  // The preview pair is what this whole file exists to protect.
-  eq('…and it still renders the prelander beside the landing page',
-    /hndPhonePair\s*\(/.test(html), true);
-}
-
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

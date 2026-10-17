@@ -80,7 +80,6 @@ const SKIP_FILES = new Set([
   'api/_lib/_partner-portal.test.mjs',  // ditto — the partner-facing half
   'api/_lib/_gate.test.mjs',            // ditto — /click gate fixtures are network URLs
   'api/detector.js', 'api/harness.js', 'api/signatures.js', // cloaking QA tooling
-  'admin/index.html', 'admin/carrd-script.js',              // dashboard + paste-in snippet
 ]);
 
 /**
