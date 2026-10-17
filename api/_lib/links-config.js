@@ -1216,6 +1216,7 @@ export const PRELANDER_ALLOWED_ROOTS = [
   'ilovesamplescpa-alexsalesrepca-78.html', 'ilovesamplescpa-alexsalesrepca-78-pre.html',
   'groceryassistancecplus-alexsalesrepca-78.html', 'groceryassistancecplus-alexsalesrepca-78-pre.html',
   'playstorm-alexsalesrepca-78.html', 'playstorm-alexsalesrepca-78-pre.html',
+  'testerupusukca-coop2x4ever-22.html', 'testerupusukca-coop2x4ever-22-pre.html',
   'rs-nnoorulhudaa786-74.html', 'rs-nnoorulhudaa786-74-pre.html',
   'testerupuscauk-lilf0xsprk2006-27.html', 'testerupuscauk-lilf0xsprk2006-27-pre.html',
   'testerupusukcpr-sxmmybills-12.html', 'testerupusukcpr-sxmmybills-12-pre.html',
