@@ -106,7 +106,7 @@
     // Must stay identical to PRELANDER_ALLOWED_ROOTS in the shared config.
     'recousa-shannon.html', 'recousa-shannon-pre.html',
     // Operator comp hosted 2026-09-23.
-    // Must stay identical to the list in api/_lib/links-config.js.
+    // Must stay identical to the server-side allowlist.
     'recousa-timothy.html', 'recousa-timothy-pre.html',
     'recousa-ravi.html', 'recousa-ravi-pre.html',
     'recousa-andrew.html', 'recousa-andrew-pre.html',
@@ -122,11 +122,11 @@
     'gravypassusa-shannon.html', 'gravypassusa-shannon-pre.html',
     'frcusa-shannon.html', 'frcusa-shannon-pre.html',
     // Second Freecash design for the same operator, 2026-09-21.
-    // Must stay identical to the list in api/_lib/links-config.js.
+    // Must stay identical to the server-side allowlist.
     'frcusa-shannon2.html', 'frcusa-shannon2-pre.html',
     'playfulusa-shannon.html', 'playfulusa-shannon-pre.html',
     // Roblox Back To School pair, 2026-09-22. Flat pair, no clone family.
-    // Must stay identical to the list in api/_lib/links-config.js.
+    // Must stay identical to the server-side allowlist.
     'robloxlp.html', 'robloxlp-pre.html',
     // Three operator comps hosted 2026-09-24, one flat pair each, reserved to its submitter.
     // Must stay identical to the allowlist the shared config declares.

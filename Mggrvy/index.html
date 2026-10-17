@@ -199,7 +199,7 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
     </div>
   </div>
 
-  <!-- ── Q1 (was Q2 — the device question is gone per Migi) ─────────────────── -->
+  <!-- ── Q1 (was Q2 — the device question is gone on request) ─────────────────── -->
   <div id="screenQ1" class="screen" hidden>
     <div class="logo-row anim" aria-hidden="true"><img src="/images/landers/logos/tiktok.png" alt="" width="60" height="60"><span class="logo-x">&times;</span><img src="/images/gravypass-mark-hi.png" alt="" width="60" height="60"></div>
     <div class="quiz-header anim" style="animation-delay:.05s"><p class="quiz-eyebrow">Earnings quiz</p><p class="quiz-step">Step 1 of 2</p></div>
@@ -272,13 +272,13 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
   'use strict';
 
   /* ── The only numbers on the results screen ───────────────────────────────
-     Migi's own figures: $50–$80 per game session, $15 first-app bonus. Every amount shown is
+     The owner's own figures: $50–$80 per game session, $15 first-app bonus. Every amount shown is
      derived from these two by multiplication — change them here and the whole page follows.
      Nothing invents a number that is not on this line. */
   var SESSION_LOW = 50, SESSION_HIGH = 80;
 
   /* ══ EVERY CLAIMED NUMBER ON THIS PAGE, IN ONE PLACE ══════════════════════════════════════
-     Confirmed by Migi as Gravy Pass's own figures, 2026-08-10.
+     Confirmed as Gravy Pass's own figures, 2026-08-10.
      Set any of them to '' and its box shows an em dash rather than a number — the page degrades to
      honest, never to invented, if these ever go stale. */
   var STATS = {
@@ -412,7 +412,7 @@ a.btn-neon .main,a.btn-neon .btn-neon-arrow{color:hsl(160,20%,5%)}
   if (!s1) {
     try { if (window.ttq) ttq.track('CtaNoS1', { content_name: 'gravypass cta without s1' }); } catch (e) {}
     console.warn('[Mggrvy] NO ?s1= ON THIS URL — the door will 404 and this click cannot be ' +
-                 'attributed. Add ?s1=<your spark code>. Door: ' + OFFER_LINK);
+                 'attributed. Add ?s1=<your tracking code>. Door: ' + OFFER_LINK);
   }
 
 })();

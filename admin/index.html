@@ -431,7 +431,7 @@ td a:hover { color: var(--purple-hover); }
         <select id="tlAffSelect" onchange="tlAffPick()"></select>
       </div>
       <div class="form-group">
-        <label>campid — spark code *</label>
+        <label>campid — tracking code *</label>
         <input type="text" id="tlCampid" placeholder="SPK-A1B2-C3D4" />
       </div>
     </div>
@@ -1866,7 +1866,7 @@ function plValidate(f) {
 
 
   if (/^SPK-[0-9A-F]{4}-[0-9A-F]{4}(-\d+)?$/i.test(f.code)) {
-    return 'That is a the platform-minted spark code — it belongs to a network affiliate. Give this partner a code of their own.';
+    return 'That is a the platform-minted tracking code — it belongs to a network affiliate. Give this partner a code of their own.';
   }
   if (!/^https:\/\//.test(f.destination)) return 'Their offer link must be an https:// URL.';
   const clash = plRows().find(r => r.key !== f.key && r.code.toUpperCase() === f.code.toUpperCase() && r.lander === f.lander);

@@ -33,7 +33,7 @@
   var q = new URLSearchParams(location.search);
   var s1 = q.get('s1');
   if (!s1) {
-    // Fallback: derive from mc_attr (e=<spark> .. c=<code>) if s1 wasn't passed directly.
+    // Fallback: derive from mc_attr (e=<id> .. c=<code>) if s1 wasn't passed directly.
     var mc = q.get('mc_attr') || '', f = {};
     mc.split('..').forEach(function (kv) {
       var i = kv.indexOf('=');

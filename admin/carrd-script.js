@@ -30,23 +30,23 @@
  * network failure) the visitor simply sees the Carrd page they are already on.
  *
  * ------------------------------------------------------------
- * THE campid MUST BE THE AFFILIATE'S SPARK CODE
+ * THE campid MUST BE THE AFFILIATE'S TRACKING CODE
  * ------------------------------------------------------------
  * The link you hand an affiliate looks like:
  *
  *     https://veranth6.carrd.co?campid=SPK-A1B2-C3D4
  *
  * That value is the whole attribution chain. It travels campid -> /r -> the
- * lander as s1 -> sprktrax.org/api/link/<slug> as s1, and the door resolves it
- * against spark_codes to find the affiliate, mint a click_id and stamp the
- * outbound subids. A compound campid works too as long as the spark code is in
+ * lander as s1 -> the tracking door as s1, and the door resolves it
+ * against the code table to find the affiliate, mint a click_id and stamp the
+ * outbound subids. A compound campid works too as long as the tracking code is in
  * it (ACCT_SPK-A1B2-C3D4_US_001) — /r extracts it.
  *
  * What must NOT be used is an externally minted campaign string that contains no
- * spark code, e.g. TRAE_spark128_US_7659271051523686407_54f8fe_035200. The door
+ * tracking code, e.g. ACME_cmp128_US_7659271051523686407_54f8fe_035200. The door
  * does not reject those: it 302s and forwards the string to the network raw, so
  * the link looks healthy while every conversion lands `unmatched`. That is the
- * failure already logged in the sprk-affiliate-conv-debug skill.
+ * failure already logged internally.
  *
  * A page opened with NO campid is no longer treated as suspicious — it routes like
  * any other visit. The click is refused later, at the door, which is where money is

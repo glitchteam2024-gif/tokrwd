@@ -604,7 +604,7 @@
     }
 
     /* Both money CTAs walk the gate. The comp wired them straight to freecash.com, which drops the
-       query — the spark code never leaves and the click never reaches our log. */
+       query — the tracking code never leaves and the click never reaches our log. */
     Array.prototype.forEach.call(document.querySelectorAll('.offer-link'), function (b) {
       b.addEventListener('click', function(){ window.location.href = offerUrl(); });
     });
